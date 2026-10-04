@@ -48,8 +48,8 @@ export async function boundedJsonBody(request: Request, maxBytes: number) {
 }
 
 // Safe parsing of request body with Zod schema validation
-export async function parseBody<T>(request: Request, schema: ZodSchema<T>): Promise<T> {
-  const body = await boundedJsonBody(request, 1024 * 1024); // 1MB limit
+export async function parseJsonBody<T>(request: Request, schema: ZodSchema<T>, { maxBytes = 1024 * 1024 }: { maxBytes?: number } = {}): Promise<T> {
+  const body = await boundedJsonBody(request, maxBytes);
   const result = schema.safeParse(body);
   
   if (!result.success) {
