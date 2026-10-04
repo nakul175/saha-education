@@ -1,11 +1,13 @@
 # Saha Education Development Progress
 
-## Stage 1: Survey
+## Stage 1 - Survey and cleanup
 - [x] Explored ../saha-health structure
 - [x] Created docs/SAHA-HEALTH-SURVEY.md
 - [x] Created PLAN.md
 - [x] Deleted old Express starter files
 - [x] Updated package.json
+- [x] Removed the old Express/Mongoose JavaScript app completely
+- [x] Copied .gitignore from reference project
 
 ## Stage 6 Features part 1
 - [x] Created School model
