@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e09000d2-5541-4832-ba18-fc5b7dd709cb",
+  "id": "1981564c-7ebd-43d4-8a7e-364cdb0bea45",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "assessment_results": {
@@ -64,30 +64,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "assessment_results_assessment": {
-          "name": "assessment_results_assessment",
-          "columns": [
-            "assessment_id"
-          ],
-          "isUnique": false
-        },
-        "assessment_results_student": {
-          "name": "assessment_results_student",
-          "columns": [
-            "student_id"
-          ],
-          "isUnique": false
-        },
-        "assessment_results_unique": {
-          "name": "assessment_results_unique",
-          "columns": [
-            "assessment_id",
-            "student_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "assessment_results_assessment_id_assessments_id_fk": {
           "name": "assessment_results_assessment_id_assessments_id_fk",
@@ -180,22 +157,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "assessments_class": {
-          "name": "assessments_class",
-          "columns": [
-            "class_id"
-          ],
-          "isUnique": false
-        },
-        "assessments_date": {
-          "name": "assessments_date",
-          "columns": [
-            "date"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "assessments_class_id_classes_id_fk": {
           "name": "assessments_class_id_classes_id_fk",
@@ -283,27 +245,6 @@
         }
       },
       "indexes": {
-        "attendance_class": {
-          "name": "attendance_class",
-          "columns": [
-            "class_id"
-          ],
-          "isUnique": false
-        },
-        "attendance_student": {
-          "name": "attendance_student",
-          "columns": [
-            "student_id"
-          ],
-          "isUnique": false
-        },
-        "attendance_date": {
-          "name": "attendance_date",
-          "columns": [
-            "date"
-          ],
-          "isUnique": false
-        },
         "attendance_unique": {
           "name": "attendance_unique",
           "columns": [
@@ -334,19 +275,6 @@
           "tableTo": "students",
           "columnsFrom": [
             "student_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "attendance_recorded_by_users_id_fk": {
-          "name": "attendance_recorded_by_users_id_fk",
-          "tableFrom": "attendance",
-          "tableTo": "users",
-          "columnsFrom": [
-            "recorded_by"
           ],
           "columnsTo": [
             "id"
@@ -426,29 +354,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "classes_school": {
-          "name": "classes_school",
-          "columns": [
-            "school_id"
-          ],
-          "isUnique": false
-        },
-        "classes_course": {
-          "name": "classes_course",
-          "columns": [
-            "course_id"
-          ],
-          "isUnique": false
-        },
-        "classes_teacher": {
-          "name": "classes_teacher",
-          "columns": [
-            "teacher_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "classes_school_id_schools_id_fk": {
           "name": "classes_school_id_schools_id_fk",
@@ -555,18 +461,10 @@
         }
       },
       "indexes": {
-        "courses_school": {
-          "name": "courses_school",
+        "courses_code_unique": {
+          "name": "courses_code_unique",
           "columns": [
-            "school_id"
-          ],
-          "isUnique": false
-        },
-        "courses_code_school": {
-          "name": "courses_code_school",
-          "columns": [
-            "code",
-            "school_id"
+            "code"
           ],
           "isUnique": true
         }
@@ -643,30 +541,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "enrolments_student": {
-          "name": "enrolments_student",
-          "columns": [
-            "student_id"
-          ],
-          "isUnique": false
-        },
-        "enrolments_class": {
-          "name": "enrolments_class",
-          "columns": [
-            "class_id"
-          ],
-          "isUnique": false
-        },
-        "enrolments_student_class": {
-          "name": "enrolments_student_class",
-          "columns": [
-            "student_id",
-            "class_id"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "enrolments_student_id_students_id_fk": {
           "name": "enrolments_student_id_students_id_fk",
@@ -759,15 +634,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "guardians_user": {
-          "name": "guardians_user",
-          "columns": [
-            "user_id"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "guardians_user_id_users_id_fk": {
           "name": "guardians_user_id_users_id_fk",
@@ -847,22 +714,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "notifications_user": {
-          "name": "notifications_user",
-          "columns": [
-            "user_id"
-          ],
-          "isUnique": false
-        },
-        "notifications_read": {
-          "name": "notifications_read",
-          "columns": [
-            "read_at"
-          ],
-          "isUnique": false
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "notifications_user_id_users_id_fk": {
           "name": "notifications_user_id_users_id_fk",
@@ -917,7 +769,7 @@
           "name": "overall_grade",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "published_at": {
@@ -942,30 +794,7 @@
           "autoincrement": false
         }
       },
-      "indexes": {
-        "report_cards_student": {
-          "name": "report_cards_student",
-          "columns": [
-            "student_id"
-          ],
-          "isUnique": false
-        },
-        "report_cards_term": {
-          "name": "report_cards_term",
-          "columns": [
-            "term"
-          ],
-          "isUnique": false
-        },
-        "report_cards_student_term": {
-          "name": "report_cards_student_term",
-          "columns": [
-            "student_id",
-            "term"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "report_cards_student_id_students_id_fk": {
           "name": "report_cards_student_id_students_id_fk",
@@ -1054,20 +883,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -1200,20 +1015,6 @@
             "admission_number"
           ],
           "isUnique": true
-        },
-        "students_school": {
-          "name": "students_school",
-          "columns": [
-            "school_id"
-          ],
-          "isUnique": false
-        },
-        "students_admission": {
-          "name": "students_admission",
-          "columns": [
-            "admission_number"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {
@@ -1295,13 +1096,6 @@
             "email"
           ],
           "isUnique": true
-        },
-        "users_email": {
-          "name": "users_email",
-          "columns": [
-            "email"
-          ],
-          "isUnique": false
         }
       },
       "foreignKeys": {
