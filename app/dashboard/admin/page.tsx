@@ -5,6 +5,7 @@ import { listSchools } from '@/lib/education/schools';
 import { listStudents } from '@/lib/education/students';
 import { listCourses } from '@/lib/education/courses';
 import { type Principal } from '@/lib/education/types';
+import Link from 'next/link';
 
 export default async function AdminDashboard() {
   const principal = getPrincipal();
@@ -79,10 +80,10 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              <li><a href="/schools" className="text-blue-600 hover:underline">Manage Schools</a></li>
-              <li><a href="/students" className="text-blue-600 hover:underline">Manage Students</a></li>
-              <li><a href="/courses" className="text-blue-600 hover:underline">Manage Courses</a></li>
-              <li><a href="/teachers" className="text-blue-600 hover:underline">Manage Teachers</a></li>
+              <li><Link href="/schools" className="text-blue-600 hover:underline">Manage Schools</Link></li>
+              <li><Link href="/students" className="text-blue-600 hover:underline">Manage Students</Link></li>
+              <li><Link href="/courses" className="text-blue-600 hover:underline">Manage Courses</Link></li>
+              <li><Link href="/teachers" className="text-blue-600 hover:underline">Manage Teachers</Link></li>
             </ul>
           </CardContent>
         </Card>

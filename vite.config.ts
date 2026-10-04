@@ -58,6 +58,11 @@ export default defineConfig(async () => {
       ...(managedLinux ? { host: "0.0.0.0", allowedHosts: ["terminal.local"] } : {}),
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
     },
+    build: {
+      rollupOptions: {
+        external: ["cloudflare:workers"],
+      },
+    },
     plugins: [
       vinext(),
       sites({ mockAuth: !managedLinux }),
