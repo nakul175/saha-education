@@ -9,7 +9,6 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import type { Principal } from "@/lib/education/types";
 import { canRead, canWrite, canDelete } from "@/lib/education/roles";
@@ -21,8 +20,6 @@ export function AppShell({
   principal: Principal | null;
   children: React.ReactNode;
 }) {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
   const handleSignOut = async () => {
     await fetch("/api/session", { method: "DELETE" });
     window.location.href = "/login";
@@ -33,75 +30,87 @@ export function AppShell({
     { 
       id: 'dashboard', 
       label: 'Dashboard',
-      path: '/dashboard', 
-      requiredRole: 'student' 
+      path: '/dashboard'
     },
     { 
       id: 'students', 
       label: 'Students',
-      path: '/students', 
-      requiredRole: 'teacher' 
+      path: '/students'
     },
     { 
       id: 'guardians', 
       label: 'Guardians',
-      path: '/guardians', 
-      requiredRole: 'guardian' 
+      path: '/guardians'
     },
     { 
       id: 'schools', 
       label: 'Schools',
-      path: '/schools', 
-      requiredRole: 'admin' 
+      path: '/schools'
     },
     { 
       id: 'classes', 
       label: 'Classes',
-      path: '/classes', 
-      requiredRole: 'teacher' 
+      path: '/classes'
     },
     { 
       id: 'courses', 
       label: 'Courses',
-      path: '/courses', 
-      requiredRole: 'teacher' 
+      path: '/courses'
     },
     { 
       id: 'enrolments', 
       label: 'Enrolments',
-      path: '/enrolments', 
-      requiredRole: 'teacher' 
+      path: '/enrolments'
     },
     { 
       id: 'attendance', 
       label: 'Attendance',
-      path: '/attendance', 
-      requiredRole: 'teacher' 
+      path: '/attendance'
     },
     { 
       id: 'assessments', 
       label: 'Assessments',
-      path: '/assessments', 
-      requiredRole: 'teacher' 
+      path: '/assessments'
     },
     { 
       id: 'report-cards', 
       label: 'Report cards',
-      path: '/report-cards', 
-      requiredRole: 'teacher' 
+      path: '/report-cards'
     },
     { 
       id: 'notifications', 
       label: 'Notifications',
-      path: '/notifications', 
-      requiredRole: 'student' 
+      path: '/notifications'
     },
   ];
 
   // Filter navigation items based on role
-  const filteredNavigationItems = navigationItems.filter(item =>
-    principal ? (item.requiredRole === 'admin' ? principal.role === 'admin' : canRead(principal.role)) : false
-  );
+  const filteredNavigationItems = navigationItems.filter(item => {
+    if (!principal) return false;
+    
+    // All roles can access dashboard and notifications
+    if (item.id === 'dashboard' || item.id === 'notifications') return true;
+    
+    // Admin can access everything
+    if (principal.role === 'admin') return true;
+    
+    // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
+    if (principal.role === 'teacher') {
+      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards'].includes(item.id);
+    }
+    
+    // Guardian can access guardians and notifications
+    if (principal.role === 'guardian') {
+      return ['guardians', 'notifications'].includes(item.id);
+    }
+    
+    // Student can only access dashboard and notifications
+    if (principal.role === 'student') {
+      return ['dashboard', 'notifications'].includes(item.id);
+    }
+    
+    return false;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -163,7 +172,7 @@ export function AppShell({
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 
-                {filteredNavigationItems.map((item) => (
+                {filteredNavigationItems.filter(item => item.id !== 'dashboard').map((item) => (
                   <NavigationMenuItem key={item.id}>
                     <NavigationMenuLink asChild>
                       <a
