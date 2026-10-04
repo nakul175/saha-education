@@ -46,5 +46,28 @@ Files created or fixed:
 What is left:
 - None
 
+ Problems:
+- None
+
+## Stage 9 - Tests and docs (part 2 of 2)
+Date: 2026-10-05
+
+Tasks completed:
+- [x] Created README.md with project overview, features, stack, setup instructions, folder layout, data model summary and deployment notes
+- [x] Created AGENTS.md with guidance for coding agents working in this repo (commands, conventions, where things live, rules such as never committing secrets)
+- [x] Created docs/ARCHITECTURE.md with documentation of system architecture, layers, security, deployment 
+- [x] Created docs/DATA-MODEL.md with documentation of all database tables and their columns/relations
+- [x] Created docs/TESTING.md with documentation of test layers
+
+Files created or modified:
+- README.md
+- AGENTS.md  
+- docs/ARCHITECTURE.md
+- docs/DATA-MODEL.md
+- docs/TESTING.md
+
+What is left:
+- None
+
 Problems:
 - None
