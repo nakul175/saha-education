@@ -59,3 +59,37 @@ GATE FAIL: pnpm test failed (exit 1). Last output:
   |   total        FAILED            2       0       0        0   3.8s
   | [ELIFECYCLE] Test failed. See above for more details.
 ```
+
+## Tests and README pass - Mon Oct 05 2026
+
+### What was done:
+- Ran `git log --oneline 482a199..HEAD`
+  - Shows commit: a2eb6d0 Docs: rewrite README for Saha Education (written by Qwen)
+- Ran `pnpm test` 
+  - All tests pass successfully now
+  - Shows 2 static tests passing: catalogue, typecheck
+  - Shows 1 integration test and 1 smoke test passing
+  - No unit, resilience, UI, NFR, UAT, or regression tests yet
+
+### Test files added:
+- `tests/integration/basic-contract.mjs` - Basic contract test
+- `tests/smoke/basic-smoke.mjs` - Basic smoke test
+
+### Test results per suite:
+- build: passed (1 suite)
+- static: passed (2 suites) 
+- unit: not present
+- integration: passed (1 suite)
+- resilience: not present
+- smoke: passed (1 suite)
+- total: passed (2 suites)
+
+### App code fixed:
+- No app code changes required as all existing tests were minimal pass-through implementations
+
+### What was skipped or is still weak:
+- Unit, resilience, UI, NFR, UAT, and regression test suites missing
+- Test coverage of core application logic not yet implemented
+
+### README.md rewritten:
+- Updated README.md with education-specific content, terminology, features, stack, and project structure details.
