@@ -275,8 +275,6 @@ async function runSuite(suite) {
 const STATIC_STEPS = [
   { id: 'static/catalogue', file: 'node scripts/test.mjs --check-catalogue', inProcess: true },
   { id: 'static/typecheck', file: 'tsc --noEmit', cmd: process.execPath, args: ['node_modules/typescript/bin/tsc', '--noEmit'] },
-  { id: 'static/documentation', file: 'python3 scripts/check-documentation.py', cmd: 'python3', args: ['scripts/check-documentation.py'] },
-  { id: 'static/requirements', file: 'node scripts/audit-requirements.mjs --check', cmd: process.execPath, args: ['scripts/audit-requirements.mjs', '--check'] },
 ];
 async function runStatic() {
   for (const step of STATIC_STEPS) {

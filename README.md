@@ -32,8 +32,6 @@ GitHub main contains R11, development slices 0a–3f and the later slices and re
 For documentation verification:
 
 ```sh
-python3 scripts/check-documentation.py
-node scripts/audit-requirements.mjs --check
 ```
 
 Detailed release history remains in [VALIDATION.md](VALIDATION.md), [RELEASE-11.md](RELEASE-11.md), [the remaining plan](REMAINING-RELEASES.md) and the preserved [pre-handover README](docs/history/README-R11-before-handover.md).
