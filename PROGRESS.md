@@ -80,3 +80,20 @@
 - [x] Removed old migrations to avoid conflicts
 - [x] Generated new migration files successfully using pnpm db:generate
 - [x] All changes committed properly (git add -A && git commit)
+## Stage 4 - Database schema and migration: FAILED automated gate (2026-10-04 11:11:33, runner note)
+
+Failed checks after 4 attempts:
+```
+GATE FAIL: no migration creates table schools (run pnpm db:generate)
+GATE FAIL: no migration creates table users (run pnpm db:generate)
+GATE FAIL: no migration creates table students (run pnpm db:generate)
+GATE FAIL: no migration creates table guardians (run pnpm db:generate)
+GATE FAIL: no migration creates table courses (run pnpm db:generate)
+GATE FAIL: no migration creates table classes (run pnpm db:generate)
+GATE FAIL: no migration creates table enrolments (run pnpm db:generate)
+GATE FAIL: no migration creates table attendance (run pnpm db:generate)
+GATE FAIL: no migration creates table assessments (run pnpm db:generate)
+GATE FAIL: no migration creates table assessment_results (run pnpm db:generate)
+GATE FAIL: no migration creates table report_cards (run pnpm db:generate)
+GATE FAIL: no migration creates table notifications (run pnpm db:generate)
+```
