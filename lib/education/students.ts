@@ -69,3 +69,22 @@ export async function listGuardiansForStudent(studentId: string): Promise<{ id: 
   .innerJoin(guardians, eq(studentGuardians.guardianId, guardians.id))
   .where(eq(studentGuardians.studentId, studentId));
 }
+
+export async function listStudentsForGuardian(guardianId: string): Promise<SelectStudent[]> {
+  const db = getDb();
+  
+  return await db.select({
+    id: students.id,
+    schoolId: students.schoolId,
+    firstName: students.firstName,
+    lastName: students.lastName,
+    dateOfBirth: students.dateOfBirth,
+    admissionNumber: students.admissionNumber,
+    gradeLevel: students.gradeLevel,
+    createdAt: students.createdAt,
+    updatedAt: students.updatedAt
+  })
+  .from(studentGuardians)
+  .innerJoin(students, eq(studentGuardians.studentId, students.id))
+  .where(eq(studentGuardians.guardianId, guardianId));
+}

@@ -13,3 +13,9 @@ export function requirePrincipal(): Principal {
   }
   return principal;
 }
+
+export function requireRole(principal: Principal, role: string): void {
+  if (principal.role !== role) {
+    throw new Error(`Role ${role} required`);
+  }
+}
