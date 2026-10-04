@@ -74,6 +74,7 @@ export type Class = {
   schedule?: string;
   createdAt: string;
   updatedAt: string;
+  enrolledStudents?: Student[];
 };
 
 export type Enrolment = {
