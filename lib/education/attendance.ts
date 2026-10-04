@@ -7,27 +7,44 @@ import { attendance as attendanceTable } from '@/db/schema';
 export async function listAttendance(filter?: { classId?: string; date?: string; studentId?: string }): Promise<SelectAttendance[]> {
   const db = getDb();
   
-  let query = db.select().from(attendanceTable);
-  
-  if (filter) {
-    if (filter.classId) {
-      query = query.where(eq(attendanceTable.classId, filter.classId));
-    }
-    if (filter.date) {
-      query = query.where(eq(attendanceTable.date, filter.date));
-    }
-    if (filter.studentId) {
-      query = query.where(eq(attendanceTable.studentId, filter.studentId));
-    }
+  // Simple direct approach without building complex query chains
+  if (filter?.classId && filter?.date && filter?.studentId) {
+    return await db.select().from(attendanceTable).where(and(
+      eq(attendanceTable.classId, filter.classId),
+      eq(attendanceTable.date, filter.date),
+      eq(attendanceTable.studentId, filter.studentId)
+    ));
+  } else if (filter?.classId && filter?.date) {
+    return await db.select().from(attendanceTable).where(and(
+      eq(attendanceTable.classId, filter.classId),
+      eq(attendanceTable.date, filter.date)
+    ));
+  } else if (filter?.classId && filter?.studentId) {
+    return await db.select().from(attendanceTable).where(and(
+      eq(attendanceTable.classId, filter.classId),
+      eq(attendanceTable.studentId, filter.studentId)
+    ));
+  } else if (filter?.date && filter?.studentId) {
+    return await db.select().from(attendanceTable).where(and(
+      eq(attendanceTable.date, filter.date),
+      eq(attendanceTable.studentId, filter.studentId)
+    ));
+  } else if (filter?.classId) {
+    return await db.select().from(attendanceTable).where(eq(attendanceTable.classId, filter.classId));
+  } else if (filter?.date) {
+    return await db.select().from(attendanceTable).where(eq(attendanceTable.date, filter.date));
+  } else if (filter?.studentId) {
+    return await db.select().from(attendanceTable).where(eq(attendanceTable.studentId, filter.studentId));
   }
   
-  return await query;
+  // No filters applied
+  return await db.select().from(attendanceTable);
 }
 
 export async function getAttendance(id: string): Promise<SelectAttendance | null> {
   const db = getDb();
-  const [attendance] = await db.select().from(attendanceTable).where(eq(attendanceTable.id, id)).limit(1);
-  return attendance ?? null;
+  const rows = await db.select().from(attendanceTable).where(eq(attendanceTable.id, id)).limit(1);
+  return rows[0] ?? null;
 }
 
 export async function createAttendance(input: InsertAttendance): Promise<SelectAttendance> {
@@ -67,16 +84,17 @@ export async function markAttendance(classId: string, date: string, entries: { s
         updatedAt: new Date().toISOString()
       };
       
-      // Try to find existing attendance record first
-      const existing = await db.select({ id: attendanceTable.id })
+      // Try to find existing record first
+      const [existing] = await db.select({ id: attendanceTable.id })
         .from(attendanceTable)
         .where(and(
           eq(attendanceTable.classId, classId),
           eq(attendanceTable.studentId, entry.studentId),
           eq(attendanceTable.date, date)
-        ));
+        ))
+        .limit(1);
       
-      if (existing.length > 0) {
+      if (existing) {
         // Update existing
         const [updated] = await db.update(attendanceTable)
           .set({
@@ -85,7 +103,7 @@ export async function markAttendance(classId: string, date: string, entries: { s
             recordedBy: newRecord.recordedBy,
             updatedAt: new Date().toISOString()
           })
-          .where(eq(attendanceTable.id, existing[0].id))
+          .where(eq(attendanceTable.id, existing.id))
           .returning();
         results.push(updated);
       } else {
