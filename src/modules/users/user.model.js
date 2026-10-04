@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'School'
   },
+  guardianId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Guardian'
+  },
   isActive: {
     type: Boolean,
     default: true
