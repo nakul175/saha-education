@@ -1,5 +1,5 @@
 // Internationalization utilities for Saha Education
-import { type Locale } from '@/lib/locales';
+export type Locale = 'en' | 'fr' | 'es';
 
 export function getLocale(request: Request): Locale {
   // Get locale from request headers or URL
