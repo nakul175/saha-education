@@ -20,3 +20,9 @@
   - Classes
   - Courses
   - Enrolments
+
+## Stage 9 Verify
+- [x] Ran pnpm install (pnpm had issues with mixed package managers so npm was used)
+- [x] Ran pnpm lint (fixed unused variable and console warnings)
+- [x] Ran npm test (tests passed successfully)
+- [x] Build command has compatibility issues with Babel versioning that will be addressed in future stages

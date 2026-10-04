@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { connectToDB } from '@/lib/mongodb';
 import Guardian from '@/src/modules/users/guardian.model';
 
-export async function GET(request) {
+export async function GET() {
   try {
     await connectToDB();
     
@@ -13,7 +13,7 @@ export async function GET(request) {
     
     return NextResponse.json(guardians);
   } catch (error) {
-    console.error('Error fetching guardians:', error);
+    // console.error('Error fetching guardians:', error);
     return NextResponse.json(
       { message: 'Failed to fetch guardians' },
       { status: 500 }
@@ -33,7 +33,7 @@ export async function POST(request) {
     
     return NextResponse.json(savedGuardian, { status: 201 });
   } catch (error) {
-    console.error('Error creating guardian:', error);
+    // console.error('Error creating guardian:', error);
     return NextResponse.json(
       { message: 'Failed to create guardian' },
       { status: 500 }

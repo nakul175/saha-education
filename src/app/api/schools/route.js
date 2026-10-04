@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { connectToDB } from '@/lib/mongodb';
 import School from '@/src/modules/schools/school.model';
 
-export async function GET(request) {
+export async function GET() {
   try {
     await connectToDB();
     
@@ -11,7 +11,7 @@ export async function GET(request) {
     
     return NextResponse.json(schools);
   } catch (error) {
-    console.error('Error fetching schools:', error);
+    // console.error('Error fetching schools:', error);
     return NextResponse.json(
       { message: 'Failed to fetch schools' },
       { status: 500 }
@@ -31,7 +31,7 @@ export async function POST(request) {
     
     return NextResponse.json(savedSchool, { status: 201 });
   } catch (error) {
-    console.error('Error creating school:', error);
+    // console.error('Error creating school:', error);
     return NextResponse.json(
       { message: 'Failed to create school' },
       { status: 500 }
