@@ -125,9 +125,9 @@ export type ReportCard = {
   id: string;
   studentId: string;
   term: string;
-  summary?: string;
+  summary: string | null;
   overallGrade: string;
-  publishedAt?: string;
+  publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
