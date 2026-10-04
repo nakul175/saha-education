@@ -79,8 +79,7 @@
   ],
   "BR-017": [
     "app/api/import/route.ts",
-    "lib/education/import.ts",
-    "tests/import-api.mjs"
+    "lib/education/import.ts"
   ],
   "BR-018": [
     "lib/education/backup.ts",
