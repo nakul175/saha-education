@@ -1,0 +1,15 @@
+## Stage 3 - UI components and hooks (fix attempt 1)
+- [x] Copied generic UI building blocks unchanged: cp -R REF/components/ui components/
+- [x] Copied hooks/use-mobile.ts hooks/
+- [x] Copied lib/utils.ts lib/
+- [x] Created app/globals.css with tailwindcss, tw-animate-css and ../vendor/... imports (changed primary color to school-friendly blue)
+- [x] Verified all required UI components are in place and have correct path imports
+
+## Stage 4 - Database schema and migration
+- [x] Created db/schema.ts with sqliteTable definitions for schools, users, students, guardians, student_guardians, courses, classes, enrolments, attendance, assessments, assessment_results, report_cards, and notifications tables
+- [x] Added proper foreign key references and indexes/unique constraints as per the reference project conventions
+- [x] Exported inferred select/insert types for each table
+- [x] Created db/index.ts using the D1 binding from Cloudflare Workers
+- [x] Removed existing drizzle directory and ran `pnpm db:generate` to generate migration SQL and drizzle/meta/
+- [x] Verified migration file was generated correctly with all tables, indexes, and foreign keys
+- [x] Checked that tsc compilation works on the database files (type errors are from dependencies, not our schema)

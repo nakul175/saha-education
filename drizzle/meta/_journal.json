@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1791091707282,
+      "tag": "0000_lively_kronos",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791092456244,
+      "tag": "0001_amazing_captain_midlands",
+      "breakpoints": true
+    }
+  ]
+}
