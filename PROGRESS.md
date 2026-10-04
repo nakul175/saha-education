@@ -38,3 +38,8 @@
 - [x] Created worker/index.ts with minimal Worker entry delegating to vinext/server/fetch-handler (without health scheduled job)
 - [x] Verified that all relative imports in vite.config.ts resolve correctly
 - [x] Ran pnpm install successfully and confirmed node_modules and .sites-runtime stay git-ignored
+
+## Stage 3 - UI components and hooks
+- [x] Copied generic UI building blocks unchanged: cp -R REF/components/ui components/, cp REF/hooks/use-mobile.ts hooks/, cp REF/lib/utils.ts lib/
+- [x] Created app/globals.css with tailwindcss, tw-animate-css and ../vendor/... imports (changed primary color to school-friendly blue)
+- [x] Ran pnpm exec tsc --noEmit (Some errors were found in component files related to module resolution - these will be addressed in future stages)
