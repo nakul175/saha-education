@@ -26,3 +26,40 @@ What is left:
 
 Problems:
 - Some documentation checks failed due to missing verification files, but they don't stop the main test functionality
+## Stage 9 - Tests and docs: FAILED automated gate (2026-10-05 01:18:34, runner note)
+
+Failed checks after 4 attempts:
+```
+GATE FAIL: test files under tests/: only 0, need >= 8
+GATE FAIL: pnpm test failed (exit 1). Last output:
+  |       |     at readFileSync (node:fs:483:20)
+  |       |     at file:///Users/athena/code/saha-education/scripts/audit-requirements.mjs:3:25
+  |       |     at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+  |       |     at async node:internal/modules/esm/loader:647:26
+  |       |     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  |       |   errno: -2,
+  |       |   code: 'ENOENT',
+  |       |   syscall: 'open',
+  |       |   path: 'requirements/brd-v1.1.json'
+  |       | }
+  |       | Node.js v24.21.0
+  |   FAILED   static/requirements  24ms
+  | 
+  | [unit] not present: no suites.
+  | 
+  | [integration] not present: no suites.
+  | 
+  | [resilience] not present: no suites.
+  | 
+  | [smoke] not present: tests/smoke/ does not exist.
+  | 
+  |   layer        status       suites  passed  failed  skipped  time
+  |   -----------  -----------  ------  ------  ------  -------  ----
+  |   static       failed            4       -       -        -  1.2s
+  |   unit         not present       -       -       -        -     -
+  |   integration  not present       -       -       -        -     -
+  |   resilience   not present       -       -       -        -     -
+  |   smoke        not present       -       -       -        -     -
+  |   total        FAILED            0       0       0        0  1.2s
+  | [ELIFECYCLE] Test failed. See above for more details.
+```
