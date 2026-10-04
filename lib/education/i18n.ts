@@ -16,7 +16,7 @@ export type Params = Record<string, string | number>;
 type Entry = readonly [en: string, hi?: string];
 
 // UI messages for education domain (mapped from health terms)
-export const CATALOGUE = {
+const CATALOGUE = {
   // ---- Shared notices and labels -------------------------------------------------------------------------------------
   'common.draftNotice': ['This Hindi text is a draft translation. A qualified translator has not reviewed it.', 'यह हिंदी पाठ मसौदा अनुवाद है। किसी योग्य अनुवादक ने इसकी समीक्षा नहीं की है।'],
   'common.recordedNotice': ['Names, values, notes and protocol text are shown exactly as recorded.', 'नाम, मान, नोट्स और प्रोटोकॉल का पाठ जैसा दर्ज है वैसा ही दिखाया जाता है।'],
@@ -194,22 +194,30 @@ export const CATALOGUE = {
 
 export type MessageKey = keyof typeof CATALOGUE;
 
+// We need to define the dictionary type that matches the pattern mentioned in the instructions 
+type TranslationDictionary = Record<Language, Record<MessageKey, string>>;
+
+const translations: TranslationDictionary = {
+  en: Object.fromEntries(
+    Object.entries(CATALOGUE).map(([key, [en]]) => [key, en])
+  ) as Record<MessageKey, string>,
+  hi: Object.fromEntries(
+    Object.entries(CATALOGUE).map(([key, [, hi]]) => [key, hi ?? ''])
+  ) as Record<MessageKey, string>,
+};
+
 export function t(locale: Language, key: MessageKey, params?: Params): string {
-  const entry = CATALOGUE[key];
-  if (!entry) {
+  const message = translations[locale][key];
+  if (!message) {
     return `Missing translation for ${key}`;
   }
   
-  let message = locale === 'hi' ? entry[1] : entry[0];
-  if (!message) {
-    message = entry[0];
-  }
-  
+  let result = message;
   if (params) {
     Object.entries(params).forEach(([param, value]) => {
-      message = message.replace(`{${param}}`, String(value));
+      result = result.replace(`{${param}}`, String(value));
     });
   }
   
-  return message;
+  return result;
 }
