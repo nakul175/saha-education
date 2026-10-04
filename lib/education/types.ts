@@ -25,9 +25,17 @@ import type {
   InsertReportCard,
   SelectNotification, 
   InsertNotification
-} from '../../db/schema';
+} from '@/db/schema';
 
 export type Role = 'admin' | 'teacher' | 'guardian' | 'student';
+
+export interface Principal {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  schoolId: string | null;
+}
 
 // Re-export types for each entity
 export type School = SelectSchool;
