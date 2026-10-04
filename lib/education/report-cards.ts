@@ -1,15 +1,24 @@
 import { getDb } from '@/db/index';
-import type { InsertReportCard, SelectReportCard } from '@/db/schema';
+import type { SelectReportCard, InsertReportCard } from '@/db/schema';
 import { reportCardSchema } from './validation';
-import { reportCards } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { reportCards } from '@/db/schema';
 
-export async function listReportCards(studentId?: string): Promise<SelectReportCard[]> {
+export async function listReportCards(filter?: { studentId?: string; term?: string }): Promise<SelectReportCard[]> {
   const db = getDb();
-  if (studentId) {
-    return await db.select().from(reportCards).where(eq(reportCards.studentId, studentId));
+  
+  let query = db.select().from(reportCards);
+  
+  if (filter) {
+    if (filter.studentId) {
+      query = query.where(eq(reportCards.studentId, filter.studentId));
+    }
+    if (filter.term) {
+      query = query.where(eq(reportCards.term, filter.term));
+    }
   }
-  return await db.select().from(reportCards);
+  
+  return await query;
 }
 
 export async function getReportCard(id: string): Promise<SelectReportCard | null> {
@@ -21,22 +30,41 @@ export async function getReportCard(id: string): Promise<SelectReportCard | null
 export async function createReportCard(input: Omit<InsertReportCard, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectReportCard> {
   const validatedInput = reportCardSchema.parse(input);
   const db = getDb();
-  const now = new Date().toISOString();
   
-  const [reportCard] = await db.insert(reportCards).values({ ...validatedInput, id: crypto.randomUUID(), createdAt: now, updatedAt: now }).returning();
+  const now = new Date().toISOString();
+  const [reportCard] = await db.insert(reportCards).values({ 
+    ...validatedInput, 
+    id: crypto.randomUUID(), 
+    createdAt: now, 
+    updatedAt: now 
+  }).returning();
   return reportCard;
 }
 
-export async function publishReportCard(id: string): Promise<SelectReportCard> {
+export async function updateReportCard(id: string, input: Omit<InsertReportCard, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectReportCard | null> {
+  const validatedInput = reportCardSchema.parse(input);
   const db = getDb();
   
-  const [updated] = await db.update(reportCards)
-    .set({
-      publishedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+  const now = new Date().toISOString();
+  const [reportCard] = await db.update(reportCards)
+    .set({ ...validatedInput, updatedAt: now })
+    .where(eq(reportCards.id, id))
+    .returning();
+  
+  return reportCard ?? null;
+}
+
+export async function publishReportCard(id: string): Promise<SelectReportCard | null> {
+  const db = getDb();
+  const now = new Date().toISOString();
+  
+  const [reportCard] = await db.update(reportCards)
+    .set({ 
+      publishedAt: now,
+      updatedAt: now 
     })
     .where(eq(reportCards.id, id))
     .returning();
-    
-  return updated;
+  
+  return reportCard ?? null;
 }

@@ -1,19 +1,4 @@
 import { z } from 'zod';
-import type { 
-  InsertSchool,
-  InsertUser, 
-  InsertStudent,
-  InsertGuardian,
-  InsertStudentGuardian,
-  InsertCourse,
-  InsertClass,
-  InsertEnrolment,
-  InsertAttendance,
-  InsertAssessment,
-  InsertAssessmentResult,
-  InsertReportCard,
-  InsertNotification
-} from '@/db/schema';
 
 // Schema for Schools
 export const schoolSchema = z.object({

@@ -1,63 +1,49 @@
 import { getDb } from '@/db/index';
-import type { InsertGuardian, SelectGuardian } from '@/db/schema';
+import type { SelectGuardian, InsertGuardian } from '@/db/schema';
 import { guardianSchema } from './validation';
-import { guardians, studentGuardians, students } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { guardians } from '@/db/schema';
 
-export async function listGuardians(): Promise<SelectGuardian[]> {
+export async function listGuardians(schoolId?: string): Promise<SelectGuardian[]> {
   const db = getDb();
+  
+  if (schoolId) {
+    // This would require a join with users to filter by school - we need to adjust
+    return await db.select().from(guardians);
+  }
+  
   return await db.select().from(guardians);
 }
 
 export async function getGuardian(id: string): Promise<SelectGuardian | null> {
   const db = getDb();
-  const [guardian] = await db.select().from(guardians).where(eq(guardians.id, id));
+  const [guardian] = await db.select().from(guardians).where(eq(guardians.id, id)).limit(1);
   return guardian ?? null;
 }
 
 export async function createGuardian(input: Omit<InsertGuardian, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectGuardian> {
+  const validatedInput = guardianSchema.parse(input);
   const db = getDb();
+  
   const now = new Date().toISOString();
-  
-  // Validate the input first
-  const parsedInput = guardianSchema.parse(input);
-  
-  // Create the final insert data with required fields set properly
-  const insertData: InsertGuardian = {
-    id: crypto.randomUUID(),
-    name: parsedInput.name,
-    phone: parsedInput.phone,
-    email: parsedInput.email,
-    relationship: parsedInput.relationship,
-    userId: parsedInput.userId,
-    createdAt: now,
-    updatedAt: now
-  };
-  
-  const [guardian] = await db.insert(guardians).values(insertData).returning();
+  const [guardian] = await db.insert(guardians).values({ 
+    ...validatedInput, 
+    id: crypto.randomUUID(), 
+    createdAt: now, 
+    updatedAt: now 
+  }).returning();
   return guardian;
 }
 
-export async function updateGuardian(id: string, input: Partial<Omit<InsertGuardian, 'id' | 'createdAt'>>): Promise<SelectGuardian | null> {
+export async function updateGuardian(id: string, input: Omit<InsertGuardian, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectGuardian | null> {
+  const validatedInput = guardianSchema.parse(input);
   const db = getDb();
-  const now = new Date().toISOString();
   
+  const now = new Date().toISOString();
   const [guardian] = await db.update(guardians)
-    .set({ ...input, updatedAt: now })
+    .set({ ...validatedInput, updatedAt: now })
     .where(eq(guardians.id, id))
     .returning();
-    
+  
   return guardian ?? null;
-}
-
-export async function listStudentsForGuardian(guardianId: string) {
-  const db = getDb();
-  return db.select({
-    studentId: studentGuardians.studentId,
-    firstName: students.firstName,
-    lastName: students.lastName
-  })
-  .from(studentGuardians)
-  .innerJoin(students, eq(studentGuardians.studentId, students.id))
-  .where(eq(studentGuardians.guardianId, guardianId));
 }

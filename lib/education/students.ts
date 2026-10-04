@@ -1,25 +1,14 @@
 import { getDb } from '@/db/index';
-import type { 
-  InsertStudent, 
-  SelectStudent,
-  SelectGuardian,
-  SelectStudentGuardian,
-  SelectUser
-} from '@/db/schema';
+import type { SelectStudent, InsertStudent } from '@/db/schema';
 import { studentSchema } from './validation';
-import { eq, and, or, like, desc, asc, sql, inArray } from 'drizzle-orm';
-import { students, guardians, studentGuardians } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { students, studentGuardians, guardians } from '@/db/schema';
 
-export async function listStudents(search?: string): Promise<SelectStudent[]> {
+export async function listStudents(schoolId?: string): Promise<SelectStudent[]> {
   const db = getDb();
   
-  if (search) {
-    return await db.select().from(students)
-      .where(or(
-        like(students.firstName, `%${search}%`),
-        like(students.lastName, `%${search}%`),
-        like(students.admissionNumber, `%${search}%`)
-      ));
+  if (schoolId) {
+    return await db.select().from(students).where(eq(students.schoolId, schoolId));
   }
   
   return await db.select().from(students);
@@ -34,8 +23,8 @@ export async function getStudent(id: string): Promise<SelectStudent | null> {
 export async function createStudent(input: Omit<InsertStudent, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectStudent> {
   const validatedInput = studentSchema.parse(input);
   const db = getDb();
-  const now = new Date().toISOString();
   
+  const now = new Date().toISOString();
   const [student] = await db.insert(students).values({ 
     ...validatedInput, 
     id: crypto.randomUUID(), 
@@ -45,42 +34,36 @@ export async function createStudent(input: Omit<InsertStudent, 'id' | 'createdAt
   return student;
 }
 
-export async function updateStudent(id: string, input: Omit<InsertStudent, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectStudent> {
+export async function updateStudent(id: string, input: Omit<InsertStudent, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectStudent | null> {
+  const validatedInput = studentSchema.parse(input);
   const db = getDb();
+  
   const now = new Date().toISOString();
+  const [student] = await db.update(students)
+    .set({ ...validatedInput, updatedAt: now })
+    .where(eq(students.id, id))
+    .returning();
   
-  const [student] = await db.update(students).set({ 
-    ...input, 
-    updatedAt: now 
-  }).where(eq(students.id, id)).returning();
-  
-  return student;
+  return student ?? null;
 }
 
-export async function linkGuardian(studentId: string, guardianId: string, isPrimary = false): Promise<void> {
+export async function linkGuardian(studentId: string, guardianId: string): Promise<void> {
   const db = getDb();
   
-  // Check if the relationship already exists
-  const existing = await db.select().from(studentGuardians)
-    .where(and(
-      eq(studentGuardians.studentId, studentId),
-      eq(studentGuardians.guardianId, guardianId)
-    ));
-  
-  if (existing.length === 0) {
-    await db.insert(studentGuardians).values({
-      studentId,
-      guardianId,
-      isPrimary: isPrimary ? 1 : 0
-    });
-  }
+  await db.insert(studentGuardians).values({
+    studentId,
+    guardianId,
+    isPrimary: 0
+  });
 }
 
-export async function listGuardiansForStudent(studentId: string) {
+export async function listGuardiansForStudent(studentId: string): Promise<{ id: string; name: string; relationship: string }[]> {
   const db = getDb();
-  return db.select({ 
-    guardian: guardians, 
-    isPrimary: studentGuardians.isPrimary 
+  
+  return await db.select({
+    id: studentGuardians.guardianId,
+    name: guardians.name,
+    relationship: guardians.relationship
   })
   .from(studentGuardians)
   .innerJoin(guardians, eq(studentGuardians.guardianId, guardians.id))

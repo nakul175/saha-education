@@ -1,7 +1,7 @@
 import { getDb } from '@/db/index';
 import type { SelectAttendance, InsertAttendance } from '@/db/schema';
 import { attendanceSchema } from './validation';
-import { sql, eq, desc, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { attendance as attendanceTable } from '@/db/schema';
 
 export async function listAttendance(filter?: { classId?: string; date?: string; studentId?: string }): Promise<SelectAttendance[]> {

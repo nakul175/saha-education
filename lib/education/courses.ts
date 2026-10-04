@@ -1,5 +1,5 @@
 import { getDb } from '@/db/index';
-import type { InsertCourse, SelectCourse } from '@/db/schema';
+import type { SelectCourse, InsertCourse } from '@/db/schema';
 import { courseSchema } from './validation';
 import { eq } from 'drizzle-orm';
 import { courses } from '@/db/schema';

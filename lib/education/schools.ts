@@ -1,8 +1,8 @@
 import { getDb } from '@/db/index';
-import type { InsertSchool, SelectSchool } from '@/db/schema';
+import type { SelectSchool, InsertSchool } from '@/db/schema';
 import { schoolSchema } from './validation';
-import { schools } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { schools } from '@/db/schema';
 
 export async function listSchools(): Promise<SelectSchool[]> {
   const db = getDb();
@@ -11,7 +11,7 @@ export async function listSchools(): Promise<SelectSchool[]> {
 
 export async function getSchool(id: string): Promise<SelectSchool | null> {
   const db = getDb();
-  const [school] = await db.select().from(schools).where(eq(schools.id, id));
+  const [school] = await db.select().from(schools).where(eq(schools.id, id)).limit(1);
   return school ?? null;
 }
 
@@ -29,8 +29,8 @@ export async function createSchool(input: Omit<InsertSchool, 'id' | 'createdAt' 
   return school;
 }
 
-export async function updateSchool(id: string, input: Partial<Omit<InsertSchool, 'id' | 'createdAt'>>): Promise<SelectSchool | null> {
-  const validatedInput = schoolSchema.partial().parse(input);
+export async function updateSchool(id: string, input: Omit<InsertSchool, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectSchool | null> {
+  const validatedInput = schoolSchema.parse(input);
   const db = getDb();
   
   const now = new Date().toISOString();

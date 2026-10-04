@@ -1,78 +1,143 @@
-import type { 
-  SelectSchool, 
-  InsertSchool,
-  SelectUser, 
-  InsertUser,
-  SelectStudent, 
-  InsertStudent,
-  SelectGuardian, 
-  InsertGuardian,
-  SelectStudentGuardian, 
-  InsertStudentGuardian,
-  SelectCourse, 
-  InsertCourse,
-  SelectClass, 
-  InsertClass,
-  SelectEnrolment, 
-  InsertEnrolment,
-  SelectAttendance, 
-  InsertAttendance,
-  SelectAssessment, 
-  InsertAssessment,
-  SelectAssessmentResult, 
-  InsertAssessmentResult,
-  SelectReportCard, 
-  InsertReportCard,
-  SelectNotification, 
-  InsertNotification
-} from '@/db/schema';
-
 export type Role = 'admin' | 'teacher' | 'guardian' | 'student';
 
 export interface Principal {
   id: string;
+  role: Role;
+  schoolId?: string;
+}
+
+export type School = {
+  id: string;
+  name: string;
+  address?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type User = {
+  id: string;
   name: string;
   email: string;
   role: Role;
-  schoolId: string | null;
-}
+  schoolId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-// Re-export types for each entity
-export type School = SelectSchool;
-export type InsertSchoolType = InsertSchool;
+export type Student = {
+  id: string;
+  schoolId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  admissionNumber: string;
+  gradeLevel: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type User = SelectUser;
-export type InsertUserType = InsertUser;
+export type Guardian = {
+  id: string;
+  userId?: string;
+  name: string;
+  phone?: string;
+  email?: string;
+  relationship: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type Student = SelectStudent;
-export type InsertStudentType = InsertStudent;
+export type StudentGuardian = {
+  studentId: string;
+  guardianId: string;
+  isPrimary: boolean;
+};
 
-export type Guardian = SelectGuardian;
-export type InsertGuardianType = InsertGuardian;
+export type Course = {
+  id: string;
+  schoolId: string;
+  code: string;
+  title: string;
+  description?: string;
+  gradeLevel: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type StudentGuardian = SelectStudentGuardian;
-export type InsertStudentGuardianType = InsertStudentGuardian;
+export type Class = {
+  id: string;
+  schoolId: string;
+  courseId: string;
+  teacherId: string;
+  name: string;
+  term: string;
+  schedule?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type Course = SelectCourse;
-export type InsertCourseType = InsertCourse;
+export type Enrolment = {
+  id: string;
+  studentId: string;
+  classId: string;
+  status: 'active' | 'withdrawn' | 'completed';
+  enrolledAt: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type Class = SelectClass;
-export type InsertClassType = InsertClass;
+export type Attendance = {
+  id: string;
+  classId: string;
+  studentId: string;
+  date: string;
+  status: 'present' | 'absent' | 'late' | 'excused';
+  note?: string;
+  recordedBy: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type Enrolment = SelectEnrolment;
-export type InsertEnrolmentType = InsertEnrolment;
+export type Assessment = {
+  id: string;
+  classId: string;
+  title: string;
+  kind: 'exam' | 'quiz' | 'assignment' | 'project';
+  maxScore: number;
+  date: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type Attendance = SelectAttendance;
-export type InsertAttendanceType = InsertAttendance;
+export type AssessmentResult = {
+  id: string;
+  assessmentId: string;
+  studentId: string;
+  score: number;
+  grade?: string;
+  feedback?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type Assessment = SelectAssessment;
-export type InsertAssessmentType = InsertAssessment;
+export type ReportCard = {
+  id: string;
+  studentId: string;
+  term: string;
+  summary?: string;
+  overallGrade: string;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
-export type AssessmentResult = SelectAssessmentResult;
-export type InsertAssessmentResultType = InsertAssessmentResult;
-
-export type ReportCard = SelectReportCard;
-export type InsertReportCardType = InsertReportCard;
-
-export type Notification = SelectNotification;
-export type InsertNotificationType = InsertNotification;
+export type Notification = {
+  id: string;
+  userId: string;
+  channel: 'in_app' | 'email' | 'sms';
+  title: string;
+  body: string;
+  readAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
