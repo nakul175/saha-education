@@ -42,8 +42,10 @@ export function freshDatabase() {
   function execute(sql,params,method) {
     const statement = sqlite.prepare(sql);
     if (method === 'run') { statement.run(...params); return {rows: []}; }
-    if (method === 'get') { const row = statement.get(...params); return {rows: row ? Object.values(row) : undefined}; }
-    return {rows: statement.all(...params).map(row=>Object.values(row))};
+    // Preserve duplicate joined column names exactly as D1 raw array rows do.
+    statement.setReturnArrays(true);
+    if (method === 'get') { const row = statement.get(...params); return {rows: row ?? undefined}; }
+    return {rows: statement.all(...params)};
   }
   const db = drizzle(async (...args)=>execute(...args), async queries => {
     sqlite.exec('BEGIN');

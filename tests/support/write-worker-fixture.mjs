@@ -9,7 +9,7 @@ const tokens={};for(const id of ['admin-a','admin-b','teacher-a','teacher-other'
 const statements=[];
 for(const row of sqlite.prepare("SELECT sql FROM sqlite_schema WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY type DESC").all()) statements.push(row.sql+';');
 const quote=value=>value===null?'NULL':typeof value==='number'?String(value):"'"+String(value).replaceAll("'","''")+"'";
-for(const name of ['schools','users','students','guardians','student_guardians','courses','classes','enrolments','assessments','attendance','assessment_results','report_cards','notifications','reading_checks','auth_sessions','oidc_transactions','auth_rate_limits']) {
+for(const name of ['schools','users','students','guardians','student_guardians','courses','classes','enrolments','assessments','attendance','assessment_results','report_cards','notifications','reading_checks','teaching_resources','resource_versions','resource_assignments','auth_sessions','oidc_transactions','auth_rate_limits']) {
  for(const row of sqlite.prepare(`SELECT * FROM "${name}"`).all()) statements.push(`INSERT INTO "${name}" (${Object.keys(row).map(k=>'"'+k+'"').join(',')}) VALUES (${Object.values(row).map(quote).join(',')});`);
 }
 writeFileSync(output,statements.join('\n'),{mode:0o600});writeFileSync(credentials,JSON.stringify(tokens),{mode:0o600});

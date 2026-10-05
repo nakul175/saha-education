@@ -42,3 +42,15 @@ Fresh locally served workerd/D1 validation passed 23/23 literacy scenarios with 
 ## Confirmed product reference
 
 The sponsor confirmed AmplifiU on 5 October 2026. The teacher workspace plan replaces the earlier conditional Amplify Reading comparison. This documentation revision adds no executable feature or AI provider activation; curriculum/resource drafting, review and assignment are planned next.
+
+## Teacher workspace candidate
+
+5 October 2026, `feat/teacher-resource-workspace`. New manual authoring/review/assignment workflow; no AI service activation or deployment. Fresh build, TypeScript and affected-file lint passed. Static/unit/integration runner passed 482 counted checks (75 unit, 407 integration), including 147 actual-session resource checks and concurrent create/revision/approval scenarios. Documentation/requirements and catalogue checks passed.
+
+The SQLite test adapter now preserves raw array columns rather than object values, matching D1 and avoiding duplicate joined-column loss. The corrected harness exposed no application leak: private notes/keys are explicitly removed from assignment responses. Existing suites passed with this corrected adapter.
+
+The browser caught a vinext beta client-link transition error on opening resource detail. The new workspace and learner pages use full-page anchors, and affected shell state/navigation lint issues were corrected. Initial UI checks also assumed a client status element where the server intentionally renders a staff-only message; the check was corrected to inspect the actual access-denial view. These are recorded as discovered issues, not hidden successful first runs.
+
+Limits: synthetic sessions are supplied to isolated local workerd/D1; real provider callback and hosted deployment remain unverified. Manual templates do not establish curriculum/content accuracy, learning efficacy or teacher usability acceptance. Self-review is permitted; independent approval and guardian publication remain policy decisions. No student submission/grading, AI drafting, external Classroom adapter or file-format export was tested or implemented.
+
+Final built application verification passed 23/23 served resource scenarios and 14/14 real-browser checks, including dashboard links, create/review/assign/print, pinned approved content after revision and learner denial/privacy. All data and sessions were synthetic. The local server was stopped after verification.

@@ -57,7 +57,7 @@ Every service must derive school/author from the verified session and check teac
 | D: Reading-informed practice | Teacher-selected practice focus using reviewed ORF observations; reuse confirmed Language Studio where suitable | Explicit teacher approval, suitable original content, language-specific review and no automatic diagnostic labels |
 | E: External adapters and evaluation | Verify Google Classroom/export/app contracts as required; curriculum and accessibility pilots | Contract-specific authorization tests, educator review, export fidelity and documented pilot evidence |
 
-This is a delivery plan, not a claim that the teacher workspace or AI generation already exists. Current implemented scope remains authentication/access, external launch configuration and manual reviewed ORF records.
+The [teacher workspace candidate](TEACHER-WORKSPACE.md) now implements structured manual drafts, revision history, exact-version review, class assignments, learner-safe content and browser printing. AI drafting and external adapters remain planned. Current scope also includes authentication/access, external launch configuration and manual reviewed ORF records.
 
 ## Remaining decisions
 
@@ -68,4 +68,4 @@ This is a delivery plan, not a claim that the teacher workspace or AI generation
 - For AI drafting, choose the provider and authorized credentials, source material, budget and retention rules before service activation.
 - Agree publication/correction policy and whether external Classroom integration or document export is needed first.
 
-The next concrete Saha slice is a structured teacher resource workspace with drafts and review, followed by class assignment. ORF integration continues separately while its destination is confirmed.
+The next concrete step is educator validation of the teacher workspace and selection of the pilot curriculum/templates, before optional AI drafting or external adapters. ORF integration continues separately while its destination is confirmed.

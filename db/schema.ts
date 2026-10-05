@@ -210,6 +210,52 @@ export const readingChecks = sqliteTable('reading_checks', {
 export type SelectReadingCheck = typeof readingChecks.$inferSelect;
 export type InsertReadingCheck = typeof readingChecks.$inferInsert;
 
+// Teacher resources retain immutable content versions and approved assignments.
+export const teachingResources = sqliteTable('teaching_resources', {
+  id: text('id').primaryKey(),
+  schoolId: text('school_id').notNull().references(() => schools.id),
+  authorId: text('author_id').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull(),
+}, t => [index('teaching_resources_school_author').on(t.schoolId, t.authorId)]);
+
+export const resourceVersions = sqliteTable('resource_versions', {
+  id: text('id').primaryKey(),
+  resourceId: text('resource_id').notNull().references(() => teachingResources.id),
+  version: integer('version').notNull(),
+  title: text('title').notNull(),
+  type: text('type').notNull(),
+  curriculum: text('curriculum').notNull(),
+  gradeLevel: text('grade_level').notNull(),
+  subject: text('subject').notNull(),
+  language: text('language').notNull(),
+  objectives: text('objectives').notNull(),
+  body: text('body').notNull(),
+  teacherNotes: text('teacher_notes').notNull(),
+  answerKey: text('answer_key').notNull(),
+  createdBy: text('created_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull(),
+  approvedBy: text('approved_by').references(() => users.id),
+  approvedAt: text('approved_at'),
+}, t => [
+  uniqueIndex('resource_versions_resource_number').on(t.resourceId, t.version),
+  check('resource_versions_positive', sql`typeof(${t.version}) = 'integer' AND ${t.version} >= 1`),
+  check('resource_versions_type', sql`${t.type} IN ('lesson', 'worksheet', 'quiz', 'activity')`),
+  check('resource_versions_approval_pair', sql`(${t.approvedBy} IS NULL AND ${t.approvedAt} IS NULL) OR (${t.approvedBy} IS NOT NULL AND ${t.approvedAt} IS NOT NULL)`),
+]);
+
+export const resourceAssignments = sqliteTable('resource_assignments', {
+  id: text('id').primaryKey(),
+  resourceId: text('resource_id').notNull().references(() => teachingResources.id),
+  versionId: text('version_id').notNull().references(() => resourceVersions.id),
+  classId: text('class_id').notNull().references(() => classes.id),
+  assignedBy: text('assigned_by').notNull().references(() => users.id),
+  createdAt: text('created_at').notNull(),
+  dueDate: text('due_date'),
+}, t => [
+  uniqueIndex('resource_assignments_version_class').on(t.versionId, t.classId),
+  index('resource_assignments_class').on(t.classId),
+]);
+
 // Export inferred select/insert types for each table
 export type SelectSchool = typeof schools.$inferSelect;
 export type InsertSchool = typeof schools.$inferInsert;

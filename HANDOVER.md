@@ -2,7 +2,7 @@
 
 ## Current delivery
 
-The implementation candidate is on `feat/education-auth-access`. It imports the existing Next.js rebuild onto a branch created from main, includes the education documentation baseline, and adds provider-based authentication plus record access control. The default remote rebuild previously used demo role selection. No branch was merged and no hosted service was deployed by this work.
+The latest implementation candidate is on `feat/teacher-resource-workspace`, incorporating the authentication/access and external-reading candidates. It imports the existing Next.js rebuild onto a branch created from main, includes the education documentation baseline, and adds provider-based authentication plus record access control. The default remote rebuild previously used demo role selection. No branch was merged and no hosted service was deployed by this work.
 
 Read [authentication/access delivery](docs/current/AUTH-ACCESS.md), [validation](VALIDATION.md), and the [requirements documentation](docs/education/README.md). The original architecture/data/API documents outside docs/education are historical and may contain unsupported statements.
 
@@ -32,7 +32,8 @@ Use the manifest's Node/pnpm toolchain; current check environment and actual res
 | EDU-F04/F06 | Partial, unapproved | Explicit identity/profile mapping and safe user listing; provisioning administration pending |
 | EDU-F11/F12 | Partial, unapproved | Private drafts and retry-safe user-mapped publication notices; policy/UAT pending |
 | EDU-N04 | Partial, unapproved | Atomic batch behavior/guard contracts checked; pair concurrency constraints remain |
-| Next delivery | Provider and account lifecycle | Obtain provider/tenant registration, verify live synthetic callback, implement reviewed provisioning/disable/link workflows |
+| TCH-01–04 | Partial, unapproved | Structured drafts, immutable revisions, exact-version approval/assignment and learner-safe views; educator/UAT acceptance pending |
+| Next delivery | Teacher workspace validation and provider setup | Choose pilot curriculum/templates, run educator review, confirm provider and verify live synthetic callback; submissions, AI drafting and external adapters follow |
 
 ## Remaining product gaps
 
@@ -45,3 +46,7 @@ Read AGENTS.md. Commit/push meaningful batches; preserve concurrent work; never 
 ## Literacy extension candidate
 
 External ORF launch and append-only manually reviewed reading checks are implemented on `feat/education-literacy-apps`, dependent on the authentication candidate. Destination remains blank pending sponsor confirmation; no external SSO/result sync is implemented. Staff UI is `/external-apps`. Migration0002 is additive. See [external reading](docs/current/EXTERNAL-READING.md) and [AmplifiU teacher workspace plan](docs/current/AMPLIFY-LITERACY-PLAN.md). The sponsor confirmed AmplifiU as the reference teacher AI product. Next: structured resource drafts/review and class assignments; confirm the ORF destination and identity provider separately. AI drafting and external result sync remain unimplemented.
+
+## Teacher workspace candidate
+
+Manual lesson/worksheet/quiz/activity drafts, immutable revisions, explicit exact-version review, class assignments and learner views are implemented. Teachers manage their own resources; school administrators manage school resources. Assignments recheck class authority at insertion, preserve the approved version and omit private notes/answer keys from all learner-facing API responses. Staff can print student or explicitly chosen teacher editions. See [teacher workspace](docs/current/TEACHER-WORKSPACE.md) for scope and draft requirements. No AI provider, curriculum import, online submission/grading or notification service is activated. Templates remain curriculum-neutral until a pilot curriculum is chosen.

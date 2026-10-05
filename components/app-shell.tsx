@@ -1,7 +1,8 @@
 "use client";
 
+/* eslint-disable @next/next/no-html-link-for-pages -- full-page navigation avoids the observed vinext beta client transition failure. */
 import * as React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import type { Principal } from "@/lib/education/types";
-import { canRead, canWrite, canDelete } from "@/lib/education/roles";
 
 export function AppShell({
   principal: initialPrincipal,
@@ -20,9 +20,10 @@ export function AppShell({
   principal: Principal | null;
   children: React.ReactNode;
 }) {
-  const [principal, setPrincipal] = React.useState<Principal | null>(initialPrincipal);
+  const [loadedPrincipal, setPrincipal] = React.useState<Principal | null>(null);
+  const principal = initialPrincipal ?? loadedPrincipal;
   React.useEffect(() => {
-    if (initialPrincipal) { setPrincipal(initialPrincipal); return; }
+    if (initialPrincipal) return;
     let active = true;
     fetch('/api/session', {cache: 'no-store'}).then(async response => {
       if (response.ok && active) setPrincipal(await response.json() as Principal);
@@ -31,11 +32,13 @@ export function AppShell({
   }, [initialPrincipal]);
   const handleSignOut = async () => {
     await fetch("/api/session", { method: "DELETE" });
-    window.location.href = "/login";
+    window.location.assign(new URL('/login', window.location.origin).href);
   };
 
   // Navigation items for different roles
   const navigationItems = [
+    { id: 'resources', label: 'Teaching resources', path: '/resources' },
+    { id: 'learning', label: 'Class resources', path: '/learning' },
     { id: 'external-apps', label: 'Reading apps', path: '/external-apps' },
     { 
       id: 'dashboard', 
@@ -106,7 +109,7 @@ export function AppShell({
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications
@@ -116,7 +119,7 @@ export function AppShell({
     
     // Student can only access dashboard and notifications
     if (principal.role === 'student') {
-      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications'].includes(item.id);
+      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications', 'learning'].includes(item.id);
     }
     
     return false;
