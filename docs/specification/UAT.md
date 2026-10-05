@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -56,3 +56,9 @@ The JSON/CSV design statuses remain not-run; actual execution records are separa
 No critical access/privacy/data integrity/wrong-version defect; approved pilot identity/roster/content/review/correction rules; demonstrated applicable operating/recovery/accessibility/performance evidence; all chosen current journeys executed; future/deferred scope explicit. Require named sponsor and educator sign-off with QA/operator evidence appropriate to release.
 
 If provider, ORF destination, retention, history/correction or recovery prerequisites are missing, record blocked scope and do not label the whole product accepted. Historical 482 checks, 23 served resource cases and 14 browser observations in [VALIDATION](../../VALIDATION.md) support investigation but are not this UAT decision. The newly initialized eleven-suite count baseline records an actual 482-assertion unit/integration run plus three static steps; the guarded recheck passed on 5 October 2026 with eleven baselined suites and zero quarantine. [Execution record](TEST-EXECUTION.md) and [summary](EXECUTION-SUMMARY.json) describe these existing-suite outcomes, which do not execute these UAT cases or supply educator/sponsor approval. No new UAT execution, merge, deployment, learning efficacy or compliance acceptance is claimed.
+
+## v2.2 additional educator and administrator procedures
+
+TC-109 reviews exact profile account ownership/legacy repair with a nominated school administrator; TC-117 reviews duplicate preservation and unresolved academic correction/calendar rules; TC-125 reviews local declared-source reading values/mapping/comparability/rejection with an educator; TC-133 reviews closing-time/current-state/late-policy controls while retaining prior work. Every procedure remains manual and unrun for this specification.
+
+Use fictional data and intentional keyboard, screen-reader, device timezone and mobile review. Confirm staff understand source declarations are user-supplied, preview creates no reading observations, no-op/duplicate/stale choices do not erase evidence, and due date is separate from reviewed cutoff. Record named reviewers/actual environment, issues, unresolved provider/vendor/relationship/pilot decisions and accept/reject scope. Source implementation or related automation is not that decision.

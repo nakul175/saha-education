@@ -1,8 +1,8 @@
 # Risk-based regression plan
 
-Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Historical reference, not acceptance baseline
 
@@ -37,3 +37,13 @@ The eleven-suite 482-assertion baseline above is historical v2.0 execution evide
 Account changes add explicit provisioning/uniqueness, protected-administrator races, session/status/event atomicity and old-request replay tests. Curriculum changes add private/approved peer visibility, declared-rights bounds, exact-source copy/provenance and rollback/live authority. Attempts/feedback add active-student ownership, pinned version, immutable sequence/collision and staff privacy. Reading changes add original-entry validation-to-write races, preserved correction chains, immutable triggers, exact-task grouping and withdrawal/reassignment scope. Final downstream read/retry selections must also be tested against authority changes between precheck and selection; a previous principal cannot authorize private evidence indefinitely.
 
 The shared streamed JSON parser affects every caller and needs declared-size, chunked overflow, UTF-8/JSON and schema-boundary checks. The resource list retains one scoped latest-version query. Resource-access regression also injects live account/parent authority changes at create, revision, approval, assignment, downstream version and exact-retry statement boundaries; check safe denial, unchanged rows, no fabricated creation and private-field stripping. The admin teacher count uses a direct scoped aggregate, not the capped account list. Offline route smoke now executes meaningful imports/migrations/session denials; served/browser smoke remains a separate required layer.
+
+## v2.2 change impact
+
+Profile changes require prior identity/session/scope regression plus reviewed ownership tests: unlinked ordinary create, same/omitted binding edits, legacy bypass denial, session revocation/reviewer continuity, exact old retry/current state and profile-transfer history privacy. Academic changes require previous API/result privacy plus duplicate-preserving migration, concurrent pair creation, all-member actual-write guards/current max and late-failure rollback.
+
+Reading import changes require existing original reading semantics and correction history regression plus stage/reject zero-observation, exact 25-row confirmation, consumed-source dedup across draft IDs/schools, source receipt preservation, CAS/retry, active enrollment and current creator/class/actor reads.
+
+Submission-window changes require original default/past-due workflow, existing immutable attempts/feedback, current/latest policy, close/expire between validation and INSERT, exact committed replay after closure, later policy preservation, current-authority rechecks and history cap. Recover all new review/provenance states using the populated disposable local encrypted suite, preserving exact indexes/triggers and scope rather than claiming hosted readiness.
+
+Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 133 designed cases remain unrun until intentionally executed and recorded.

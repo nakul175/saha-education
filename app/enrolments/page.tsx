@@ -2,18 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Enrolment, Student, Class } from '@/lib/education/types';
+import type { Enrolment, Student, Class } from '@/lib/education/types';
 
 export default function EnrolmentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [enrolments, setEnrolments] = useState<Enrolment[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string>('');
+  const [selectedStudentId, setSelectedStudentId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +68,7 @@ export default function EnrolmentsPage() {
     
     setIsSubmitting(true);
     setError(null);
+    let confirmed = false;
 
     try {
       const response = await fetch('/api/enrolments', {
@@ -82,18 +83,21 @@ export default function EnrolmentsPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 409) throw new Error('This enrolment already exists or school access changed. Reload the enrolments before trying again.');
         const errorData: { message?: string } = await response.json();
         throw new Error(errorData.message || 'Failed to enrol student');
       }
+      confirmed = true;
+      setSelectedStudentId('');
 
       // Refresh enrolments list
       const enrolmentsResponse = await fetch(`/api/enrolments?classId=${selectedClassId}`);
       if (enrolmentsResponse.ok) {
         const enrolmentsData: Enrolment[] = await enrolmentsResponse.json();
         setEnrolments(enrolmentsData);
-      }
+      } else setError('Enrolment saved. Reload to refresh the enrolment list.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(confirmed ? 'Enrolment saved. Reload to refresh the enrolment list.' : err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
     }
@@ -102,6 +106,7 @@ export default function EnrolmentsPage() {
   const handleUpdateStatus = async (enrolmentId: string, status: 'withdrawn' | 'completed') => {
     setIsSubmitting(true);
     setError(null);
+    let confirmed = false;
 
     try {
       const response = await fetch(`/api/enrolments`, {
@@ -113,18 +118,20 @@ export default function EnrolmentsPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 409) throw new Error('School access or the enrolment changed. Reload the enrolments before trying again.');
         const errorData: { message?: string } = await response.json();
         throw new Error(errorData.message || 'Failed to update enrolment');
       }
+      confirmed = true;
 
       // Refresh enrolments list
       const enrolmentsResponse = await fetch(`/api/enrolments?classId=${selectedClassId}`);
       if (enrolmentsResponse.ok) {
         const enrolmentsData: Enrolment[] = await enrolmentsResponse.json();
         setEnrolments(enrolmentsData);
-      }
+      } else setError('Enrolment status saved. Reload to refresh the enrolment list.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(confirmed ? 'Enrolment status saved. Reload to refresh the enrolment list.' : err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
     }
@@ -147,8 +154,8 @@ export default function EnrolmentsPage() {
           {/* Class Selector */}
           <div className="mb-8">
             <Label htmlFor="class-select">Select Class</Label>
-            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-              <SelectTrigger id="class-select" className="w-[300px]">
+            <Select value={selectedClassId} onValueChange={value => { setSelectedClassId(value); setSelectedStudentId(''); }} disabled={isSubmitting}>
+              <SelectTrigger id="class-select" className="w-full max-w-[300px]">
                 <SelectValue placeholder="Choose a class" />
               </SelectTrigger>
               <SelectContent>
@@ -170,7 +177,7 @@ export default function EnrolmentsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="student-select">Select Student</Label>
-                  <Select disabled={isSubmitting}>
+                  <Select value={selectedStudentId} onValueChange={setSelectedStudentId} disabled={isSubmitting}>
                     <SelectTrigger id="student-select" className="w-full">
                       <SelectValue placeholder="Choose a student" />
                     </SelectTrigger>
@@ -190,13 +197,8 @@ export default function EnrolmentsPage() {
                 </div>
                 <div className="flex items-end">
                   <Button 
-                    onClick={() => {
-                      const select = document.getElementById('student-select') as HTMLInputElement;
-                      if (select && select.value) {
-                        handleEnrolStudent(select.value);
-                      }
-                    }} 
-                    disabled={isSubmitting || !selectedClassId}
+                    onClick={() => handleEnrolStudent(selectedStudentId)}
+                    disabled={isSubmitting || !selectedClassId || !selectedStudentId}
                   >
                     Enrol Student
                   </Button>
@@ -218,9 +220,9 @@ export default function EnrolmentsPage() {
                   {enrolments.map((enrolment) => {
                     const student = students.find(s => s.id === enrolment.studentId);
                     return (
-                      <div key={enrolment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h3 className="font-medium">
+                      <div key={enrolment.id} className="flex min-w-0 flex-col items-start gap-4 justify-between p-4 border rounded-lg sm:flex-row sm:items-center">
+                        <div className="min-w-0 break-words">
+                          <h3 className="font-medium break-words">
                             {student ? `${student.firstName} ${student.lastName}` : 'Unknown Student'}
                           </h3>
                           <p className="text-sm text-gray-500">
@@ -230,7 +232,7 @@ export default function EnrolmentsPage() {
                             </Badge>
                           </p>
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex min-w-0 max-w-full flex-wrap gap-2">
                           {enrolment.status === 'active' && (
                             <>
                               <Button

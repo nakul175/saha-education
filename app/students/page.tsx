@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Student } from '@/lib/education/types';
+import type { Student, Principal } from '@/lib/education/types';
 import Link from 'next/link';
 
 const studentFormSchema = z.object({
@@ -31,6 +31,7 @@ export default function StudentsPage() {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [principal, setPrincipal] = useState<Principal | null>(null);
 
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
@@ -43,9 +44,14 @@ export default function StudentsPage() {
     },
   });
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       setLoading(true);
+      const actorResponse = await fetch('/api/session', { cache: 'no-store' });
+      if (actorResponse.status === 401) { window.location.assign(new URL('/login', window.location.origin).href); return; }
+      if (!actorResponse.ok) throw new Error('Could not verify school access');
+      const actor: Principal = await actorResponse.json();
+      setPrincipal(actor);
       const params = new URLSearchParams();
       if (searchTerm) {
         params.append('search', searchTerm);
@@ -63,7 +69,7 @@ export default function StudentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm]);
 
   useEffect(() => {
     // Run fetchStudents only when component mounts or searchTerm changes, 
@@ -73,17 +79,18 @@ export default function StudentsPage() {
     }, 300); // Added delay for debouncing search
 
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [fetchStudents]);
 
   const onSubmit = async (values: StudentFormValues) => {
     try {
+      if (principal?.role !== 'admin' || !principal.schoolId) throw new Error('School administrator access is required');
       setIsCreating(true);
       const response = await fetch('/api/students', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, schoolId: principal.schoolId }),
       });
 
       if (!response.ok) {
@@ -110,7 +117,7 @@ export default function StudentsPage() {
   };
 
   return (
-    <AppShell principal={null}>
+    <AppShell principal={principal}>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Student Registry</h1>
@@ -118,6 +125,8 @@ export default function StudentsPage() {
             Manage student records and enrollments
           </p>
         </div>
+
+      <p className="text-sm text-muted-foreground">New profiles start without a sign-in account. School administrators can link or unlink accounts through <a href="/admin/profile-links" className="underline">reviewed profile links</a>.</p>
 
         {/* Search and Create */}
         <div className="flex flex-col sm:flex-row justify-between gap-4">
@@ -130,7 +139,7 @@ export default function StudentsPage() {
             />
           </div>
           
-          <Dialog>
+          {principal?.role === 'admin' && <Dialog>
             <DialogTrigger asChild>
               <Button>Create Student</Button>
             </DialogTrigger>
@@ -216,7 +225,7 @@ export default function StudentsPage() {
                 </form>
               </Form>
             </DialogContent>
-          </Dialog>
+          </Dialog>}
         </div>
 
         {/* Students Table */}

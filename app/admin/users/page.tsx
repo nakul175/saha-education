@@ -152,7 +152,7 @@ export default function AdminUsersPage() {
     <a href="/" className="underline">← Dashboard</a>
     <h1 className="text-2xl font-bold">Reviewed account administration</h1>
     <p>Provision accounts after checking the person, school role and exact identity supplied by your trusted sign-in provider. The provider is configured separately.</p>
-    <p className="text-sm text-muted-foreground">Role, provider identity and school remain fixed on this screen. Review explicit profile links through <a href="/students" className="underline">students</a> or <a href="/guardians" className="underline">guardians</a>.</p>
+    <p className="text-sm text-muted-foreground">Role, provider identity and school remain fixed on this screen. Link or unlink student and guardian profiles through <a href="/admin/profile-links" className="underline">reviewed profile links</a>.</p>
     <div role="status" aria-live="polite" aria-atomic="true">{loading ? 'Loading accounts and recent reviews…' : message}</div>
     {error && <p role="alert" className="rounded border border-destructive p-3">{error}</p>}
     <Button type="button" variant="outline" disabled={saving || loading} onClick={() => { void reload(); }}>Reload accounts</Button>

@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **101 cases in 18 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **133 cases in 22 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -29,9 +29,14 @@ This draft contains **101 cases in 18 scenarios**, covers all **35 functional/no
 | SC-17 | Recovery, incidents and release environment | TC-091, TC-092, TC-093, TC-094, TC-095 | FR-03, FR-04, NFR-01, NFR-02, NFR-03, NFR-07, NFR-08, NFR-09 |
 | SC-18 | Business UAT and change traceability | TC-096, TC-097, TC-098, TC-099, TC-100, TC-101 | FR-03, FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, NFR-01, NFR-05, NFR-06, NFR-07, NFR-09 |
 
+| SC-19 | Reviewed profile login binding and legacy repair | TC-102, TC-103, TC-104, TC-105, TC-106, TC-107, TC-108, TC-109 | FR-02, FR-03, FR-04, FR-06, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
+| SC-20 | Academic actual-write integrity and legacy pair preservation | TC-110, TC-111, TC-112, TC-113, TC-114, TC-115, TC-116, TC-117 | FR-03, FR-08, FR-09, FR-10, FR-26, NFR-01, NFR-02, NFR-03, NFR-09 |
+| SC-21 | Normalized local reading draft review and consumed-result receipts | TC-118, TC-119, TC-120, TC-121, TC-122, TC-123, TC-124, TC-125 | FR-03, FR-20, FR-21, FR-25, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
+| SC-22 | Reviewed submission windows, retries and preserved attempts | TC-126, TC-127, TC-128, TC-129, TC-130, TC-131, TC-132, TC-133 | FR-03, FR-17, FR-24, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
+
 ## Execution boundaries
 
-Current positive/negative resource/session/reading cases can be implemented against the candidate with synthetic data. Reviewed identity, manual curriculum versions/copies, text submissions/feedback and reading corrections now have concrete current endpoints. Related runnable suites are mapped without executing the designed cases. AI/adapters, licensed-content verification, role/profile remapping, full academic audit and hosted recovery still require their pending contracts/policies. Live provider/browser callback and external-app availability require independently verified configuration.
+Current positive/negative resource/session/reading cases can be implemented against the candidate with synthetic data. Reviewed identity, manual curriculum versions/copies, text submissions/feedback and reading corrections now have concrete current endpoints. Related runnable suites are mapped without executing the designed cases. Verified AI/vendor adapters, licensed-content verification, existing account role/identity/school remapping, full academic audit and hosted recovery still require their pending contracts/policies. Live provider/browser callback and external-app availability require independently verified configuration.
 
 Do not convert grouped historical assertions to case passes. A tester must execute the specified steps, compare each expected result and record revision/environment/fixture/defect evidence. Cases can be failed or blocked while the containing suite passes a narrower check.
 
@@ -225,3 +230,55 @@ Cases: TC-096, TC-097, TC-098, TC-099, TC-100, TC-101. See the case register for
 - TC-099 — Reviewed ORF interpretation UAT (uat, manual).
 - TC-100 — Canonical requirement/case/business traceability (regression, manual).
 - TC-101 — Risk-based release acceptance and defect disposition (uat, manual).
+
+## SC-19: Reviewed profile login binding and legacy repair
+
+Cases: TC-102, TC-103, TC-104, TC-105, TC-106, TC-107, TC-108, TC-109. Full procedures, fixtures and expected results are in the authoritative JSON/CSV. All remain unrun.
+
+- TC-102 — Reviewed profile-link surface and legacy version zero (smoke, existing).
+- TC-103 — Typed same-school login link and explicit unlink (integration, existing).
+- TC-104 — Profile decision replay returns current ownership (integration, existing).
+- TC-105 — Profile CAS and affected-session atomicity (integration, existing).
+- TC-106 — Legacy profile writes cannot bypass reviewed binding (security, existing).
+- TC-107 — Profile history and retry live authority/privacy (security, existing).
+- TC-108 — Legacy guardian duplicates retained and new occupancy blocked (regression, existing).
+- TC-109 — Profile ownership review usability and policy acceptance (uat, manual).
+
+## SC-20: Academic actual-write integrity and legacy pair preservation
+
+Cases: TC-110, TC-111, TC-112, TC-113, TC-114, TC-115, TC-116, TC-117. Full procedures, fixtures and expected results are in the authoritative JSON/CSV. All remain unrun.
+
+- TC-110 — Academic guard migration preserves legacy duplicate evidence (regression, existing).
+- TC-111 — Enrolment duplicate race and live current-school write (integration, existing).
+- TC-112 — Atomic attendance current membership recheck (integration, existing).
+- TC-113 — Assessment results use actual current score maximum (integration, existing).
+- TC-114 — Ambiguous legacy result pair cannot choose arbitrary winner (integration, existing).
+- TC-115 — Academic role-before-body and downstream privacy (security, existing).
+- TC-116 — Academic batch fault and maximum bounded transport (integration, existing).
+- TC-117 — Academic duplicate and correction policy review (uat, manual).
+
+## SC-21: Normalized local reading draft review and consumed-result receipts
+
+Cases: TC-118, TC-119, TC-120, TC-121, TC-122, TC-123, TC-124, TC-125. Full procedures, fixtures and expected results are in the authoritative JSON/CSV. All remain unrun.
+
+- TC-118 — Normalized reading draft boot and zero observations (smoke, existing).
+- TC-119 — Strict reading JSON validation and explicit mapping (unit, existing).
+- TC-120 — Reviewed import confirmation and durable declared provenance (integration, existing).
+- TC-121 — Import duplicate consumption across draft UUIDs (integration, existing).
+- TC-122 — Import confirmation fault CAS and exact retry (integration, existing).
+- TC-123 — Import stage/confirm actual authority and historical rejection (security, existing).
+- TC-124 — Rejected draft never appears as a reading (regression, existing).
+- TC-125 — Import preview educator review and accessible uncertainty (uat, manual).
+
+## SC-22: Reviewed submission windows, retries and preserved attempts
+
+Cases: TC-126, TC-127, TC-128, TC-129, TC-130, TC-131, TC-132, TC-133. Full procedures, fixtures and expected results are in the authoritative JSON/CSV. All remain unrun.
+
+- TC-126 — Default submission access and safe current view (smoke, existing).
+- TC-127 — Strict window review schema and calendar UTC bounds (integration, existing).
+- TC-128 — Submission window current role and history privacy (security, existing).
+- TC-129 — Window CAS history and current-state old UUID replay (integration, existing).
+- TC-130 — Close or expire after prevalidation prevents actual attempt write (integration, existing).
+- TC-131 — Committed submission replay and feedback survive closure (regression, existing).
+- TC-132 — Timed cutoff boundary and deterministic reopening (integration, existing).
+- TC-133 — Submission window review usability and educator policy (uat, manual).

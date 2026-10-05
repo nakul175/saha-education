@@ -1,6 +1,6 @@
 # Saha Education
 
-Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
+Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md), [current development batch](docs/current/DEVELOPMENT-BATCH-1.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
 
 Saha Education is a comprehensive school management platform designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
 
@@ -20,9 +20,13 @@ Saha Education is a school management system with the following key features:
 - Notification system for students, teachers, and guardians
 - User roles: admin, teacher, guardian, student
 - Reviewed account provisioning and enablement/disablement with administration evidence
+- Reviewed student/guardian account links, ownership history and affected-session revocation
 - Manually authored curriculum references, immutable reviews and source-bound teaching draft copies
 - Approved class resources, learner text attempts and reviewed formative feedback
 - External oral-reading launch configuration, manual observations and attributable corrections/history
+- Staged local reading JSON imports with educator decisions and duplicate consumption receipts
+- Explicit reviewed assignment closing/reopening and UTC submission windows
+- Legacy-safe academic pair guards and preservation of saved assessment values
 
 ## Roles
 
@@ -75,7 +79,7 @@ pnpm db:generate
 |--------|-------------|
 | `pnpm dev` | Run development server |
 | `pnpm build` | Build for production |
-| `pnpm test` | Run the full test suite |
+| `pnpm test` | Run the default pull-request layers; manual checks need their own fixtures |
 | `pnpm test:static` | Run static analysis |
 | `pnpm test:unit` | Run unit tests |
 | `pnpm test:integration` | Run integration tests |
@@ -105,7 +109,7 @@ pnpm db:generate
 
 ## Data model
 
-The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) covers all 28 tables/225 fields, including authentication, teaching resources and the specification extensions. Core school-administration tables include:
+The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) covers all 34 tables/288 fields, including authentication, teaching resources and the specification extensions. Core school-administration tables include:
 
 - **schools**: Stores school information including name, address, and timestamps
 - **users**: User accounts with roles (admin|teacher|guardian|student) and associated school references

@@ -1,30 +1,37 @@
 import type { Principal } from './types';
 import { getDb } from '@/db/index';
 import type { SelectStudent, InsertStudent } from '@/db/schema';
-import { students, studentGuardians, guardians } from '@/db/schema';
+import { students, studentGuardians, guardians, users } from '@/db/schema';
 import { studentSchema } from './validation';
-import { and, eq } from 'drizzle-orm';
-import { AccessError, assertPrincipal, assertAdmin, assertSchool, assertUserLink, studentScope, guardianScope } from './access';
+import { and, eq, sql } from 'drizzle-orm';
+import { AccessError, assertPrincipal, assertAdmin, assertSchool, studentScope, guardianScope } from './access';
+import { ProfileLinkReviewRequired, profileAdminScope, profileActorScope } from './profile-links';
+import { AcademicConflict, liveAcademicPrincipal } from './academic-integrity';
 
 export async function listStudents(principal: Principal, schoolId?: string): Promise<SelectStudent[]> {
   assertPrincipal(principal);
   assertSchool(principal, schoolId);
-  return await getDb().select().from(students).where(studentScope(principal));
+  return await getDb().select().from(students).where(and(studentScope(principal), profileActorScope(principal)));
 }
 export async function getStudent(principal: Principal, id: string): Promise<SelectStudent | null> {
   assertPrincipal(principal);
-  const [record] = await getDb().select().from(students).where(and(eq(students.id, id), studentScope(principal))).limit(1);
+  const [record] = await getDb().select().from(students).where(and(eq(students.id, id), studentScope(principal), profileActorScope(principal))).limit(1);
   return record ?? null;
 }
 export async function createStudent(principal: Principal, input: Omit<InsertStudent, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectStudent> {
   assertAdmin(principal);
   assertSchool(principal, input.schoolId);
-  const data = studentSchema.parse(input);
-  const userId = input.userId ?? null;
+  if (input.userId !== undefined && input.userId !== null) throw new ProfileLinkReviewRequired();
+  const data = studentSchema.omit({ userId: true }).parse(input);
   const db = getDb();
-  await assertUserLink(principal, input.userId, 'student');
   const now = new Date().toISOString();
-  const [record] = await db.insert(students).values({ ...data, userId, id: crypto.randomUUID(), createdAt: now, updatedAt: now }).returning();
+  const [record] = await db.insert(students).select(db.select({
+    id: sql<string>`${crypto.randomUUID()}`.as('id'), userId: sql<null>`NULL`.as('user_id'), schoolId: sql<string>`${principal.schoolId!}`.as('school_id'),
+    firstName: sql<string>`${data.firstName}`.as('first_name'), lastName: sql<string>`${data.lastName}`.as('last_name'),
+    dateOfBirth: sql<string>`${data.dateOfBirth}`.as('date_of_birth'), admissionNumber: sql<string>`${data.admissionNumber}`.as('admission_number'),
+    gradeLevel: sql<string>`${data.gradeLevel}`.as('grade_level'), createdAt: sql<string>`${now}`.as('created_at'), updatedAt: sql<string>`${now}`.as('updated_at'),
+  }).from(users).where(and(eq(users.id, principal.id), profileAdminScope(principal)))).returning();
+  if (!record) throw new AccessError('Administrator access required');
   return record;
 }
 export async function updateStudent(principal: Principal, id: string, input: Omit<InsertStudent, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectStudent | null> {
@@ -32,11 +39,10 @@ export async function updateStudent(principal: Principal, id: string, input: Omi
   assertSchool(principal, input.schoolId);
   const existing = await getStudent(principal, id);
   if (!existing) throw new AccessError('Student not found', 404);
-  const data = studentSchema.omit({ id: true, createdAt: true, updatedAt: true }).parse(input);
-  const userId = input.userId === undefined ? existing.userId : input.userId;
+  if (input.userId !== undefined && input.userId !== existing.userId) throw new ProfileLinkReviewRequired();
+  const data = studentSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true }).parse(input);
   const db = getDb();
-  await assertUserLink(principal, input.userId, 'student');
-  const [record] = await db.update(students).set({ ...data, userId, updatedAt: new Date().toISOString() }).where(and(eq(students.id, id), studentScope(principal))).returning();
+  const [record] = await db.update(students).set({ ...data, updatedAt: new Date().toISOString() }).where(and(eq(students.id, id), studentScope(principal), profileAdminScope(principal), sql`${students.userId} IS ${existing.userId}`)).returning();
   return record ?? null;
 }
 
@@ -45,13 +51,25 @@ export async function linkGuardian(principal: Principal, studentId: string, guar
   const student = await getStudent(principal, studentId);
   const [guardian] = await getDb().select({ id: guardians.id }).from(guardians).where(and(eq(guardians.id, guardianId), guardianScope(principal))).limit(1);
   if (!student || !guardian) throw new AccessError('Student or guardian not found', 404);
-  await getDb().insert(studentGuardians).values({ studentId, guardianId, isPrimary: 0 }).onConflictDoNothing();
+  const eligible = sql`${liveAcademicPrincipal(principal)} and exists (select 1 from students relationship_student
+    join guardians relationship_guardian on relationship_guardian.id = ${guardianId}
+    where relationship_student.id = ${studentId} and relationship_student.school_id = ${principal.schoolId}
+      and relationship_guardian.school_id = ${principal.schoolId})`;
+  const [linked] = await getDb().insert(studentGuardians).select(sql`select ${studentId}, ${guardianId}, 0 where ${eligible}`)
+    .onConflictDoNothing().returning();
+  // Retries retain the established isPrimary evidence and recheck authority.
+  if (!linked) {
+    const [existing] = await getDb().select({ studentId: studentGuardians.studentId }).from(studentGuardians)
+      .where(and(eq(studentGuardians.studentId, studentId), eq(studentGuardians.guardianId, guardianId), eligible)).limit(1);
+    if (!existing) throw new AcademicConflict();
+  }
 }
 export async function listGuardiansForStudent(principal: Principal, studentId: string): Promise<{ id: string; name: string; relationship: string; userId: string | null }[]> {
   if (!await getStudent(principal, studentId)) throw new AccessError('Student not found', 404);
   return await getDb().select({ id: guardians.id, name: guardians.name, relationship: guardians.relationship, userId: guardians.userId })
     .from(studentGuardians).innerJoin(guardians, eq(studentGuardians.guardianId, guardians.id))
-    .where(and(eq(studentGuardians.studentId, studentId), guardianScope(principal)));
+    .where(and(eq(studentGuardians.studentId, studentId), liveAcademicPrincipal(principal), guardianScope(principal),
+      sql`exists (select 1 from students where ${students.id} = ${studentId} and ${studentScope(principal)})`));
 }
 // Parameter is a guardian PROFILE ID. Login identity is resolved via guardians.userId.
 export async function listStudentsForGuardian(principal: Principal, guardianId?: string): Promise<SelectStudent[]> {
@@ -61,5 +79,5 @@ export async function listStudentsForGuardian(principal: Principal, guardianId?:
     firstName: students.firstName, lastName: students.lastName, dateOfBirth: students.dateOfBirth,
     admissionNumber: students.admissionNumber, gradeLevel: students.gradeLevel, createdAt: students.createdAt, updatedAt: students.updatedAt })
     .from(studentGuardians).innerJoin(students, eq(studentGuardians.studentId, students.id)).innerJoin(guardians, eq(studentGuardians.guardianId, guardians.id));
-  return await query.where(and(studentScope(principal), guardianScope(principal), guardianId ? eq(guardians.id, guardianId) : undefined));
+  return await query.where(and(liveAcademicPrincipal(principal), studentScope(principal), guardianScope(principal), guardianId ? eq(guardians.id, guardianId) : undefined));
 }

@@ -1,9 +1,9 @@
 {
-  "version": "2.1-draft",
+  "version": "2.2-draft",
   "date": "2026-10-05",
-  "source_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+  "source_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2",
   "approved": false,
-  "execution_notice": "Test design only. Every case is not-run-for-this-specification. evidenceFiles are existing candidate automation/source/prior-record paths, not results of these case executions.",
+  "execution_notice": "All 133 designed cases remain not-run-for-this-specification. Existing evidence links are related runnable/source context only, not intentional case execution or business acceptance. Historical 101-case v2.0/v2.1 design and observed suite records remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -399,7 +399,7 @@
       "title": "Disable/re-enable lifecycle revokes prior sessions",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Current reviewed school-administrator endpoint and synthetic account with two sessions; migration0004 applied. Provider callback acceptance and role/profile remapping remain separate pending scope.",
+      "preconditions": "Current reviewed school-administrator endpoint and synthetic account with two sessions; migration 0004 applied. Provider callback acceptance and existing account role/identity/school remapping and family verification remain separate pending scope.",
       "data": "Reviewed POST/PATCH /api/admin/users workflow; target account has two actual synthetic sessions.",
       "steps": [
         "Disable user through reviewed administrator flow.",
@@ -615,15 +615,15 @@
       "layer": "integration",
       "priority": "P0",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
-      "data": "Synthetic explicit issuer/subject and current-school reviewed administrator; profile relinking remains future scope.",
+      "data": "Synthetic explicit issuer/subject/current-school provisioning plus separate reviewed profile binding; existing account role/identity/school remapping pending.",
       "steps": [
         "Provision explicit issuer/subject/role under actor-fixed school using POST /api/admin/users.",
         "Attempt duplicate identity, spoofed school/actor, changed retry payload and unauthorized actor.",
-        "Disable through reviewed status endpoint; inspect evidence/session revocation. Separately evaluate pending profile-relink policy without inventing a callable endpoint."
+        "Disable through reviewed status endpoint; inspect evidence/session revocation. Review profile ownership through separate current profile-link endpoints; evaluate pending role/identity/school remapping without inventing a route."
       ],
       "expected": [
         "No email-based/public registration; duplicate identity and spoofed scope rejected.",
-        "Reviewed provisioning/status evidence and revocation are attributable; full profile relinking remains planned, so the whole case is not complete."
+        "Reviewed provisioning/status/profile decisions are attributable; wider identity remapping and verified family policy remain unapproved."
       ],
       "automation": "planned",
       "evidenceFiles": [
@@ -635,7 +635,9 @@
         "app/admin/users/page.tsx",
         "tests/integration/evidence-access-contract.mjs",
         "tests/worker-specification-check.mjs",
-        "tests/worker-specification-ui-check.mjs"
+        "tests/worker-specification-ui-check.mjs",
+        "lib/education/profile-links.ts",
+        "tests/integration/profile-links-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -769,13 +771,15 @@
       ],
       "expected": [
         "At most one agreed active pair; deterministic duplicate outcome.",
-        "Approved historical lifecycle is retained; missing pair constraints/history remain blocking gaps until implemented."
+        "Approved historical lifecycle is retained; new-pair guards preserve legacy duplicates; complete temporal/correction history remains open."
       ],
       "automation": "planned",
       "evidenceFiles": [
         "lib/education/enrolments.ts",
         "db/schema.ts",
-        "HANDOVER.md"
+        "HANDOVER.md",
+        "tests/integration/academic-integrity-contract.mjs",
+        "drizzle/0009_academic_integrity.sql"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -912,13 +916,15 @@
       ],
       "expected": [
         "No duplicate/conflicting silently accepted pair.",
-        "Original score and actor/reason history preserved; existing uniqueness/audit gap requires remediation."
+        "Original score and actor/reason history preserved; new-pair guards are current, while general audit/correction history remains pending."
       ],
       "automation": "planned",
       "evidenceFiles": [
         "lib/education/assessments.ts",
         "db/schema.ts",
-        "HANDOVER.md"
+        "HANDOVER.md",
+        "tests/integration/academic-integrity-contract.mjs",
+        "drizzle/0009_academic_integrity.sql"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1844,8 +1850,8 @@
       "title": "Attributable ORF corrections and preserved original",
       "layer": "integration",
       "priority": "P1",
-      "preconditions": "Current corrections/review endpoints, migration0007 and assigned staff in isolated synthetic fixtures; educator interpretation/retention approval remains pending.",
-      "data": "Existing manual reviewed record; correct miscount91\u219290 with explicit review, reason, expectedRevision and stable clientCorrectionId.",
+      "preconditions": "Current corrections/review endpoints, migration 0007 and assigned staff in isolated synthetic fixtures; educator interpretation/retention approval remains pending.",
+      "data": "Existing manual reviewed record; correct miscount 91→90 with explicit review, reason, expectedRevision and stable clientCorrectionId.",
       "steps": [
         "POST reviewed numeric replacement metrics once and retry using the same clientCorrectionId.",
         "GET corrections and reading-review; inspect immutable original plus effective latest revision."
@@ -1876,7 +1882,7 @@
       "title": "Comparable-task trends and non-diagnostic language",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Educator comparability/scoring/language policy and future trend UI must be implemented; no acceptance inference from append-only history.",
+      "preconditions": "Current exact-task descriptive history is implemented; educator comparability/scoring/language policy and normative interpretation remain unapproved. No acceptance inference from source or synthetic history.",
       "data": "Same-language comparable passages plus different language/task/difficulty.",
       "steps": [
         "Review proposed trend display with educator.",
@@ -2222,11 +2228,11 @@
       "data": "Lost response, repeated submission ID, revision and due-date boundary.",
       "steps": [
         "Retry the same current text attempt and append a subsequent attempt/feedback revision.",
-        "Cross an informational past due-date boundary; record that an enforceable deadline/late/resubmission policy is still pending."
+        "Cross an informational due date; review a separate open/closed/timed window and inspect actual new-attempt denial. Record pending educator late/grade/guardian policy."
       ],
       "expected": [
         "Stable IDs and expected-number guards prevent duplicate/overwritten work; immutable attempt and feedback histories remain attributable.",
-        "Current due dates are informational and do not block submissions; whole-case policy approval is still pending."
+        "DueDate alone does not block; latest reviewed window governs new attempts and preserves committed UUID replay. Wider educator policy approval remains pending."
       ],
       "automation": "planned",
       "evidenceFiles": [
@@ -2235,7 +2241,10 @@
         "lib/education/submissions.ts",
         "tests/integration/evidence-access-contract.mjs",
         "tests/worker-specification-check.mjs",
-        "tests/worker-specification-ui-check.mjs"
+        "tests/worker-specification-ui-check.mjs",
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2425,7 +2434,7 @@
       "data": "Approved synthetic workload: school/classes/users/resources/versions counts documented before run.",
       "steps": [
         "Measure warm/cold list/detail/assignment journeys and query count under agreed concurrency.",
-        "Collect p50/p95/p99 latency, errors and dataset sizes.",
+        "Collect p 50/p 95/p 99 latency, errors and dataset sizes.",
         "Compare to approved targets if available."
       ],
       "expected": [
@@ -2584,7 +2593,8 @@
       "automation": "manual",
       "evidenceFiles": [
         "scripts/recovery.mjs",
-        "docs/education/OPERATIONS.md"
+        "docs/education/OPERATIONS.md",
+        "tests/integration/development-recovery-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2610,7 +2620,8 @@
       ],
       "automation": "planned",
       "evidenceFiles": [
-        "scripts/recovery.mjs"
+        "scripts/recovery.mjs",
+        "tests/integration/development-recovery-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2699,7 +2710,8 @@
         "drizzle/0004_identity_admin.sql",
         "drizzle/0005_curriculum.sql",
         "drizzle/0006_submissions.sql",
-        "drizzle/0007_reading_corrections.sql"
+        "drizzle/0007_reading_corrections.sql",
+        "tests/integration/development-recovery-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2872,7 +2884,7 @@
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
       "data": "Named sponsor/QA/educator/operator; actual run evidence and unresolved decisions.",
       "steps": [
-        "Review P0 failures, planned/blocked cases and policy decisions.",
+        "Review P 0 failures, planned/blocked cases and policy decisions.",
         "Review actual environment/revision,security,recovery and business evidence.",
         "Record pilot accept/reject with named signatories."
       ],
@@ -2887,14 +2899,1054 @@
         "docs/specification/BRD.md"
       ],
       "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-102",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-04",
+        "FR-06",
+        "NFR-01"
+      ],
+      "title": "Reviewed profile-link surface and legacy version zero",
+      "layer": "smoke",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Existing unlinked and linked student/guardian profiles; no profile version/event backfill.",
+      "steps": [
+        "GET administrator inventory/history; GET as anonymous, teacher, student and guardian.",
+        "Inspect legacy current version and events; submit wrong-role malformed POST."
+      ],
+      "expected": [
+        "Admin receives bounded same-school inventory/history, legacy version 0 and no invented historical review.",
+        "Anonymous 401; nonadmin denied before mutation body parsing; no bindings/events written."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-103",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-04",
+        "FR-06",
+        "FR-26"
+      ],
+      "title": "Typed same-school login link and explicit unlink",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Unlinked student-A/guardian-A and eligible exact student/guardian account IDs; role/school/disabled/unmapped candidates.",
+      "steps": [
+        "POST reviewed link with UUID/expected 0/reason/confirmation; reload.",
+        "Unlink with next expected version and null userId.",
+        "Try wrong-role, foreign-school, disabled/unmapped account and no-op current binding."
+      ],
+      "expected": [
+        "Valid event records prior/new IDs, authenticated reviewer/time/reason and exact increment; current profile follows decision.",
+        "Unlink records null without deleting profile/academic evidence; ineligible/no-op decisions conflict/deny with no event."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-104",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-04",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Profile decision replay returns current ownership",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Link request UUID X, later reviewed unlink UUID Y, original expectedVersion and reason.",
+      "steps": [
+        "Save link then unlink.",
+        "Replay X unchanged; replay with different actor/account/reason/version.",
+        "Inspect binding/version/event count."
+      ],
+      "expected": [
+        "Exact X returns original link event plus current unlinked profile; old request cannot relink.",
+        "Changed payload/actor conflicts 409, no duplicate event/version, earlier evidence preserved."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-105",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-02",
+        "FR-04",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Profile CAS and affected-session atomicity",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two eligible candidate accounts, sessions for prior/new and reviewing admin; malformed legacy profile->admin binding.",
+      "steps": [
+        "Race competing expected-version link decisions and race identical UUID requests.",
+        "Inspect versions/events/account sessions; inject a late batch failure.",
+        "Repair malformed prior admin binding using a valid role-matched account."
+      ],
+      "expected": [
+        "One competing CAS winner; identical retries produce one immutable decision.",
+        "Binding/version/event/session changes commit together or all roll back; old/new affected sessions revoked.",
+        "Reviewer session is excluded and remains usable; restoration does not revive deleted sessions."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-106",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-04",
+        "FR-06",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Legacy profile writes cannot bypass reviewed binding",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Student POST/PATCH and guardian POST with nonnull/changed userId; omitted/unchanged binding; concurrent reviewed link.",
+      "steps": [
+        "Create unlinked profiles and edit ordinary fields with omitted/unchanged mapping.",
+        "Attempt mapping changes through legacy routes, including spoofed admin/foreign user.",
+        "Change binding immediately before ordinary UPDATE and inspect saved mapping."
+      ],
+      "expected": [
+        "Unlinked create/ordinary fields remain usable; changed mapping 400 directs /admin/profile-links.",
+        "Role denial precedes parse and foreign IDs grant no authority.",
+        "Actual binding equality prevents a concurrent reviewed ownership change from being overwritten; no new unreviewed binding."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-107",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-03",
+        "FR-04",
+        "FR-26",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Profile history and retry live authority/privacy",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Saved event, profile transferred to schoolB, admin disabled/demoted or unmapped before downstream evidence SELECT.",
+      "steps": [
+        "Inject actor/profile school changes immediately before final inventory/history/replay SQL.",
+        "Request unknown/duplicate/unpaired history filters; inspect 200-event bound and serialized fields."
+      ],
+      "expected": [
+        "Current live school/profile/admin scope denies or omits newly unavailable evidence; no foreign historical metadata.",
+        "Filters 400; bounded latest 200 is not full archive; hash/attempt/redundant target FKs never serialized."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-108",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-04",
+        "FR-06",
+        "NFR-02"
+      ],
+      "title": "Legacy guardian duplicates retained and new occupancy blocked",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two pre-migration guardians share one login; unchanged legacy edits and new candidate duplicate.",
+      "steps": [
+        "Seed duplicates before applying migration 0008 and reconcile row counts.",
+        "Edit unchanged legacy binding, insert/change a new duplicate, then explicitly unlink one through review."
+      ],
+      "expected": [
+        "Migration and unchanged edits preserve confirmed legacy evidence; no deduplication/deletion inferred.",
+        "New/changed duplicate bindings blocked; reviewed repair appends evidence without role/identity remap."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/profile-links-contract.mjs",
+        "lib/education/profile-links.ts",
+        "drizzle/0008_profile_links.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-109",
+      "scenario": "SC-19",
+      "requirements": [
+        "FR-04",
+        "FR-06",
+        "NFR-05",
+        "NFR-09"
+      ],
+      "title": "Profile ownership review usability and policy acceptance",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Nominated school reviewer and fictional same-name profiles/accounts; stale conflict and uncertain response.",
+      "steps": [
+        "Navigate /admin/profile-links using keyboard/screen reader and small viewport.",
+        "Inspect exact profile/account IDs, link/unlink action, prior/current versions; edit reason/account after confirmation.",
+        "Exercise 409 and uncertain same-payload retry; record school reviewer decision without validating parenthood by implication."
+      ],
+      "expected": [
+        "Accessible labels, focus/status/errors and distinguishable exact IDs; edits clear confirmation.",
+        "Text retained and same uncertain payload UUID preserved; saved result versus refresh failure distinguished.",
+        "Named policy/UAT decision is separate from synthetic automation; no provider/family verification or acceptance assumed."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "app/admin/profile-links/page.tsx",
+        "docs/specification/WIREFRAMES.md",
+        "tests/worker-development-ui-check.mjs",
+        "tests/worker-wireframes-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-110",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-08",
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Academic guard migration preserves legacy duplicate evidence",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Pre-0009 duplicate enrolment and assessment-result pairs, existing confirmed row IDs.",
+      "steps": [
+        "Seed legacy duplicates, apply 0009, inspect foreign keys and counts.",
+        "Try new INSERT and changed-pair UPDATE duplicates; perform unchanged-pair legacy edit."
+      ],
+      "expected": [
+        "No row deleted/merged and migration succeeds; new/changed duplicates abort safely.",
+        "Unchanged historical pairs remain; no retroactive unique index, correction history or acceptance invented."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-111",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Enrolment duplicate race and live current-school write",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two concurrent new student-A/class-A enrollment requests; revoked admin/current school changed before INSERT.",
+      "steps": [
+        "POST pair concurrently and repeat it.",
+        "Inject actor/student/class school change immediately before actual insert; inspect pair count.",
+        "Withdraw/complete existing row then retry new pair."
+      ],
+      "expected": [
+        "At most one new pair; duplicate or stale authority 409 with no duplicate row.",
+        "Live school references required in actual INSERT; status change preserves row, repeated pair is not a new enrollment.",
+        "Broader temporal status/audit policy remains unapproved."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "lib/education/enrolments.ts",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-112",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "NFR-02"
+      ],
+      "title": "Atomic attendance current membership recheck",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two-item valid attendance batch; second learner withdrawn or transferred after prevalidation.",
+      "steps": [
+        "Submit normal batch and inspect server recorder/count.",
+        "Change second member enrollment/school before JSON INSERT SELECT.",
+        "Repeat with teacher reassigned or disabled immediately before persistence."
+      ],
+      "expected": [
+        "Normal all-row upsert succeeds under active class scope.",
+        "Shared all-member predicate prevents both inserts and updates after any invalid member/actor; whole batch 409.",
+        "Previously confirmed attendance stays intact; no partial first row."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "lib/education/attendance.ts",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-113",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-03",
+        "FR-10",
+        "NFR-02"
+      ],
+      "title": "Assessment results use actual current score maximum",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Assessment max 20 and two active learners with scores 18/19; max lowered to 10 before batch.",
+      "steps": [
+        "Prevalidate valid batch then lower current maxScore before atomic insert/update.",
+        "Withdraw one member/reassign teacher in separate trials.",
+        "Restore valid fixture and save whole batch."
+      ],
+      "expected": [
+        "Any current score/member/class/actor mismatch blocks entire batch 409, with original results unchanged.",
+        "Restored valid batch writes exact requested learners once and does not move assessment classes."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "lib/education/assessments.ts",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-114",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Ambiguous legacy result pair cannot choose arbitrary winner",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two historical rows for learnerA/assessment; a new eligible learnerB in same proposed batch.",
+      "steps": [
+        "Submit batch including ambiguousA and newB.",
+        "Inspect both legacy scores and new learner count; separately submit an unambiguous valid pair."
+      ],
+      "expected": [
+        "Ambiguous pair conflicts whole batch; neither arbitrary legacy row overwritten nor newB inserted.",
+        "Unambiguous writes remain usable; legacy cleanup requires an explicit reviewed policy, not silent merging."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "lib/education/assessments.ts",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-115",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "FR-10",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Academic role-before-body and downstream privacy",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Anonymous/family/unassigned/foreign actors, malformed attendance/result JSON; role/class changes before reads.",
+      "steps": [
+        "Call academic writes with wrong-role malformed bodies and foreign identifiers.",
+        "Read raw results as student/guardian; revoke/reassign actor immediately before final result SELECT."
+      ],
+      "expected": [
+        "Authentication/role/origin deny before input parsing where implemented; no unauthorized records.",
+        "Raw family result access remains 403; downstream live scope removes unavailable result/student metadata.",
+        "All errors remain safe and uncached; no payload/stack/provider disclosures."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-116",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-09",
+        "FR-10",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Academic batch fault and maximum bounded transport",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Valid two-member batch with injected second write failure; request larger than128KiB.",
+      "steps": [
+        "Inject a database failure during atomic attendance/result mutation and inspect every touched row.",
+        "Send oversized/malformed input then a valid batch; inspect persisted invariants."
+      ],
+      "expected": [
+        "Fault rolls back all writes, preserves confirmed values and returns safe failure.",
+        "128 KiB body bound enforced; invalid request leaves no partial state.",
+        "No undocumented row cap, school-calendar validity or general correction trail is claimed."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-integrity-contract.mjs",
+        "lib/education/academic-integrity.ts",
+        "drizzle/0009_academic_integrity.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-117",
+      "scenario": "SC-20",
+      "requirements": [
+        "FR-08",
+        "FR-09",
+        "FR-10",
+        "FR-26",
+        "NFR-09"
+      ],
+      "title": "Academic duplicate and correction policy review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Named academic owner, unresolved legacy duplicate pairs and school calendar/grade policy.",
+      "steps": [
+        "Review duplicate preservation/conflict behavior with owner.",
+        "Record agreed reconciliation and temporal/correction policy, including required actor/time/reason/original values.",
+        "Inspect current overwrite-only attendance/results and record remaining gap."
+      ],
+      "expected": [
+        "Current guards are not accepted as a complete correction/audit model.",
+        "No destructive cleanup, invented calendar/grade rules or real academic use authorized by document drafting."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "docs/specification/DECISIONS-RISKS.md",
+        "lib/education/academic-integrity.ts",
+        "tests/worker-development-ui-check.mjs",
+        "tests/worker-wireframes-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-118",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-25",
+        "NFR-01"
+      ],
+      "title": "Normalized reading draft boot and zero observations",
+      "layer": "smoke",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two synthetic normalized results, one explicit class and exact source namespace.",
+      "steps": [
+        "Stage strict envelope with clientImportId and GET detail/list.",
+        "Inspect draft/items/readings/receipts and returned normalized metrics."
+      ],
+      "expected": [
+        "201 preview contains immutable 2 items,0 reading checks and 0 receipts; namespace explicitly user-declared.",
+        "List latest 100/detail omit rowsJson/hash fields, no provider requests, no verified vendor claim."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-119",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-25",
+        "NFR-01"
+      ],
+      "title": "Strict reading JSON validation and explicit mapping",
+      "layer": "unit",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Formats/unknown keys;0/26 rows;duplicate reference;correct>attempted;future/impossible date;names/URLs/audio/derived score.",
+      "steps": [
+        "Validate all envelope/row boundaries and submit invalid samples through authenticated route.",
+        "Try unmapped/foreign Saha learner and whitespace namespace; inspect storage after each."
+      ],
+      "expected": [
+        "Strict 400 invalid schema; unknown/out-of-class/foreign mapping denied, no name/email/autolink.",
+        "Row bound 1–25, numeric/date/language semantics and128KiB body apply; no draft/item/check persisted or URL fetched."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-120",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Reviewed import confirmation and durable declared provenance",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Valid 25-row draft across active synthetic learners; explicit review reason and confirmation.",
+      "steps": [
+        "Stage maximum valid envelope without observations.",
+        "Confirm stored original values with expectedRevision 0/stable decisionUUID.",
+        "Inspect all original readings, item receipts, authenticated reviewer/time and derived metrics."
+      ],
+      "expected": [
+        "All 25 observations and 25 receipts commit together with unchanged original values.",
+        "Fixed manual-reviewed-external provenance plus exact declared source/item/check receipt; no vendor signature/sync claim.",
+        "Original readings remain unchanged when later corrections append."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "lib/education/reading-review.ts",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-121",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-25",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Import duplicate consumption across draft UUIDs",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Confirmed sourceLabel S/refX in schoolA; new draftID with X plus freshY; same namespace/ref in schoolB.",
+      "steps": [
+        "Stage duplicate pending drafts and confirm original.",
+        "Confirm new draft containing consumedX and freshY; inspect all state.",
+        "Confirm independent same declared namespace/ref in schoolB and test cross-school access."
+      ],
+      "expected": [
+        "Pending duplicates may coexist; consumed receipt uniqueness blocks second confirm 409 across DIFFERENT draft IDs.",
+        "Entire confirmation rolls back including freshY and terminal metadata; draft stays staged and can reject.",
+        "SchoolB has independent namespace authority; no schoolA metadata disclosed."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-122",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Import confirmation fault CAS and exact retry",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Two-item draft; injected failure on second receipt; competing confirm/reject and exact same payload retry.",
+      "steps": [
+        "Inject late receipt failure and inspect terminal decision/readings/prior receipt.",
+        "Recover and retry same decision UUID/payload.",
+        "Race confirm/reject and identical confirms; attempt changed reason/reviewer/UUID terminal decision."
+      ],
+      "expected": [
+        "Late failure rolls back decision and every reading/receipt, leaving staged original preview.",
+        "Same UUID recovers safely; competing decision has one winner and identical retries return one immutable outcome.",
+        "Changed terminal decision conflicts without replacing evidence or duplicating observations."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-123",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-03",
+        "FR-20",
+        "FR-25",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Import stage/confirm actual authority and historical rejection",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Creator teacher, unassigned peer, admin and school transfer/withdrawal/revocation before final mutation/read.",
+      "steps": [
+        "Inject disabled/unmapped/reassigned actor before stage INSERT and confirm UPDATE.",
+        "Withdraw one learner before confirm; inspect preview eligibility and reject with review.",
+        "Transfer learner school/revoke staff before final child SELECT and exact replay."
+      ],
+      "expected": [
+        "Current live actor/class/all-active scope applied inside actual writes; no stale insert/partial confirm.",
+        "Withdrawal prevents confirm but current authorized same-school preview/rejection remains, with zero checks.",
+        "Transfer/reassignment/revocation denies detail/history/replay metadata; no private receipt disclosure."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-124",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-21",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Rejected draft never appears as a reading",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Staged draft, reviewed rejection, unrelated manual original and prior corrected reading.",
+      "steps": [
+        "Reject draft then replay exact decision.",
+        "List original reading/review observations and receipts; attempt terminal updates/deletes through SQL/route."
+      ],
+      "expected": [
+        "Rejected/unreviewed import creates no reading or receipt and is absent from observation history.",
+        "Exact rejection stable; originals/manual/corrections preserved; immutable item/receipt/terminal guards reject destructive writes."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/reading-imports-contract.mjs",
+        "lib/education/reading-imports.ts",
+        "drizzle/0010_reading_imports.sql",
+        "lib/education/reading-checks.ts",
+        "lib/education/reading-review.ts",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-125",
+      "scenario": "SC-21",
+      "requirements": [
+        "FR-20",
+        "FR-25",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Import preview educator review and accessible uncertainty",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Nominated educator; synthetic local JSON with exact IDs and two languages/tasks; network uncertainty and 409 duplicate.",
+      "steps": [
+        "Use /reading-imports keyboard/screen reader/mobile; inspect template, field errors and every staged original.",
+        "Edit reason after checkbox, try withdrawn confirm, safely reject duplicate and retry unchanged uncertain decision.",
+        "Assess source wording, metric/task suitability and privacy without connecting a provider."
+      ],
+      "expected": [
+        "Labels/focus/errors/status and long IDs usable; edits clear review and withdrawn confirm disabled.",
+        "Same pending payload UUID retained; saved versus refresh-failure distinct; duplicate leaves staged/rejectable.",
+        "User-supplied source is explicit, no vendor/norm/diagnosis/learning-efficacy claim; educator approval recorded separately."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "app/reading-imports/page.tsx",
+        "docs/specification/WIREFRAMES.md",
+        "tests/worker-development-ui-check.mjs",
+        "tests/worker-wireframes-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-126",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-17",
+        "FR-24",
+        "NFR-01"
+      ],
+      "title": "Default submission access and safe current view",
+      "layer": "smoke",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Approved assignment with past dueDate and no window row, linked active student and guardian.",
+      "steps": [
+        "GET window and staff history; POST new student attempt.",
+        "GET as guardian/unrelated/foreign account; inspect summary keys and cache headers."
+      ],
+      "expected": [
+        "No row gives revision 0/open/unconfigured/accepting; past due date alone does not prevent save.",
+        "Summary exactly assignmentId/revision/state/closesAt/configured/acceptingSubmissions/asOf; no private review metadata.",
+        "Guardian 403, foreign/unrelated unavailable, no-store; staff history empty without invented review."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "tests/integration/submissions-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-127",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-24",
+        "FR-26",
+        "NFR-01"
+      ],
+      "title": "Strict window review schema and calendar UTC bounds",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Canonical UTC three-millisecond date; offsets/missing-millis/impossible date; missing closesAt; closed+future;bad reason/revision/extra actor.",
+      "steps": [
+        "POST valid null/future/elapsed open and closed-null policies.",
+        "Validate all invalid examples, role-before-malformed body,origin and128KiB."
+      ],
+      "expected": [
+        "Strict reviewed mandatory closesAt contract accepts canonical real UTC/null only; closed requires null.",
+        "Expected 0–999999,UUID/reason 10–500/confirmation enforced; invalid 400/wrong-role-origin denied, no review row."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-128",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-03",
+        "FR-24",
+        "FR-26",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Submission window current role and history privacy",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Own active student, guardian, assigned/unassigned staff and revocation before final current/history/replay query.",
+      "steps": [
+        "Read current summary versus staff latest 100 review history.",
+        "Inject role/identity/disable/class/resource approval changes immediately before scoped evidence SELECT.",
+        "Transfer learner/withdraw active enrollment and repeat reads."
+      ],
+      "expected": [
+        "Student gets safe current summary only; guardian/current unrelated staff denied; hash excluded from all review output.",
+        "Actual final scope denies newly unavailable evidence and preserves stored history; learner needs current active link.",
+        "Bounded newest 100 is a display limit, not deletion or full audit archive."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-129",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-24",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Window CAS history and current-state old UUID replay",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "PolicyX closed revision 1 then Y open revision 2; concurrent expected 2 writers and identical UUID.",
+      "steps": [
+        "Save X then Y; replay X exact and with changed actor/reason/state/expected number.",
+        "Race competing writes, exact duplicate retries; inspect immutable SQL triggers/history order."
+      ],
+      "expected": [
+        "X returns original review plus CURRENT open latest window, cannot undo Y.",
+        "Competing revisions one winner; same payload UUID one immutable row; stale/collision 409.",
+        "No-update/delete triggers preserve each review; history newest-first."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-130",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-24",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Close or expire after prevalidation prevents actual attempt write",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Open assignment, new expected attempt; concurrent closed or elapsed-open policy inserted immediately before attempt INSERT.",
+      "steps": [
+        "Let normal precheck pass then inject closed policy before actual submission insert.",
+        "Repeat with elapsed cutoff using actual database time.",
+        "Inspect count and 409 body."
+      ],
+      "expected": [
+        "Actual latest-policy/database-clock predicate prevents both stale new attempts; no rows persisted.",
+        "Safe 409 code submission-window-closed distinguishes cutoff; original evidence untouched."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "lib/education/submissions.ts",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-131",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-24",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Committed submission replay and feedback survive closure",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Committed attemptUUID A, later closure, subsequent reviewed staff feedback and reopened window.",
+      "steps": [
+        "Replay exact A while closed; change A response/actor/expected number.",
+        "Append/read reviewed feedback while closed, reopen and append next attempt.",
+        "Withdraw learner and repeat exact committed replay."
+      ],
+      "expected": [
+        "Exact current-authorized A preserves original response/time and retrieves current feedback despite closure.",
+        "Changed UUID content conflicts; reopening advances attempt numbering; earlier feedback stays pinned to original attempt.",
+        "Closure does not delete evidence; withdrawal still denies learner access."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "tests/integration/submissions-contract.mjs",
+        "tests/integration/development-recovery-contract.mjs",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-132",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-24",
+        "NFR-02"
+      ],
+      "title": "Timed cutoff boundary and deterministic reopening",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Future canonical cutoff, elapsed cutoff, open-null review and informational due-date boundaries.",
+      "steps": [
+        "Read future/elapsed policies and submit at/after database cutoff.",
+        "Append open-null review and submit with next expected attempt.",
+        "Review exact latest-policy precedence and no automatic penalty fields."
+      ],
+      "expected": [
+        "Future accepts, elapsed denies new attempts; latest policy wins and open-null reopens.",
+        "DueDate never supplies implicit cutoff; no grade/late penalty/guardian publication invented."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/submission-windows-contract.mjs",
+        "lib/education/submission-windows.ts",
+        "drizzle/0011_submission_windows.sql",
+        "tests/worker-development-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-133",
+      "scenario": "SC-22",
+      "requirements": [
+        "FR-24",
+        "FR-26",
+        "NFR-05",
+        "NFR-09"
+      ],
+      "title": "Submission window review usability and educator policy",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "data": "Nominated staff reviewer, device timezone, small viewport, future cutoff,409 conflict and uncertain response.",
+      "steps": [
+        "Use assignment window controls with keyboard/screen reader; inspect UTC-to-local conversion and current summary/history.",
+        "Edit state/time/reason or refresh version after checking review; retry unchanged uncertainty.",
+        "Observe saved-attempt retry after closure and separately document late/grade/pilot deadline choices."
+      ],
+      "expected": [
+        "Accessible labels/status/focus and visible timezone; field/version edits clear review; form text preserved after 409.",
+        "Stable pending UUID, truthful saved-versus-refresh failure; no implicit loss of prior response/feedback.",
+        "Intentional educator policy/UAT record needed; no acceptance from source/synthetic checks."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "components/assignment-submission-window.tsx",
+        "app/assignments/[id]/page.tsx",
+        "docs/specification/WIREFRAMES.md",
+        "tests/worker-development-ui-check.mjs",
+        "tests/worker-wireframes-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
     }
   ],
   "delivery_metadata": {
     "branch": "feat/specification-delivery",
     "documentation_base_commit": "d53adcf",
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
-    "state": "working-candidate-extension",
+    "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit preserves the historical v2.0 source. Updated source paths/statuses describe current unaccepted working code; no release, deployment or case execution inferred."
+    "note": "source_commit records the parent of this documented batch, not the containing publication commit. Changes were uncommitted when the specification was assembled; historical v2.0 baseline and v2.1 execution remain preserved. Publication and actual runs are separately dated; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2"
   }
 }

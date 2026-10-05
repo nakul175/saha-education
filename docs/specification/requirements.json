@@ -1,7 +1,7 @@
 {
-  "version": "2.1-draft",
+  "version": "2.2-draft",
   "date": "2026-10-05",
-  "source_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+  "source_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -51,7 +51,7 @@
       "title": "Identity administration",
       "implementation_status": "partial",
       "source": "lib/education/identity-admin.ts",
-      "requirement": "Reviewed provisioning, disablement and profile linking workflows; no automatic public registration.",
+      "requirement": "Reviewed provisioning, status and versioned student/guardian login link/unlink workflows; no public registration or existing identity/role/school remapping.",
       "approved": false
     },
     {
@@ -87,7 +87,7 @@
       "title": "Enrolment lifecycle",
       "implementation_status": "partial",
       "source": "lib/education/enrolments.ts",
-      "requirement": "Record active/withdrawn/completed enrolment and preserve agreed history.",
+      "requirement": "Record active/withdrawn/completed enrolment, guard new duplicate pairs without deleting legacy evidence, and preserve agreed history.",
       "approved": false
     },
     {
@@ -96,7 +96,7 @@
       "title": "Attendance",
       "implementation_status": "partial",
       "source": "lib/education/attendance.ts",
-      "requirement": "Record authorized class/student attendance with agreed academic dates and correction policy.",
+      "requirement": "Record authorized class/student attendance with atomic current-eligibility batches; agree academic dates and correction policy.",
       "approved": false
     },
     {
@@ -105,7 +105,7 @@
       "title": "Assessments and results",
       "implementation_status": "partial",
       "source": "lib/education/assessments.ts",
-      "requirement": "Manage assigned-class assessments/results; family result publication remains deferred.",
+      "requirement": "Manage assigned-class assessments/results with current score/membership and duplicate-pair guards; family result publication remains deferred.",
       "approved": false
     },
     {
@@ -231,7 +231,7 @@
       "title": "Learner submission and feedback",
       "implementation_status": "partial",
       "source": "lib/education/submissions.ts",
-      "requirement": "Collect authorized submissions and reviewed feedback without modifying assigned content.",
+      "requirement": "Collect immutable authorized text attempts and reviewed feedback; append reviewed open/closed/timed submission windows independently of informational due dates.",
       "approved": false
     },
     {
@@ -240,7 +240,7 @@
       "title": "External result and class adapters",
       "implementation_status": "planned",
       "source": "docs/current/EXTERNAL-READING.md",
-      "requirement": "Verify contracts before mapped repeat-safe import/export; no assumed API or shared session.",
+      "requirement": "Verify external contracts before automatic mapped import/export; local normalized JSON drafts require explicit educator review and do not authenticate a vendor.",
       "approved": false
     },
     {
@@ -338,8 +338,9 @@
     "branch": "feat/specification-delivery",
     "documentation_base_commit": "d53adcf",
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
-    "state": "working-candidate-extension",
+    "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit preserves the historical v2.0 source. Updated source paths/statuses describe current unaccepted working code; no release, deployment or case execution inferred."
+    "note": "source_commit records the parent of this documented batch, not the containing publication commit. Changes were uncommitted when the specification was assembled; historical v2.0 baseline and v2.1 execution remain preserved. Publication and actual runs are separately dated; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2"
   }
 }

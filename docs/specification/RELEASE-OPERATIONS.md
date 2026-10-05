@@ -2,7 +2,7 @@
 
 Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Environment boundaries
 
@@ -13,7 +13,7 @@ The v2.1 extensions describe the current working candidate on `feat/specificatio
 | Hosted synthetic pilot | Proposed authorized environment only | Actual binding/route/callback/provider configuration and hosted run report |
 | Real school use | Deferred | Policy/content/identity/privacy/recovery/support and sponsor acceptance |
 
-Secrets/session fixtures never enter Git or documentation exports. Keep provider keys server-side. Empty environment templates do not activate services. School/first-administrator bootstrap and legacy remapping require explicit operator work; later reviewed provisioning/status is school-admin scoped. No legacy ownership links are inferred by migrations 0001or0004–0007.
+Secrets/session fixtures never enter Git or documentation exports. Keep provider keys server-side. Empty environment templates do not activate services. School/first-administrator bootstrap and legacy remapping require explicit operator work; later reviewed provisioning/status is school-admin scoped. Migrations 0001/0004–0011 do not infer legacy ownership or invent historical review. New pair guards preserve legacy duplicates.
 
 ## Release preparation
 
@@ -23,7 +23,7 @@ Execute applicable [smoke](SMOKE-TESTS.md), [unit/integration](UNIT-INTEGRATION-
 
 ## Deployment verification and rollback
 
-After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, all eight migration states, configured external app state and monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
+After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, all migrations 0000–0011 and actual journal state, configured external app state and monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
 
 Rollback must preserve confirmed records and additive schema compatibility. Do not blindly undo applied migrations or delete revisions/receipts. If persistence is uncertain, inspect the authoritative record before retrying. Define and rehearse the operator’s restore/rollback method for the actual environment before real records are stored.
 
@@ -36,3 +36,15 @@ An incident record should include run/source/environment, symptoms, impacted wor
 ## Release record template
 
 Record release ID; source/PR/migrations; authorized environment; configuration presence without secret values; test run IDs and results; unresolved decisions/defects; data/recovery evidence; deployment/rollback steps; reviewer and sponsor decision; post-release verification. Retain evidence links and actual limitations.
+
+## v2.2 migration, review and recovery verification
+
+Trace: FR-04/FR-06/FR-08–FR-10/FR-20/FR-24–FR-26; NFR-01–NFR-03/NFR-07–NFR-09. Validate schema re-exports and journal against applied 0011, with 34 tables/288 columns. Migration 0008 adds typed profile versions/immutable events plus new guardian binding guards;0009 adds non-destructive academic pair triggers/indexes;0010 adds reading draft/item/receipt lifecycle triggers;0011 adds immutable submission-window reviews. Apply only in an explicitly authorized isolated environment and preserve confirmed rows/applied migrations.
+
+Verify profile decision/binding/version/old-new session deletion atomicity, reviewing-admin continuity, and denied legacy bypass. Confirm ordinary writes cannot revert concurrent reviewed links. Reconcile existing duplicates without deleting them; ambiguous result batches fail safely. Validate actual all-member attendance/results after withdrawal, actor/class change and lowered score maximum.
+
+For imports, verify stage/reject creates zero observations; confirmed receipts exactly match original normalized values and every item->check; duplicate consumption across drafts rolls back all rows/decision and remains staged. A retry preserves UUID and stored outcome, never relabels user-declared source as verified vendor. For windows, verify default unrestricted/current latest revision, database-clock cutoff on actual attempt write, exact committed replay after closure, later policy preservation and current-authorized feedback.
+
+[Development recovery suite](../../tests/integration/development-recovery-contract.mjs) exercises existing [local encrypted recovery implementation](../../scripts/recovery.mjs) using disposable populated data, exact restored schema/rows and current/retry/privacy boundaries. It is related candidate evidence, not a completed designed TC procedure or hosted recovery capability. Hosted export/cutover, backup location/schedule/key custody, operational ownership and approved RPO/RTO remain unestablished. Restore must preserve triggers/indexes, original reviews/receipts and disabled-session behavior, not merely table counts.
+
+Use [batch execution evidence](../current/DEVELOPMENT-BATCH-1.md) and [continuation record](../current/FOUR-HOUR-DEVELOPMENT.md) for actual dated outcomes/publication. Production activation, external messaging, real records and release acceptance require their own decisions.

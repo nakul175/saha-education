@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -43,7 +43,7 @@ Resource authority changes require the same statement-boundary checks. `tests/in
 
 ## Performance design
 
-The workload owner must approve school/user/class/resource/version volumes, request mix, concurrency, cold/warm state, duration and intended environment. Record p50/p95/p99 latency, throughput, error/conflict rate, query counts, resource use/cost where available and saturation behavior. Include permission-scoped lists, large histories, concurrent revision/assignment/ORF retries and provider faults; never disable authorization to make results faster.
+The workload owner must approve school/user/class/resource/version volumes, request mix, concurrency, cold/warm state, duration and intended environment. Record p 50/p 95/p 99 latency, throughput, error/conflict rate, query counts, resource use/cost where available and saturation behavior. Include permission-scoped lists, large histories, concurrent revision/assignment/ORF retries and provider faults; never disable authorization to make results faster.
 
 No numeric latency, availability, throughput or scale acceptance target is approved here. Unbounded list/history behavior must be measured and addressed under an agreed pagination/query contract. Observation-only results cannot be a performance pass. Rate limits and overload controls must preserve confirmed records and produce controlled failures.
 
@@ -66,3 +66,13 @@ Correlation, support escalation and incident ownership remain design work. Recor
 ## Evidence and release decision
 
 Every case here remains `not-run-for-this-specification`. Record redacted actual evidence, revision/environment/fixtures, measured values, defects and policy dependencies. Authentication bypass, unauthorized disclosure, staff-answer leakage, wrong-version distribution and silent data loss are release-blocking. Performance/accessibility/recovery acceptance requires approved objectives and named reviewer; no pass from an unapproved threshold.
+
+## v2.2 mandatory negative and operational boundaries
+
+Test admin-only exact profile login decisions, no legacy userId bypass, typed target/role/school/identity/occupancy guards, current revision/hash/actor replay, affected sessions with reviewer exclusion, and no past-school event release. No guardian relationship verification or wider identity remap is implied.
+
+Test new academic pair guards without deleting legacy duplicates, ambiguous result full-batch denial and current live actor/class/every learner/max-score checks at actual SQL. Local JSON sources are untrusted input: strict 1–25 rows/128 KiB/exact declared references, no URL fetch/autolink, no hidden score/source spoofing, stage/reject zero observations, all-row terminal/receipt rollback and school-isolated consumed-result uniqueness. Unknown/foreign IDs must never authorize new evidence.
+
+Test window review staff-only, safe student summary/no history metadata, immutable CAS/current-state replay, database-clock latest-policy enforcement on actual attempt insertion, prior committed UUID/feedback preservation and live authority after closure. Clock/timezone labels and page controls need intentional accessibility/pilot review; server scope remains final authority.
+
+[Development recovery](../../tests/integration/development-recovery-contract.mjs) links local encrypted populated restore/privacy/retry evidence to designed recovery cases. Actual host export/cutover, key custody, periodic backup, RPO/RTO, workload, screen-reader and educator policy evidence remain pending. Neither 34 restored tables nor a browser screenshot certifies operational/security/accessibility readiness.

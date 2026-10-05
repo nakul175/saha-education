@@ -1,0 +1,42 @@
+# Four-hour development continuation
+
+Authorised by the sponsor on 5 October 2026: continue development for four hours with ten parallel agents. Window: **07:27:39–11:27:39 UTC (12:57:39–16:57:39 IST)**. The session supports four concurrent agents including root, so ten workstreams run in batches with up to three workers alongside integration. The timed continuation is attached to this chat; it is not a separate project or a deployment.
+
+Start state: `398df9c8bf57659a5fd97718f76fe962011cf7d2`, branch `feat/specification-delivery`, [draft PR 6](https://github.com/nakul175/saha-education/pull/6). Prior evidence remains in [validation](../../VALIDATION.md). Read AGENTS.md and HANDOVER.md before continuing. Preserve remote/concurrent changes, applied migrations and confirmed records; root alone integrates, builds, commits, pushes and updates the PR. No merge or hosted deployment is authorised by this continuation.
+
+## Workstreams and ownership
+
+| Stream | Deliverable | Owner | State |
+|---|---|---|---|
+| 1 | Reviewed student/guardian profile identity links, optimistic versions, evidence and session revocation | Identity worker | Completed and independently verified |
+| 2 | Academic pair/duplicate integrity and mutation-time live authority | Curriculum worker | Completed and independently verified |
+| 3 | Strict normalized reading import drafts, explicit review/reject and provenance | Reading worker | Completed and documented |
+| 4 | Explicit reviewed per-assignment submission windows and enforcement | Root | Completed and independently verified |
+| 5 | Accessible reviewed profile-link administration UI | Identity worker | Completed and independently verified |
+| 6 | Accessible reading import preview/review UI | Reading worker | Completed and independently verified |
+| 7 | Submission-window staff review and learner status UI | Root | Completed and independently verified |
+| 8 | Independent role-journey/privacy/accessibility review | Identity worker | First batch completed; second batch continues |
+| 9 | Regression/security, built-app workflows and synthetic recovery checks | Curriculum worker/root | First batch completed; second batch continues |
+| 10 | Specification/API/data/case traceability and dated evidence | Reading worker/root | First batch completed; second batch continues |
+
+Migration ownership is reserved: 0008 profile links, 0009 academic integrity, 0010 reading imports, 0011 submission windows. Root owns schema exports, journal, common HTTP, shared navigation, final documentation/evidence and publication. Workers own their services/routes/screens/tests. Students/guardians profile CRUD and trailing student-guardian relationship functions have separate owners; communicate before shared-file edits.
+
+## Concrete policy choices
+
+- Identity links require explicit exact profile/account selection, review and reason. Role, issuer and school stay immutable. Original profile records remain; changes append evidence and revoke affected account sessions.
+- Academic guards prevent new duplicate pairs while retaining legacy duplicate rows for explicit future repair. No automatic record merge or deletion is permitted.
+- Reading import uses a documented **Saha normalized JSON format**, not an invented vendor API. Educators review supplied counts before records are created; source/provenance remains identifiable and no URL is fetched. Original `manual-reviewed` observations remain explicit. Confirmed receipts deduplicate declared source/result identifiers, and a batch either confirms fully or stays pending.
+- Submission windows default to the existing unrestricted behavior. Staff may explicitly review closing/reopening or an exact UTC closing time for one assignment. Informational due dates do not silently become cutoffs. Existing committed attempts and feedback remain; committed UUID retries survive a later window closure. This does not introduce grades, penalties or guardian publication.
+- All development/verification uses synthetic local records. Live identity/ORF providers, paid AI, real learner imports, external messages, formal policy acceptance and hosted release remain pending.
+
+## Continuation and stopping rule
+
+Check the clock before starting another slice. Resume unfinished work and do not duplicate an active worker's edits or tests. Record actual meaningful progress and verification here; do not infer acceptance from tests. At the deadline stop starting development, safely preserve unfinished changes, pause the timed follow-up and report completed commits, tests and remaining work. The scheduled continuation requires this local project and the desktop app to remain available.
+
+## Progress log
+
+- 07:27:39 UTC: continued development authorised. Clean local/remote implementation base inspected; four-hour timed continuation created. First three workers dispatched with isolated ownership; root began submission-window design and shared safe 409 support.
+
+- 07:49 UTC: profile links, academic integrity/editor preservation, staged import review and submission windows implemented. New independent window contract 191 passed; fresh Worker build passed. New served lifecycle 172 passed, prior served 146 passed and prior browser 38 passed, all synthetic/local. Smoke expanded to 93 executed checks. Independent new browser journeys, populated encrypted local recovery and canonical v2.2 documentation continue. No source batch published yet.
+
+- 08:11 UTC: first batch complete. Fresh build passed; 2,302 guarded checks (94 unit, 2,115 integration, 93 smoke), 172 new served checks, 57 new browser checks, 146/38 prior served/browser checks and 37 offline prototype checks passed. Populated encrypted local recovery contributes 188 checks within integration. The v2.2 pack contains 133 unrun designed cases, 34 tables/288 fields and 51 routes/84 handlers. Sanitized evidence is [recorded separately](DEVELOPMENT-BATCH-1-EXECUTION.json). The independent original-domain review reproduced 16 unsafe outcomes; its diagnostic assertions are excluded from passing totals. Second batch targets current actor/relationship authority and atomic report-publication notices.

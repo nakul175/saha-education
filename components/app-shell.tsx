@@ -38,8 +38,10 @@ export function AppShell({
   // Navigation items for different roles
   const navigationItems = [
     { id: 'accounts', label: 'Accounts', path: '/admin/users' },
+    { id: 'profile-links', label: 'Profile links', path: '/admin/profile-links' },
     { id: 'curriculum', label: 'Curriculum library', path: '/curriculum' },
     { id: 'reading-review', label: 'Reading review', path: '/reading-review' },
+    { id: 'reading-imports', label: 'Reading imports', path: '/reading-imports' },
     { id: 'resources', label: 'Teaching resources', path: '/resources' },
     { id: 'learning', label: 'Class resources', path: '/learning' },
     { id: 'external-apps', label: 'Reading apps', path: '/external-apps' },
@@ -112,7 +114,7 @@ export function AppShell({
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'curriculum', 'reading-review'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'curriculum', 'reading-review', 'reading-imports'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications

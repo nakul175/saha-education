@@ -5,6 +5,7 @@ import { classes, resourceAssignments, resourceVersions, teachingResources, stud
 import { submissionAttempts, submissionFeedback, type SubmissionAttempt, type SubmissionFeedback } from '@/db/submission-schema';
 import { AccessError, assertPrincipal, classScope } from './access';
 import type { Principal } from './types';
+import { getSubmissionWindow, submissionWindowAllows, SubmissionWindowClosed } from './submission-windows';
 
 const identifier = z.string().min(1).max(120);
 const text = (max: number) => z.string().trim().min(1).max(max).refine(value => !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(value), 'Unsupported control character');
@@ -28,7 +29,7 @@ function liveUser(principal: Principal): SQL {
   // Authentication is rechecked in the actual statement. A revoked account or
   // changed role/school between authentication and persistence grants no write.
   return sql`exists (select 1 from users u where u.id = ${principal.id} and u.school_id = ${principal.schoolId!}
-    and u.role = ${principal.role} and u.disabled_at is null and u.identity_issuer is not null and u.identity_subject is not null)`;
+    and u.role = ${principal.role} and u.disabled_at is null and coalesce(u.identity_issuer, '') <> '' and coalesce(u.identity_subject, '') <> '')`;
 }
 function assignmentScope(principal: Principal): SQL {
   allowed(principal);
@@ -101,6 +102,7 @@ export async function submitAssignment(principal: Principal, assignmentId: strin
   await requiredAssignment(principal, assignmentId);
   const prior = await attemptRetry(principal, assignmentId, data);
   if (prior) return prior;
+  if (!(await getSubmissionWindow(principal, assignmentId)).acceptingSubmissions) throw new SubmissionWindowClosed();
   const [created] = await getDb().insert(submissionAttempts).select(sql`select
     ${data.clientSubmissionId}, ${resourceAssignments.id}, ${resourceAssignments.versionId}, ${students.id}, ${principal.id},
     ${data.expectedAttempt + 1}, ${data.response}, ${new Date().toISOString()}
@@ -109,6 +111,7 @@ export async function submitAssignment(principal: Principal, assignmentId: strin
     join resource_versions on resource_versions.id = resource_assignments.version_id
     join students on students.user_id = ${principal.id} and students.school_id = ${principal.schoolId!}
     where ${resourceAssignments.id} = ${identifier.parse(assignmentId)} and ${assignmentScope(principal)}
+      and ${submissionWindowAllows(resourceAssignments.id)}
       and exists (select 1 from enrolments e where e.student_id = ${students.id}
         and e.class_id = ${resourceAssignments.classId} and e.status = 'active')
       and (select coalesce(max(a.attempt), 0) from submission_attempts a
@@ -118,6 +121,7 @@ export async function submitAssignment(principal: Principal, assignmentId: strin
   await requiredAssignment(principal, assignmentId);
   const retry = await attemptRetry(principal, assignmentId, data);
   if (retry) return retry;
+  if (!(await getSubmissionWindow(principal, assignmentId)).acceptingSubmissions) throw new SubmissionWindowClosed();
   throw new SubmissionConflict();
 }
 export async function listSubmissionFeedback(principal: Principal, assignmentId: string, submissionId: string): Promise<SubmissionFeedback[]> {

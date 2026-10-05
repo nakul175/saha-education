@@ -14,7 +14,7 @@ export async function authenticated(request: Request, mutation: boolean, action:
     return response;
   } catch (error) {
     const status = error instanceof AccessError || error instanceof AuthError ? error.status : error instanceof z.ZodError || error instanceof SyntaxError ? 400 : 500;
-    const messages: Record<number, string> = { 400: 'Invalid request', 401: 'Authentication required', 403: 'Forbidden', 404: 'Not found', 500: 'Internal server error', 503: 'Service unavailable' };
+    const messages: Record<number, string> = { 400: 'Invalid request', 401: 'Authentication required', 403: 'Forbidden', 404: 'Not found', 409: 'Conflict', 500: 'Internal server error', 503: 'Service unavailable' };
     return Response.json({ error: messages[status] || messages[500] }, { status, headers: { 'Cache-Control': 'no-store' } });
   }
 }

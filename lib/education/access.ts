@@ -4,8 +4,8 @@ import { classes, students, guardians, users, enrolments } from '@/db/schema';
 import type { Principal } from './types';
 
 export class AccessError extends Error {
-  readonly status: 400 | 403 | 404;
-  constructor(message: string, status: 400 | 403 | 404 = 403) {
+  readonly status: 400 | 403 | 404 | 409;
+  constructor(message: string, status: 400 | 403 | 404 | 409 = 403) {
     super(message);
     this.name = 'AccessError';
     this.status = status;

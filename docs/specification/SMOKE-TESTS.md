@@ -1,14 +1,14 @@
 # Current candidate smoke plan
 
-Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Scope and entry
 
 Smoke has two distinct execution layers. Offline boot/access smoke imports actual handlers with migrated isolated SQLite and real synthetic sessions. Served smoke exercises a freshly built local Worker: authentication denial, scoped records/origins, report privacy, exact versions, learner-field stripping and manual reading. Neither establishes a live provider, external availability, AI or recovery. Served entry requires fresh build, disposable local D1/session fixtures, approved localhost origin and a running Worker.
 
-The historical v2.0 `tests/smoke/basic-smoke.mjs` was an uninvoked always-true placeholder and provided no acceptance evidence. The current working file replaces it with executed real-route/migration/session assertions: all eight new tables, thirteen new route imports/anonymous 401, no-store, selected role/origin denials, staff empty-library response, pending-provider 503 and zero provider calls. This is meaningful offline boot/access coverage; it is not a served/browser smoke or an execution of the 101 designed cases. Actual run counts belong in dated execution evidence.
+The historical v2.0 `tests/smoke/basic-smoke.mjs` was an uninvoked always-true placeholder and provided no acceptance evidence. The current file uses real-route/migration/session assertions: all 14 extension tables,20 extension route imports/anonymous 401, no-store, selected role/origin denials, bounded school profile inventory, empty import collection, denied family policy history, staff library response, pending-provider 503 and zero provider calls. Historical v2.1 covered its eight tables/thirteen routes; actual counts remain in dated evidence. This is meaningful offline boot/access coverage; it is not a served/browser smoke or an execution of the 133 designed cases. Actual run counts belong in dated execution evidence.
 
 | Case | Mandatory check | Existing mapped tooling / limitation |
 |---|---|---|
@@ -37,7 +37,7 @@ Existing tools in the table provide related current coverage. New identity/curri
 5. Execute missing designed fault cases separately; review persisted state and actual output. Record per-case pass/fail/blocked; suite success alone cannot fill the case register.
 6. Stop local server/browser and dispose isolated fixture state under the operator policy. Keep redacted evidence and defect references.
 
-## P0 exit gate
+## P 0 exit gate
 
 Anonymous/demo/foreign-origin access denied; school/class/family isolation maintained; no draft report or staff-note/key disclosure; confirmed writes survive retry; assignment remains pinned to its approved version; ORF validates counts and retains manual provenance; unsafe external destination disabled. Wrong actor/object authority, privacy leaks, wrong-version assignment or silent partial persistence block candidate smoke acceptance.
 
@@ -46,3 +46,9 @@ New manual-domain smoke additionally checks administrator-only reviewed accounts
 Actual provider callback is **blocked** until the chosen provider/tenant/client/HTTPS origin is supplied and verified; injected synthetic sessions cannot satisfy that gate. Confirmed ORF destination availability is similarly blocked. Controlled “not configured” responses are expected current smoke behavior, not completion of those dependencies.
 
 All case statuses remain not-run for this specification. Historical served/browser observations belong to [VALIDATION](../../VALIDATION.md).
+
+## v2.2 boot and safety additions
+
+Designed smoke TC-102/TC-118/TC-126 covers role-first profile links, staged preview with zero observations, and default unrestricted safe window summary. Related suites also cover all-member academic actual writes. Fresh served/browser procedures are [worker development checks](../../tests/worker-development-check.mjs) and [worker development UI checks](../../tests/worker-development-ui-check.mjs); registry/manual status does not mean they ran as part of an offline smoke command.
+
+P 0 additions: no unreviewed profile binding bypass; no partial academic/import batch; rejected draft absent from reading checks; declared-source result consumed once per school/namespace/reference; new closed/elapsed attempts denied in actual INSERT while saved UUIDs/feedback survive; all downstream review/current/retry reads remain scoped. Observed smoke results are in root-owned batch evidence, not designed-case statuses.

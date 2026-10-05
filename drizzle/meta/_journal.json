@@ -57,6 +57,34 @@
       "when": 1791182763600,
       "tag": "0007_reading_corrections",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1791182763601,
+      "tag": "0008_profile_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1791182763602,
+      "tag": "0009_academic_integrity",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791182763603,
+      "tag": "0010_reading_imports",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1791182763604,
+      "tag": "0011_submission_windows",
+      "breakpoints": true
     }
   ]
 }

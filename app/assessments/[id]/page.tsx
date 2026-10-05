@@ -7,14 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AppShell } from '@/components/app-shell';
 import type { SelectAssessment, SelectStudent } from '@/db/schema';
-
-// Define a type that includes student results
-type StudentWithResults = SelectStudent & {
-  results?: {
-    score: number;
-    feedback: string | null;
-  };
-};
+import { assessmentEditorChanges, buildAssessmentEditor } from '@/lib/education/assessment-editor';
+import type { AssessmentEditorStudent, SavedAssessmentResult } from '@/lib/education/assessment-editor';
 
 export default function AssessmentResultsPage({ 
   params 
@@ -22,45 +16,45 @@ export default function AssessmentResultsPage({
   params: Promise<{ id: string }> 
 }) {
   const [assessment, setAssessment] = useState<SelectAssessment | null>(null);
-  const [students, setStudents] = useState<StudentWithResults[]>([]);
+  const [students, setStudents] = useState<AssessmentEditorStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [reloadRequired, setReloadRequired] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
   
   useEffect(() => {
-    // Resolving the params promise here 
-    params.then(async (resolved) => {
+    let active = true;
+    const load = async () => {
       try {
+        const resolved = await params;
         const assessmentResponse = await fetch(`/api/assessments/${resolved.id}`);
         if (!assessmentResponse.ok) {
           throw new Error('Failed to fetch assessment');
         }
         const assessmentData: SelectAssessment = await assessmentResponse.json();
-        setAssessment(assessmentData);
-        
-        // Fetch class details which includes enrolled students
-        const classResponse = await fetch(`/api/classes/${assessmentData.classId}`);
+        const [classResponse, resultsResponse] = await Promise.all([
+          fetch(`/api/classes/${assessmentData.classId}`), fetch(`/api/assessments/${assessmentData.id}/results`),
+        ]);
         if (!classResponse.ok) {
           throw new Error('Failed to fetch class');
         }
         const classData: { enrolledStudents: SelectStudent[] } = await classResponse.json();
-        
-        // Set student data with default results
-        const studentDataWithResults = classData.enrolledStudents.map((student: SelectStudent) => ({
-          ...student,
-          results: {
-            score: 0,
-            feedback: ''
-          }
-        }));
-        setStudents(studentDataWithResults);
+        if (!resultsResponse.ok) throw new Error('Saved results could not be loaded. Reload before entering results.');
+        const savedResults: SavedAssessmentResult[] = await resultsResponse.json();
+        const editor = buildAssessmentEditor(classData.enrolledStudents, savedResults);
+        if (active) { setAssessment(assessmentData); setStudents(editor); }
         
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        if (active) setLoadError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
-    });
-  }, []);
+    };
+    void load();
+    return () => { active = false; };
+  }, [params]);
 
   if (loading) {
     return (
@@ -72,11 +66,11 @@ export default function AssessmentResultsPage({
     );
   }
 
-  if (error) {
+  if (loadError) {
     return (
       <AppShell principal={null}>
         <div className="flex justify-center items-center h-64">
-          <p className="text-red-500">Error: {error}</p>
+          <p className="text-red-500" role="alert">Error: {loadError}</p>
         </div>
       </AppShell>
     );
@@ -93,12 +87,13 @@ export default function AssessmentResultsPage({
   }
 
   const handleSave = async () => {
+    if (saving || reloadRequired) return;
+    setSaving(true);
+    setError(null);
+    setStatus(null);
     try {
-      const results = students.map(student => ({
-        studentId: student.id,
-        score: student.results?.score || 0,
-        feedback: student.results?.feedback || ''
-      }));
+      const results = assessmentEditorChanges(students, assessment.maxScore);
+      if (!results.length) return;
       
       const response = await fetch(`/api/assessments/${assessment.id}/results`, {
         method: 'POST',
@@ -107,20 +102,25 @@ export default function AssessmentResultsPage({
       });
       
       if (!response.ok) {
+        if (response.status === 409) {
+          setReloadRequired(true);
+          throw new Error('Records or access changed, or saved results need review. Your edits are retained here. Reload saved results before trying again.');
+        }
         throw new Error('Failed to save results');
       }
       
-      alert('Results saved successfully!');
+      setStudents(current => current.map(student => ({ ...student, dirty: false })));
+      setStatus('Edited results saved successfully.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while saving');
-    }
+    } finally { setSaving(false); }
   };
 
-  const handleScoreChange = (studentId: string, score: number) => {
+  const handleScoreChange = (studentId: string, score: number | null) => {
     setStudents(prevStudents => 
       prevStudents.map(student => 
         student.id === studentId 
-          ? { ...student, results: { ...student.results!, score } } 
+          ? { ...student, result: { ...student.result, score }, dirty: true }
           : student
       )
     );
@@ -130,7 +130,7 @@ export default function AssessmentResultsPage({
     setStudents(prevStudents => 
       prevStudents.map(student => 
         student.id === studentId 
-          ? { ...student, results: { ...student.results!, feedback } } 
+          ? { ...student, result: { ...student.result, feedback }, dirty: true }
           : student
       )
     );
@@ -168,6 +168,9 @@ export default function AssessmentResultsPage({
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {error && <p role="alert" className="mb-4 text-red-700">{error}</p>}
+            {status && <p role="status" className="mb-4 text-green-700">{status}</p>}
+            {reloadRequired && <p className="mb-4"><a className="underline" href={`/assessments/${encodeURIComponent(assessment.id)}`}>Reload saved results</a> (unsaved edits will be discarded).</p>}
             {students.length === 0 ? (
               <p>No students found in this class.</p>
             ) : (
@@ -180,21 +183,25 @@ export default function AssessmentResultsPage({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">Score</label>
+                        <label htmlFor={`score-${student.id}`} className="block text-sm font-medium mb-1">Score for {student.firstName} {student.lastName}</label>
                         <Input
+                          id={`score-${student.id}`}
+                          disabled={saving}
                           type="number"
                           min="0"
                           max={assessment.maxScore}
-                          value={student.results?.score || 0}
-                          onChange={(e) => handleScoreChange(student.id, Number(e.target.value))}
+                          value={student.result.score ?? ''}
+                          onChange={(e) => handleScoreChange(student.id, e.target.value === '' ? null : Number(e.target.value))}
                           className="w-32"
                         />
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium mb-1">Feedback</label>
+                        <label htmlFor={`feedback-${student.id}`} className="block text-sm font-medium mb-1">Feedback for {student.firstName} {student.lastName}</label>
                         <Textarea
-                          value={student.results?.feedback || ''}
+                          id={`feedback-${student.id}`}
+                          disabled={saving}
+                          value={student.result.feedback ?? ''}
                           onChange={(e) => handleFeedbackChange(student.id, e.target.value)}
                           placeholder="Optional feedback for student"
                           rows={2}
@@ -209,9 +216,10 @@ export default function AssessmentResultsPage({
             <div className="mt-6 flex justify-end">
               <Button 
                 onClick={handleSave} 
+                disabled={saving || reloadRequired || !students.some(student => student.dirty)}
                 className="px-6 py-2"
               >
-                Save All Results
+                {saving ? 'Saving…' : 'Save Edited Results'}
               </Button>
             </div>
           </CardContent>

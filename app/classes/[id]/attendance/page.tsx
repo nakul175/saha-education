@@ -95,6 +95,7 @@ export default function TakeAttendancePage({ params }: {
       });
       
       if (!response.ok) {
+        if (response.status === 409) throw new Error('Class access or active enrolments changed. Reload the class before saving attendance again.');
         const errorData: { error?: string } = await response.json();
         throw new Error(errorData.error || 'Failed to save attendance');
       }

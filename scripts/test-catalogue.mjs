@@ -34,6 +34,9 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-wireframes-check.mjs': { needsEnv: ['SAHA_TEST_BROWSER'], note: 'offline fictional prototype journeys and desktop/mobile labels/width; no app or acceptance evidence' },
+  'tests/worker-development-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local built development profile/import/window/academic journeys; synthetic sessions only' },
+  'tests/worker-development-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser profile/import/window/academic workflows; synthetic sessions only' },
   'tests/worker-specification-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served specification delivery lifecycle and access checks; synthetic sessions only' },
   'tests/worker-specification-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser specification journeys with synthetic sessions; no live provider callback' },
   'tests/worker-resources-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser journey with synthetic sessions; live provider callback is not exercised' },
@@ -175,7 +178,7 @@ export function buildCatalogue(root = process.cwd()) {
       e.results = SUITE_RESULTS[e.file] ?? [];
       if (e.layer === 'manual') Object.assign(e, MANUAL[e.file]);
       // Suites that start the built Worker need dist/; unit suites, UAT generators, the in-process benchmark and the accessibility audit (which talks to a Worker you started) do not.
-      e.needs = ['unit', 'uat'].includes(e.layer) || ['tests/adapter-overhead-bench.mjs', 'tests/a11y-audit.mjs'].includes(e.file) ? [] : ['build'];
+      e.needs = ['unit', 'uat'].includes(e.layer) || ['tests/adapter-overhead-bench.mjs', 'tests/a11y-audit.mjs', 'tests/worker-wireframes-check.mjs'].includes(e.file) ? [] : ['build'];
     } else if (e.role === 'component') e.requirements = [...(evidence.get(e.file) ?? [])].sort();
   }
   const suites = entries.filter(e => e.role === 'suite');

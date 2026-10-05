@@ -1,6 +1,7 @@
 import { authenticated, body, found, query } from '@/lib/education/http';
 import { listEnrolments, enrolStudent, updateEnrolmentStatus } from '@/lib/education/enrolments';
 import { enrolmentSchema } from '@/lib/education/validation';
+import { assertAdmin } from '@/lib/education/access';
 
 export async function GET(request: Request) {
   return authenticated(request, false, async principal => {
@@ -9,12 +10,14 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   return authenticated(request, true, async principal => {
+    assertAdmin(principal);
     const input = await body(request, enrolmentSchema.pick({ studentId: true, classId: true }));
     return Response.json(await enrolStudent(principal, input.studentId, input.classId), { status: 201 });
   });
 }
 export async function PATCH(request: Request) {
   return authenticated(request, true, async principal => {
+    assertAdmin(principal);
     const input = await body(request, enrolmentSchema.pick({ id: true, status: true }).required());
     return Response.json(found(await updateEnrolmentStatus(principal, input.id, input.status)));
   });

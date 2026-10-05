@@ -3,10 +3,11 @@ import { getDb } from '@/db/index';
 import type { SelectAttendance, InsertAttendance } from '@/db/schema';
 import { attendance as attendanceTable } from '@/db/schema';
 import { attendanceSchema } from './validation';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { AccessError, classReferenceScope, studentReferenceScope, assertClassWrite, assertStudentInClass } from './access';
+import { AcademicConflict, academicStudentInClass, liveAcademicPrincipal, rethrowAcademicConflict } from './academic-integrity';
 
-function scope(principal: Principal) { return and(classReferenceScope(principal, attendanceTable.classId), studentReferenceScope(principal, attendanceTable.studentId)); }
+function scope(principal: Principal) { return and(liveAcademicPrincipal(principal), classReferenceScope(principal, attendanceTable.classId), studentReferenceScope(principal, attendanceTable.studentId)); }
 export async function listAttendance(principal: Principal, filter?: { classId?: string; date?: string; studentId?: string }): Promise<SelectAttendance[]> {
   return await getDb().select().from(attendanceTable).where(and(scope(principal),
     filter?.classId ? eq(attendanceTable.classId, filter.classId) : undefined,
@@ -22,7 +23,13 @@ export async function createAttendance(principal: Principal, input: InsertAttend
   await assertClassWrite(principal, data.classId);
   await assertStudentInClass(principal, data.studentId, data.classId);
   const now = new Date().toISOString();
-  const [record] = await getDb().insert(attendanceTable).values({ ...data, id: crypto.randomUUID(), recordedBy: principal.id, createdAt: now, updatedAt: now }).returning();
+  let record: SelectAttendance | undefined;
+  try {
+    [record] = await getDb().insert(attendanceTable).select(sql`select ${crypto.randomUUID()}, ${data.classId}, ${data.studentId},
+      ${data.date}, ${data.status}, ${data.note ?? null}, ${principal.id}, ${now}, ${now}
+      where ${academicStudentInClass(principal, data.studentId, data.classId)}`).returning();
+  } catch (error) { rethrowAcademicConflict(error); }
+  if (!record) throw new AcademicConflict();
   return record;
 }
 export async function markAttendance(principal: Principal, classId: string, date: string, entries: { studentId: string; status: 'present' | 'absent' | 'late' | 'excused'; note?: string }[], recordedBy: string): Promise<SelectAttendance[]> {
@@ -41,11 +48,21 @@ export async function markAttendance(principal: Principal, classId: string, date
   if (!rows.length) return [];
   const db = getDb();
   const now = new Date().toISOString();
-  const queries = rows.map(row => db.insert(attendanceTable).values({ ...row, id: crypto.randomUUID(), createdAt: now, updatedAt: now })
-    .onConflictDoUpdate({ target: [attendanceTable.classId, attendanceTable.studentId, attendanceTable.date], set: { status: row.status, note: row.note ?? null, recordedBy: principal.id, updatedAt: now } }).returning());
-  // D1 batch is transactional: a database failure rolls back the full set.
-  const results = await db.batch(queries as [typeof queries[number], ...typeof queries[number][]]);
-  return results.flat();
+  const payload = JSON.stringify(rows.map(row => ({ id: crypto.randomUUID(), studentId: row.studentId, status: row.status, note: row.note ?? null })));
+  // The entire batch has one eligibility predicate in one atomic statement.
+  // Withdrawal, transfer or class reassignment cannot leave a partial batch.
+  const eligible = sql`not exists (select 1 from json_each(${payload}) pending
+    where not (${academicStudentInClass(principal, sql`json_extract(pending.value, '$.studentId')`, classId)}))`;
+  let saved: SelectAttendance[];
+  try {
+    saved = await db.insert(attendanceTable).select(sql`select json_extract(pending.value, '$.id'), ${classId},
+      json_extract(pending.value, '$.studentId'), ${date}, json_extract(pending.value, '$.status'),
+      json_extract(pending.value, '$.note'), ${principal.id}, ${now}, ${now} from json_each(${payload}) pending where ${eligible}`)
+      .onConflictDoUpdate({ target: [attendanceTable.classId, attendanceTable.studentId, attendanceTable.date],
+        set: { status: sql`excluded.status`, note: sql`excluded.note`, recordedBy: principal.id, updatedAt: now } }).returning();
+  } catch (error) { rethrowAcademicConflict(error); }
+  if (saved.length !== rows.length) throw new AcademicConflict();
+  return saved;
 }
 export function attendancePercentage(records: { status: string }[]): number {
   if (!records.length) return 0;

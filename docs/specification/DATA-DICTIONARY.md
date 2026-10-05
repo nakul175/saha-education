@@ -1,8 +1,8 @@
 # Data dictionary
 
-Version 2.1 draft, 5 October 2026. Current working inventory: **28 implemented SQL tables and 225 columns**, obtained by applying migrations 0000–0007 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had20 tables/156 fields. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+Version 2.2 draft, 5 October 2026. Current working inventory: **34 implemented SQL tables and 288 columns**, obtained by applying migrations 0000–0011 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 Requirement references: FR-01–FR-03 identity/access; FR-05–FR-12 school/academic records; FR-13–FR-18 teacher resources; FR-20 reviewed reading; NFR-01/NFR-02 constraints and concurrency; NFR-03 retention. IDs and status are canonical in [requirements.json](requirements.json); business context is in [BRD](BRD.md).
 
@@ -16,31 +16,35 @@ Sensitivity labels are engineering handling descriptions, not an approved legal 
 
 ## Database constraints and service-only rules
 
-- `users.email`, `students.admission_number` and `courses.code` are globally unique; they are not school-scoped unique keys. OIDC `(identity_issuer, identity_subject)` and nullable `students.user_id` are unique. SQLite nullable unique keys allow multiple null values. Guardian `user_id` is not unique.
+- `users.email`, `students.admission_number` and `courses.code` are globally unique; they are not school-scoped unique keys. OIDC `(identity_issuer, identity_subject)` and nullable `students.user_id` are unique. SQLite nullable unique keys allow multiple null values. Guardian `user_id` has no retroactive unique index; migration 0008 rejects new/changed duplicate bindings while preserving existing legacy rows.
 - `student_guardians` has **no `id` column**: `(student_id, guardian_id)` is its composite primary key. The database default of `is_primary` is 0; current linking service does not implement a primary-contact selection workflow.
-- Attendance has unique `(class_id, student_id, date)`. **Enrolments lack unique `(student_id,class_id)` and assessment results lack unique `(assessment_id,student_id)`**. Their services check/upsert pairs, but concurrent duplicate insertion is not fully constrained by the database. Reports lack unique student/term keys.
+- Attendance has unique `(class_id, student_id, date)`. **Enrolments lack unique `(student_id,class_id)` and assessment results lack unique `(assessment_id,student_id)`**. Migration 0009 adds nonunique pair lookups and INSERT/changed-pair duplicate guards, preserving existing duplicates. An ambiguous duplicate result pair blocks a whole batch; there is no migration cleanup or general correction log. Reports lack unique student/term keys.
 - Same-school relationships, role eligibility, active teacher/student membership, draft privacy, allowed status enums in legacy tables, legacy score ranges and academic date meaning are service rules. Legacy date schemas frequently require nonempty text only; do not infer calendar correctness.
 - Reading CHECKs enforce integer milliseconds/counts and fixed source/provenance. Its service additionally enforces valid nonfuture UTC reading date, language/reference limits, staff scope and retry semantics.
 - Resource CHECKs enforce positive integer versions, resource type and paired approval nullability. The unique resource/version key arbitrates stale concurrent revisions; unique version/class protects assignment retries. Content bounds, version/resource consistency, approval eligibility and active student class visibility are service rules. Only approval metadata changes in-place; content versions/assignments are append-only through implemented APIs, not database immutable-row triggers.
 - `attendance.recorded_by` is TEXT without an FK. Newer reading/resource actor references have user FKs. User/guardian/student relationship backfill is not performed by migration 0001.
 
 - New administration, curriculum and submission CHECK/unique keys enforce local row shape and revision uniqueness; same-school, live role, review and exact-version authority remain guarded service predicates. Identity status/session/evidence changes and curriculum resource-copy/provenance use atomic D1 batches.
-- Reading corrections have database no-update/no-delete triggers as well as service revision guards. Other new domain histories are append-only through their APIs; do not infer immutable-row triggers where none exist.
+- Reading corrections, profile-link events, submission-window reviews, import items and import receipts have no-update/no-delete triggers. Import draft originals and terminal decisions are guarded; a confirmation trigger inserts all checks and receipts in one atomic UPDATE. Other domain histories remain append-only through their APIs; no platform-wide immutable audit is inferred.
+
+
+- Staged import rows are not reading observations. A confirmed receipt uniquely consumes `(school_id, source_label, external_reference)`; a conflict rolls back the entire confirmation and leaves the draft staged. User-declared source labels/references are not verified vendor identities.
+- `assignment_submission_windows` is separate from `resource_assignments.due_date`. No window row means unrestricted; latest closed/elapsed policy denies new attempts using the database clock, while authorized committed UUID replay and feedback remain available.
 
 ## `assessment_results`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
 | id | TEXT | no | none | PK | Stable text record identifier; usually a server UUID. Reading/resource IDs can be validated client UUID retry keys. | Protected learner education record |
-| assessment_id | TEXT | no | none | FK assessments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Assessment reference. | Protected learner education record |
-| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Scored student profile. | Protected learner education record |
+| assessment_id | TEXT | no | none | FK assessments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; nonunique pair lookup index; INSERT/changed-pair duplicate guards preserve legacy rows | Assessment reference. | Protected learner education record |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; nonunique pair lookup index; INSERT/changed-pair duplicate guards preserve legacy rows | Scored student profile. | Protected learner education record |
 | score | INTEGER | no | none | No additional DB constraint | Nonnegative integer service score, at most assessment maximum. | Protected learner education record |
 | grade | TEXT | yes | none | No additional DB constraint | Optional grade label; grade rubric is pending. | Protected learner education record |
 | feedback | TEXT | yes | none | No additional DB constraint | Optional staff feedback; family publication is not implemented. | Protected learner education record |
 | created_at | TEXT | no | none | No additional DB constraint | ISO creation timestamp, generated by service; no database timestamp default. | Protected learner education record |
 | updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Protected learner education record |
 
-Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
+Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; drizzle/0009_academic_integrity.sql.
 
 ## `assessments`
 
@@ -56,6 +60,22 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 | updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Internal staff academic content |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
+
+## `assignment_submission_windows`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Mandatory client policy UUID, stable for exact actor/payload retry. | Protected staff review and learner evidence |
+| assignment_id | TEXT | no | none | FK resource_assignments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE assignment_submission_windows_assignment_revision (assignment_id, revision); UPDATE/DELETE blocked by immutable-row triggers | Exact approved assignment whose new-attempt access is reviewed. | Protected staff review and learner evidence |
+| revision | INTEGER | no | none | UNIQUE assignment_submission_windows_assignment_revision (assignment_id, revision); CHECK assignment_submission_windows_revision: typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000000; UPDATE/DELETE blocked by immutable-row triggers | Immutable sequence 1 through 1000000; absent policy means effective revision zero/open/unrestricted. | Protected staff review and learner evidence |
+| state | TEXT | no | none | CHECK assignment_submission_windows_state: state IN ('open', 'closed'); CHECK assignment_submission_windows_closing: (state = 'open' OR closes_at IS NULL) AND (closes_at IS NULL OR (length(closes_at) = 24 AND substr(closes_at, 24, 1) = 'Z' AND julianday(closes_at) IS NOT NULL)); UPDATE/DELETE blocked by immutable-row triggers | Reviewed open or closed; an elapsed closes_at also denies new attempts. | Protected staff review and learner evidence |
+| closes_at | TEXT | yes | none | CHECK assignment_submission_windows_closing: (state = 'open' OR closes_at IS NULL) AND (closes_at IS NULL OR (length(closes_at) = 24 AND substr(closes_at, 24, 1) = 'Z' AND julianday(closes_at) IS NOT NULL)); UPDATE/DELETE blocked by immutable-row triggers | Null for no timed cutoff or any closed state; otherwise canonical exact UTC ISO with three milliseconds. DB clock enforces attempt insertion. | Protected staff review and learner evidence |
+| reviewed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated school administrator or current assigned teacher. | Protected staff review and learner evidence |
+| reviewed_at | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Server ISO explicit-review timestamp. | Protected staff review and learner evidence |
+| reason | TEXT | no | none | CHECK assignment_submission_windows_reason: length(trim(reason)) BETWEEN 10 AND 500; UPDATE/DELETE blocked by immutable-row triggers | Trimmed single-line review reason, 10 through 500; no grading or late penalty implied. | Protected staff review and learner evidence |
+| request_hash | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Private canonical assignment/input digest for UUID equality; omitted from all API views. | Protected staff review and learner evidence |
+
+Source: db/submission-window-schema.ts; drizzle/0011_submission_windows.sql.
 
 ## `attendance`
 
@@ -165,21 +185,21 @@ Source: db/curriculum-schema.ts; drizzle/0005_curriculum.sql.
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
 | id | TEXT | no | none | PK | Stable text record identifier; usually a server UUID. Reading/resource IDs can be validated client UUID retry keys. | Protected learner education record |
-| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Enrolled student profile. | Protected learner education record |
-| class_id | TEXT | no | none | FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Class reference; service validates school compatibility. | Protected learner education record |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; nonunique pair lookup index; INSERT/changed-pair duplicate guards preserve legacy rows | Enrolled student profile. | Protected learner education record |
+| class_id | TEXT | no | none | FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; nonunique pair lookup index; INSERT/changed-pair duplicate guards preserve legacy rows | Class reference; service validates school compatibility. | Protected learner education record |
 | status | TEXT | no | none | No additional DB constraint | Service enum active, withdrawn or completed; not a DB CHECK. | Protected learner education record |
 | enrolled_at | TEXT | no | none | No additional DB constraint | ISO enrolment time generated by enrolStudent; broader date policy is pending. | Protected learner education record |
 | created_at | TEXT | no | none | No additional DB constraint | ISO creation timestamp, generated by service; no database timestamp default. | Protected learner education record |
 | updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Protected learner education record |
 
-Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
+Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; drizzle/0009_academic_integrity.sql.
 
 ## `guardians`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
 | id | TEXT | no | none | PK | Stable text record identifier; usually a server UUID. Reading/resource IDs can be validated client UUID retry keys. | Protected family/contact data |
-| user_id | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Optional guardian-role account mapping; neither unique nor inferred from email. | Protected family/contact data |
+| user_id | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INSERT/changed-user_id uniqueness triggers preserve existing legacy duplicates | Reviewed optional guardian-role account binding; new/changed mappings guarded, legacy duplicates preserved; never inferred from email. | Protected family/contact data |
 | name | TEXT | no | none | No additional DB constraint | Guardian name. | Protected family/contact data |
 | phone | TEXT | yes | none | No additional DB constraint | Optional contact phone. | Protected family/contact data |
 | email | TEXT | yes | none | No additional DB constraint | Optional contact email. | Protected family/contact data |
@@ -188,7 +208,7 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 | updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Protected family/contact data |
 | school_id | TEXT | yes | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Optional legacy school ownership; null legacy records fail closed in scoped services. New API records infer the principal school. | Protected family/contact data |
 
-Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql.
+Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql; db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql; drizzle/0008_profile_links.sql.
 
 ## `identity_admin_events`
 
@@ -199,11 +219,11 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_tru
 | actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current enabled school administrator who explicitly reviewed the action. | Restricted attributable account administration evidence |
 | user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_events_user (user_id) | Provisioned or status-reviewed account; its profile ownership is not remapped. | Restricted attributable account administration evidence |
 | action | TEXT | no | none | CHECK action IN ('provision', 'enable', 'disable') | Decision kind: provision, enable or disable. | Restricted attributable account administration evidence |
-| reason | TEXT | no | none | No additional DB constraint | Explicit one-line review reason/reference, service length10–500; avoid secrets and unnecessary personal data. | Restricted attributable account administration evidence |
+| reason | TEXT | no | none | No additional DB constraint | Explicit one-line review reason/reference, service length 10–500; avoid secrets and unnecessary personal data. | Restricted attributable account administration evidence |
 | reviewed_at | TEXT | no | none | INDEX identity_admin_events_school_reviewed (school_id, reviewed_at) | Server ISO review/decision timestamp. | Restricted attributable account administration evidence |
 | previous_enabled | INTEGER | yes | none | CHECK (previous_enabled IS NULL OR previous_enabled IN (0, 1)) AND next_enabled IN (0, 1) | NULL for provisioning; otherwise previous account-enabled flag 0/1. | Restricted attributable account administration evidence |
 | next_enabled | INTEGER | no | none | CHECK (previous_enabled IS NULL OR previous_enabled IN (0, 1)) AND next_enabled IN (0, 1) | Resulting account-enabled flag 0/1. | Restricted attributable account administration evidence |
-| expected_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version > expected_version | Supplied status revision or0 for initial provisioning. | Restricted attributable account administration evidence |
+| expected_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version > expected_version | Supplied status revision or 0 for initial provisioning. | Restricted attributable account administration evidence |
 | resulting_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version > expected_version | Committed expected revision plus 1. | Restricted attributable account administration evidence |
 | request_hash | TEXT | no | none | No additional DB constraint | Private SHA-256 digest of canonical reviewed operation payload; not exposed in event responses. | Restricted attributable account administration evidence |
 | attempt_id | TEXT | no | none | No additional DB constraint | Private server attempt UUID gates one transaction so an old request replay cannot apply its decision again. | Restricted attributable account administration evidence |
@@ -215,7 +235,7 @@ Source: db/identity-admin-schema.ts; drizzle/0004_identity_admin.sql.
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
 | user_id | TEXT | no | none | PK; FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Account whose reviewed administration revision is tracked; existing accounts without a row read as version 0. | Restricted account administration metadata |
-| version | INTEGER | no | none | CHECK typeof(version) = 'integer' AND version >= 0 | Optimistic account-administration revision; provision creates1, reviewed status changes increment once. | Restricted account administration metadata |
+| version | INTEGER | no | none | CHECK typeof(version) = 'integer' AND version >= 0 | Optimistic account-administration revision; provision creates 1, reviewed status changes increment once. | Restricted account administration metadata |
 
 Source: db/identity-admin-schema.ts; drizzle/0004_identity_admin.sql.
 
@@ -246,6 +266,40 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 
 Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
 
+## `profile_link_events`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Mandatory client request UUID for this immutable reviewed link decision. | Restricted account ownership review |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX profile_link_events_school_time (school_id, reviewed_at); UPDATE/DELETE blocked by immutable-row triggers | Authenticated administrator school at review. | Restricted account ownership review |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated school administrator reviewer. | Restricted account ownership review |
+| profile_type | TEXT | no | none | UNIQUE profile_link_events_revision (profile_type, profile_id, resulting_version); CHECK profile_link_events_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL); UPDATE/DELETE blocked by immutable-row triggers | Student or guardian profile discriminator. | Restricted account ownership review |
+| profile_id | TEXT | no | none | UNIQUE profile_link_events_revision (profile_type, profile_id, resulting_version); CHECK profile_link_events_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL); UPDATE/DELETE blocked by immutable-row triggers | Exact profile whose login binding changed. | Restricted account ownership review |
+| student_id | TEXT | yes | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK profile_link_events_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL); UPDATE/DELETE blocked by immutable-row triggers | Concrete student FK for a student decision; private redundant target field omitted from API. | Restricted account ownership review |
+| guardian_id | TEXT | yes | none | FK guardians.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK profile_link_events_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL); UPDATE/DELETE blocked by immutable-row triggers | Concrete guardian FK for a guardian decision; private redundant target field omitted from API. | Restricted account ownership review |
+| previous_user_id | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK profile_link_events_changed: previous_user_id IS NOT next_user_id; UPDATE/DELETE blocked by immutable-row triggers | Prior nullable login binding; retained as historical evidence. | Restricted account ownership review |
+| next_user_id | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK profile_link_events_changed: previous_user_id IS NOT next_user_id; UPDATE/DELETE blocked by immutable-row triggers | New login binding or null for unlink. | Restricted account ownership review |
+| expected_version | INTEGER | no | none | CHECK profile_link_events_number: typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version BETWEEN 0 AND 999999 AND resulting_version = expected_version + 1; UPDATE/DELETE blocked by immutable-row triggers | Reviewed current version, zero through 999999. | Restricted account ownership review |
+| resulting_version | INTEGER | no | none | UNIQUE profile_link_events_revision (profile_type, profile_id, resulting_version); CHECK profile_link_events_number: typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version BETWEEN 0 AND 999999 AND resulting_version = expected_version + 1; UPDATE/DELETE blocked by immutable-row triggers | Exactly expected version plus one. | Restricted account ownership review |
+| reason | TEXT | no | none | CHECK profile_link_events_reason: length(reason) BETWEEN 10 AND 500; UPDATE/DELETE blocked by immutable-row triggers | Explicit single-line reviewed reason, 10 through 500 characters; no controls or angle brackets in service. | Restricted account ownership review |
+| reviewed_at | TEXT | no | none | INDEX profile_link_events_school_time (school_id, reviewed_at); UPDATE/DELETE blocked by immutable-row triggers | Server ISO decision timestamp. | Restricted account ownership review |
+| request_hash | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Private canonical-payload digest; never returned to client. | Restricted account ownership review |
+| attempt_id | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Private server batch-attempt gate; never returned to client. | Restricted account ownership review |
+
+Source: db/profile-links-schema.ts; drizzle/0008_profile_links.sql.
+
+## `profile_link_versions`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| profile_type | TEXT | no | none | PK member 1; CHECK profile_link_versions_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL) | Student or guardian profile discriminator, paired with the corresponding concrete FK. | Restricted account ownership review |
+| profile_id | TEXT | no | none | PK member 2; CHECK profile_link_versions_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL) | Exact stable profile ID; not a login account ID. | Restricted account ownership review |
+| student_id | TEXT | yes | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK profile_link_versions_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL) | Student FK when type is student; otherwise null. | Restricted account ownership review |
+| guardian_id | TEXT | yes | none | FK guardians.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK profile_link_versions_target: (profile_type = 'student' AND student_id IS NOT NULL AND student_id = profile_id AND guardian_id IS NULL) OR (profile_type = 'guardian' AND guardian_id IS NOT NULL AND guardian_id = profile_id AND student_id IS NULL) | Guardian FK when type is guardian; otherwise null. | Restricted account ownership review |
+| version | INTEGER | no | none | CHECK profile_link_versions_number: typeof(version) = 'integer' AND version BETWEEN 1 AND 1000000 | Current reviewed link version; absent row means legacy version zero, no invented review backfill. | Restricted account ownership review |
+
+Source: db/profile-links-schema.ts; drizzle/0008_profile_links.sql.
+
 ## `reading_checks`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -257,7 +311,7 @@ Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
 | recorded_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Authenticated staff recorder, fixed by server. | Protected learner education observation |
 | source_app_id | TEXT | no | none | CHECK reading_checks_source | Fixed category oral-reading-fluency; not proof of any external provider response. | Protected learner education observation |
 | provenance | TEXT | no | none | CHECK reading_checks_source | Fixed manual-reviewed-external; no automatic external verification. | Protected learner education observation |
-| language | TEXT | no | none | No additional DB constraint | Simple BCP47-style language tag; service max 35 characters. | Protected learner education observation |
+| language | TEXT | no | none | No additional DB constraint | Simple BCP 47-style language tag; service max 35 characters. | Protected learner education observation |
 | passage_reference | TEXT | no | none | No additional DB constraint | Plain passage label/reference, service max 200; no passage, transcript or audio payload. | Protected learner education observation |
 | reading_date | TEXT | no | none | INDEX reading_checks_class (class_id, reading_date); INDEX reading_checks_school_student (school_id, student_id, reading_date) | Valid YYYY-MM-DD no later than current UTC date; service validation. | Protected learner education observation |
 | duration_ms | INTEGER | no | none | CHECK reading_checks_duration | Rounded input seconds multiplied by 1000; integer 1000..3600000. | Protected learner education observation |
@@ -281,10 +335,65 @@ Source: db/schema.ts; drizzle/0002_reviewed_reading.sql.
 | passage_reference | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement plain task reference, service maximum 200; not a transcript/full passage. | Protected learner observation correction evidence |
 | reading_date | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement valid nonfuture UTC calendar date as YYYY-MM-DD. | Protected learner observation correction evidence |
 | duration_ms | INTEGER | no | none | CHECK typeof(duration_ms) = 'integer' AND duration_ms BETWEEN 1000 AND 3600000; No UPDATE/DELETE: immutable-row triggers | Replacement rounded integer duration 1000–3600000 milliseconds. | Protected learner observation correction evidence |
-| words_attempted | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer attempted words1–500. | Protected learner observation correction evidence |
-| words_correct | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer correct words0–words_attempted; rate/accuracy are derived, not stored. | Protected learner observation correction evidence |
+| words_attempted | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer attempted words 1–500. | Protected learner observation correction evidence |
+| words_correct | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer correct words 0–words_attempted; rate/accuracy are derived, not stored. | Protected learner observation correction evidence |
 
 Source: db/reading-correction-schema.ts; drizzle/0007_reading_corrections.sql.
+
+## `reading_import_drafts`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Mandatory client import UUID for the normalized envelope, stable after uncertainty. | Protected staff review and learner evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX reading_import_drafts_school_creator (school_id, created_by); Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Server actor school; never taken from imported data. | Protected staff review and learner evidence |
+| class_id | TEXT | no | none | FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | One explicit currently authorized Saha class for all items. | Protected staff review and learner evidence |
+| created_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX reading_import_drafts_school_creator (school_id, created_by); Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Authenticated staging staff member; teachers retain creator plus current-class scope. | Protected staff review and learner evidence |
+| source_label | TEXT | no | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Exact user-declared namespace, 1 through 120; not an authenticated vendor identity. | Protected staff review and learner evidence |
+| source_reference | TEXT | no | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Exact user-declared batch reference, 1 through 200. | Protected staff review and learner evidence |
+| request_hash | TEXT | no | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Private normalized envelope digest for exact stage retry; omitted from API. | Protected staff review and learner evidence |
+| rows_json | TEXT | no | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Private server-prepared normalized rows, 1 through 25, with preallocated item/check IDs; stage trigger materializes items. Omitted from API. | Protected staff review and learner evidence |
+| status | TEXT | no | 'staged' | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | staged, confirmed or rejected; only one terminal decision from staged. | Protected staff review and learner evidence |
+| revision | INTEGER | no | 0 | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Zero while staged, one after confirmed/rejected; terminal immutable. | Protected staff review and learner evidence |
+| created_at | TEXT | no | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Server ISO staging timestamp. | Protected staff review and learner evidence |
+| decision_id | TEXT | yes | none | UNIQUE reading_import_decision_unique (decision_id); Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Nullable mandatory decision UUID once reviewed; unique across drafts. | Protected staff review and learner evidence |
+| decision_hash | TEXT | yes | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Private exact review-payload digest; omitted from API. | Protected staff review and learner evidence |
+| reviewed_by | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Nullable authenticated reviewer until terminal decision. | Protected staff review and learner evidence |
+| reviewed_at | TEXT | yes | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Nullable server ISO review timestamp until terminal decision. | Protected staff review and learner evidence |
+| reason | TEXT | yes | none | Guarded staged-to-terminal UPDATE; immutable original/terminal fields; DELETE blocked by draft-preservation trigger | Nullable explicit exact plain reviewed reason 1 through 1000 until terminal decision. | Protected staff review and learner evidence |
+
+Source: db/reading-import-schema.ts; drizzle/0010_reading_imports.sql.
+
+## `reading_import_items`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Server UUID of an immutable normalized draft item. | Protected staff review and learner evidence |
+| import_id | TEXT | no | none | FK reading_import_drafts.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE reading_import_item_reference (import_id, external_reference); UPDATE/DELETE blocked by immutable-row triggers | Parent immutable draft envelope. | Protected staff review and learner evidence |
+| reading_check_id | TEXT | no | none | UNIQUE reading_import_item_check (reading_check_id); UPDATE/DELETE blocked by immutable-row triggers | Preallocated unique future reading check UUID; intentionally no FK while staged because no observation exists yet. | Protected staff review and learner evidence |
+| external_reference | TEXT | no | none | UNIQUE reading_import_item_reference (import_id, external_reference); UPDATE/DELETE blocked by immutable-row triggers | Exact stable user-declared per-result reference, 1 through 200; distinct in a draft. | Protected staff review and learner evidence |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Explicit exact Saha student ID; no name/email/provider-ID autolinking. | Protected staff review and learner evidence |
+| language | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Reviewed simple language tag, maximum 35; no language suitability certification. | Protected staff review and learner evidence |
+| passage_reference | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Plain reviewed task reference, maximum 200; no full passage or audio. | Protected staff review and learner evidence |
+| reading_date | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Real nonfuture UTC YYYY-MM-DD in service. | Protected staff review and learner evidence |
+| duration_ms | INTEGER | no | none | UPDATE/DELETE blocked by immutable-row triggers | Rounded integer milliseconds derived from 1 through 3600 seconds. | Protected staff review and learner evidence |
+| words_attempted | INTEGER | no | none | UPDATE/DELETE blocked by immutable-row triggers | Integer attempted count 1 through 500. | Protected staff review and learner evidence |
+| words_correct | INTEGER | no | none | UPDATE/DELETE blocked by immutable-row triggers | Integer correct count 0 through attempted count. | Protected staff review and learner evidence |
+
+Source: db/reading-import-schema.ts; drizzle/0010_reading_imports.sql.
+
+## `reading_import_receipts`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| item_id | TEXT | no | none | PK; FK reading_import_items.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Immutable confirmed item receipt key; no receipt exists before confirmation. | Protected staff review and learner evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE reading_import_receipt_source (school_id, source_label, external_reference); UPDATE/DELETE blocked by immutable-row triggers | School namespace for consumed-result uniqueness and privacy. | Protected staff review and learner evidence |
+| source_label | TEXT | no | none | UNIQUE reading_import_receipt_source (school_id, source_label, external_reference); UPDATE/DELETE blocked by immutable-row triggers | Exact declared namespace copied from reviewed draft; user supplied, not vendor verified. | Protected staff review and learner evidence |
+| external_reference | TEXT | no | none | UNIQUE reading_import_receipt_source (school_id, source_label, external_reference); UPDATE/DELETE blocked by immutable-row triggers | Exact stable result reference; unique with school and declared source label across DIFFERENT import UUIDs. | Protected staff review and learner evidence |
+| reading_check_id | TEXT | no | none | FK reading_checks.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE reading_import_receipt_check (reading_check_id); UPDATE/DELETE blocked by immutable-row triggers | Original reviewed reading check created atomically with this receipt. | Protected staff review and learner evidence |
+| reviewed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated confirming staff member. | Protected staff review and learner evidence |
+| reviewed_at | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Server ISO confirmation timestamp copied from draft decision. | Protected staff review and learner evidence |
+
+Source: db/reading-import-schema.ts; drizzle/0010_reading_imports.sql.
 
 ## `report_cards`
 
@@ -341,7 +450,7 @@ Source: db/curriculum-schema.ts; drizzle/0005_curriculum.sql.
 | curriculum | TEXT | no | none | No additional DB constraint | Plain curriculum context text, max 120; not a curriculum-library FK. | Internal draft/reviewed teaching content |
 | grade_level | TEXT | no | none | No additional DB constraint | Plain grade context, max 40. | Internal draft/reviewed teaching content |
 | subject | TEXT | no | none | No additional DB constraint | Plain subject context, max 80. | Internal draft/reviewed teaching content |
-| language | TEXT | no | none | No additional DB constraint | Simple BCP47-style tag, max 35. | Internal draft/reviewed teaching content |
+| language | TEXT | no | none | No additional DB constraint | Simple BCP 47-style tag, max 35. | Internal draft/reviewed teaching content |
 | objectives | TEXT | no | none | No additional DB constraint | Plain learning objectives, max 4000. | Internal draft/reviewed teaching content |
 | body | TEXT | no | none | No additional DB constraint | Plain lesson/worksheet/quiz/activity content, max 20000; no executable HTML rendering contract. | Internal draft/reviewed teaching content |
 | teacher_notes | TEXT | no | none | No additional DB constraint | Private staff notes, max 8000; omitted from assignment serialization. | Confidential staff-only teaching material |
@@ -403,7 +512,7 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_tru
 | submitted_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Authenticated student account; no caller-selected learner ownership. | Protected learner response and attempt history |
 | attempt | INTEGER | no | none | UNIQUE submission_attempts_assignment_student_number (assignment_id, student_id, attempt); CHECK typeof(attempt) = 'integer' AND attempt BETWEEN 1 AND 1000001 | Immutable per-assignment/per-student attempt number, expectedAttempt plus 1. | Protected learner response and attempt history |
 | response | TEXT | no | none | CHECK length(trim(response)) BETWEEN 1 AND 20000 | Escaped plain-text learner response, trimmed 1–20000; not an upload or HTML execution contract. | Protected learner response and attempt history |
-| created_at | TEXT | no | none | INDEX submission_attempts_assignment (assignment_id, created_at) | Server ISO attempt timestamp; due dates do not enforce a deadline in this slice. | Protected learner response and attempt history |
+| created_at | TEXT | no | none | INDEX submission_attempts_assignment (assignment_id, created_at) | Server ISO attempt timestamp; due date remains informational while separate reviewed window controls new-attempt access. | Protected learner response and attempt history |
 
 Source: db/submission-schema.ts; drizzle/0006_submissions.sql.
 
@@ -447,7 +556,6 @@ Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 | disabled_at | TEXT | yes | none | No additional DB constraint | ISO timestamp disabling application access; null permits access subject to other checks. | Protected account identity |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql, drizzle/0002_reviewed_reading.sql, drizzle/0003_teacher_resources.sql.
-
 ## Remaining proposed entities and policies
 
-AI draft runs/provider provenance/budget, external mapping/import receipts, general academic audit, verified license lifecycle, enforceable submission windows/grades, guardian feedback publication and approved retention/export/deletion remain unimplemented or unresolved. Manual curriculum reference statements are not automated licensing checks. Account administration does not retrofit missing identity/profile ownership. Existing resource curriculum labels remain free text; durable source-copy evidence is in `resource_reference_bindings`. Numeric reading observations/corrections contain no audio, transcript or external-result payload. See [integration contracts](INTEGRATION-CONTRACTS.md) and [API contracts](API-CONTRACTS.md).
+AI generation/provider provenance/budgets, verified external identity mappings and automatic adapters, general academic correction/audit, verified licensing, grading/attachments/guardian publication, and approved retention/export/deletion remain unimplemented or unresolved. Reviewed profile binding does not verify family relationships or remap account roles/identities/schools. Local JSON import receipts record explicit manual review and exact user-declared source references; they are not authenticated provider events. Submission windows govern new text attempts only, with no automatic penalties or grades. See [integration contracts](INTEGRATION-CONTRACTS.md) and [API contracts](API-CONTRACTS.md).

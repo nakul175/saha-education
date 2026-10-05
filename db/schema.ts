@@ -302,3 +302,6 @@ export { identityAdminUserVersions, identityAdminEvents } from './identity-admin
 export { curriculumReferences, curriculumReferenceVersions, resourceReferenceBindings } from './curriculum-schema';
 export { submissionAttempts, submissionFeedback } from './submission-schema';
 export { readingCorrections } from './reading-correction-schema';
+export { profileLinkVersions, profileLinkEvents } from './profile-links-schema';
+export { readingImportDrafts, readingImportItems, readingImportReceipts } from './reading-import-schema';
+export { assignmentSubmissionWindows } from './submission-window-schema';

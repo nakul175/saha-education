@@ -1,8 +1,8 @@
 # Saha business requirements document
 
-Version 2.1 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. Source evidence is the implementation candidate at commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`, not a deployed or accepted production system.
+Version 2.2 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Business purpose
 
@@ -45,11 +45,11 @@ These are role responsibilities, not assignments to named individuals.
 
 ## Scope and release slices
 
-**Current implementation candidate:** provider-neutral authentication/session foundation, server-enforced school/class/student scope, school/academic APIs, published report handling, manual teaching-resource drafts/revisions/review/assignment/printing, and disabled external ORF launch plus manual reviewed numeric checks. The v2.1 working extension adds reviewed account provisioning/status administration, manual versioned curriculum references and unapproved copies, plain-text learner attempts/reviewed formative feedback, and attributable reading corrections with exact-task history. Code presence does not establish deployment, operational readiness, educator acceptance or complete administration journeys.
+**Current implementation candidate:** provider-neutral authentication/session foundation, server-enforced school/class/student scope, school/academic APIs, published report handling, manual teaching-resource drafts/revisions/review/assignment/printing, and disabled external ORF launch plus manual reviewed numeric checks. The historical v2.1 extension added reviewed accounts, manual curriculum versions/copies, text/formative evidence and reading corrections. The v2.2 candidate adds reviewed student/guardian login link/unlink decisions, live academic batch/duplicate-pair guards, local normalized reading JSON staging/review/receipts, and reviewed open/closed/timed submission windows. Code presence does not establish deployment, operational readiness, educator acceptance or complete administration journeys.
 
 **Next business slice:** agree pilot school context, curriculum/grades/languages and reviewer policies; validate the manual workspace; configure and test the chosen identity provider with synthetic users; confirm the ORF destination.
 
-**Later proposed scope:** pilot-approved curricula/licensing, AI draft assistance, role/identity/profile remapping, complete academic correction/audit and retention, enforceable submission-window/grade/guardian-publication policy, verified external adapters and document-file exports. The new manual library, reading corrections and text/formative workflows are partial deliveries; they do not resolve these wider policies. Each extension requires the corresponding functional/design/test revision.
+**Later proposed scope:** pilot-approved curricula/licensing, AI draft assistance, existing account role/identity/school remapping, complete academic correction/audit and retention, agreed grade/late/guardian-publication policy, verified external adapters and document-file exports. The new manual library, reading corrections and text/formative workflows are partial deliveries; they do not resolve these wider policies. Each extension requires the corresponding functional/design/test revision.
 
 **Outside present scope:** fees/payments, payroll, transport, admissions campaigns, examination proctoring, native mobile apps, offline synchronization, medical diagnosis, automatic learner risk classification, automatic paid provider activation, and licensed AmplifiU integration. Email/SMS and collection of audio/transcripts remain deferred.
 
@@ -65,7 +65,7 @@ These are role responsibilities, not assignments to named individuals.
 8. Withdrawals and corrections must preserve appropriate history; current historical-access/correction gaps must be resolved before real records are used.
 9. A school administrator explicitly reviews provisioning/status changes with an attributable reason. This slice fixes school to the actor, keeps existing role/issuer/subject immutable and protects self/final-administrator access. Disablement revokes current sessions; restoration requires a new sign-in.
 10. Curriculum permissions are manually declared, not verified automatically. Source approval never approves its copied teaching draft; that draft keeps the exact source-version provenance and requires its own review.
-11. Learner attempts remain plain text against the assigned approved version; staff feedback remains formative. Due dates are informational pending an agreed deadline policy. Reading history uses exact task/language/duration keys and descriptive metrics, with no scoring norms or diagnoses.
+11. Learner attempts remain plain text against the assigned approved version; staff feedback remains formative. Due dates remain informational. A separately reviewed submission window controls new attempts; no policy row means unrestricted. Reading history uses exact task/language/duration keys and descriptive metrics, with no scoring norms or diagnoses.
 
 ## Outcomes and measurement plan
 
@@ -85,3 +85,14 @@ No learning-outcome improvement, compliance certification or cost saving is clai
 Critical dependencies are the existing sign-in provider/tenant, identity/profile mappings, confirmed ORF app, pilot curriculum, reviewer/publication/correction rules, retention, actual hosting/database wiring and operational ownership. Unverified AI/provider/result contracts must not be treated as available services.
 
 Business acceptance requires sponsor-reviewed BRD scope, educator-reviewed functional flows/content, applicable security and role tests, agreed nonfunctional evidence and a documented pilot/release decision. The documents can be produced in order while testing/data/design work proceeds in parallel; drafting does not imply approval. See [decisions and risks](DECISIONS-RISKS.md), [functional specification](FSD.md) and [test strategy](TEST-STRATEGY.md).
+
+## v2.2 business control additions
+
+Trace: BR-01, BR-02, BR-05, BR-07, BR-09, BR-10; FR-04, FR-06, FR-08–FR-10, FR-20, FR-24–FR-26; NFR-01–NFR-03, NFR-05, NFR-09. These are implemented candidate choices, not approved school policies.
+
+12. Login profile ownership changes require an attributable current-school administrator review, expected version, reason and explicit confirmation. Old/new account sessions are revoked atomically, excluding the reviewing administrator so malformed legacy relationships can be repaired. This does not validate parenthood, consent or account role/identity changes.
+13. New academic duplicate pairs are blocked without deleting historical duplicates. Attendance and result batches recheck every current member and actor in the actual write; ambiguous legacy result pairs block the whole batch. Academic values still lack a general append-only correction history.
+14. A staff-supplied normalized JSON reading draft is a local manual workflow: stage immutable original values, review every item, then confirm all observations with durable declared-source receipts or reject with no observations. Source labels/references do not authenticate a vendor. A result is consumed once per school and exact declared namespace/reference, even across different draft IDs.
+15. Staff may append a reviewed open, closed or timed window for new learner text attempts. Closure does not delete attempts, prevent current authorized feedback, or undo exact committed UUID replay. Due date remains informational; grading, late penalties, attachments, guardian publication and real-use deadline policy remain open.
+
+The wider requirements stay partial/planned as registered. No educator, vendor, identity provider, real learner or business acceptance is inferred. Proposed success evidence must separately reconcile profile ownership, observed duplicate prevention, source-receipt provenance, deliberate rejection, closure/reopening and preserved historical work with the pilot's named reviewers.

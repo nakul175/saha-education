@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Guardian } from '@/lib/education/types';
+import type { Guardian, Principal } from '@/lib/education/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +12,7 @@ export default function GuardiansPage() {
   const [guardians, setGuardians] = useState<Guardian[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [principal, setPrincipal] = useState<Principal | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -21,17 +22,19 @@ export default function GuardiansPage() {
 
   const fetchGuardians = async () => {
     try {
+      const actorResponse = await fetch('/api/session', { cache: 'no-store' });
+      if (actorResponse.status === 401) { window.location.assign(new URL('/login', window.location.origin).href); return; }
+      if (!actorResponse.ok) throw new Error('Could not verify school access');
+      const actor: Principal = await actorResponse.json(); setPrincipal(actor);
       const response = await fetch('/api/guardians');
       if (!response.ok) {
         throw new Error('Failed to fetch guardians');
       }
       const data: Guardian[] = await response.json();
       setGuardians(data);
-      setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   useEffect(() => {
@@ -48,12 +51,13 @@ export default function GuardiansPage() {
     e.preventDefault();
     
     try {
+      if (principal?.role !== 'admin') throw new Error('School administrator access is required');
       const response = await fetch('/api/guardians', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, email: formData.email.trim() || undefined, phone: formData.phone.trim() || undefined }),
       });
 
       if (!response.ok) {
@@ -90,7 +94,9 @@ export default function GuardiansPage() {
         <p className="text-muted-foreground">Manage guardians and their information</p>
       </div>
 
-      <Card>
+      <p className="text-sm text-muted-foreground">New profiles start without a sign-in account. School administrators can link or unlink accounts through <a href="/admin/profile-links" className="underline">reviewed profile links</a>.</p>
+
+      {principal?.role === 'admin' && <Card>
         <CardHeader>
           <CardTitle>Add New Guardian</CardTitle>
         </CardHeader>
@@ -143,7 +149,7 @@ export default function GuardiansPage() {
             <Button type="submit">Create Guardian</Button>
           </form>
         </CardContent>
-      </Card>
+      </Card>}
 
       <Card>
         <CardHeader>

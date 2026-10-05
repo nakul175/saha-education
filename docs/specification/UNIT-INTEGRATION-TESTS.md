@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -33,7 +33,7 @@ The v2.1 extensions describe the current working candidate on `feat/specificatio
 | `tests/support/security-db.mjs` | support, not suite | Transpilation/hooks, corrected raw-array SQLite proxy and synthetic relationships |
 | `tests/support/write-worker-fixture.mjs` | support, not suite | Dependency-ordered local fixture generation; not provider authentication |
 
-The runner catalogue in `scripts/test-catalogue.mjs` classifies suites and derives its requirement report from the canonical 35-requirement register and designed-case `evidenceFiles`. It deduplicates existing runnable links. The current mapping connects 32 requirement IDs to at least one runnable file; this counts evidence context, not completed requirements, case execution or acceptance. `tests/unit/catalogue-contract.mjs` checks that distinction and missing-file behavior. Existing served/browser checkers are manual entries and are not automatically exercised by default static/unit/integration selection.
+The runner catalogue in `scripts/test-catalogue.mjs` classifies suites and derives its requirement report from the canonical 35-requirement register and designed-case `evidenceFiles`. It deduplicates existing runnable links. The current mapping connects 35 requirement IDs to at least one runnable file; this counts evidence context, not completed requirements, case execution or acceptance. `tests/unit/catalogue-contract.mjs` checks that distinction and missing-file behavior. Existing served/browser checkers are manual entries and are not automatically exercised by default static/unit/integration selection.
 
 ## Concrete design principles
 
@@ -45,7 +45,7 @@ For concurrency, coordinate separate requests at the relevant insert/update boun
 
 For OIDC, cryptographically sign synthetic ID tokens and verify actual JWKS handling; change issuer/audience/azp/nonce/expiry and browser/state independently. Mock provider faults without paid/network activation. A forged unsigned payload or injected session cannot substitute for a signed-token or real browser callback case.
 
-Current reviewed identities, manual curriculum, text attempts/formative feedback and reading corrections use actual implemented interfaces. Future AI/adapters, full identity/profile remapping, complete academic audit, verified licensing and deadline/grade/publication policy still require concrete contracts. Do not stub an invented endpoint and declare a broader requirement complete. Existing suite mapping does not execute or accept the designed cases.
+Current reviewed identities, manual curriculum, text attempts/formative feedback and reading corrections use actual implemented interfaces. Future AI/adapters, existing account role/identity/school remapping, complete academic audit, verified licensing and educator grade/late/publication policy still require concrete contracts. Do not stub an invented endpoint and declare a broader requirement complete. Existing suite mapping does not execute or accept the designed cases.
 
 ## Intended commands and entry limits
 
@@ -61,3 +61,16 @@ These are reproducibility instructions, not commands executed for this specifica
 ## Exit
 
 Capture suite results plus per-case actual expected comparisons, persisted invariants, faults and defect references. Broaden testing after failures/new changes or unresolved risks, not simply to repeat passing counts. Planned cases may remain unautomated, but release gates require explicit disposition; business acceptance is never implied by the runner.
+
+## v2.2 candidate mappings
+
+| Designed case group | Related runnable/source evidence | Persistence boundary |
+|---|---|---|
+| TC-102–TC-109 profile login review | [profile-links-contract](../../tests/integration/profile-links-contract.mjs), profile-links service/migration 0008 | Event/binding/version/session atomicity; current exact replay, legacy guard/repair and profile-transfer privacy |
+| TC-110–TC-117 academic integrity | [academic-integrity-contract](../../tests/integration/academic-integrity-contract.mjs), migration 0009 | Preserved legacy pairs; actual all-member/current maximum authority; ambiguous-pair denial and atomic rollback |
+| TC-118–TC-125 local reading imports | [reading-imports-contract](../../tests/integration/reading-imports-contract.mjs), migration 0010 | Stage 0 observations; reviewed all-row terminal CAS/receipt transaction; consumed-result dedup and live current scope |
+| TC-126–TC-133 reviewed windows | [submission-windows-contract](../../tests/integration/submission-windows-contract.mjs), existing submissions suite/migration 0011 | Latest/database-clock actual attempt gate; preserved committed replay/feedback; immutable policy/current-state replay |
+| TC-109/TC-117/TC-125/TC-133 prototype review context | [offline wireframe checker](../../tests/worker-wireframes-check.mjs) | Local synthetic 12-screen labels/focus/responsiveness and selected review interactions; no application workflow or educator acceptance |
+| TC-091/TC-092 related local recovery scope | [development-recovery-contract](../../tests/integration/development-recovery-contract.mjs), existing recovery utility | Exact populated local encrypted roundtrip and rechecked privacy/retry/triggers, not hosted cutover/key custody/schedule |
+
+Tests use actual isolated SQLite/sessions/routes, inspect persisted counts/values and inject authority changes immediately before actual statements. Browser/served implementation uses separate manual checkers; no test count, evidence link or local restored row promotes a requirement or designed case to acceptance. Array/transport caps are implementation limits, not performance guarantees.

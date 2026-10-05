@@ -93,6 +93,17 @@ const routes = files(join(root, 'app/api')).filter(file => file.endsWith('/route
 const api = read('API-CONTRACTS.md');
 const inventory = api.split('\n').filter(line => /^\| `\/api\//.test(line));
 assert.equal(inventory.length, routes.length, 'API inventory route count drift');
+const apiExport = csv(read('API-CONTRACTS.csv'));
+const apiFields = ['route', 'exported_methods_input', 'role_scope', 'success', 'additional_behavior'];
+assert.equal(apiExport.length, inventory.length, 'API CSV route count drift');
+assert.equal(new Set(apiExport.map(row => row.route)).size, inventory.length, 'Duplicate API CSV routes');
+for (const line of inventory) {
+  const cells = line.split('|').slice(1, -1).map(value => value.trim());
+  assert.equal(cells.length, apiFields.length, 'API inventory column count drift');
+  const record = apiExport.find(row => row.route === cells[0]);
+  assert.ok(record, 'API CSV lacks ' + cells[0]);
+  for (const [index, field] of apiFields.entries()) assert.equal(record[field], cells[index], 'API CSV differs at ' + cells[0] + ' ' + field);
+}
 for (const route of routes) {
   const url = '/' + relative(join(root, 'app'), route).replaceAll('\\', '/').replace(/\/route\.ts$/, '');
   const row = inventory.find(line => line.startsWith('| `' + url + '` |')); assert.ok(row, 'API inventory lacks ' + url);

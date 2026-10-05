@@ -1,8 +1,8 @@
 # Saha high-level design
 
-Version 2.1 draft, 5 October 2026. Design baseline: source commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
+Version 2.2 draft, 5 October 2026. Historical v2.0 baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## 1. System context and responsibility
 
@@ -21,7 +21,7 @@ flowchart LR
   Saha --> Records[School and academic records / content versions / reviewed counts]
 ```
 
-The ORF connection is a staff-only launch boundary. No Saha session token, cookie, student identifier, name, transcript or recording is added to its URL. Saha does not call an ORF API or receive synchronized results. Reviewed numeric entry is a separate manual Saha workflow.
+The ORF connection is a staff-only launch boundary. No Saha session token, cookie, student identifier, name, transcript or recording is added to its URL. Saha does not call an ORF API or receive synchronized results. Reviewed numeric entry and local normalized JSON staging/review are separate manual Saha workflows.
 
 ## 2. Containers and execution boundary
 
@@ -75,7 +75,7 @@ Trace: FR-01–FR-04; NFR-01, NFR-03.
 | Protected page layouts | Load a server principal and redirect when absent | Layout protection alone does not protect API or server-service calls |
 | Education APIs | Authenticate every read; validate Origin on mutations; uncached safe responses; common JSON parser 128 KiB | New domain schemas are strict; legacy validators are less complete |
 | Domain services | Mandatory principal, role checks and SQL record filters | School/class/profile history policy is incomplete |
-| Reviewed account administration | Enabled school administrator provisions explicit issuer/subject and reviews status with attributable reason | First-school/admin bootstrap remains operator work; existing role/identity/school/profile remapping is outside this UI |
+| Reviewed account administration | Enabled school administrator provisions explicit issuer/subject and reviews status with attributable reason | First-school/admin bootstrap remains operator work; existing account role/identity/school remapping is outside this UI; separate reviewed profile login binding is current |
 
 Provider issuer/subject pairs identify accounts. Current role, school, disabled state and profile relationships reside in Saha records. Provider email, a browser-selected role and public identity headers confer no authority. Opaque session tokens are sent only as secure cookies; D1 stores their digests. Provider client secrets are server configuration, distinct from application sessions and content. No AI or ORF API credentials have been introduced.
 
@@ -102,9 +102,9 @@ See [DATA-DICTIONARY](DATA-DICTIONARY.md) for storage relationships and [API-CON
 
 Trace: BR-01; FR-05–FR-12; NFR-02.
 
-School administrators manage permitted school metadata, students/guardians, course/class setup and enrolment. Teacher IDs and identity-profile links must refer to enabled, matching-role users in the same school. Attendance and assessment batches validate every entry before a transactional D1 batch. Report creation forces a private draft; administrator publication and mapped guardian notices commit together, using deterministic notice IDs for repeat safety.
+School administrators manage permitted school metadata, students/guardians, course/class setup and enrolment. Teacher IDs and identity-profile links must refer to enabled, matching-role users in the same school. Attendance uses one guarded JSON INSERT SELECT/upsert; results use an atomic guarded JSON insert/update batch. Both recheck all current eligibility and the live actor in actual statements. Report creation forces a private draft; administrator publication and mapped guardian notices commit together, using deterministic notice IDs for repeat safety.
 
-Core workflow limits remain explicit: legacy academic date rules are weak, correction history is incomplete, enrolment/result pair uniqueness is not fully established, and family assessment publication is deferred. Read/write scope is implemented, but complete administration, academic acceptance and correction policy are not established by that fact.
+Core workflow limits remain explicit: legacy academic date rules are weak, correction history is incomplete, new enrolment/result duplicate pairs are guarded while unresolved legacy duplicates remain stored, and family assessment publication is deferred. Read/write scope is implemented, but complete administration, academic acceptance and correction policy are not established by that fact.
 
 ## 6. Teacher-resource lifecycle
 
@@ -155,13 +155,13 @@ Trace: BR-01–BR-12. This table accounts for all 35 canonical requirements with
 | Requirement IDs | Current design boundary | Proposed extension / dependency |
 |---|---|---|
 | FR-01, FR-02, FR-03 | Provider-neutral OIDC, live sessions and scoped services | Chosen provider registration and verified synthetic callback journey |
-| FR-04 | Reviewed current-school provisioning/status UI, session revocation and administration evidence | Full role/identity/profile remapping and approved review policy |
+| FR-04 | Reviewed current-school provisioning/status UI, session revocation and administration evidence | Existing account role/identity/school remapping, guardian verification and approved review policy |
 | FR-05, FR-06, FR-07, FR-08 | School/roster/course/class/enrolment services | Complete administration journeys and historical relationship policy |
 | FR-09, FR-10, FR-11, FR-12 | Authorized academic writes, private result boundary, published reports and owned in-app notices | Academic date/grading/correction decisions; family result publication; external delivery contracts |
 | FR-13, FR-14, FR-15, FR-16, FR-17, FR-18 | Manual drafts, immutable revisions, review, assignment, learner view and printing | Pilot reviewer policy and educator/print acceptance; document-file exports |
 | FR-19, FR-20, FR-21 | Disabled trusted launch, manual numeric originals, attributable corrections and exact-task history | Confirm ORF destination; educator task/scoring/interpretation and publication policy |
 | FR-22, FR-23 | Manual versioned source/rights declarations, exact review and durable unapproved resource copies; no AI service | Pilot curriculum/actual source rights and suitability; provider choice, grounded drafting, budgets |
-| FR-24, FR-25, FR-26 | Text attempts/reviewed formative feedback and domain review/correction evidence; no external adapter or general audit system | Deadline/grade/guardian policy, verified mappings, general academic correction/export/retention |
+| FR-24, FR-25, FR-26 | Text/formative evidence, reviewed submission windows and local normalized reading import drafts/receipts; no verified external adapter or general audit system | Grade/late/guardian policy, verified vendor mappings, general academic correction/export/retention |
 | NFR-01, NFR-02, NFR-03 | Identity/scope, protected writes, selected atomic/repeat-safe operations and limited data forwarding | Broader security review, legacy race/correction work and approved privacy/retention policy |
 | NFR-04, NFR-05, NFR-06 | Existing browser UI and language tags; no agreed scale/accessibility/language suitability target | Representative workload, accessible role journeys and educator language review |
 | NFR-07, NFR-08, NFR-09 | Source/evidence files and synthetic checks | Authorized recovery, support/correlation design and maintained requirement/case/evidence traceability |
@@ -185,7 +185,7 @@ Implementers must preserve migrations and existing records, use synthetic fixtur
 | Architectural concern | Source baseline plus working extensions |
 |---|---|
 | Worker and build | `worker/index.ts`, `vite.config.ts`, `.openai/hosting.json` |
-| Database binding and schema | `db/index.ts`, `db/schema.ts` and re-exported domain schema modules; migrations 0000–0007 |
+| Database binding and schema | `db/index.ts`, `db/schema.ts` and re-exported domain schema modules; migrations 0000–0011 |
 | Identity and session | `lib/education/identity.ts`, `oidc.ts`, `session.ts`, `auth.ts` |
 | HTTP/service boundaries | `lib/education/http.ts`, `access.ts`, `app/api/**`, protected layouts |
 | Academic modules | `schools.ts`, `students.ts`, `guardians.ts`, `courses.ts`, `classes.ts`, `enrolments.ts`, `attendance.ts`, `assessments.ts`, `report-cards.ts`, `notifications.ts` under `lib/education/` |
@@ -213,6 +213,33 @@ flowchart TB
   Correction --> History[Original/effective history and exact-task series]
 ```
 
-These services share the existing authenticated Worker/Drizzle/D1 boundary. They introduce eight additive tables and thirteen route files, with no new external runtime, message channel or AI provider. Account and curriculum-copy multi-record operations use D1 atomic batches; revisioned attempts/feedback/corrections use guarded INSERT SELECT with unique sequence keys. Current authority is checked inside the mutation, not merely before it. The correction table also has database no-update/no-delete triggers. Other histories are append-only through their current APIs, without a claimed database-wide immutable audit layer.
+These services share the existing authenticated Worker/Drizzle/D1 boundary. The historical v2.1 set introduced eight additive tables and thirteen route files, with no new external runtime, message channel or AI provider. Account and curriculum-copy multi-record operations use D1 atomic batches; revisioned attempts/feedback/corrections use guarded INSERT SELECT with unique sequence keys. Current authority is checked inside the mutation, not merely before it. The correction table also has database no-update/no-delete triggers. Other histories are append-only through their current APIs, without a claimed database-wide immutable audit layer.
 
 Source anchors support implementation claims; canonical requirements remain drafts until separately approved and accepted.
+
+## 12. v2.2 control and evidence components
+
+Trace: FR-04, FR-06, FR-08, FR-09, FR-10, FR-20, FR-24, FR-25, FR-26; NFR-01, NFR-02, NFR-03, NFR-05, NFR-09. Six additive tables and seven route files extend the existing boundary to 34 tables/288 fields and 51 route files/84 handlers. Migration 0009 adds guards/indexes rather than tables. No external runtime or credential is added.
+
+```mermaid
+flowchart TB
+  Admin[Live school administrator] --> Link[Exact reviewed profile login change]
+  Link --> LinkTxn[Atomic event / binding / version / affected-session revocation]
+  Staff[Current authorized staff] --> Draft[Strict local normalized JSON envelope]
+  Draft --> Preview[Immutable draft items; no observations]
+  Preview --> Reject[Reviewed rejection; no observations]
+  Preview --> Confirm[Live all-active confirmation CAS]
+  Confirm --> ReceiptTxn[One UPDATE trigger transaction: readings + source receipts]
+  Staff --> Window[Append reviewed submission window]
+  Window --> AttemptGate[Latest policy and database clock in actual attempt INSERT]
+  Student[Active linked student] --> AttemptGate
+  AttemptGate --> Saved[Immutable attempt and formative feedback history]
+```
+
+Profile-link events retain original and replacement ownership while explicit profile FKs prevent anonymous target types. Current ownership version is separate from account administration version; a past link decision cannot overwrite a later state. The batch excludes reviewing-admin session revocation to support repair of malformed legacy links. Current-school history/read/replay scope remains required after profile transfer. Actual actor checks also protect ordinary profile/student-guardian reads and updates.
+
+Import drafts keep one explicit class and every normalized learner ID. Server-prepared rows are materialized by a stage trigger; unreviewed/rejected items never enter reading_checks. A terminal confirm trigger inserts all reading originals and provenance receipts atomically. Unique school/declared source namespace/result reference receipts reject consumption in a different draft without cross-school metadata disclosure. Pending duplicates may coexist. Confirm requires all active membership at the mutation; reject/history may retain withdrawn same-school items for current authorized staff. Source declarations are untrusted manual input, not vendor authentication.
+
+Submission-window review is independent of due_date and resource content versions. A latest immutable open policy accepts unless its cutoff has elapsed; no policy means unrestricted. The actual learner attempt INSERT uses database time and the latest revision, closing the prevalidation race. Committed UUID replay precedes that new-write check and still requires current learner authority. Feedback remains permitted on authorized saved attempts after closure.
+
+Academic pair guards preserve existing duplicates without a destructive migration or invented review history. Attendance shares one all-member eligibility predicate in a single statement; result insert/update shares current class/max-score/active-member/ambiguity predicates inside an atomic batch. These controls do not add academic-calendar acceptance, general corrections or production-scale guarantees. Node SQLite tests and local workerd checks remain different execution layers; actual root-run evidence is recorded separately.

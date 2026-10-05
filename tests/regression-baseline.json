@@ -3,10 +3,15 @@
   "updatedAt": "2026-10-05",
   "node": "v24.19.0",
   "suites": {
+    "integration/academic-integrity-contract": {
+      "layer": "integration",
+      "file": "tests/integration/academic-integrity-contract.mjs",
+      "minPassed": 218
+    },
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 108
+      "minPassed": 122
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -17,6 +22,11 @@
       "layer": "integration",
       "file": "tests/integration/curriculum-contract.mjs",
       "minPassed": 131
+    },
+    "integration/development-recovery-contract": {
+      "layer": "integration",
+      "file": "tests/integration/development-recovery-contract.mjs",
+      "minPassed": 188
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -33,10 +43,20 @@
       "file": "tests/integration/identity-admin-contract.mjs",
       "minPassed": 153
     },
+    "integration/profile-links-contract": {
+      "layer": "integration",
+      "file": "tests/integration/profile-links-contract.mjs",
+      "minPassed": 236
+    },
     "integration/reading-checks-contract": {
       "layer": "integration",
       "file": "tests/integration/reading-checks-contract.mjs",
       "minPassed": 102
+    },
+    "integration/reading-imports-contract": {
+      "layer": "integration",
+      "file": "tests/integration/reading-imports-contract.mjs",
+      "minPassed": 86
     },
     "integration/reading-review-contract": {
       "layer": "integration",
@@ -53,6 +73,11 @@
       "file": "tests/integration/resources-contract.mjs",
       "minPassed": 147
     },
+    "integration/submission-windows-contract": {
+      "layer": "integration",
+      "file": "tests/integration/submission-windows-contract.mjs",
+      "minPassed": 191
+    },
     "integration/submissions-contract": {
       "layer": "integration",
       "file": "tests/integration/submissions-contract.mjs",
@@ -61,7 +86,7 @@
     "smoke/basic-smoke": {
       "layer": "smoke",
       "file": "tests/smoke/basic-smoke.mjs",
-      "minPassed": 56
+      "minPassed": 93
     },
     "unit/auth-contract": {
       "layer": "unit",

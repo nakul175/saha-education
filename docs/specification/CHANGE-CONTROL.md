@@ -2,7 +2,7 @@
 
 Draft process, 5 October 2026. Purpose: keep business intent, functional behavior, design, data, screens and test evidence aligned as the platform changes. Repository AGENTS/HANDOVER instructions govern source publication and sponsor merge authority. This process does not add a new permission gate to already authorized drafting or development.
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Document sequence and responsibilities
 
@@ -30,7 +30,7 @@ BRD is drafted first, followed by FSD, then HLD, then LLD. Test/data/wireframe w
 
 ## Version and evidence rules
 
-The historical `docs/education` baseline retains its original commit reference. The original v2.0 specification used application candidate `5488bc0`; the v2.1 working extension is on `feat/specification-delivery`, based on documentation commit `d53adcf`. JSON `source_commit` preserves the historical application reference while explicit `delivery_metadata` identifies current source/status extensions. Do not imply later features existed at that historical SHA. Record the final new source/run reference in dated delivery evidence when publication is complete.
+The historical `docs/education` baseline retains its original commit reference. The original v2.0 specification used application candidate `5488bc0`; the v2.1 working extension is on `feat/specification-delivery`, based on documentation commit `d53adcf`. For v2.2, canonical JSON `source_commit` records parent `398df9c8bf57659a5fd97718f76fe962011cf7d2` of the documented batch, not the containing commit; delivery_metadata retains the v2.0 baseline and historical v2.1 context. The candidate was uncommitted when this specification was assembled. Do not imply later features existed at that historical SHA. Record the final new source/run reference in dated delivery evidence when publication is complete.
 
 Keep canonical IDs stable. Removing a requirement requires an explicit superseded/removed record rather than quietly reusing its ID. `requirements.json` defines the current register; `TEST-CASES.json` defines case design; CSVs are review exports and must remain consistent. Test execution belongs in a dated run report with environment/source/data/command/result/defects, not a blanket status copied from traceability.
 
@@ -39,3 +39,5 @@ Do not mark acceptance true automatically because code exists, a unit test passe
 ## Checks
 
 Run `python3 scripts/check-documentation.py`, `node scripts/audit-requirements.mjs --check` and `node scripts/check-specification.mjs`. The first two maintain the historical/current docs; the specification check validates new IDs, source paths, links/exports and traceability consistency. These are offline consistency checks, not runtime or educator acceptance.
+
+The v2.2 inventory is 34 tables/288 fields,51 route files/84 handlers,133 designed cases/22 scenarios, with 12 offline prototype screens. Requirements and every case remain unapproved/unrun; API/data CSVs mirror current saved contracts. Final publication/run facts belong in root-owned dated batch records.

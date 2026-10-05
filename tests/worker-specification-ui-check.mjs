@@ -130,7 +130,7 @@ try {
   await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
   await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('Retrying the same response is safe'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
   await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
-  await check('Confirmed retry saves once and reports refresh failure accurately', async () => { await expect(learner.getByRole('status')).toContainText('Response attempt 1 saved. History could not refresh'); assert.equal(postRequests, 2); const history = await api(student, submissionsPath); assert.equal(history.length, 1); assert.equal(history[0].id, firstRequestId); });
+  await check('Confirmed retry saves once and reports refresh failure accurately', async () => { await expect(learner.getByRole('status').filter({ hasText: 'Response attempt' })).toContainText('Response attempt 1 saved. History could not refresh'); assert.equal(postRequests, 2); const history = await api(student, submissionsPath); assert.equal(history.length, 1); assert.equal(history[0].id, firstRequestId); });
   await learner.unroute(base.origin + submissionsPath);
   const firstAttempt = (await api(student, submissionsPath))[0];
   await page.goto(assignmentUrl);
@@ -139,18 +139,18 @@ try {
   await check('Staff feedback requires explicit review of selected attempt', async () => expect(page.getByRole('button', { name: 'Save reviewed feedback revision 1', exact: true })).toBeDisabled());
   await page.getByRole('checkbox', { name: /I reviewed this feedback against/ }).check();
   await page.getByRole('button', { name: 'Save reviewed feedback revision 1', exact: true }).click();
-  await check('Reviewed formative feedback saves to the selected attempt', async () => expect(page.getByRole('status')).toContainText('saved for response attempt 1'));
+  await check('Reviewed formative feedback saves to the selected attempt', async () => expect(page.getByRole('status').filter({ hasText: 'saved for response attempt' })).toContainText('saved for response attempt 1'));
   await learner.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await check('Learner receives educator-reviewed feedback', async () => expect(learner.getByText('Explain equal-sized parts more clearly in your next response.', { exact: true })).toBeVisible());
   await learner.getByRole('textbox', { name: /^Your response/ }).fill('Synthetic revised browser explanation: halves are larger equal parts than quarters.');
   await learner.getByRole('button', { name: 'Save response attempt 2', exact: true }).click();
-  await check('Revised learner response appends immutable attempt history', async () => { await expect(learner.getByRole('status')).toContainText('Response attempt 2 saved'); const history = await api(student, submissionsPath); assert.equal(history.length, 2); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 1); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
+  await check('Revised learner response appends immutable attempt history', async () => { await expect(learner.getByRole('status').filter({ hasText: 'Response attempt' })).toContainText('Response attempt 2 saved'); const history = await api(student, submissionsPath); assert.equal(history.length, 2); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 1); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
   await page.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await page.getByLabel('Saved response to review', { exact: false }).selectOption(firstAttempt.id);
   await page.getByRole('textbox', { name: /^New formative feedback revision/ }).fill('Second reviewed guidance for the earlier saved response only.');
   await page.getByRole('checkbox', { name: /I reviewed this feedback against/ }).check();
   await page.getByRole('button', { name: 'Save reviewed feedback revision 2', exact: true }).click();
-  await check('Feedback revisions remain bound to the earlier exact attempt', async () => { await expect(page.getByRole('status')).toContainText('revision 2 saved for response attempt 1'); const history = await api(teacher, submissionsPath); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 2); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
+  await check('Feedback revisions remain bound to the earlier exact attempt', async () => { await expect(page.getByRole('status').filter({ hasText: 'saved for response attempt' })).toContainText('revision 2 saved for response attempt 1'); const history = await api(teacher, submissionsPath); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 2); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
   await page.screenshot({ path: '/tmp/saha-next-ui-desktop.png', fullPage: true });
 
   const passage = 'BROWSER-READING-' + suffix;

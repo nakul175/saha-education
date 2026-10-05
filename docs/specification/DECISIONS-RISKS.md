@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -23,9 +23,9 @@ The v2.1 extensions describe the current working candidate on `feat/specificatio
 | D-13 | External Classroom/result contract | Open; no verified API/authorization contract | Integration owner | No assumed API, scraping, SSO or external roster sharing |
 | D-14 | Pilot success and nonfunctional targets | Open: baseline, sample, workload, accessibility/browser matrix and targets | Sponsor + QA + operator | Performance/recovery/learning-outcome gates cannot be claimed met |
 | D-15 | Start specification implementation | Confirmed by sponsor: build from this pack with ten workstreams | Sponsor + engineering | Authorization to build does not approve pilot policies, live activation or deployment |
-| D-16 | Account administration policy | Working choice: current-school reviewed provisioning/status, immutable existing role/pair/school, self/final-admin protection | School leadership + operator | Complete profile/identity remapping and guardian verification remain deferred |
+| D-16 | Account administration policy | Working choice: current-school reviewed provisioning/status, immutable existing role/pair/school, self/final-admin protection | School leadership + operator | Reviewed profile login binding current; wider account role/identity/school remapping and guardian verification remain deferred |
 | D-17 | Manual curriculum rights and review | Working choice: mandatory declared rights/source statements, exact self-review permitted, unapproved durable source copies | Educator/data owner | Actual source permission, pilot framework and independent review not verified |
-| D-18 | Text attempts/formative feedback | Working choice: append-only text and reviewed feedback; due dates informational | Educator lead | Deadline, grading, attachments, guardian publication and retention remain open |
+| D-18 | Text attempts/formative feedback | Working choice: append-only text and reviewed feedback; due dates informational | Educator lead | Reviewed local submission windows current; educator deadline/late, grading, attachments, guardian publication and retention remain open |
 | D-19 | Reading correction/history | Working choice: retained originals, append-only reviewed metrics, exact task/language/duration series, current staff history after withdrawal | Educator lead | Task/scoring comparability and interpretation not validated; no norms/diagnoses |
 | D-20 | Bounded administration display | Working choice: up to 500 users/200 latest events, no totals/full archive; request body parser 128 KiB | Engineering + QA | Volume/pagination/export/audit-reader and performance targets remain open |
 
@@ -48,8 +48,28 @@ The pilot is a web workflow using school, class and learner relationships; teach
 | R-09 | Incomplete recovery/retention harms real records | Agree D-10/11; perform isolated recovery/restore and operational review |
 | R-10 | Prototype/manual template mistaken for AI integration | Label proposed features and empty provider states in UI/docs; verify actual contract before activation |
 | R-11 | Manual rights statement mistaken for verified licensing | Educator/operator checks actual source permissions and selected pilot; software retains declarations only |
-| R-12 | Informational due date mistaken for enforced deadline or grading | Label text/formative limits in UI/FSD; agree separate deadline/grade/publication policy |
+| R-12 | Informational due date or window mistaken for grade/late policy | Label due date separately from reviewed open/closed/timed new-attempt access; agree educator grade/late/publication policy |
 | R-13 | Bounded account/review list mistaken for total inventory/audit archive | Explicit caps in UI/API; use actual SQL teacher count and agree pagination/export before larger pilot |
 | R-14 | Downstream read/retry after authority change reveals preserved private evidence | Guard final SQL selections for current account/class/school, and exercise stale-principal/fault/race paths independently |
 
 Severity, likelihood, named owners and due dates require pilot review; this register does not fabricate them. Update resolution evidence through [change control](CHANGE-CONTROL.md).
+
+## v2.2 working choices and unresolved risks
+
+| ID | Working choice / open boundary | Proposed owner | Required review |
+|---|---|---|---|
+| D-21 | Exact reviewed student/guardian login ownership with current version, reason, immutable event and affected-session revocation; reviewer session excluded | School administrator + operator | Verify exact account/profile ownership and malformed legacy repair; family relationship/consent and account role/identity/school remapping remain open |
+| D-22 | Non-destructive academic pair guards preserve legacy duplicates; ambiguous result pair conflicts whole batch | Academic administrator | Approve reconciliation/correction history and calendar/grade policy; no silent deletion/merging |
+| D-23 | Local normalized JSON reading drafts require manual all-item review, active membership and source receipts; source labels exact/user declared | Educator + integration owner | Stable source namespace/reference discipline, item suitability and retention; no verified vendor/auto-sync claim |
+| D-24 | Reviewed immutable open/closed/timed windows govern NEW text attempts separately from due date; committed UUID replay/feedback preserved | Educator lead | Accept real-use deadline/timezone/late/grade/guardian policy explicitly |
+
+| ID | Risk | Treatment / evidence needed |
+|---|---|---|
+| R-15 | Wrong exact profile/account selection changes access | Display exact IDs/prior-current binding; required reason/confirmation/CAS; affected-session revocation; independent ownership/policy review |
+| R-16 | Historical duplicate pairs silently merged or hidden | Preserve migration rows; new-pair guards, ambiguous full-batch denial and separately approved reconciliation |
+| R-17 | Local source label appears to verify a vendor or duplicate result namespace changes evade dedup | Explicit user-declared wording; exact school/namespace/result receipt key, stable-reference guidance and atomic conflict/reject tests; no authenticity claim |
+| R-18 | Withdrawal/reassignment or late receipt failure creates partial imported readings | Actual all-member scope, one trigger transaction, late-failure rollback and current child/retry query tests |
+| R-19 | Window closure deletes work or old retry reapplies stale policy | Actual latest-policy/database-clock attempt guard; original review/current-window replay; preserve current-authorized committed UUID/feedback |
+| R-20 | Local encrypted recovery evidence mistaken for hosted readiness | Related recovery suite covers disposable local roundtrip only; require separate hosted export/cutover, key custody, backup schedule and owner/RPO/RTO evidence |
+
+None of these working choices is a sponsor/educator/vendor approval. The [batch record](../current/DEVELOPMENT-BATCH-1.md) carries observed checks separately from unrun designed cases.

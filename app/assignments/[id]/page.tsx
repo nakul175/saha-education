@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import type { SubmissionAttempt, SubmissionFeedback } from '@/db/submission-schema';
 import type { ResourceAssignment } from '@/lib/education/resource-types';
 import type { Principal, Student } from '@/lib/education/types';
+import type { SubmissionWindow } from '@/lib/education/submission-windows';
+import { AssignmentSubmissionWindow } from '@/components/assignment-submission-window';
 
 const inputStyle = 'border rounded p-2 w-full min-w-0 bg-background';
 function responseError(status: number): string {
@@ -34,6 +36,7 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
   const { id } = use(params), path = `/api/assignments/${encodeURIComponent(id)}/submissions`;
   const [principal, setPrincipal] = useState<Principal | null>(null);
   const [assignment, setAssignment] = useState<ResourceAssignment | null>(null);
+  const [submissionWindow, setSubmissionWindow] = useState<SubmissionWindow | null>(null);
   const [attempts, setAttempts] = useState<SubmissionAttempt[]>([]);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [selectedId, setSelectedId] = useState('');
@@ -45,6 +48,7 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
   const [needsReload, setNeedsReload] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [pendingAttemptPayload, setPendingAttemptPayload] = useState<string | null>(null);
   const lock = useRef(false);
   const attemptRetry = useRef<{ payload: string; id: string } | null>(null);
   const feedbackRetry = useRef<{ payload: string; id: string } | null>(null);
@@ -58,13 +62,14 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
   const maxRevision = selected?.feedback.reduce((maximum, item) => Math.max(maximum, item.revision), 0) ?? 0;
 
   async function readHistory(signal?: AbortSignal) {
-    const responses = await Promise.all([fetch('/api/session', { cache: 'no-store', signal }), fetch('/api/resource-assignments', { cache: 'no-store', signal }), fetch(path, { cache: 'no-store', signal })]);
+    const responses = await Promise.all([fetch('/api/session', { cache: 'no-store', signal }), fetch('/api/resource-assignments', { cache: 'no-store', signal }), fetch(path, { cache: 'no-store', signal }), fetch(`/api/assignments/${encodeURIComponent(id)}/submission-window`, { cache: 'no-store', signal })]);
     const failed = responses.find(response => response.status === 401) ?? responses.find(response => !response.ok);
     if (failed) throw new Error(responseError(failed.status));
     const account: Principal = await responses[0].json(), assigned: ResourceAssignment[] = await responses[1].json(), history: SubmissionAttempt[] = await responses[2].json();
     const current = assigned.find(item => item.id === id);
     if (!current) throw new Error('This approved assignment is unavailable to your account. Students must be actively enrolled in its class.');
-    return { account, current, history: ordered(history) };
+    const window: SubmissionWindow = await responses[3].json();
+    return { account, current, window, history: ordered(history) };
   }
   async function loadLabels(history: SubmissionAttempt[], signal?: AbortSignal) {
     // Fetch only learners referenced by authorized attempts, never a full roster.
@@ -81,9 +86,10 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
   }
   useEffect(() => {
     const controller = new AbortController();
-    void readHistory(controller.signal).then(({ account, current, history }) => {
+    void readHistory(controller.signal).then(({ account, current, window, history }) => {
       if (controller.signal.aborted) return;
       setPrincipal(account); setAssignment(current); setAttempts(history); setSelectedId(history[0]?.id ?? '');
+      setSubmissionWindow(window);
       if (account.role === 'student') setResponseText(history[0]?.response ?? '');
       else void loadLabels(history, controller.signal);
       setNeedsReload(false); setReviewed(false);
@@ -97,7 +103,8 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
     if (lock.current) return;
     lock.current = true; setBusy(true); setError(''); setMessage('');
     try {
-      const { account, current, history } = await readHistory();
+      const { account, current, window, history } = await readHistory();
+      setSubmissionWindow(window);
       setPrincipal(account); setAssignment(current); setAttempts(history); setSelectedId(previous => history.some(attempt => attempt.id === previous) ? previous : history[0]?.id ?? '');
       setReviewed(false); setNeedsReload(false);
       if (account.role !== 'student') void loadLabels(history);
@@ -112,17 +119,25 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
     const payload = JSON.stringify({ response: responseText, expectedAttempt: maxAttempt });
     const clientId = attemptRetry.current?.payload === payload ? attemptRetry.current.id : crypto.randomUUID();
     attemptRetry.current = { payload, id: clientId };
+    setPendingAttemptPayload(payload);
     let acknowledged = false;
     try {
       const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ response: responseText, expectedAttempt: maxAttempt, clientSubmissionId: clientId }) });
-      if (!response.ok) { if (response.status === 409) setNeedsReload(true); throw new Error(responseError(response.status)); }
+      if (!response.ok) {
+        if (response.status === 409) {
+          setNeedsReload(true);
+          const detail: unknown = await response.json().catch(() => null);
+          if (detail && typeof detail === 'object' && 'code' in detail && detail.code === 'submission-window-closed') throw new Error('The submission window is closed. Refresh the window and history; your unsaved response is kept.');
+        }
+        throw new Error(responseError(response.status));
+      }
       acknowledged = true;
       const saved: SubmissionAttempt = await response.json();
       setAttempts(previous => ordered([saved, ...previous.filter(attempt => attempt.id !== saved.id)])); setSelectedId(saved.id); setResponseText(saved.response);
-      attemptRetry.current = null; setNeedsReload(false);
+      attemptRetry.current = null; setPendingAttemptPayload(null); setNeedsReload(false);
       setMessage(`Response attempt ${saved.attempt} saved for assigned version ${assignment.resource.version}. Your earlier responses are preserved.`);
       try {
-        const { history } = await readHistory();
+        const { history, window } = await readHistory(); setSubmissionWindow(window);
         setAttempts(history); setSelectedId(saved.id);
       } catch { setMessage(`Response attempt ${saved.attempt} saved. History could not refresh; your saved response is shown below. Reload history when available.`); }
     } catch (reason) {
@@ -148,7 +163,7 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
       setFeedbackDrafts(previous => ({ ...previous, [exactAttemptId]: saved.feedback })); setReviewed(false); setNeedsReload(false); feedbackRetry.current = null;
       setMessage(`Reviewed formative feedback revision ${saved.revision} saved for response attempt ${attemptNumber}. It is visible to that student.`);
       try {
-        const { history } = await readHistory();
+        const { history, window } = await readHistory(); setSubmissionWindow(window);
         setAttempts(history); setSelectedId(exactAttemptId);
       } catch { setMessage(`Reviewed feedback revision ${saved.revision} saved for response attempt ${attemptNumber}. History could not refresh; reload when available.`); }
     } catch (reason) {
@@ -170,13 +185,14 @@ export default function AssignmentPage({ params }: { params: Promise<{ id: strin
         <h3 className="font-semibold">Learning objectives</h3><p className="whitespace-pre-wrap">{assignment.resource.objectives}</p>
         <h3 className="font-semibold">Student material</h3><p className="whitespace-pre-wrap">{assignment.resource.body}</p>
       </article>
+      {submissionWindow && <AssignmentSubmissionWindow assignmentId={id} window={submissionWindow} staff={staff} onChanged={setSubmissionWindow} />}
       {student && <section className="border rounded p-4 space-y-4" aria-labelledby="response-form-title">
         <h2 id="response-form-title" className="text-xl font-semibold">{maxAttempt ? 'Submit a revised response' : 'Submit your response'}</h2>
         <p>Your text is saved as a new attempt for assigned version {assignment.resource.version}. Earlier responses and reviewed feedback are preserved. You must remain actively enrolled in the assignment class.</p>
         <form onSubmit={submit} className="space-y-3">
           <label className="block space-y-1"><span>Your response *</span><textarea required className={inputStyle} maxLength={20000} rows={10} disabled={busy} value={responseText} onChange={event => setResponseText(event.target.value)} /></label>
           <p className="text-sm">Plain text, up to 20,000 characters.</p>
-          <Button type="submit" disabled={busy || needsReload || !responseText.trim() || (latestAttempt?.response === responseText.trim())}>{busy ? 'Working…' : `Save response attempt ${maxAttempt + 1}`}</Button>
+          <Button type="submit" disabled={busy || needsReload || !responseText.trim() || (latestAttempt?.response === responseText.trim()) || (!submissionWindow?.acceptingSubmissions && pendingAttemptPayload !== JSON.stringify({ response: responseText, expectedAttempt: maxAttempt }))}>{busy ? 'Working…' : `Save response attempt ${maxAttempt + 1}`}</Button>
           {needsReload && <p>Refresh saved history before sending another response. Your text is kept.</p>}
         </form>
       </section>}
