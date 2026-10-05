@@ -1,5 +1,7 @@
 # Saha Education
 
+The [education documentation set](docs/education/README.md) records the original rebuild baseline and proposed requirements. See [HANDOVER.md](HANDOVER.md) for current implementation and validation.
+
 Saha Education is a comprehensive school management platform designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
 
 The application provides a modern web interface for managing all aspects of education administration while maintaining data integrity and user privacy. The platform is built with a focus on accessibility, scalability, and maintainability, following best practices in modern software development.
