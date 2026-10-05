@@ -6,7 +6,7 @@
 
 This set provides a product and engineering baseline for the school management rebuild. Start with the business requirements, then use the software requirements and acceptance plan to agree delivery scope. The current-state assessment records implementation limits discovered through source inspection.
 
-For the subsequent implementation candidate, see [authentication/access delivery](../current/AUTH-ACCESS.md) and [current validation](../../VALIDATION.md). The source baseline below remains an immutable historical assessment.
+For the subsequent implementation candidate, see [authentication/access delivery](../current/AUTH-ACCESS.md) and [current validation](../../VALIDATION.md). See also [external reading](../current/EXTERNAL-READING.md) and [literacy product plan](../current/AMPLIFY-LITERACY-PLAN.md). The source baseline below remains an immutable historical assessment.
 
 ## Document map
 

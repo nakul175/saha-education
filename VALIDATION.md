@@ -30,3 +30,11 @@ One fixture-load attempt failed a foreign-key constraint because rows were emitt
 ## Outstanding verification
 
 Real provider connection and callback; browser journeys/cookie behavior under approved HTTPS origin; full account provisioning/admin lifecycle; recovery/rollback; deployment wiring; duplicate enrolment/result concurrency constraints; historical enrolment eligibility; accessibility/load; all remaining UAT cases. No sponsor acceptance, merge, production-readiness or deployment claim is made.
+
+## Literacy extension boundary
+
+Local contract validation covers staff-only external launch, exact URL configuration, no outbound data forwarding and manually reviewed numeric reading checks. Launch remains disabled pending destination confirmation. Real external app availability, shared sign-in, automatic export ingestion and literacy efficacy have not been validated. See [external reading](docs/current/EXTERNAL-READING.md).
+
+Literacy candidate checks on 5 October 2026: fresh application build, TypeScript and affected-file lint passed; catalogue, documentation and requirements audit passed. The combined static/unit/integration runner passed 323 counted assertions (75 unit, 248 integration, including 70 external-app and 84 reading-check assertions). Live provider login and external result synchronization remain untested.
+
+Fresh locally served workerd/D1 validation passed 23/23 literacy scenarios with isolated synthetic sessions: persistence/history/metrics, matching retries/conflicts, school and assignment boundaries, family/anonymous denial and disabled external launch. An initial transient anonymous503 during concurrent build/load resolved to401 in isolation; the full final run passed. Server stopped. Existing authentication served checks had passed separately in the prior candidate; neither run authenticates against a live provider.

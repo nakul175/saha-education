@@ -15,6 +15,13 @@
       "when": 1791179251146,
       "tag": "0001_trusted_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791174998130,
+      "tag": "0002_reviewed_reading",
+      "breakpoints": true
     }
   ]
 }

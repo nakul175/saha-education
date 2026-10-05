@@ -41,3 +41,7 @@ Teacher/family UI journeys and controls need broader UAT. Academic dates/grade p
 ## Git and release rules
 
 Read AGENTS.md. Commit/push meaningful batches; preserve concurrent work; never force-push. Pull requests target main and require sponsor authority for merge. Main held the legacy Express app before this candidate, so the implementation PR includes the existing rebuild as well as the new stage. Preserve hosting config and historical commits. Confirm actual deployment wiring before merging. Keep secrets, records, fixtures with credentials, databases, caches and generated artifacts out of Git.
+
+## Literacy extension candidate
+
+External ORF launch and append-only manually reviewed reading checks are implemented on `feat/education-literacy-apps`, dependent on the authentication candidate. Destination remains blank pending sponsor confirmation; no external SSO/result sync is implemented. Staff UI is `/external-apps`. Migration0002 is additive. See [external reading](docs/current/EXTERNAL-READING.md) and [Amplify comparison](docs/current/AMPLIFY-LITERACY-PLAN.md). Next: confirm app/product/provider, verify a live synthetic journey, then deliver validated skill/teaching/practice workflows.

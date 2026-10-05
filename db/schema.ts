@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { sqliteTable, text, integer, primaryKey, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, primaryKey, index, uniqueIndex, check } from 'drizzle-orm/sqlite-core';
 
 // Schools table
 export const schools = sqliteTable('schools', {
@@ -182,6 +182,33 @@ export const notifications = sqliteTable('notifications', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
+
+// Reviewed numeric readings from an external activity. No audio or transcripts.
+export const readingChecks = sqliteTable('reading_checks', {
+  id: text('id').primaryKey(),
+  schoolId: text('school_id').notNull().references(() => schools.id),
+  classId: text('class_id').notNull().references(() => classes.id),
+  studentId: text('student_id').notNull().references(() => students.id),
+  recordedBy: text('recorded_by').notNull().references(() => users.id),
+  sourceAppId: text('source_app_id').notNull(),
+  provenance: text('provenance').notNull(),
+  language: text('language').notNull(),
+  passageReference: text('passage_reference').notNull(),
+  readingDate: text('reading_date').notNull(),
+  durationMs: integer('duration_ms').notNull(),
+  wordsAttempted: integer('words_attempted').notNull(),
+  wordsCorrect: integer('words_correct').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [
+  index('reading_checks_school_student').on(t.schoolId, t.studentId, t.readingDate),
+  index('reading_checks_class').on(t.classId, t.readingDate),
+  check('reading_checks_duration', sql`typeof(${t.durationMs}) = 'integer' AND ${t.durationMs} BETWEEN 1000 AND 3600000`),
+  check('reading_checks_word_counts', sql`typeof(${t.wordsAttempted}) = 'integer' AND typeof(${t.wordsCorrect}) = 'integer' AND ${t.wordsAttempted} BETWEEN 1 AND 500 AND ${t.wordsCorrect} BETWEEN 0 AND ${t.wordsAttempted}`),
+  check('reading_checks_source', sql`${t.sourceAppId} = 'oral-reading-fluency' AND ${t.provenance} = 'manual-reviewed-external'`),
+]);
+
+export type SelectReadingCheck = typeof readingChecks.$inferSelect;
+export type InsertReadingCheck = typeof readingChecks.$inferInsert;
 
 // Export inferred select/insert types for each table
 export type SelectSchool = typeof schools.$inferSelect;

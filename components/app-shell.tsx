@@ -36,6 +36,7 @@ export function AppShell({
 
   // Navigation items for different roles
   const navigationItems = [
+    { id: 'external-apps', label: 'Reading apps', path: '/external-apps' },
     { 
       id: 'dashboard', 
       label: 'Dashboard',
@@ -105,7 +106,7 @@ export function AppShell({
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications
