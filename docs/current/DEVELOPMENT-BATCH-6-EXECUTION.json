@@ -1,0 +1,405 @@
+{
+  "date": "2026-10-05",
+  "source_parent": "61f0751b5c38384783f56823a07964421a18c0bf",
+  "branch": "feat/specification-delivery",
+  "source_boundary": "Final sixth client recovery source on published fifth assessment parent; app source hashes unchanged from fresh build through final checks.",
+  "approved": false,
+  "hostedDeployment": false,
+  "mainMerge": false,
+  "externalProviderActivated": false,
+  "realRecordsOrRecipients": false,
+  "freshBuild": {
+    "passed": true,
+    "scope": "Final original receipt correlation, partial response drains, child401 delegation and attendance history-denial source included; fresh fully migrated local synthetic records. Four affected app source hashes remain unchanged during final checks."
+  },
+  "guardedRun": {
+    "generatedAt": "2026-10-05T10:58:56.259Z",
+    "startedAt": "2026-10-05T10:58:31.543Z",
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "node": "v24.19.0",
+    "layers": [
+      {
+        "layer": "static",
+        "status": "passed",
+        "suites": 3,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1689,
+        "failedSuites": 0
+      },
+      {
+        "layer": "unit",
+        "status": "passed",
+        "suites": 9,
+        "passed": 119,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 2113,
+        "failedSuites": 0
+      },
+      {
+        "layer": "integration",
+        "status": "passed",
+        "suites": 28,
+        "passed": 14906,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 19787,
+        "failedSuites": 0
+      },
+      {
+        "layer": "smoke",
+        "status": "passed",
+        "suites": 1,
+        "passed": 164,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 918,
+        "failedSuites": 0
+      }
+    ],
+    "totals": {
+      "suites": 38,
+      "passed": 15189,
+      "failed": 0,
+      "skipped": 0,
+      "failedSuites": 0,
+      "durationMs": 24717
+    },
+    "regressionGuard": {
+      "ok": true,
+      "findings": [],
+      "warnings": [],
+      "evaluated": 38,
+      "newSuites": []
+    }
+  },
+  "independentRecovery": {
+    "passed": 635,
+    "failed": 0,
+    "skipped": 0,
+    "scenarios": 71,
+    "requests": 872,
+    "externalRequests": 0,
+    "includedInIntegrationTotal": true,
+    "scope": "Actual synthetic sessions/routes and production D1 query mapping over fresh SQLite; unchanged client source callbacks with substituted hooks/elements. Not mounted React/browser evidence."
+  },
+  "browserRecovery": {
+    "executedAt": "2026-10-05T10:49:50.119Z",
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "checks": [
+      "Learner sees exact approved material and informational due date without private teacher content",
+      "Normal learner save creates one immutable attempt and a distinct confirmed receipt",
+      "Same-frame native learner submits create one POST and one new attempt",
+      "Lost learner acknowledgement retains original bytes and locks edits while a newer attempt and closure commit",
+      "Current denial hides material and attempts while preserving pending learner UUID for authorised recovery",
+      "Exact pending learner replay works after closure and confirms original without creating a fifth attempt",
+      "Altered success receipt with same UUID stays pending until exact correlated replay",
+      "Definitively rejected learner input retains text and releases pending state without a false save",
+      "Real concurrent learner attempt produces409 and explicit reload preserves intended text",
+      "Committed learner401/403/404 acknowledgements hide private views and recover exact original IDs",
+      "Known learner commit with failed refresh keeps receipt and blocks new saves until explicit read",
+      "Staff feedback requires explicit review of the exact selected attempt and resets on text edits",
+      "Same-frame staff submits create one POST and one reviewed revision",
+      "Lost feedback acknowledgement locks original selection while later feedback and learner attempt commit",
+      "Feedback refresh/retry retains original endpoint/bytes and never follows the newer learner draft",
+      "Selecting a different saved attempt resets review and explicitly targets that immutable attempt",
+      "Mounted window-history401 cannot navigate away or discard pending parent feedback UUID",
+      "Normal window review explicitly closes new responses and retains approved material",
+      "Same-frame window submits yield one POST and one immutable review",
+      "Lost window reply preserves exact request while a later reviewed policy becomes current",
+      "Window refresh/exact retry returns original review and leaves later current policy intact",
+      "Window401/403/404 delivery denial hides parent material while mounted child retains original UUID",
+      "Window history availability failure never substitutes a false empty history or hides valid material",
+      "Partial network read failure keeps pending learner request and allows a later verified exact retry",
+      "Actual synthetic account switch cannot rebase or replay another actor\u2019s pending learner request",
+      "Guardian and unrelated staff receive denial without private assignment material",
+      "Desktop learner page has labelled controls, distinct original receipt and no overflow",
+      "390px learner and staff pages wrap records and support native keyboard controls",
+      "Native assigned-learning link loads authorised current cards",
+      "All observed browser requests remain local with no page errors or failed assets"
+    ],
+    "screenshots": [
+      "/private/tmp/saha-learner-recovery-ui-desktop.png",
+      "/private/tmp/saha-learner-recovery-ui-mobile.png",
+      "/private/tmp/saha-learner-recovery-ui-staff-mobile.png"
+    ],
+    "limits": [
+      "Final built localhost Worker and synthetic session cookies only.",
+      "Lost/denied/altered acknowledgements and partial read failure are named local delivery injections; underlying commits/newer attempts/reviews/closure and account switch are actual local authorised actions.",
+      "Suffix-only resources/assignments/attempts/reviews were created. Base profiles, roles and enrolment states were unchanged.",
+      "Pending requests live privately in the mounted tab only; full browser navigation/reload discards the in-memory pending request.",
+      "No provider login, external messaging, educational grading policy, hosted deployment, accessibility certification or UAT acceptance was exercised.",
+      "The final capture-helper repeat occurred during root development-regression validation; no idle-server claim is made. The passing total counts this single completed30-procedure run only."
+    ],
+    "captureObservation": {
+      "detail": "Focused-page/repaint capture helper validated on this full run; correct feedback material is visible in staff screenshot. Earlier sequential staff screenshot mixed stale compositor pixels; fresh read-only DOM showed correct expected/actual feedback title, one material/main and390px width/scrollWidth. Earlier attempts retained separately and not added to this passing total.",
+      "freshStaff": "/private/tmp/saha-learner-recovery-ui-staff-mobile-fresh.png"
+    }
+  },
+  "browserDevelopment": {
+    "executedAt": "2026-10-05T10:50:28.509Z",
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "checks": [
+      "Isolated profiles and accounts begin unlinked",
+      "Selecting a learner enables the enrolment action",
+      "Changing class clears the controlled learner selection",
+      "Confirmed enrolment clears selection and retains an active record",
+      "Enrolment selector can receive keyboard focus",
+      "Desktop enrolment labels and width",
+      "Profile inventory labels its bounded scope",
+      "Profile review moves keyboard focus to its heading",
+      "An ownership change requires an account and explicit review",
+      "Editing ownership reason clears the confirmation",
+      "Lost ownership acknowledgement retains the form and reason",
+      "The exact ownership retry recovers one immutable decision",
+      "Changing ownership action invalidates the previous review",
+      "Explicit unlink preserves profile and both review events",
+      "Exact profile history displays link and unlink attribution",
+      "Guardian review uses the explicit role-matched account",
+      "Desktop profile labels and width",
+      "Authorized roster displays exact independent learner IDs",
+      "Unsupported import fields are rejected locally",
+      "Lost stage acknowledgement explains retained import ID and keeps editable JSON",
+      "Same import UUID recovers exactly one staged preview",
+      "Staged normalized metrics remain explicit and require review",
+      "Changing import review reason clears its confirmation",
+      "Uncertain confirmation explains retained decision ID and preserves educator review",
+      "Same decision UUID recovers one observation and receipt",
+      "A new draft cannot consume the same source result twice",
+      "A conflicting duplicate draft can be explicitly rejected",
+      "Desktop import labels and width",
+      "Assessment editor hydrates zero and nonzero saved scores",
+      "Dirty-only result review preserves zero and supplied grade with exact evidence",
+      "Assessment conflict keeps intended edits and requires current-state comparison",
+      "Assessment fields support keyboard focus through supplied grade and feedback",
+      "Desktop assessment labels and width",
+      "Informational old due date leaves an unconfigured response window open",
+      "Window reason edits clear the previous review",
+      "Reviewed closure changes current access and appends revision one",
+      "Student refresh reflects closure without deleting unsaved text",
+      "Window closing-time changes clear prior confirmation",
+      "Device-local deadline is saved as the exact UTC instant",
+      "Reopening restores student submission while keeping its draft",
+      "An open reviewed window accepts the student response",
+      "Refreshing changed window keeps form text and requires another review",
+      "Elapsed deadline freezes new student saves and keeps saved history",
+      "Staff can reopen the window with an explicit reviewed no-cutoff decision",
+      "Window history retains all closed, timed and reopened decisions",
+      "Desktop staff window labels and width",
+      "Desktop student response labels and width",
+      "Mobile accessible labels and viewport: profile-mobile",
+      "Mobile accessible labels and viewport: import-mobile",
+      "Mobile accessible labels and viewport: assessment-mobile",
+      "Mobile accessible labels and viewport: window-mobile",
+      "Mobile accessible labels and viewport: enrolment-mobile",
+      "Mobile accessible labels and viewport: student-mobile",
+      "Profile filters support native keyboard navigation",
+      "Import editor supports native keyboard navigation",
+      "Built browser scripts and stylesheets load successfully",
+      "No browser request left localhost and no unhandled application error occurred"
+    ],
+    "screenshots": [
+      "/private/tmp/saha-development-ui-profile-desktop.png",
+      "/private/tmp/saha-development-ui-import-desktop.png",
+      "/private/tmp/saha-development-ui-assessment-desktop.png",
+      "/private/tmp/saha-development-ui-window-desktop.png",
+      "/private/tmp/saha-development-ui-profile-mobile.png",
+      "/private/tmp/saha-development-ui-import-mobile.png",
+      "/private/tmp/saha-development-ui-assessment-mobile.png",
+      "/private/tmp/saha-development-ui-window-mobile.png",
+      "/private/tmp/saha-development-ui-enrolment-mobile.png",
+      "/private/tmp/saha-development-ui-student-mobile.png"
+    ],
+    "limits": [
+      "Local built Worker and synthetic data/session evidence only.",
+      "No provider activation, external vendor verification, deployment or specification acceptance.",
+      "Label, keyboard and mobile viewport checks are smoke checks, not full accessibility certification."
+    ]
+  },
+  "browserAttendance": {
+    "executedAt": "2026-10-05T10:52:13.166Z",
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "checks": [
+      "Current active roster excludes withdrawn and completed pupils",
+      "Saved status and note load exactly while unrecorded learners stay blank",
+      "No-op and unreviewed forms cannot save or default all pupils to present",
+      "Editing a note or reason resets explicit review before save",
+      "Reviewed save includes only the dirty learner and creates immutable evidence",
+      "Two same-frame native submits create only one request and saved review",
+      "HTML from saved class and note is escaped as plain text",
+      "Real stale expected records conflict without erasing intended edits",
+      "Explicit comparison reload retains only intended edits and refreshes untouched rows",
+      "A rejected save retains entries and visible error without claiming success",
+      "Lost acknowledgement preserves exact request and locks edits/date until retry",
+      "Exact UUID replay confirms original receipt while reloading later current marks",
+      "Confirmed save with failed refresh keeps receipt and truthfully blocks further edits",
+      "Date changes clear previous edits/review and retain exact calendar date without timezone shifting",
+      "A delayed obsolete date response cannot replace the newly selected snapshot",
+      "Immutable history displays exact before/after evidence independently of current marks",
+      "Unicode reasons/notes use code-point bounds and still require explicit review",
+      "Committed access-denied acknowledgements retain exact retry until current access is verified",
+      "Status-only correction preserves an exact legacy note longer than the replacement bound",
+      "Real retained duplicate enrolments block the entire editor without deleting evidence",
+      "Actual 101-pupil roster discloses the 100-row bound and blocks partial saves",
+      "Failed initial load exposes an error and cannot submit an unverified roster",
+      "Known history denial hides current private data and known committed evidence until authorized reload",
+      "Temporary history503 remains an availability error while authorized current marks remain usable",
+      "Family accounts see a clear recording denial without editor requests or private roster",
+      "Unassigned teacher receives clear unavailable scope without roster disclosure",
+      "Anonymous recorder requests redirect to sign-in",
+      "Desktop recorder has native labels, visible saved states and no overflow",
+      "390px recorder and history wrap long text and support keyboard controls",
+      "Native attendance summary link opens the permitted recorded-data page",
+      "Browser assets load and all observed requests stay local"
+    ],
+    "screenshots": [
+      "/private/tmp/saha-attendance-ui-desktop.png",
+      "/private/tmp/saha-attendance-ui-mobile.png"
+    ],
+    "limits": [
+      "Built localhost Worker with final migrated synthetic sessions only.",
+      "Failure injections model local rejected, lost-acknowledgement and failed-refresh delivery; no external messaging/provider calls.",
+      "Suffix-only fixtures and explicit real reviews were added; base actor/profile/enrolment states were unchanged.",
+      "Legacy duplicate enrolments were seeded before final guards; no confirmed rows were deleted or merged.",
+      "This does not establish educational date/attendance policy, accessibility certification, hosted release or UAT approval."
+    ]
+  },
+  "encryptedRecovery": {
+    "passed": 250,
+    "includedInIntegrationTotal": true,
+    "tables": 39,
+    "indexes": 84,
+    "triggers": 36,
+    "scope": "Existing populated encrypted local roundtrip rerun in full integration; no new schema or hosted recovery claim."
+  },
+  "typeScript": {
+    "passed": true
+  },
+  "canonicalInventory": {
+    "version": "2.7",
+    "tables": 39,
+    "fields": 325,
+    "routes": 56,
+    "handlers": 91,
+    "designedCases": 245,
+    "scenarios": 36,
+    "caseExecution": "not-run-for-this-specification",
+    "allRequirementApprovals": false
+  },
+  "baselineUpdate": {
+    "added": 1,
+    "raised": 0,
+    "lowered": 0,
+    "removed": 0,
+    "unchanged": 37,
+    "minimums": {
+      "learnerRecovery": 635
+    }
+  },
+  "verificationObservations": [
+    "Five prior learner/window/feedback observations used56 actual route requests with substituted hooks and are diagnostics, excluded from passing totals.",
+    "Read-only mounted attendance diagnosis at10:36:18.075Z used actual current snapshot plus local history403 delivery injection. It retained2 private rows,4 enabled row controls and an enabled reason before the narrow fix; no writes or actual role change.",
+    "Independent source review found receipt correlation, partial-response drains and cross-form401 redirect risks; final regression and browser checks cover the implemented changes.",
+    "New browser first attempt stopped after13 procedures on a wrapped select exact-label harness lookup. Correct native combobox prefix lookup passes without an application change.",
+    "Earlier development browser attempt stopped on a heading matching both original receipt and current history. Scoping to saved history preserves the intended assertion; full57-check rerun passes.",
+    "An initial sequential staff screenshot reused old compositor pixels. Actual DOM/title/geometry were correct; settled focused fresh captures were inspected. No application duplicate-content finding.",
+    "Latest recovery browser rerun overlapped an older development attempt; records were independent suffix fixtures. No globally idle-server claim or extra aggregate count is made.",
+    "Authenticated Playwright transport helpers now throw fixed path-only errors without original cookie-bearing call logs. Synthetic withdrawal restoration is armed before sending to cover a lost committed acknowledgement.",
+    "Earlier development served attempts returned503 at an expected201 import stage and then at an expected403 role denial. The unchanged isolated full172-check third attempt passed. Current specification146/domain104 also passed. Initial failures excluded from passing totals; no causal app fix or hosted load guarantee claimed."
+  ],
+  "remainingLimits": [
+    "Pending request recovery is in memory while page/component remain mounted. Full navigation, closing the tab or browser reload discards it; durable/cross-device recovery remains pending.",
+    "Principal has no session hash; no session-only revocation guarantee after principal resolution.",
+    "Legacy backend replacement/creation semantics, grade/date/calendar/correction/retention policy remain unchanged.",
+    "All245 designed cases remain unrun and requirements unapproved; representative educator/UAT, accessibility/load and hosted acceptance remain pending.",
+    "Identity/ORF providers, AI, real learners/messages, main merge and deployment remain inactive."
+  ],
+  "browserSpecification": {
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0,
+    "blockedExternalRequests": 0,
+    "completedLogAt": "2026-10-05T10:53:41.701080+00:00",
+    "scope": "Actual built localhost browser; synthetic fixture withdrawal restored. No live provider callback/specification acceptance."
+  },
+  "accessibility": {
+    "executedAt": "2026-10-05T10:59:01.057Z",
+    "passed": 100,
+    "failed": 0,
+    "skipped": 0,
+    "sampledPages": 100,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "formalAccessibilityAcceptance": false,
+    "limits": "Automated visible resting-page WCAG-rule sample; incomplete checks, keyboard/screen-reader testing and all interactive states require separate review.",
+    "scope": "100 rendered local page/viewport samples; four roles and desktop/mobile including isolated approved assignment. Selected automated WCAG rules only; incomplete rules and formal acceptance remain separate."
+  },
+  "servedRegression": {
+    "development": {
+      "passed": 172,
+      "failed": 0,
+      "skipped": 0,
+      "completedLogAt": "2026-10-05T11:00:04.111380+00:00"
+    },
+    "specification": {
+      "suite": "specification",
+      "executedAt": "2026-10-05T10:58:56.997539+00:00",
+      "exitCode": 0,
+      "summary": {
+        "passed": 146,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "domain": {
+      "suite": "domain",
+      "executedAt": "2026-10-05T10:58:57.408822+00:00",
+      "exitCode": 0,
+      "summary": {
+        "passed": 104,
+        "failed": 0,
+        "skipped": 0,
+        "syntheticLocalOnly": true,
+        "externalProvider": false
+      }
+    },
+    "scope": "Current sixth built localhost source; actual migrated synthetic D1/session workflows, no provider/hosted release."
+  },
+  "lint": {
+    "passed": true,
+    "affectedFiles": 11,
+    "errors": 0,
+    "warnings": 0,
+    "scope": "Affected source/test/catalogue files only."
+  },
+  "offlinePrototype": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "completedLogAt": "2026-10-05T10:59:27.887436+00:00",
+    "screens": 12,
+    "scope": "Fictional offline wireframes only; no application or educator/UAT acceptance."
+  },
+  "documentation": {
+    "markdownFiles": 58,
+    "historicalDraftRequirementsAudited": 20,
+    "checksPassed": true,
+    "scope": "Canonical v2.7 data/API/case parity and local links; all cases unrun/approvalsfalse."
+  }
+}

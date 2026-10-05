@@ -1,8 +1,8 @@
 # Reviewed assessment result design
 
-Version 2.6 draft, 5 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-10, FR-26; NFR-01–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false; [SC-32–SC-34 cases](TEST-CASES.json) remain not-run-for-this-specification.
+Version 2.7 draft, 5 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-10, FR-26; NFR-01–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false; [SC-32–SC-34 cases](TEST-CASES.json) remain not-run-for-this-specification.
 
-The implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records parent `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, rather than the commit containing this fifth assessment-review batch. Published v2.5 attendance and earlier dated evidence remain historical. No educator, provider, real-record, operational or accessibility acceptance is inferred.
+The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`. The focused implementation described here originated in its earlier published batch; this pack updates its current contract and traceability.
 
 ## Scope and preserved compatibility
 

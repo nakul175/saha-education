@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.6 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **229 cases in 34 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **245 cases in 36 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -454,3 +454,29 @@ Cases: TC-222, TC-223, TC-224, TC-225, TC-226, TC-227, TC-228, TC-229. All remai
 - TC-227 — Encrypted local recovery retains reviewed result receipt and exact replay (recovery, existing).
 - TC-228 — Representative result capacity recovery and support gates (performance, planned).
 - TC-229 — Educator result correction meaning grade and publication acceptance (uat, manual).
+
+## SC-35: Immutable client recovery for learner responses reviewed feedback and policies
+
+Cases: TC-230, TC-231, TC-232, TC-233, TC-234, TC-235, TC-236, TC-237. All remain unrun for this specification. Actual callback tests use substituted hooks/native event values with real routes/session/D1; mounted-browser and educator acceptance remain separate.
+
+- TC-230 — Original pending response survives later attempt and closed window (regression, existing).
+- TC-231 — Original pending feedback does not create a duplicate reviewed revision (regression, existing).
+- TC-232 — Original pending window close cannot override a later reopening (regression, existing).
+- TC-233 — Repeated network malformed and server-error recovery keeps original request (integration, existing).
+- TC-234 — Known assignment denial hides private evidence while retaining pending recovery (security, existing).
+- TC-235 — Pending recovery is bound to original actor and authorized reload (security, existing).
+- TC-236 — Confirmed save and failed follow-up read remain distinct outcomes (regression, existing).
+- TC-237 — Same-frame learner feedback and policy controls submit once (integration, existing).
+
+## SC-36: Current learning privacy stale reads and accessible recovery limits
+
+Cases: TC-238, TC-239, TC-240, TC-241, TC-242, TC-243, TC-244, TC-245. All remain unrun for this specification. Actual callback tests use substituted hooks/native event values with real routes/session/D1; mounted-browser and educator acceptance remain separate.
+
+- TC-238 — Learning reload resolves fresh role and clears old learner cards (security, existing).
+- TC-239 — Obsolete learning responses cannot restore revoked material (integration, existing).
+- TC-240 — Current policy success followed by history denial clears partial view (security, existing).
+- TC-241 — Every consumed callback response is drained and safely reported (integration, existing).
+- TC-242 — Temporary history failure retains valid current policy availability (regression, existing).
+- TC-243 — Learner recovery keyboard mobile plain-text and focus review (accessibility, manual).
+- TC-244 — Page-memory recovery lifetime and refresh policy acceptance (uat, manual).
+- TC-245 — Representative recovery and history performance remains measured gate (performance, planned).

@@ -119,7 +119,7 @@ try {
   await learner.route(base.origin + submissionsPath, async route => {
     if (route.request().method() === 'POST') {
       postRequests++; const input = route.request().postDataJSON();
-      if (postRequests === 1) { firstRequestId = input.clientSubmissionId; let committed; try { committed = await route.fetch({ timeout: 10000 }); } catch { throw new Error('Synthetic submission could not be confirmed before response-loss injection.'); } assert.equal(committed.status(), 201); return route.abort('failed'); }
+      if (postRequests === 1) { firstRequestId = input.clientSubmissionId; let committed; try { committed = await route.fetch({ timeout: 10000, headers: await route.request().allHeaders() }); } catch { throw new Error('Synthetic submission could not be confirmed before response-loss injection.'); } assert.equal(committed.status(), 201); await committed.body(); return route.abort('failed'); }
       assert.equal(input.clientSubmissionId, firstRequestId, 'Pending submission retry reuses UUID');
       return route.continue();
     }
@@ -128,9 +128,11 @@ try {
   });
   await learner.getByRole('textbox', { name: /^Your response/ }).fill('Synthetic browser response: one half has fewer equal parts than one quarter.');
   await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
-  await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('Retrying the same response is safe'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
-  await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
-  await check('Confirmed retry saves once and reports refresh failure accurately', async () => { await expect(learner.getByRole('status').filter({ hasText: 'Response attempt' })).toContainText('Response attempt 1 saved. History could not refresh'); assert.equal(postRequests, 2); const history = await api(student, submissionsPath); assert.equal(history.length, 1); assert.equal(history[0].id, firstRequestId); });
+  await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('exact original request and UUID are retained'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toBeDisabled(); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
+  await learner.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
+  await expect(learner.getByRole('button', { name: 'Retry pending response', exact: true })).toBeEnabled();
+  await learner.getByRole('button', { name: 'Retry pending response', exact: true }).click();
+  await check('Confirmed retry saves once and reports refresh failure accurately', async () => { await expect(learner.getByRole('status').filter({ hasText: 'The original save was confirmed.' })).toContainText('Current history could not refresh'); await expect(learner.locator('[data-confirmed-original-save=' + JSON.stringify(firstRequestId) + ']')).toContainText('Response attempt 1'); assert.equal(postRequests, 2); const history = await api(student, submissionsPath); assert.equal(history.length, 1); assert.equal(history[0].id, firstRequestId); });
   await learner.unroute(base.origin + submissionsPath);
   const firstAttempt = (await api(student, submissionsPath))[0];
   await page.goto(assignmentUrl);
@@ -139,18 +141,18 @@ try {
   await check('Staff feedback requires explicit review of selected attempt', async () => expect(page.getByRole('button', { name: 'Save reviewed feedback revision 1', exact: true })).toBeDisabled());
   await page.getByRole('checkbox', { name: /I reviewed this feedback against/ }).check();
   await page.getByRole('button', { name: 'Save reviewed feedback revision 1', exact: true }).click();
-  await check('Reviewed formative feedback saves to the selected attempt', async () => expect(page.getByRole('status').filter({ hasText: 'saved for response attempt' })).toContainText('saved for response attempt 1'));
+  await check('Reviewed formative feedback saves to the selected attempt', async () => expect(page.locator('[data-confirmed-original-save]')).toContainText('Feedback revision 1 · Response attempt 1'));
   await learner.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await check('Learner receives educator-reviewed feedback', async () => expect(learner.getByText('Explain equal-sized parts more clearly in your next response.', { exact: true })).toBeVisible());
   await learner.getByRole('textbox', { name: /^Your response/ }).fill('Synthetic revised browser explanation: halves are larger equal parts than quarters.');
   await learner.getByRole('button', { name: 'Save response attempt 2', exact: true }).click();
-  await check('Revised learner response appends immutable attempt history', async () => { await expect(learner.getByRole('status').filter({ hasText: 'Response attempt' })).toContainText('Response attempt 2 saved'); const history = await api(student, submissionsPath); assert.equal(history.length, 2); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 1); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
+  await check('Revised learner response appends immutable attempt history', async () => { await expect(learner.locator('[data-confirmed-original-save]')).toContainText('Response attempt 2'); const history = await api(student, submissionsPath); assert.equal(history.length, 2); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 1); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
   await page.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await page.getByLabel('Saved response to review', { exact: false }).selectOption(firstAttempt.id);
   await page.getByRole('textbox', { name: /^New formative feedback revision/ }).fill('Second reviewed guidance for the earlier saved response only.');
   await page.getByRole('checkbox', { name: /I reviewed this feedback against/ }).check();
   await page.getByRole('button', { name: 'Save reviewed feedback revision 2', exact: true }).click();
-  await check('Feedback revisions remain bound to the earlier exact attempt', async () => { await expect(page.getByRole('status').filter({ hasText: 'saved for response attempt' })).toContainText('revision 2 saved for response attempt 1'); const history = await api(teacher, submissionsPath); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 2); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
+  await check('Feedback revisions remain bound to the earlier exact attempt', async () => { await expect(page.locator('[data-confirmed-original-save]')).toContainText('Feedback revision 2 · Response attempt 1'); const history = await api(teacher, submissionsPath); assert.equal(history.find(item => item.id === firstAttempt.id).feedback.length, 2); assert.equal(history.find(item => item.attempt === 2).feedback.length, 0); });
   await page.screenshot({ path: '/tmp/saha-next-ui-desktop.png', fullPage: true });
 
   const passage = 'BROWSER-READING-' + suffix;
@@ -180,7 +182,8 @@ try {
   await check('Reading correction history retains reason and revision', async () => { await expect(observation.getByText('Reason: Synthetic browser count transcription review.', { exact: true })).toBeVisible(); await expect(observation.getByRole('heading', { name: 'Revision 1', exact: true })).toBeVisible(); });
   const comparable = page.getByText('Passage reference: ' + passage, { exact: true }).locator('..');
   await check('Comparable reading table keeps same task and duration points', async () => expect(comparable.locator('tbody tr')).toHaveCount(2));
-  await api(admin, '/api/enrolments', 'PATCH', { id: 'student-a-enrolment', status: 'withdrawn' }); withdrawn = true;
+  withdrawn = true; // Restore even if a committed synthetic withdrawal loses its reply.
+  await api(admin, '/api/enrolments', 'PATCH', { id: 'student-a-enrolment', status: 'withdrawn' });
   await page.goto(base.origin + '/reading-review');
   await page.getByLabel('Class', { exact: false }).selectOption('class-a');
   await check('Withdrawn learner remains selectable in authorized reading history', async () => { await expect(page.getByLabel('Student', { exact: false }).getByRole('option', { name: 'Student ID student-a (retained reading history)', exact: true })).toHaveCount(1); await page.getByLabel('Student', { exact: false }).selectOption('student-a'); await expect(page.locator('article').filter({ hasText: 'Observation ID ' + reading.id })).toBeVisible(); });

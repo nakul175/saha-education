@@ -115,7 +115,14 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
       try {
         const savedHistory = await read<AttendanceReviewHistory>(path + '/history?date=' + encodeURIComponent(date), abort.signal, Boolean(pending.current));
         if (ticket === generation.current) setHistory(savedHistory);
-      } catch (failure) { if (ticket === generation.current && !abort.signal.aborted) setHistoryError(failure instanceof Error ? failure.message : 'Review history could not be loaded.'); }
+      } catch (failure) {
+        if (ticket !== generation.current || abort.signal.aborted) return;
+        if (failure instanceof ReadFailure && [401, 403, 404].includes(failure.status)) {
+          snapshotRef.current = null; setSnapshot(null); setHistory(null); setConfirmed(null); setNeedsReload(true); setReviewed(false); setError(failure.message);
+          setNotice(afterSave ? 'Attendance review saved. Current access could not be verified. Reload current records after access is restored.' : pending.current ? 'The original reviewed request remains pending. Current access could not be verified. Reload current records after access is restored before retrying.' : null);
+          if (pending.current) { setPendingAccessDenied(true); setSigninRequired(failure.status === 401); }
+        } else setHistoryError(failure instanceof Error ? failure.message : 'Review history could not be loaded.');
+      }
     } catch (failure) {
       if (ticket !== generation.current || abort.signal.aborted) return;
       setLoading(false); setNeedsReload(true);

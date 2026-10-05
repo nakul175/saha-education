@@ -38,7 +38,9 @@ async function context(user) {
 async function api(value, path, method = 'GET', data, expected = 200) {
   const url = new URL(path, base);
   if (url.origin !== base.origin || url.username || url.password) throw new Error('A synthetic API request must remain local.');
-  const response = await value.request.fetch(url.href, { method, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }), timeout: 15000, maxRedirects: 0 });
+  let response;
+  try { response = await value.request.fetch(url.href, { method, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }), timeout: 15000, maxRedirects: 0 }); }
+  catch { throw new Error('Local fixture API transport failed: ' + url.pathname); }
   assert.equal(response.status(), expected, 'Local fixture API status: ' + path);
   return response.json();
 }
@@ -59,7 +61,9 @@ async function loseResponse(page, pattern, expected) {
     if (route.request().method() !== 'POST') return route.continue();
     payloads.push(route.request().postDataJSON());
     if (dropped) return route.continue();
-    const committed = await route.fetch({ timeout: 15000, maxRedirects: 0 });
+    let committed;
+    try { committed = await route.fetch({ timeout: 15000, maxRedirects: 0, headers: await route.request().allHeaders() }); }
+    catch { throw new Error('Local response-loss setup transport failed: ' + new URL(route.request().url()).pathname); }
     assert.equal(committed.status(), expected, 'Response-loss injection only follows a committed save');
     await committed.body(); dropped = true; return route.abort('failed');
   };
@@ -188,20 +192,24 @@ try {
   await page.goto(assessmentUrl);
   const zero = page.getByLabel('Score for ' + ownName, { exact: true }), nonzero = page.getByLabel('Score for ' + existingName, { exact: true });
   const ownFeedback = page.getByLabel('Feedback for ' + ownName, { exact: true });
-  const saveResults = page.getByRole('button', { name: 'Save Edited Results', exact: true });
+  const editorPath = '/api/assessments/' + assessment.id + '/result-editor';
+  const saveResults = page.getByRole('button', { name: 'Save reviewed results', exact: true });
+  const resultReason = page.getByLabel('Reason for result changes', { exact: true });
+  const resultReviewed = page.getByRole('checkbox', { name: 'I reviewed the loaded assessment, saved results and these intended changes.', exact: true });
   await check('Assessment editor hydrates zero and nonzero saved scores', async () => { await expect(zero).toHaveValue('0'); await expect(nonzero).toHaveValue('17'); await expect(ownFeedback).toHaveValue('Initial zero feedback.'); await expect(saveResults).toBeDisabled(); });
   const resultPayloads = [];
   const resultObserver = async route => { if (route.request().method() === 'POST') resultPayloads.push(route.request().postDataJSON()); return route.continue(); };
-  await page.route('**' + resultsPath, resultObserver);
-  await ownFeedback.fill('Edited zero feedback only.'); await saveResults.click();
-  await check('Dirty-only result save preserves zero and supplied grade', async () => { await expect(page.getByRole('status')).toContainText('Edited results saved successfully'); assert.equal(resultPayloads.length, 1); assert.deepEqual(resultPayloads[0], { results: [{ studentId: ownStudent.id, score: 0, grade: 'SUPPLIED-ZERO', feedback: 'Edited zero feedback only.' }] }); const saved = await api(admin, resultsPath); assert.equal(saved.find(item => item.studentId === ownStudent.id)?.grade, 'SUPPLIED-ZERO'); assert.equal(saved.find(item => item.studentId === 'student-a')?.feedback, 'Initial nonzero feedback.'); await expect(saveResults).toBeDisabled(); });
-  await page.unroute('**' + resultsPath, resultObserver);
-  await zero.fill('5'); await ownFeedback.fill('Unsaved conflict feedback remains visible.');
+  await page.route('**' + editorPath, resultObserver);
+  await ownFeedback.fill('Edited zero feedback only.'); await resultReason.fill('Synthetic review of feedback-only correction.'); await resultReviewed.check(); await saveResults.click();
+  await check('Dirty-only result review preserves zero and supplied grade with exact evidence', async () => { await expect(page.getByRole('status').filter({ hasText: 'Result review saved' })).toBeVisible(); assert.equal(resultPayloads.length, 1); const input = resultPayloads[0]; assert.equal(input.reviewConfirmed, true); assert.equal(input.expectedAssessment.id, assessment.id); assert.equal(input.entries.length, 1); assert.deepEqual({ ...input.entries[0], expectedRecord: undefined }, { studentId: ownStudent.id, score: 0, grade: 'SUPPLIED-ZERO', feedback: 'Edited zero feedback only.', expectedRecord: undefined }); assert.equal(input.entries[0].expectedRecord.score, 0); assert.equal(input.entries[0].expectedRecord.feedback, 'Initial zero feedback.'); const saved = await api(admin, resultsPath); assert.equal(saved.find(item => item.studentId === ownStudent.id)?.grade, 'SUPPLIED-ZERO'); assert.equal(saved.find(item => item.studentId === 'student-a')?.feedback, 'Initial nonzero feedback.'); await expect(saveResults).toBeDisabled(); });
+  await page.unroute('**' + editorPath, resultObserver);
+  await zero.fill('5'); await ownFeedback.fill('Unsaved conflict feedback remains visible.'); await resultReason.fill('Synthetic rejected conflict review for browser verification.'); await resultReviewed.check();
   const conflictHandler = async route => route.request().method() === 'POST' ? route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'Synthetic browser conflict' }) }) : route.continue();
-  await page.route('**' + resultsPath, conflictHandler); await saveResults.click();
-  await check('Assessment conflict keeps edits and requires saved-state reload', async () => { await expect(page.getByRole('alert')).toContainText('Your edits are retained here'); await expect(zero).toHaveValue('5'); await expect(ownFeedback).toHaveValue('Unsaved conflict feedback remains visible.'); await expect(saveResults).toBeDisabled(); await expect(page.getByRole('link', { name: 'Reload saved results', exact: true })).toBeVisible(); assert.equal((await api(admin, resultsPath)).find(item => item.studentId === ownStudent.id)?.score, 0); });
-  await page.unroute('**' + resultsPath, conflictHandler);
-  await check('Assessment fields support keyboard focus and movement', async () => { await zero.focus(); await expect(zero).toBeFocused(); await page.keyboard.press('Tab'); await expect(ownFeedback).toBeFocused(); });
+  await page.route('**' + editorPath, conflictHandler); await saveResults.click();
+  await check('Assessment conflict keeps intended edits and requires current-state comparison', async () => { await expect(page.getByRole('alert')).toContainText('Your intended edits are retained'); await expect(zero).toHaveValue('5'); await expect(ownFeedback).toHaveValue('Unsaved conflict feedback remains visible.'); await expect(saveResults).toBeDisabled(); await expect(page.getByRole('button', { name: 'Reload current results', exact: true })).toBeVisible(); assert.equal((await api(admin, resultsPath)).find(item => item.studentId === ownStudent.id)?.score, 0); });
+  await page.unroute('**' + editorPath, conflictHandler);
+  await page.getByRole('button', { name: 'Reload current results', exact: true }).click(); await expect(zero).toBeEnabled();
+  await check('Assessment fields support keyboard focus through supplied grade and feedback', async () => { await zero.focus(); await expect(zero).toBeFocused(); await page.keyboard.press('Tab'); await expect(page.getByLabel('School-supplied grade for ' + ownName, { exact: true })).toBeFocused(); await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Set no grade for ' + ownName, exact: true })).toBeFocused(); await page.keyboard.press('Tab'); await expect(ownFeedback).toBeFocused(); await expect(resultReviewed).not.toBeChecked(); });
   await check('Desktop assessment labels and width', async () => labelsAndOverflow(page)); await screenshot(page, 'assessment-desktop');
 
   // Assignment window review does not edit or withdraw any fixture principal.
@@ -239,14 +247,14 @@ try {
   await learner.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await check('Reopening restores student submission while keeping its draft', async () => { await expect(learner.getByText('New responses are open.', { exact: true })).toBeVisible(); await expect(responseText).toHaveValue('Unsaved response is preserved across window refreshes.'); await expect(learner.getByRole('button', { name: 'Save response attempt 1', exact: true })).toBeEnabled(); });
   await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
-  await check('An open reviewed window accepts the student response', async () => expect(learner.getByRole('status').filter({ hasText: 'Response attempt 1 saved' })).toBeVisible());
+  await check('An open reviewed window accepts the student response', async () => { await expect(learner.locator('[data-confirmed-original-save]')).toContainText('Response attempt 1'); const history = await api(student, '/api/assignments/' + assignment.id + '/submissions'); assert.equal(history.length, 1); assert.equal(history[0].response, 'Unsaved response is preserved across window refreshes.'); await expect(learner.locator('[data-confirmed-original-save=' + JSON.stringify(history[0].id) + ']')).toBeVisible(); });
   await windowReason.fill('Unsaved staff window reason is kept during refresh.'); await windowReviewed.check();
   await api(teacher, windowPath, 'POST', { clientPolicyId: crypto.randomUUID(), expectedRevision: 2, state: 'open', closesAt: new Date(Date.now() - 60000).toISOString(), reason: 'Synthetic elapsed deadline closes new responses.', reviewConfirmed: true }, 201);
   await page.getByRole('button', { name: 'Refresh submission window', exact: true }).click();
   await check('Refreshing changed window keeps form text and requires another review', async () => { await expect(page.getByText('New responses are closed.', { exact: true })).toBeVisible(); await expect(windowReason).toHaveValue('Unsaved staff window reason is kept during refresh.'); await expect(closingInput).toHaveValue(frozenClosingValue); await expect(windowReviewed).not.toBeChecked(); await expect(windowSave).toBeDisabled(); });
   await responseText.fill('Second unsaved response remains after deadline closure.');
   await learner.getByRole('button', { name: 'Refresh submission window', exact: true }).click();
-  await check('Elapsed deadline freezes new student saves and keeps saved history', async () => { await expect(learner.getByText('New responses are closed.', { exact: true })).toBeVisible(); await expect(learner.getByRole('button', { name: 'Save response attempt 2', exact: true })).toBeDisabled(); await expect(responseText).toHaveValue('Second unsaved response remains after deadline closure.'); await expect(learner.getByRole('heading', { name: 'Response attempt 1 · Assigned version 1', exact: true })).toBeVisible(); });
+  await check('Elapsed deadline freezes new student saves and keeps saved history', async () => { await expect(learner.getByText('New responses are closed.', { exact: true })).toBeVisible(); await expect(learner.getByRole('button', { name: 'Save response attempt 2', exact: true })).toBeDisabled(); await expect(responseText).toHaveValue('Second unsaved response remains after deadline closure.'); await expect(learner.locator('[data-submission-attempt]').getByRole('heading', { name: 'Response attempt 1 · Assigned version 1', exact: true })).toBeVisible(); });
   await closingInput.fill(''); await windowReason.fill('Synthetic final reviewed reopening without deadline.'); await windowReviewed.check(); await windowSave.click();
   await check('Staff can reopen the window with an explicit reviewed no-cutoff decision', async () => { await expect(page.getByRole('status').filter({ hasText: 'Window review revision 4 saved' })).toBeVisible(); const saved = await api(teacher, windowPath); assert.equal(saved.state, 'open'); assert.equal(saved.closesAt, null); });
   await page.getByText('Window review history (latest 100)', { exact: true }).click();

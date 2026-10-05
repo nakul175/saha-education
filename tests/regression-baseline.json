@@ -83,6 +83,11 @@
       "file": "tests/integration/identity-admin-contract.mjs",
       "minPassed": 153
     },
+    "integration/learner-recovery-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/learner-recovery-ui-contract.mjs",
+      "minPassed": 635
+    },
     "integration/live-domain-authority-contract": {
       "layer": "integration",
       "file": "tests/integration/live-domain-authority-contract.mjs",

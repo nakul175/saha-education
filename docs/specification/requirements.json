@@ -1,7 +1,7 @@
 {
-  "version": "2.6-draft",
+  "version": "2.7-draft",
   "date": "2026-10-05",
-  "source_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
+  "source_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -168,7 +168,7 @@
       "title": "Learner resource view",
       "implementation_status": "implemented",
       "source": "app/learning/page.tsx",
-      "requirement": "Show active-class approved assignments; omit staff notes/answer keys in server output.",
+      "requirement": "Show only currently authorized active-class approved assignments; omit staff notes/answer keys and clear obsolete learner cards/action links when role or feed access changes.",
       "approved": false
     },
     {
@@ -231,7 +231,7 @@
       "title": "Learner submission and feedback",
       "implementation_status": "partial",
       "source": "lib/education/submissions.ts",
-      "requirement": "Collect immutable authorized text attempts and reviewed feedback; append reviewed open/closed/timed submission windows independently of informational due dates.",
+      "requirement": "Collect immutable authorized text attempts and reviewed feedback; append reviewed open/closed/timed submission windows independently of informational due dates; recover uncertain client writes through original actor-bound UUID/body without rebasing later attempts or policies.",
       "approved": false
     },
     {
@@ -258,7 +258,7 @@
       "title": "Security",
       "implementation_status": "partial",
       "source": "lib/education/http.ts",
-      "requirement": "Trusted identity, same-origin mutations, scope, strict new schemas and safe errors; broader review pending.",
+      "requirement": "Trusted identity, same-origin mutations, current scope, strict schemas and safe errors; clear protected client views on known access loss and require fresh same-actor authorization for pending recovery; broader review remains.",
       "approved": false
     },
     {
@@ -340,11 +340,12 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented fifth assessment-review batch, not its containing publication commit. Published v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
+    "note": "source_commit records the parent of this documented sixth learner-recovery batch, not its containing publication commit. Published v2.6 at 61f0751, v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
-    "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c"
+    "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
+    "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf"
   }
 }

@@ -2,7 +2,7 @@
 
 Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
 
-The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Environment boundaries
 
@@ -78,3 +78,7 @@ Root owns actual dated build/suite/Worker/browser/recovery records and current b
 Verify additive 0014 against39 tables/325 fields and 56 route files/91 handlers,10-field receipts/six-field entries, indexes, full current-authority/CAS/commit triggers and immutable UPDATE/DELETE blocks. Preserve applied migrations/old results/duplicates; no destructive cleanup or fabricated legacy audit. Build current service/detail/list/raw date helper together and verify production D1 RETURNING/trigger behavior plus prior compatibility.
 
 Populate disposable encrypted local recovery with original reviewed result and later legacy edit; restore exact inventory/indexes/triggers/evidence and test original UUID replay/current privacy/immutability without reapplying old values. Local restore does not prove hosted export/cutover, key custody, schedules, support SLA or approved RTO/RPO. Root owns dated actual evidence. Real provider/ORF, grade/publication/correction/retention policy and intentional acceptance remain release gates.
+
+## Learner pending recovery support boundary
+
+An unresolved original UUID/body is held only in the current page. Keep the page open and sign in in another tab when required; reload under the original current authorized actor before exact retry. Do not advise retyping retained text as a new request merely because the latest attempt/policy changed. A valid original receipt stays saved even if current readback fails; respect hidden private evidence after denial. Browser close/navigation loses local state and requires scoped support investigation rather than a fabricated durable replay guarantee. No schema/deployment/provider/key/retention change accompanies this slice.

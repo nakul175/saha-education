@@ -34,6 +34,7 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-learner-recovery-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser learner/feedback/window pending recovery and current privacy; synthetic only' },
   'tests/worker-attendance-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'], note: 'local built reviewed attendance snapshot/save/replay/history and legacy boundaries; synthetic records only' },
   'tests/worker-attendance-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local reviewed attendance browser preservation, conflict and exact retry journeys; synthetic records only' },
   'tests/worker-attendance-summary-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local attendance viewer selection/refresh/failure/date/privacy and mobile journeys; synthetic records only' },

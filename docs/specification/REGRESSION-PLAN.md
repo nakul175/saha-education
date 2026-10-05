@@ -1,8 +1,8 @@
 # Risk-based regression plan
 
-Version 2.6 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Historical reference, not acceptance baseline
 
@@ -46,7 +46,7 @@ Reading import changes require existing original reading semantics and correctio
 
 Submission-window changes require original default/past-due workflow, existing immutable attempts/feedback, current/latest policy, close/expire between validation and INSERT, exact committed replay after closure, later policy preservation, current-authority rechecks and history cap. Recover all new review/provenance states using the populated disposable local encrypted suite, preserving exact indexes/triggers and scope rather than claiming hosted readiness.
 
-Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 229 designed cases remain unrun until intentionally executed and recorded.
+Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 245 designed cases remain unrun until intentionally executed and recorded.
 
 ## v2.3 original-domain preservation
 
@@ -69,3 +69,7 @@ Retest new recorder/viewer native navigation, selection/date cancellation, expli
 Retain old academic assertions and every confirmed/pre0009 duplicate row. Legacy concurrent result replacements stay 200, omitted grade/feedback clear, legitimate 0 persists and no review backfill appears. New reviewed feedback changes conflict on stale complete records rather than restoring older score/grade; exact old UUID never reapplies values after a later legacy or metadata edit.
 
 Recheck same-school withdrawn original history versus whole-batch transfer denial, live actor/class/reference cutoff, malformed maximum/date, unsafe/nonfinite/blob handling, metadata/time/type CAS and fault rollback of existing/new/result/receipt/events. Include one-SQL coherent reads, current 100/raw 10/history 100 caps, accessible uncertainty/compare and literal date fallback. SC-32–SC-34 remains unrun; [diagnostics](../current/ASSESSMENT-REVIEW.md) are not pass evidence.
+
+## Learner recovery regression boundary
+
+Preserve old submission/window/resource API and immutable evidence tests while adding [original pending recovery](../../tests/integration/learner-recovery-ui-contract.mjs). After lost committed acknowledgement, a later response or open-policy revision must not be overwritten/appended again by stale recovery text. Exact body/UUID/actor survives reload, malformed 2xx,5xx and repeated failure; known denial hides protected views and requires same-actor authorized reload. Known receipt plus failed refresh remains truthful. Mounted-browser/manual evidence is separate from substituted-hook callback tests; SC-35–SC-36 remain unrun.

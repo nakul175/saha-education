@@ -1,8 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.6 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.7 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
 
-The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Current boundary matrix
 
@@ -148,3 +148,7 @@ One receipt INSERT with trigger validation/commit atomically persists reviewed a
 FR-10/FR-26 adds only internal staff GET/POST/history endpoints and additive immutable receipt/change storage. The editor is manual educator-reviewed data; no AI result generation, vendor verification, external call, grade calculation or family publication occurs. Legacy results API retains its accepted replacement/clearing/concurrent 200 semantics. Full DTO/CAS/replay scope is in [assessment design](ASSESSMENT-DESIGN.md).
 
 Test actual-session transport and production D1 prepared RETURNING/trigger behavior over isolated SQLite, then the built local Worker independently. Payloads are bounded128 KiB/100 dirty pupils, roster 100/history 100 and raw records 10; no hidden partial success. Nonfinite/unsafe/blob original numeric evidence has honest raw disclosure and a read-only gate. In-memory client pending requests are not durable queues. Provider/ORF, hosted D1, operational privacy/retention and educator governance remain separate approved integrations.
+
+## v2.7 local learner recovery boundary
+
+The [client recovery contract](LEARNER-RECOVERY-DESIGN.md) connects unchanged local routes to immutable page-memory pending requests. Actual opaque-session/route/production-D1 SQLite checks with substituted React hooks establish callback-state evidence only; local mounted-browser procedures and provider callback/educator acceptance remain separate. Exact original UUID retry after newer attempts/reviews or closure does not invoke external services or synchronize classroom results. No provider/login activation or external data transfer is added.

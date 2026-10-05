@@ -28,14 +28,17 @@ async function context(user) {
 }
 async function api(value, path, method = 'GET', data, expected = 200) {
   const url = new URL(path, base); if (url.origin !== base.origin || url.username || url.password) throw new Error('Synthetic requests must remain local.');
-  const response = await value.request.fetch(url.href, { method, timeout: 15000, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) });
+  let response;
+  try { response = await value.request.fetch(url.href, { method, timeout: 15000, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) }); }
+  catch { throw new Error('Local attendance API transport failed: ' + url.pathname); }
   assert.equal(response.status(), expected, 'Local API status: ' + path); return response.json();
 }
 async function localRouteFetch(route) {
   if (new URL(route.request().url()).origin !== base.origin) throw new Error('Injected fixture requests must remain local.');
   // route.fetch uses an API cookie jar, which omits secure cookies over HTTP.
   // Preserve the already-authorised synthetic browser request explicitly.
-  return route.fetch({ timeout: 15000, maxRedirects: 0, headers: { ...await route.request().allHeaders(), cookie: sessions['teacher-a'] } });
+  try { return await route.fetch({ timeout: 15000, maxRedirects: 0, headers: { ...await route.request().allHeaders(), cookie: sessions['teacher-a'] } }); }
+  catch { throw new Error('Local attendance injection transport failed: ' + new URL(route.request().url()).pathname); }
 }
 const endpoint = classId => '/api/classes/' + encodeURIComponent(classId) + '/attendance-editor';
 const row = (page, student) => page.locator('[data-attendance-student=' + JSON.stringify(student.id) + ']');
@@ -175,6 +178,11 @@ try {
       await page.route(match, denyAck);
       try { await saveButton(page).click(); await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed'); await expect(page.locator('[data-attendance-student],[data-confirmed-attendance-review]')).toHaveCount(0); await expect(page.getByRole('button', { name: 'Retry pending save', exact: true })).toHaveCount(0); await expect(page.getByLabel('Attendance date', { exact: true })).toBeDisabled(); if (denial === 401) await expect(page.getByRole('link', { name: 'Sign in again in another tab', exact: true })).toHaveAttribute('href', '/login'); }
       finally { await page.unroute(match, denyAck); }
+      const historyMatch = url => url.pathname === endpoint(classroom.id) + '/history';
+      const denyHistory = route => route.fulfill({ status: denial, contentType: 'application/json', body: '{"error":"Unavailable"}' });
+      await page.route(historyMatch, denyHistory);
+      try { await page.getByRole('button', { name: 'Reload current records', exact: true }).click(); await expect(page.locator('[data-attendance-student],[data-confirmed-attendance-review],[data-attendance-review]')).toHaveCount(0); await expect(page.getByRole('button', { name: 'Retry pending save', exact: true })).toHaveCount(0); await expect(page.getByRole('status').filter({ hasText: 'Current records reloaded and access verified.' })).toHaveCount(0); await expect(page.getByRole('status').filter({ hasText: 'The original reviewed request remains pending.' })).toBeVisible(); }
+      finally { await page.unroute(historyMatch, denyHistory); }
       await page.getByRole('button', { name: 'Reload current records', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Current records reloaded and access verified.' })).toBeVisible();
       const retried = page.waitForResponse(response => new URL(response.url()).pathname === endpoint(classroom.id) && response.request().method() === 'POST'); await page.getByRole('button', { name: 'Retry pending save', exact: true }).click(); const response = await retried; assert.equal(response.status(), 200); assert.deepEqual(response.request().postDataJSON(), original); const result = await response.json(); assert.equal(result.review.id, original.clientRequestId); assert.equal(result.replayed, true); await expect(page.getByRole('status').filter({ hasText: 'Current records reloaded.' })).toBeVisible();
     }
@@ -195,6 +203,28 @@ try {
     try { await screen.goto(base.origin + '/classes/' + classroom.id + '/attendance', { waitUntil: 'networkidle' }); await expect(screen.getByRole('alert')).toContainText('Saved attendance could not be loaded.'); await expect(screen.locator('[data-attendance-student]')).toHaveCount(0); await expect(saveButton(screen)).toHaveCount(0); }
     finally { await screen.unroute(match, fail); }
     await screen.getByRole('button', { name: 'Reload current records', exact: true }).click(); await expect(screen.locator('[data-attendance-student]')).toHaveCount(3); await screen.close();
+  });
+  await check('Known history denial hides current private data and known committed evidence until authorized reload', async () => {
+    const reload = screen => screen.getByRole('button', { name: 'Reload current records', exact: true });
+    const historyMatch = url => url.pathname === endpoint(classroom.id) + '/history';
+    for (const denial of [403, 404]) {
+      const screen = await teacher.newPage(), deny = route => route.fulfill({ status: denial, contentType: 'application/json', body: '{"error":"Unavailable"}' });
+      await screen.route(historyMatch, deny);
+      try { await screen.goto(base.origin + '/classes/' + classroom.id + '/attendance', { waitUntil: 'domcontentloaded' }); await expect(screen.getByRole('alert')).toContainText(denial === 403 ? 'Your account does not have permission' : 'This class is unavailable'); await expect(screen.locator('[data-attendance-student],[data-confirmed-attendance-review],[data-attendance-review]')).toHaveCount(0); await expect(saveButton(screen)).toHaveCount(0); }
+      finally { await screen.unroute(historyMatch, deny); }
+      await reload(screen).click(); await expect(screen.locator('[data-attendance-student]')).toHaveCount(3); await expect(status(screen, savedPupil)).toBeEnabled(); await screen.close();
+    }
+    const screen = await teacher.newPage(); await open(screen, classroom.id); await note(screen, blankPupil).fill('Known committed history denial ' + suffix); await prepare(screen, reason + ' committed history denial');
+    const deny = route => route.fulfill({ status: 403, contentType: 'application/json', body: '{"error":"Unavailable"}' }); await screen.route(historyMatch, deny);
+    try { const saved = screen.waitForResponse(item => new URL(item.url()).pathname === endpoint(classroom.id) && item.request().method() === 'POST'); await saveButton(screen).click(); const response = await saved; assert.equal(response.status(), 201); await response.body(); await expect(screen.getByRole('status').filter({ hasText: 'Attendance review saved.' })).toContainText('Current access could not be verified.'); await expect(screen.getByRole('status').filter({ hasText: 'Current records reloaded.' })).toHaveCount(0); await expect(screen.locator('[data-attendance-student],[data-confirmed-attendance-review],[data-attendance-review]')).toHaveCount(0); await expect(screen.getByRole('button', { name: 'Retry pending save', exact: true })).toHaveCount(0); }
+    finally { await screen.unroute(historyMatch, deny); }
+    await reload(screen).click(); await expect(note(screen, blankPupil)).toHaveValue('Known committed history denial ' + suffix); await expect(screen.getByText('0 learners with intended changes.', { exact: true })).toBeVisible(); await screen.close();
+  });
+  await check('Temporary history503 remains an availability error while authorized current marks remain usable', async () => {
+    const screen = await teacher.newPage(), match = url => url.pathname === endpoint(classroom.id) + '/history';
+    const fail = route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' }); await screen.route(match, fail);
+    try { await screen.goto(base.origin + '/classes/' + classroom.id + '/attendance', { waitUntil: 'domcontentloaded' }); await expect(screen.getByRole('alert')).toContainText('Review history could not be loaded.'); await expect(screen.locator('[data-attendance-student]')).toHaveCount(3); await expect(status(screen, savedPupil)).toBeEnabled(); await expect(screen.getByText('0 learners with intended changes.', { exact: true })).toBeVisible(); }
+    finally { await screen.unroute(match, fail); await screen.close(); }
   });
   await check('Family accounts see a clear recording denial without editor requests or private roster', async () => {
     for (const value of [family, learner]) { const screen = await value.newPage(); let editorRequests = 0; screen.on('request', request => { if (new URL(request.url()).pathname.startsWith(endpoint(classroom.id))) editorRequests++; }); await screen.goto(base.origin + '/classes/' + classroom.id + '/attendance', { waitUntil: 'networkidle' }); await expect(screen.getByRole('alert')).toContainText('Attendance recording is available to authorised school staff.'); await expect(screen.getByLabel('Attendance date', { exact: true })).toHaveCount(0); await expect(screen.locator('[data-attendance-student]')).toHaveCount(0); assert.equal(editorRequests, 0); await api(value, endpoint(classroom.id) + '?date=' + date, 'GET', undefined, 403); await screen.close(); }
