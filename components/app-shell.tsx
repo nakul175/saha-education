@@ -14,14 +14,14 @@ import { cn } from "@/lib/utils";
 import type { Principal } from "@/lib/education/types";
 
 export function AppShell({
-  principal: initialPrincipal,
+  principal,
   children,
 }: {
   principal: Principal | null;
   children: React.ReactNode;
 }) {
-  const [loadedPrincipal, setPrincipal] = React.useState<Principal | null>(null);
-  const principal = initialPrincipal ?? loadedPrincipal;
+  // Every caller supplies its verified current principal. Null hides identity
+  // immediately while the page reloads or loses access; the shell never restores it.
   const [syntheticDemo, setSyntheticDemo] = React.useState(false);
   const [signingOut, setSigningOut] = React.useState(false);
   const [signOutStarted, setSignOutStarted] = React.useState(false);
@@ -36,16 +36,6 @@ export function AppShell({
     }).catch(() => { /* This label grants no authority; server sessions scope all records. */ });
     return () => { active = false; };
   }, []);
-  React.useEffect(() => {
-    if (initialPrincipal) return;
-    let active = true;
-    fetch('/api/session', {cache: 'no-store'}).then(async response => {
-      if (!response.ok) { await response.text(); return; }
-      const result = await response.json() as Principal;
-      if (active) setPrincipal(result);
-    }).catch(() => { /* The protected layout and APIs enforce authentication. */ });
-    return () => { active = false; };
-  }, [initialPrincipal]);
   const handleSignOut = async () => {
     if (signOutInFlight.current) return;
     signOutInFlight.current = true;
@@ -82,6 +72,7 @@ export function AppShell({
     { id: 'profile-links', label: 'Profile links', path: '/admin/profile-links' },
     { id: 'curriculum', label: 'Curriculum library', path: '/curriculum' },
     { id: 'reading-review', label: 'Reading review', path: '/reading-review' },
+    { id: 'reading-practice', label: 'Reading practice planner', path: '/reading-practice' },
     { id: 'reading-imports', label: 'Reading imports', path: '/reading-imports' },
     { id: 'resources', label: 'Teaching resources', path: '/resources' },
     { id: 'learning', label: 'Class resources', path: '/learning' },
@@ -155,7 +146,7 @@ export function AppShell({
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'curriculum', 'reading-review', 'reading-imports'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications

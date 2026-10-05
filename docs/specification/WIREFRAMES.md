@@ -1,8 +1,8 @@
 # Saha wireframes and navigation specification
 
-Version 2.9 draft, 6 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
+Version 2.10 draft, 6 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Screen inventory
 
@@ -73,7 +73,7 @@ The same 12-screen offline prototype remains labelled fictional and does not gai
 | `/schools`, `/courses`, `/classes` (WF-08 context) | Scoped role lists; only admin updates existing school/creates course/class in verified school. Teacher picker uses admin-safe account fields; no typed tenant switch or Create School control. | Loading/empty, unavailable school/teacher/course, invalid fields, permission/conflict, uncertain save and saved-row/reload failure; native labels, focus, mobile wrapping |
 | `/report-cards` (WF-07 context) | Scoped learner selector/reports. Admin only: draft term/grade/summary, saved-report review checkbox and publish. Teacher/family read permitted reports; family drafts private. | Draft save uncertainty retains text and blocks another create until reload/check; publication uncertainty reloads persisted status/review; no new draft UUID guarantee; visible alerts/status/mobile labels |
 | `/report-cards/{id}` | Scoped persisted report details and browser print | Loading, unavailable/denied/error; grade/summary remain school supplied, no inferred grading engine |
-| `/notifications` (WF-07 context) | Personal recipient inbox and Mark as Read; retained historical notice does not grant current student/report access | Loading/empty/error; in-flight disabled action, failed/uncertain acknowledgement keeps inbox and offers same-notice retry; long text wraps |
+| `/notifications` (historical v2.3 WF-07 context; superseded by WF-18 below) | Personal recipient inbox and Mark as Read; retained historical notice does not grant current student/report access | Loading/empty/error; in-flight disabled action, failed/uncertain acknowledgement keeps inbox and offers same-notice retry; long text wraps |
 
 API authorization remains independent of rendered controls. Publication receipt/reviewer metadata is private and no receipt/history UI is invented. Local prototype/source/automated browser evidence does not substitute for intentional screen-reader, language, publication/retention or educator acceptance.
 
@@ -137,4 +137,31 @@ The offline prototype still has12 screens and makes zero network or persistent-s
 | `/report-cards` | Current session/students/exact selected reports/session → learner selector → administrator typed private draft/saved-review publication → scoped report cards/native links | Family published-only; same-admin draft restore; learner/actor changes blank; duplicate lock; denied private clearing; original-report exact publication retry separate from manual draft comparison |
 | Academic recovery | Private original page-memory reminder; original same-actor/selected-record reload before disclosure | Other account hides details; explicit comparison sends no mutation; publication retries same endpoint/body only; hard reload loses memory; no newUUID/CAS/grade/history policy |
 
-Existing12-screen offline roster/family illustrations remain simplified fictional review aids, not mounted academic forms or a simulation of every captured-control race. [Academic UI design](ACADEMIC-UI-DESIGN.md) and TC-293 specify actual source states and intentional mounted acceptance; no screenshot/callback aggregate implies business approval.
+Existing 12-screen offline roster/family illustrations remain simplified fictional review aids, not mounted academic forms or a simulation of every captured-control race. [Academic UI design](ACADEMIC-UI-DESIGN.md) and TC-293 specify actual source states and intentional mounted acceptance; no screenshot/callback aggregate implies business approval.
+
+## Current family source screen mapping
+
+The offline prototype stays 12 fictional screens with zero application/network/storage calls. This table maps the new current source; earlier v2.3 inbox failure wording is historical and superseded by these hiding/confirmation states. No mocked prototype response proves a real server read timestamp or account boundary.
+
+| Source screen | Current structure and controls | Required states |
+|---|---|---|
+| WF-18 `/notifications` | Current account → Reload my inbox → owned saved-notice articles → deliberate Mark as Read → saved server time | Verified empty versus unavailable; old private body/actions hide on reload/denial/uncertainty; first readAt preserved; original-account exact retry; unavailable reminder dismissal makes no save claim; raw invalid date warning |
+| WF-19 `/classes/{id}` | Current coherent class/profile snapshot → Reload current class → metadata → available-profile table with caption/focusable region → role-appropriate attendance anchor | Route/account mismatch hides whole old snapshot/navigation; unavailable versus verified empty; repeated profile disclosure with no record repair; family chooses named class in existing attendance viewer, staff opens recorder |
+
+Native headings/buttons/anchors, focused announced error/status, literal stored-date warnings, table region/caption and wrapping text support review. Intentional TC-305/TC-313 keyboard/assistive/mobile/language/family acceptance remains unrun; [family design](FAMILY-UI-DESIGN.md) and [callback contracts](../../tests/integration/family-ui-contract.mjs) preserve their narrower source/execution boundaries.
+
+## Current manual reading-practice screen
+
+WF-20 `/reading-practice` is a current source-screen specification; the local offline prototype remains12 fictional screens. Read [planner design](READING-PRACTICE-DESIGN.md) for exact algorithms. No prototype screenshot or source mapping proves a saved copy, server authority or suitability.
+
+| Region | Current controls | Required states |
+|---|---|---|
+| Navigation/status | Dashboard, reading history, curriculum and teaching-resource anchors; Reload current planner; focused status/alert | Staff-only route; denied/current-account mismatch hides all protected evidence; loading/verified empty/current reload |
+| Reading evidence | Class and observation selects; original/effective descriptive values/provenance/revision; private focus textarea | No permitted observations; original versus correction; no current enrolment/normative interpretation; class/observation change resets focus/review; disappeared unsent observation clears selection/focus without later automatic restoration; unavailable pending observation hides captured focus but preserves exact recovery |
+| Exact source/review | Reference and approved version selects; exact body/context/objectives/rights/attribution; format select; explicit suitability/permission checkbox | No approved version; language mismatch warning; every edit/reload clears review; private focus/evidence excluded from copied body |
+| Draft/recovery | Create provisional practice draft; private original pending summary and explicit Recover original draft | Synchronous lock; denied/unknown result hides source/reading/focus/receipt; fresh original scope enables exact bytes/UUID; recovery 400/409 stays pending; no automatic retry |
+| Original receipt/editor handoff | Original source/version and copied version 1; existing resource-editor anchor | Original copy separate from later selected source/current resource/approval/assignment; editor adapts/reviews/assigns separately; hard reload loses page memory |
+
+Native labels/focus/status/wrapping support review; TC-321 and TC-329 intentionally inspect mounted keyboard/assistive/mobile/language and named educator/operator understanding. Callback contracts remain narrower evidence, and all designed cases/approvals retain their unrun/false states.
+
+Current family inbox/class source layouts can be inspected through the frozen [mounted family procedure](../../tests/worker-family-ui-check.mjs). Its sampled native focus/labels, actual class shell privacy and 390px screenshots require a matching localhost/private fictional fixture and remain separate from the unchanged 12-screen offline prototype, assistive certification and named acceptance. Its named malformed/legacy projections do not rewrite saved records. Designed cases remain unrun.

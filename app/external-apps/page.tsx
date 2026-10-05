@@ -1,7 +1,8 @@
 'use client';
 
+/* eslint-disable @next/next/no-html-link-for-pages -- Native return navigation avoids the reproduced vinext RSC prefetch/backlink failure. */
+
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import { requestJson, getPrincipal, listClasses } from '@/lib/education/client-api';
 import type { Class, Student } from '@/lib/education/types';
 
@@ -66,7 +67,7 @@ export default function ReadingAppsPage() {
   }
   const inputStyle = 'border rounded p-2 w-full';
   return <main className="max-w-3xl mx-auto p-6 space-y-6">
-    <Link href="/">← Dashboard</Link><h1 className="text-2xl font-bold">Reading apps and reviewed checks</h1>
+    <a className="underline" href="/">← Dashboard</a><h1 className="text-2xl font-bold">Reading apps and reviewed checks</h1>
     <p role="status">{message}</p>
     {staff && <>
       <section className="border rounded p-4 space-y-3"><h2 className="text-xl font-semibold">Oral reading fluency</h2>

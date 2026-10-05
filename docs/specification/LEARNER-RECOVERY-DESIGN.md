@@ -1,8 +1,8 @@
 # Learner and reviewed-policy recovery design
 
-Version 2.9 draft, 6 October 2026. Trace: BR-02, BR-05, BR-10–BR-12; FR-03, FR-17, FR-24, FR-26; NFR-01, NFR-03–NFR-07, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. SC-35–SC-36 add TC-230–TC-245. All approvals remain false and every designed procedure remains not-run-for-this-specification.
+Version 2.10 draft, 6 October 2026. Trace: BR-02, BR-05, BR-10–BR-12; FR-03, FR-17, FR-24, FR-26; NFR-01, NFR-03–NFR-07, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. SC-35–SC-36 add TC-230–TC-245. All approvals remain false and every designed procedure remains not-run-for-this-specification.
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Problem and unchanged server guarantees
 

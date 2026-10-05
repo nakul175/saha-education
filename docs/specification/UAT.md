@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.10 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -103,8 +103,22 @@ TC-253 adapts its retained ID to current reviewed forms, original receipts and e
 
 TC-284/TC-285 requires a genuinely successful private deployment matching frozen source/migrations/settings/isolated database, independently verified outer audience and normal in-app role sessions. Review fictional acknowledgement, all four role journeys, role switching/logout, disabled/unavailable behavior, stored sample edit persistence and zero real-provider/ORF/AI/message activation. Aggregate local/hosted automation never supplies a named UAT decision. Shared sample identities are demonstration accounts, not real viewer or family verification.
 
-Sponsor's final-hour merge/demo authority is recorded in the [eight-hour log](../current/EIGHT-HOUR-DEVELOPMENT.md); it does not approve a real school pilot or populate business/educator acceptance. Require exact version, actual steps/results, named reviewer/date, defects/disposition and explicit open policy decisions before any broader activation. All 293 design procedures stay unrun here.
+Sponsor's final-hour merge/demo authority is recorded in the [eight-hour log](../current/EIGHT-HOUR-DEVELOPMENT.md); it does not approve a real school pilot or populate business/educator acceptance. Require exact version, actual steps/results, named reviewer/date, defects/disposition and explicit open policy decisions before any broader activation. All 329 design procedures stay unrun here.
 
 ## Academic selected-scope and restored-account acceptance design
 
 TC-293 requires intentional mounted named review of class/learner changes with late replies, read-only role controls, focusable denied/save messages, private draft/choices/review clearing, rapid entry/duplicate action and old control safety. Interrupt actual enrolment/report-draft save and compare under original current account without blind retry; separately recover original saved-report publication after denied/lost reply and ensure one established receipt/notice. Another actor must never see or release pending private details. Record keyboard/mobile/assistive observations and in-page lifetime/legacy/educational-policy limits; related substituted callback suites cannot approve this unrun procedure.
+
+## Current family inbox class and attendance review
+
+Intentionally execute TC-305/TC-313 with named family, educator and operator reviewers in a matching synthetic app. Follow class → existing scoped attendance viewer, choose the named class and review available profiles versus saved membership evidence; no new family recording/learning permission exists. Review repeated-profile disclosure and empty/error wording without interpreting unavailable records as no enrolment.
+
+Open only the signed-in user's notices, mark deliberately and understand the saved server read time. Lose acknowledgement, reload another account, then restore original account and explicitly retry its notice; review privacy, no automatic action and missing-notice dismissal wording. Test keyboard/status/focus/table region/caption/phone width/language and page-memory lifetime. Historical notices do not grant current report access. Record review decisions/defects and unresolved policy; callback tests/private publication do not fill these case outcomes or business approvals.
+
+## Manual reading-practice educator and operator review
+
+TC-321/TC-329 require a named educator/operator to review permitted original/effective reading evidence, manual focus, exact source version/rights/language and draft format, including mismatched tags and changed evidence. Intentionally operate the mounted page with the agreed keyboard/assistive/mobile/language matrix; source callbacks cannot supply focus/assistive outcomes.
+
+Interrupt a real synthetic copy, restore original current account/class/source access and explicitly recover original UUID/bytes. Review receipt versus later correction/source/editor state, rejected recovery and page-memory loss. Open the existing editor, adapt/save/review exact content and separately assign/print under current authority; verify learner-safe content. Record actual reviewer/date/version/results/defects, permission/suitability decisions and open policies independently. No automatic intervention, educational efficacy, provider/rights approval or case pass is inferred.
+
+The [mounted family procedure](../../tests/worker-family-ui-check.mjs) supplies bounded related observations for TC-305/TC-313 against a matching localhost/private fictional fixture, without an earlier reading procedure prerequisite. Actual owner marker/retry, class shell/privacy and native/mobile layout checks are separated from named delivered legacy/malformed projections. It does not replace named family/educator/operator review or assistive/language/hosted acceptance, and every designed case/approval remains unchanged.

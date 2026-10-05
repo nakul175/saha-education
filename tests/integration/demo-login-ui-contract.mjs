@@ -136,12 +136,26 @@ try {
     check(ui.one(item => item.type === 'main').props.tabIndex, -1, 'Main destination can receive native fragment focus');
     check(ui.all(item => item.type === 'nav').length, 0, 'Signed-out shell has no role navigation'); drained();
   });
+  await scenario('Explicitly withheld shell principal stays hidden despite a live server session', true, async ({ api, open, trace, drained }) => {
+    const entry = await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true })); check(entry.status, 200, 'Actual synthetic teacher session exists before the parent withholds its header'); await entry.text();
+    const ui = await open(Shell, { principal: null, children: 'Synthetic protected placeholder' });
+    check(ui.all(item => item.type === 'nav').length, 0, 'Explicit null immediately suppresses role navigation despite a still-live session');
+    check(text(ui.tree).includes('saha-demo-teacher'), false, 'Explicit null never discovers or restores the teacher identity independently');
+    check(ui.one(item => item.type === 'a' && text(item) === 'Login').props.href, '/login', 'Withheld identity retains the native sign-in action');
+    check(trace.filter(item => item.path === '/api/session' && item.method === 'GET').length, 0, 'Shared shell performs no independent identity lookup');
+    check(text(ui.one(item => item.type === 'main')), 'Synthetic protected placeholder', 'Parent remains responsible for its separately scoped page content');
+    drained();
+  });
   for (const role of ['admin', 'teacher', 'guardian', 'student']) await scenario(role + ' shell keeps scoped native navigation and single sign-out action', true, async ({ api, open, writes, sqlite, drained }) => {
     const entry = await api('/api/demo', 'POST', JSON.stringify({ role, syntheticAcknowledged: true })); check(entry.status, 200, 'Synthetic role setup is actual server entry'); await entry.text();
     const ui = await open(Shell, { principal: { id: 'saha-demo-' + role, role, schoolId: 'saha-demo-school' }, children: 'Synthetic main content' });
     check(ui.one(item => item.type === 'nav').props['aria-label'], 'School navigation', 'Role links belong to a named native navigation landmark');
     const hrefs = ui.all(item => item.type === 'a').map(item => item.props.href); okay(hrefs.includes('/'), 'Every role retains the native dashboard link'); okay(hrefs.includes('/notifications'), 'Every role retains its existing notices link');
     check(hrefs.includes('/admin/users'), role === 'admin', 'Account administration link retains its existing administrator-only visibility');
+    const plannerLinks = ui.all(item => item.type === 'a' && item.props.href === '/reading-practice');
+    check(plannerLinks.length, ['admin', 'teacher'].includes(role) ? 1 : 0, 'Reading practice planner has exactly one native staff-only navigation entry');
+    if (plannerLinks.length) check(text(plannerLinks[0]), 'Reading practice planner', 'Staff planner link uses its exact page name');
+    check(hrefs.includes('/learning'), ['admin', 'teacher', 'student'].includes(role), 'New staff planner does not expand guardian assigned-learning navigation');
     const callback = ui.button('Sign out').props.onClick; await Promise.all([callback(), callback()]); await ui.flush();
     check(writes().filter(item => item.method === 'DELETE').length, 1, 'Same-frame sign-out dispatches one actual DELETE'); check(sqlite.prepare('SELECT count(*) n FROM auth_sessions').get().n, 0, 'Actual sign-out revokes the opaque session');
     check(redirects, [origin + '/login'], 'Only acknowledged sign-out navigates to login'); drained();
@@ -190,12 +204,59 @@ try {
     setIntercept(undefined); await ui.click('Retry sign out'); check(writes().filter(item => item.method === 'DELETE').length, 2, 'Only one explicit retry follows the original attempted sign-out');
     check(redirects, [origin + '/login'], 'The successful deliberate retry navigates once'); check(text(ui.tree).includes('FRESH_PARENT_PAGE_CONTENT'), false, 'Acknowledged retry still leaves content hidden until full-page navigation'); drained();
   });
-  await scenario('Obsolete shell session delivery is consumed after unmount', true, async ({ api, open, setIntercept, drained }) => {
+  await scenario('Denied parent reload immediately hides the former shell identity and roles', true, async ({ api, open, trace, drained }) => {
+    const entry = await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true })); await entry.text();
+    const currentSession = await api('/api/session'); check(currentSession.status, 200, 'Actual current-session route supplies the parent identity'); const principal = await currentSession.json();
+    const props = { principal, children: 'Synthetic current scoped page' }, ui = await open(Shell, props);
+    okay(text(ui.tree).includes(principal.id), 'Current verified parent identity appears before denial');
+    const signOut = await api('/api/session', 'DELETE'); check(signOut.status, 200, 'Actual original session is revoked by the ordinary sign-out handler'); await signOut.text();
+    const denied = await api('/api/session'); check(denied.status, 401, 'A subsequent actual parent read observes the revoked session'); await denied.text();
+    props.principal = null; props.children = 'Private page data is unavailable'; ui.render();
+    check(text(ui.tree).includes(principal.id), false, 'Null from a denied parent hides former account in the same render');
+    check(ui.all(item => item.type === 'nav').length, 0, 'Null from a denied parent hides former role menu in the same render');
+    check(ui.all(item => item.type === 'button' && text(item) === 'Sign out').length, 0, 'Denied parent has no obsolete account action');
+    check(ui.one(item => item.type === 'a' && text(item) === 'Login').props.href, '/login', 'Denied parent retains native sign-in recovery');
+    await ui.flush();
+    check(text(ui.tree).includes(principal.id), false, 'Settling unrelated callbacks cannot restore the revoked identity');
+    check(trace.filter(item => item.path === '/api/session' && item.method === 'GET').length, 0, 'No shell-owned session callback can override the denied parent');
+    drained();
+  });
+  await scenario('Delayed shell discovery cannot restore identity after current parent switches', true, async ({ api, open, setIntercept, trace, drained }) => {
+    const entry = await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true })); await entry.text();
+    const teacher = await (await api('/api/session')).json();
+    let deliver, held; const gate = new Promise(resolve => { deliver = resolve; });
+    setIntercept(async ({ path, options, response }) => { if (path === '/api/demo' && (options.method ?? 'GET') === 'GET') { held = response; await gate; } return response; });
+    const props = { principal: null, children: 'Synthetic withheld page' }, ui = await open(Shell, props);
+    okay(held, 'Actual demo-discovery response is queued while parent identity is withheld');
+    props.principal = teacher; ui.render(); okay(text(ui.tree).includes(teacher.id), 'Only a supplied current teacher identity enables its header');
+    const guardianEntry = await api('/api/demo', 'POST', JSON.stringify({ role: 'guardian', syntheticAcknowledged: true })); await guardianEntry.text();
+    const guardianSession = await api('/api/session'); check(guardianSession.status, 200, 'Actual new guardian session supplies the next parent identity'); const guardian = await guardianSession.json();
+    props.principal = guardian; ui.render();
+    check(text(ui.tree).includes(teacher.id), false, 'Changing current parent removes the previous teacher in the same render');
+    okay(text(ui.tree).includes(guardian.id), 'Changing current parent shows only its verified guardian header');
+    check(ui.all(item => item.type === 'a' && item.props.href === '/reading-practice').length, 0, 'Current guardian never inherits the earlier staff planner link');
+    props.principal = null; ui.render();
+    check(text(ui.tree).includes(guardian.id), false, 'Withholding the changed parent immediately hides that identity');
+    deliver(); await ui.flush();
+    check(held.bodyUsed, true, 'Late actual discovery response is consumed');
+    check(text(ui.tree).includes(teacher.id) || text(ui.tree).includes(guardian.id), false, 'Delayed discovery cannot restore either historical account');
+    check(ui.all(item => item.type === 'nav').length, 0, 'Delayed discovery never enables an old role menu');
+    check(trace.filter(item => item.path === '/api/session' && item.method === 'GET').length, 0, 'No independent identity request is queued across parent switches');
+    props.principal = guardian; ui.render();
+    okay(text(ui.tree).includes(guardian.id), 'A later explicit verified parent restores only its own current header');
+    check(ui.all(item => item.type === 'a' && item.props.href === '/reading-practice').length, 0, 'Restored family header still excludes the staff planner');
+    drained();
+  });
+  // Intentional contract: explicit null no longer starts a shell identity lookup.
+  // Keep obsolete-response consumption/cancellation coverage on its presentation-only discovery.
+  await scenario('Obsolete shell discovery delivery is consumed after unmount', true, async ({ api, open, setIntercept, trace, drained }) => {
     const entry = await api('/api/demo', 'POST', JSON.stringify({ role: 'guardian', syntheticAcknowledged: true })); await entry.text();
     let deliver, held; const gate = new Promise(resolve => { deliver = resolve; });
-    setIntercept(async ({ path, response }) => { if (path === '/api/session') { held = response; await gate; } return response; });
-    const ui = await open(Shell, { principal: null, children: 'Synthetic main content' }); okay(held, 'Actual session response is held after request but before callback delivery'); ui.dispose(); deliver(); await settle();
-    check(held.bodyUsed, true, 'A successful obsolete session response is still consumed'); check(ui.cells[0].value, null, 'Cancelled session callback cannot set the old account display'); drained();
+    setIntercept(async ({ path, response }) => { if (path === '/api/demo') { held = response; await gate; } return response; });
+    const ui = await open(Shell, { principal: null, children: 'Synthetic main content' }); okay(held, 'Actual discovery response is held after request but before callback delivery'); ui.dispose(); deliver(); await settle();
+    check(held.bodyUsed, true, 'A successful obsolete discovery response is still consumed'); check(ui.cells[0].value, false, 'Cancelled discovery callback cannot set a stale shell presentation');
+    check(trace.filter(item => item.path === '/api/session' && item.method === 'GET').length, 0, 'Unmounted explicit-null shell never had an independent identity request');
+    check(text(ui.tree).includes('saha-demo-guardian'), false, 'Unrelated successful discovery cannot replace a withheld account display'); drained();
   });
   check(externalRequests, 0, 'Every ordinary UI contract remains synthetic and offline');
   console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, actualRequests, externalRequests,

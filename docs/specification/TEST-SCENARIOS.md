@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.10 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **293 cases in 42 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **329 cases in 46 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -52,6 +52,10 @@ This draft contains **293 cases in 42 scenarios**, covers all **35 functional/no
 | SC-40 | Immutable registry receipts current privacy and client recovery | TC-270, TC-271, TC-272, TC-273, TC-274, TC-275, TC-276, TC-277 | FR-03, FR-06, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
 | SC-41 | Default-off isolated synthetic demo and release boundaries | TC-278, TC-279, TC-280, TC-281, TC-282, TC-283, TC-284, TC-285 | FR-01, FR-02, FR-03, FR-05, FR-06, FR-17, FR-19, FR-23, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-07, NFR-08, NFR-09 |
 | SC-42 | Current academic selections, mutation privacy and recovery | TC-286, TC-287, TC-288, TC-289, TC-290, TC-291, TC-292, TC-293 | FR-02, FR-03, FR-06, FR-07, FR-08, FR-11, FR-12, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-43 | Current owned inbox saved read status and exact original recovery | TC-294, TC-295, TC-296, TC-297, TC-298, TC-299, TC-300, TC-301, TC-302, TC-303, TC-304, TC-305 | FR-02, FR-03, FR-12, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
+| SC-44 | Current family class snapshot navigation and honest availability | TC-306, TC-307, TC-308, TC-309, TC-310, TC-311, TC-312, TC-313 | FR-02, FR-03, FR-07, FR-08, FR-09, FR-12, FR-26, NFR-01, NFR-03, NFR-05, NFR-06, NFR-09 |
+| SC-45 | Manual reading evidence source selection and suitability | TC-314, TC-315, TC-316, TC-317, TC-318, TC-319, TC-320, TC-321 | FR-02, FR-03, FR-13, FR-15, FR-16, FR-17, FR-20, FR-21, FR-22, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
+| SC-46 | Original copied draft recovery privacy and editor handoff | TC-322, TC-323, TC-324, TC-325, TC-326, TC-327, TC-328, TC-329 | FR-02, FR-03, FR-13, FR-14, FR-15, FR-16, FR-18, FR-20, FR-21, FR-22, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
 
 ## Execution boundaries
 
@@ -330,6 +334,9 @@ Cases: TC-142, TC-143, TC-144, TC-145, TC-146, TC-147, TC-148, TC-149. Coordinat
 
 ## SC-25 — Notice current scope and historical ownership
 
+TC-156 retains its historical v2.3 unrun inbox-retention procedure and planned mapping. The current v2.10 UI hides unconfirmed private rows and requires fresh original-owner reload; SC-43 / TC-294–TC-305 specify that replacement client behavior. Retaining the old case object preserves design history and does not require restoring obsolete private-content retention.
+
+
 Cases: TC-150, TC-151, TC-152, TC-153, TC-154, TC-155, TC-156, TC-157. Inject final actor/teacher/recipient changes, compare personal history after reviewed unlink separately from current learner/report rights, and distinguish same-notice first-timestamp-preserving acknowledgement from uncertain UI/UAT recovery. All procedures remain unrun.
 
 - TC-150 — Notice reads and acknowledgements reject stale actors (security, existing).
@@ -562,3 +569,59 @@ Cases: TC-286, TC-287, TC-288, TC-289, TC-290, TC-291, TC-292, TC-293. All remai
 - TC-291 — Unknown non-idempotent academic saves require original-account comparison (regression, existing).
 - TC-292 — Original report publication retry preserves receipt time and guardian notice (integration, existing).
 - TC-293 — Restored current actor academic privacy and mounted recovery review (uat, manual).
+
+## SC-43: Current owned inbox saved read status and exact original recovery
+
+Cases: TC-294, TC-295, TC-296, TC-297, TC-298, TC-299, TC-300, TC-301, TC-302, TC-303, TC-304, TC-305. All remain unrun for this specification. Actual callback suites use substituted hooks/elements with real synthetic sessions/routes/production D1 over SQLite; mounted-browser, assistive and educator review remain separate.
+
+- TC-294 — Every current role receives only its owned inbox (smoke, existing).
+- TC-295 — Inbox fresh account rejects changed owner and obsolete feed (security, existing).
+- TC-296 — Read marker lock confirms the actual saved server timestamp (integration, existing).
+- TC-297 — Lost committed read marker retries the exact original notice (regression, existing).
+- TC-298 — Late read-status denial hides private notice content (security, existing).
+- TC-299 — Pending notice belongs to the original current account (security, existing).
+- TC-300 — Acknowledgement or malformed response cannot fabricate a saved read (integration, existing).
+- TC-301 — Unavailable notice reminder dismissal changes no record (regression, existing).
+- TC-302 — Unmounted inbox and late marker acknowledgement do not refresh private state (integration, existing).
+- TC-303 — Legacy inbox dates remain exact stored evidence (integration, existing).
+- TC-304 — Encoded original notice ID and stored channels preserve scope (regression, existing).
+- TC-305 — Family inbox keyboard mobile and read-status recovery review (accessibility, manual).
+
+## SC-44: Current family class snapshot navigation and honest availability
+
+Cases: TC-306, TC-307, TC-308, TC-309, TC-310, TC-311, TC-312, TC-313. All remain unrun for this specification. Actual callback suites use substituted hooks/elements with real synthetic sessions/routes/production D1 over SQLite; mounted-browser, assistive and educator review remain separate.
+
+- TC-306 — Class viewer consumes one coherent current scoped profile snapshot (smoke, existing).
+- TC-307 — Changed account cannot retain previous school class metadata (security, existing).
+- TC-308 — Class route generation hides old data and ignores late replies (integration, existing).
+- TC-309 — Unavailable family class is distinct from no available profiles (security, existing).
+- TC-310 — Uncorrelated or malformed class snapshot fails as a whole (integration, existing).
+- TC-311 — Repeated legacy class profile presentation preserves membership evidence (regression, existing).
+- TC-312 — Family attendance navigation uses the existing scoped viewer (integration, existing).
+- TC-313 — Family current class and inbox usability acceptance (uat, manual).
+
+## SC-45: Manual reading evidence source selection and suitability
+
+Cases: TC-314, TC-315, TC-316, TC-317, TC-318, TC-319, TC-320, TC-321. All remain unrun. Related callback contracts execute actual synthetic sessions/routes/production D1 over isolated SQLite with substituted hooks/elements. Mounted accessibility and named educator/operator acceptance remain separate.
+
+- TC-314 — Planner staff scope and current authorized context (smoke, existing).
+- TC-315 — Planner account and response correlation hide obsolete evidence (security, existing).
+- TC-316 — Effective reading preserves original manual provenance and revision (integration, existing).
+- TC-317 — Manual focus source rights and language stay educator decisions (integration, existing).
+- TC-318 — Planning edits and reload clear exact suitability review (unit, existing).
+- TC-319 — Copy payload excludes private reading and planning context (integration, existing).
+- TC-320 — Changed current planning evidence blocks initial copy (security, existing).
+- TC-321 — Mounted reading planner accessibility and suitability review (accessibility, manual).
+
+## SC-46: Original copied draft recovery privacy and editor handoff
+
+Cases: TC-322, TC-323, TC-324, TC-325, TC-326, TC-327, TC-328, TC-329. All remain unrun. Related callback contracts execute actual synthetic sessions/routes/production D1 over isolated SQLite with substituted hooks/elements. Mounted accessibility and named educator/operator acceptance remain separate.
+
+- TC-322 — Duplicate draft actions preserve one original resource UUID (integration, existing).
+- TC-323 — Committed uncertain copy recovers only original UUID and bytes (regression, existing).
+- TC-324 — Changed account and class cannot inspect pending copy or old receipt (security, existing).
+- TC-325 — Original copy evidence remains distinct from later source and resource versions (regression, existing).
+- TC-326 — Later reading correction does not rebase original uncertain copy (recovery, existing).
+- TC-327 — Rejected original recovery keeps uncertainty and blocks duplicate creation (recovery, existing).
+- TC-328 — Delayed and unmounted planner callbacks cannot mutate newer context (integration, existing).
+- TC-329 — Educator original-copy recovery and editor handoff acceptance (uat, manual).

@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -147,3 +147,15 @@ Keep non-idempotent profile creation unchanged. Any uncertain sent POST clears p
 | R-26 | Full generated snapshot mistaken for applied migration/upgrade guarantee | Preserve historical metadata; actual lexical schema parity checks, journal timestamp risk, explicit hosted migration/restore evidence |
 
 Remaining provider/ORF/pilot/content/educational/retention/capacity/accessibility/operations decisions from prior versions stay open. Dated root release/execution evidence resolves only its stated environment/contract, not approval of all business requirements.
+
+## Current family view choices and residual risks
+
+Current choice: consume the existing coherent class/profile snapshot and verify the browser account around it; preserve current API scopes and all membership rows. Deduplicate visible profile IDs only, disclose repeats and label current availability rather than asserting a total roster. Family attendance navigation uses existing `/attendance`; staff recording remains separately scoped. Historical entitlement and correction/retention policy remain undecided.
+
+Current choice: preserve owner-only idempotent notice markers and confirm valid saved readAt through fresh owned inbox. Exact original marker/actor/endpoint remains private in page memory during uncertainty; no automatic retry or local fabricated time. Same current original account alone can recover or dismiss an unavailable reminder, with no saved-read claim from dismissal. Hard reload/tab loss discards pending reminders; no cross-device queue or continuous cross-tab monitoring is added. Representative family/assistive/language/load and hosted incident/recovery decisions remain open. No stored channel label activates delivery.
+
+## Manual reading-practice decisions and residual risk
+
+The implemented planner is an educator-controlled source-copy handoff, not adaptive placement, personalized generation, screening or educational efficacy evidence. Private focus/observations are excluded from copied content; rights/language/suitability remain declarations. Historical reading scope does not establish current individual eligibility. Existing class assignment after saved-version review remains a separate operation.
+
+Unknown copies retain private original UUID/bytes; recovery400/409 keeps uncertainty and blocks duplicate creation. Original version1/binding is distinct from current source/editor/approval metadata and is not a registry-style immutable receipt. Mounted-memory loss, real provider/ORF, actual pilot source rights, languages/educator review, representative capacity and hosted recovery remain risks/gates. Do not promote FR-23 or business/case acceptance from this manual composition.

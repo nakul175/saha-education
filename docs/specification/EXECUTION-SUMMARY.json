@@ -179,6 +179,15 @@
       "designed_scenarios": 42,
       "all_case_statuses": "not-run-for-this-specification",
       "approved_requirements": 0
+    },
+    {
+      "stage": "eight-hour-batch-2",
+      "record": "../current/EIGHT-HOUR-BATCH-2-EXECUTION.json",
+      "specification_version": "2.10",
+      "designed_cases": 329,
+      "designed_scenarios": 46,
+      "all_case_statuses": "not-run-for-this-specification",
+      "approved_requirements": 0
     }
   ]
 }

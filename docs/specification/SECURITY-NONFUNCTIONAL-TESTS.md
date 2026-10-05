@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.10 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -119,8 +119,20 @@ Registry privacy includes immutable original complete snapshot/reason with curre
 
 Synthetic runtime must fail closed on invalid/default-off flag/ID, any school-provider setting, nonpristine install, absent/changed marker and foreign school/account issuer/school. Fixed synthetic sign-in follows strict fictional acknowledgement and normal opaque cookie/session checks; outer private-hosting audience remains independent. Source seed has no real recipients/external calls/reset. Test configured threshold/rate failures intentionally; do not infer representative edge/IP integrity, capacity or certification from local contract checks.
 
-Formal accessibility/assistive and educator review, supported-language content, approved scale/latency, hosted key custody/restore/RPO/RTO, incident ownership and real provider/ORF configuration remain separate gates. Current automation and 293 designed cases are traceability context, not business approval.
+Formal accessibility/assistive and educator review, supported-language content, approved scale/latency, hosted key custody/restore/RPO/RTO, incident ownership and real provider/ORF configuration remain separate gates. Current automation and 329 designed cases are traceability context, not business approval.
 
 ## Academic actor, selection and pending privacy
 
 SC-42 tests that current class/learner and actor refs constrain captured obsolete controls and late response generations; unmount ignores private inventory. Admin-only mutation controls supplement server role scope, with family draft exclusion and fresh preflight. Actual401/403 publication hides private report/draft/choices/review and old mutation authority. Pending original names/draft/report identity remain hidden from other accounts; only freshly restored original account can reload/compare or explicitly retry original saved-report publication. In-memory lifetime, broader educator/accessibility/retention/history/load/recovery policies remain open.
+
+## Family owner current class and marker privacy threats
+
+SC-43–SC-44 includes real scope changes between account/feed/account and marker preflight/SQL, late former-recipient responses, original/other/restored actor pending recovery and unmounted postcommit ACK. Former private body, class schedule/profile and navigation must clear on unavailable/mixed scope. Pending original notice identity stays private until verified original ownership; exact query encoding cannot remap a recipient. ACK alone cannot fabricate saved read time.
+
+Test class IDs/schools/embedded profiles as one correlated payload, late route identity, truthful empty versus denied status and preserved duplicate legacy evidence. Current source checks are finite request-boundary behavior, not continuous cross-tab authorization monitoring. Stored email/SMS labels never prove delivery. Design native focus/status/table captions/regions/wrapping and invalid timestamp warnings; TC-305/TC-313 require intentional assistive/language/family review. Capacity, hosted restore/key custody, temporal entitlement/retention and real-provider activation remain unapproved independent gates.
+
+## Manual planner scope and data minimization
+
+SC-45–SC-46 require current staff/class/source and response correlation before displaying reading/source/focus or receipt. Change actor during reads/preflight/final acknowledgement, revoke actual original token or class, and deliver malformed/foreign payloads. Pending original copy details and prior receipts must stay hidden under another account. Delayed/unmounted callbacks must neither disclose nor mutate newer scope.
+
+Inspect posted keys and saved resource fields to prove focus/learner/reading data is excluded, no source URL is fetched, no provider/message/AI call occurs and copying grants no approval or assignment. UUID recovery confirms only original copy/binding, including later corrected readings or resource versions; recovery 400/409 cannot authorize a duplicate. Page-memory loss, continuous account monitoring, pedagogical effectiveness, rights/languages, capacity and hosted operational recovery remain explicit limits. TC-321/TC-329 require intentional mounted/named review; all approvals remain false.

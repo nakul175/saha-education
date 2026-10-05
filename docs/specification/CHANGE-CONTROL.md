@@ -2,7 +2,7 @@
 
 Version 2.9 draft process, 6 October 2026. Purpose: keep business intent, functional behavior, design, data, screens and test evidence aligned as the platform changes. Repository AGENTS/HANDOVER instructions govern source publication and sponsor merge authority. This process does not add a new permission gate to already authorized drafting or development.
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Document sequence and responsibilities
 
@@ -62,9 +62,9 @@ Parent 61f0751 identifies the published fifth batch, not the commit containing t
 
 Parent e813af2f43f6d7c707f084c4472e5a6da8e50125 identifies published v2.7, not the commit containing this seventh client slice. Inventory stays 39 tables/325 fields/56 routes/91 handlers; design is 253 cases/37 scenarios, 164 existing/49 planned/40 manual mappings. Keep historical v2.7 245 cases/36 scenarios and its dated evidence separate. Approvals false and all cases unrun; source publication and actual execution remain root-maintained. No backend/profile/date/idempotency policy is added.
 
-## v2.9 current documentation baseline
+## Historical v2.9 documentation baseline
 
-Published parent 053ab13 identifies the input to this new candidate, not its containing implementation/documentation commit. Current dictionary/API inventory is41 tables/338 fields and 60 route files/96 handlers, with 12 offline fictional prototype screens. Design now 293 cases/42 scenarios, mapped 198 existing/50 planned/45 manual. Preserve all old requirement/case IDs and draft approval/outcome states.
+Published parent 053ab13 identifies the input to this new candidate, not its containing implementation/documentation commit. The v2.9 dictionary/API inventory was 41 tables/338 fields and 60 route files/96 handlers, with 12 offline fictional prototype screens. Its design contained 293 cases/42 scenarios, mapped 198 existing/50 planned/45 manual. Preserve all old requirement/case IDs and draft approval/outcome states.
 
 SC-38–SC-41 adds 32 new meaningful procedures. TC-016 is clarified as forged role/session selection rather than denial of the separately installed legitimate synthetic demo. TC-201 now expects SQL-time original-session/exact-identity checks. TC-249/250/252/253 and SC-37 retain IDs but adapt v2.8 non-idempotent UI comparison to current reviewed UUID/receipt recovery; historical v2.8 source/outcomes remain dated history. Related source links and counts never mark designed procedures executed.
 
@@ -72,4 +72,10 @@ New 0015/0016 append original registry/installation schema; full 0016 generation
 
 ## Additional frozen academic UI scope in v2.9
 
-The combined first candidate also includes current enrolment/report selected-scope/privacy/recovery clients. SC-42 appendsTC-286–TC-293 without renumbering older cases; current total 293 cases/42 scenarios,198 existing/50 planned/45 manual. All remain unrun and requirements unapproved. FR-08/FR-11 wording now states current selected-scope safety and distinct non-idempotent comparison versus exact original publication retry. No schema/API/educational/legacy UUID/CAS policy change; current inventory stays 41 tables/338 fields and 60 routes/96 handlers. Actual root execution/release evidence remains separate.
+The combined first candidate also includes current enrolment/report selected-scope/privacy/recovery clients. SC-42 appends TC-286–TC-293 without renumbering older cases; v2.9 total 293 cases/42 scenarios, 198 existing/50 planned/45 manual. All remain unrun and requirements unapproved. FR-08/FR-11 wording now states current selected-scope safety and distinct non-idempotent comparison versus exact original publication retry. No schema/API/educational/legacy UUID/CAS policy change; current inventory stays 41 tables/338 fields and 60 routes/96 handlers. Actual root execution/release evidence remains separate.
+
+## Family next-batch specification change control
+
+Version 2.10 retains TC-001–TC-293 case objects/IDs and every `not-run-for-this-specification` status/false approval. SC-43–SC-44 adds 20 current inbox/class cases from frozen source; no route/handler/table/field is added (41/338/60/96 unchanged). Canonical Markdown/JSON/CSV/traceability and source-screen mappings move together. Historical v2.9 observations and earlier source records retain their own revisions.
+
+The frozen staff-only manual reading-practice page adds SC-45–SC-46 / TC-314–TC-329 after source inspection. Combined design is 329 cases/46 scenarios, mapped 230 existing/50 planned/49 manual, with unchanged 35 requirements and 41/338/60/96 inventories. Original TC-001–TC-293 objects remain preserved. No speculative pedagogy, verified source rights, provider or AI behavior is promoted. Coordinator-owned actual execution/release records identify verified source/build/commit/deployment independently. A publication parent change updates source_commit consistently without claiming the current pack contains its own hash. Named reviewer evidence is required for acceptance; none is invented by the next batch.

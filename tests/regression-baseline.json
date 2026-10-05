@@ -58,6 +58,11 @@
       "file": "tests/integration/curriculum-contract.mjs",
       "minPassed": 131
     },
+    "integration/d1-attendance-portability-contract": {
+      "layer": "integration",
+      "file": "tests/integration/d1-attendance-portability-contract.mjs",
+      "minPassed": 186
+    },
     "integration/d1-dashboard-portability-contract": {
       "layer": "integration",
       "file": "tests/integration/d1-dashboard-portability-contract.mjs",
@@ -76,7 +81,7 @@
     "integration/demo-login-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/demo-login-ui-contract.mjs",
-      "minPassed": 205
+      "minPassed": 249
     },
     "integration/development-recovery-contract": {
       "layer": "integration",
@@ -92,6 +97,11 @@
       "layer": "integration",
       "file": "tests/integration/external-apps-contract.mjs",
       "minPassed": 70
+    },
+    "integration/family-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/family-ui-contract.mjs",
+      "minPassed": 307
     },
     "integration/identity-admin-contract": {
       "layer": "integration",
@@ -127,6 +137,11 @@
       "layer": "integration",
       "file": "tests/integration/reading-imports-contract.mjs",
       "minPassed": 86
+    },
+    "integration/reading-practice-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/reading-practice-ui-contract.mjs",
+      "minPassed": 445
     },
     "integration/reading-review-contract": {
       "layer": "integration",

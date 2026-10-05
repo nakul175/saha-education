@@ -1,8 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.9 draft, 6 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.10 draft, 6 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
 
-The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Current boundary matrix
 
@@ -166,3 +166,9 @@ Three reviewed registry routes integrate existing list/profile/link services wit
 Verified request Principal stays the original frozen object through service calls, so private token/identity evidence survives into actual SQL. Reconstructing public ID/role/school DTO does not preserve it and must not become an HTTP authentication mechanism. Trusted internal compatibility remains separate. Browser reads/preflight/generation guards supplement this server enforcement; they are not a continuing authority transaction.
 
 The synthetic demo entry has no external provider/vendor/AI request: bounded source-defined fictional installation in a separate database, default-off runtime and no reset/backfill endpoint. Outer private hosting protects audience independently; app role/session/marker/isolation checks govern data. Fixed sample guardian/learner/class mapping does not establish real parenthood or pilot identity onboarding. Real OIDC, approved ORF URL and verified result/AI adapters remain pending. See [registry design](REGISTRY-DESIGN.md) and [session/demo design](SESSION-DEMO-DESIGN.md).
+
+## Internal manual reading-practice handoff
+
+The current [planner](READING-PRACTICE-DESIGN.md) composes authorized original/effective reading evidence with manually reviewed exact curriculum snapshots and the existing UUID source-copy operation. Only source version/type/resource UUID are submitted; selected focus, learner and observation context remain private page memory. Its output is an original source-bound provisional resource, followed by separate editor review/assignment. Original-copy recovery is not an ORF result adapter or an authenticated vendor result and never personalizes source text.
+
+No new API, export/SSO, external destination fetch, AmplifiU licensed component, AI model or message channel is added. Current guardian/private-key/publication rules remain unchanged. Actual provider/ORF URL, source permissions/pilot languages, efficacy, retention and operational acceptance remain unresolved inputs.

@@ -1,8 +1,8 @@
 // Server-only attendance evidence: names, totals and access share one SQL snapshot.
 import { and, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { attendance, classes } from '@/db/schema';
-import { assertPrincipal, classReferenceScope, classScope, studentScope } from './access';
+import { classes } from '@/db/schema';
+import { assertPrincipal, classScope, studentScope } from './access';
 import type { Principal, Role } from './types';
 
 export const ATTENDANCE_SUMMARY_LIMIT = 100;
@@ -20,13 +20,15 @@ export type AttendanceSummary = {
   pupils: { items: AttendanceSummaryPupil[]; total: number; limit: number; truncated: boolean };
 };
 
-/** Current class access and existing attendance/profile eligibility apply at one
- * statement snapshot. A compact Principal has no session hash; this does not
- * promise session-only revocation after principal resolution.
+/** Current class/profile and verified session authority apply in one statement.
+ * Materializing the permitted class retains the same nested guards without
+ * embedding them below every attendance-row predicate (D1 expression depth).
  */
 export async function getAttendanceSummary(principal: Principal, classId: string): Promise<AttendanceSummary | null> {
   assertPrincipal(principal);
-  const payload = sql<string>`(with visible_students as (
+  const payload = sql<string>`(with permitted_attendance_class as materialized (
+      select classes.id from classes where classes.id = ${classId} and ${classScope(principal)}
+    ), visible_students as (
       select students.id, students.first_name, students.last_name, students.admission_number
       from students where ${studentScope(principal)}
     ), current_roster as (
@@ -37,7 +39,8 @@ export async function getAttendanceSummary(principal: Principal, classId: string
         case when length(attendance.date) = 10 and attendance.date glob '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
           and date(attendance.date, '+0 days') = attendance.date then attendance.date else null end valid_date
       from attendance join visible_students p on p.id = attendance.student_id
-      where attendance.class_id = ${classId} and ${classReferenceScope(principal, attendance.classId)}
+        join permitted_attendance_class permitted on permitted.id = attendance.class_id
+      where attendance.class_id = ${classId}
     ), stats as (
       select student_id, count(*) recorded_rows,
         sum(status = 'present') present_rows, sum(status = 'absent') absent_rows,

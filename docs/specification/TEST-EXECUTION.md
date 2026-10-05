@@ -35,3 +35,7 @@ The second continuation batch has separate [dated validation](../../VALIDATION.m
 ## Eight-hour first-batch evidence
 
 The preserved sections above remain historical. Canonical v2.9 has293 designed cases/42 scenarios, all unrun as TC procedures and all approvalsfalse. The separate [eight-hour execution](../current/EIGHT-HOUR-BATCH-1-EXECUTION.json) records the actual fresh local build,17,783 executable assertions/46 suites, retained prior regression thresholds,30 reviewed-registry browser procedures and37 offline prototype checks. Actual demo26/report38/development59 mounted procedures pass separately; hosted verification remains pending; no acceptance case is promoted by mapped-suite success.
+
+## Eight-hour second-batch evidence
+
+The[separate actual v2.10 execution](../current/EIGHT-HOUR-BATCH-2-EXECUTION.json) records fresh isolated build,18,765 assertions49 suites and26 demo/36 family/32 planner/38 prerequisite/39 report-inbox mounted procedures. Historical records and failed-attempt boundaries remain. All329 TC cases/46 scenarios remain unrun and all approvalsfalse; mapped suite/browser success is not acceptance. The final corrected native return-link/four-role review passes20 checks/51 menus/two staff backlinks; hosting and final-hour merge are pending.
