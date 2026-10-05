@@ -1,10 +1,11 @@
 import type { Principal } from './types';
 import { getDb } from '@/db/index';
 import type { SelectReportCard, InsertReportCard } from '@/db/schema';
-import { reportCards, guardians, studentGuardians, users, students, notifications } from '@/db/schema';
+import { reportCards, students } from '@/db/schema';
+import { reportPublicationReceipts } from '@/db/report-publication-schema';
 import { reportCardSchema } from './validation';
-import { and, eq, isNotNull, isNull } from 'drizzle-orm';
-import { AccessError, assertAdmin, assertStudentAccess, studentReferenceScope } from './access';
+import { and, eq, isNotNull, sql } from 'drizzle-orm';
+import { AccessError, assertAdmin, assertStudentAccess, studentReferenceScope, studentScope } from './access';
 
 function scope(principal: Principal) {
   return and(studentReferenceScope(principal, reportCards.studentId),
@@ -22,7 +23,10 @@ export async function createReportCard(principal: Principal, input: Omit<InsertR
   const data = reportCardSchema.parse(input);
   await assertStudentAccess(principal, data.studentId);
   const now = new Date().toISOString();
-  const [record] = await getDb().insert(reportCards).values({ ...data, publishedAt: null, id: crypto.randomUUID(), createdAt: now, updatedAt: now }).returning();
+  const [record] = await getDb().insert(reportCards).select(sql`select ${crypto.randomUUID()}, ${data.studentId},
+    ${data.term}, ${data.summary ?? null}, ${data.overallGrade}, null, ${now}, ${now}
+    where exists (select 1 from students where ${students.id} = ${data.studentId} and ${studentScope(principal)})`).returning();
+  if (!record) throw new AccessError('Report authority changed; reload before saving', 409);
   return record;
 }
 export async function publishReportCard(principal: Principal, id: string): Promise<SelectReportCard | null> {
@@ -32,21 +36,25 @@ export async function publishReportCard(principal: Principal, id: string): Promi
   if (existing.publishedAt) return existing;
   const db = getDb();
   const now = new Date().toISOString();
-  const [student] = await db.select({ firstName: students.firstName, lastName: students.lastName }).from(students)
-    .where(and(eq(students.id, existing.studentId), eq(students.schoolId, principal.schoolId!))).limit(1);
-  if (!student) throw new AccessError('Student not found', 404);
-  const recipients = await db.selectDistinct({ userId: users.id }).from(studentGuardians)
-    .innerJoin(guardians, eq(guardians.id, studentGuardians.guardianId)).innerJoin(users, eq(users.id, guardians.userId))
-    .where(and(eq(studentGuardians.studentId, existing.studentId), eq(guardians.schoolId, principal.schoolId!),
-      eq(users.schoolId, principal.schoolId!), eq(users.role, 'guardian'), isNull(users.disabledAt)));
-  const publication = db.update(reportCards).set({ publishedAt: now, updatedAt: now })
-    .where(and(eq(reportCards.id, id), scope(principal), isNull(reportCards.publishedAt))).returning();
-  const notices = recipients.map(recipient => db.insert(notifications).values({
-    id: `report-card-published:${id}:${recipient.userId}`, userId: recipient.userId, channel: 'in_app',
-    title: 'Report Card Published', body: `Your child ${student.firstName} ${student.lastName}'s report card has been published.`,
-    createdAt: now, updatedAt: now,
-  }).onConflictDoNothing().returning());
-  // Publication and notices commit together. Deterministic IDs make retries safe.
-  await db.batch([publication, ...notices]);
-  return await getReportCard(principal, id);
+  let committed = false;
+  try {
+    const receipts = await db.insert(reportPublicationReceipts).select(sql`select ${crypto.randomUUID()}, report.id,
+      report.student_id, ${principal.schoolId}, ${principal.id}, ${now} from report_cards report
+      where report.id = ${id} and report.student_id = ${existing.studentId} and report.published_at is null
+      and exists (select 1 from students where ${students.id} = report.student_id and ${studentScope(principal)})`)
+      .onConflictDoNothing({ target: reportPublicationReceipts.reportId }).returning();
+    committed = receipts.length === 1;
+  } catch (error) {
+    let cause: unknown = error;
+    for (let depth = 0; depth < 5 && cause instanceof Error; depth++) {
+      if (cause.message.includes('saha_report_publication_conflict')) throw new AccessError('Report authority changed; reload before publishing', 409);
+      cause = cause.cause;
+    }
+    throw error;
+  }
+  // The receipt trigger publishes and selects recipients in one SQL statement.
+  // A concurrent loser only reads the winner; it never assembles more notices.
+  const published = await getReportCard(principal, id);
+  if (!committed && !published?.publishedAt) throw new AccessError('Report authority changed; reload before publishing', 409);
+  return published;
 }

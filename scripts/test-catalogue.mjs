@@ -34,6 +34,10 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-accessibility-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'automated rendered localhost WCAG-rule sample of role workflows; not formal accessibility acceptance' },
+  'tests/worker-domain-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser report/notice role, review and recovery journeys; synthetic sessions only' },
+  'tests/worker-structure-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser school/class/course scope and save recovery journeys; synthetic sessions only' },
+  'tests/worker-domain-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local built school/class/report/notification scope and publication workflows; synthetic sessions only' },
   'tests/worker-wireframes-check.mjs': { needsEnv: ['SAHA_TEST_BROWSER'], note: 'offline fictional prototype journeys and desktop/mobile labels/width; no app or acceptance evidence' },
   'tests/worker-development-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local built development profile/import/window/academic journeys; synthetic sessions only' },
   'tests/worker-development-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser profile/import/window/academic workflows; synthetic sessions only' },

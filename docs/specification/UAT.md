@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -62,3 +62,9 @@ If provider, ORF destination, retention, history/correction or recovery prerequi
 TC-109 reviews exact profile account ownership/legacy repair with a nominated school administrator; TC-117 reviews duplicate preservation and unresolved academic correction/calendar rules; TC-125 reviews local declared-source reading values/mapping/comparability/rejection with an educator; TC-133 reviews closing-time/current-state/late-policy controls while retaining prior work. Every procedure remains manual and unrun for this specification.
 
 Use fictional data and intentional keyboard, screen-reader, device timezone and mobile review. Confirm staff understand source declarations are user-supplied, preview creates no reading observations, no-op/duplicate/stale choices do not erase evidence, and due date is separate from reviewed cutoff. Record named reviewers/actual environment, issues, unresolved provider/vendor/relationship/pilot decisions and accept/reject scope. Source implementation or related automation is not that decision.
+
+## v2.3 additional intentional review
+
+TC-141: administrators use verified-school course/class creation and existing-school update; teacher/family lists stay usable without admin account lookup and no Create School is offered. TC-149: review saved report before publication; interrupt draft create/publication responses, inspect retained text and stored status and distinguish non-idempotent draft creation from safe same-report publication retry. TC-157: read long personal notices on mobile/keyboard/screen reader, interrupt acknowledgement, inspect retained inbox and same-notice recovery, and review history/retention language separately from current pupil/report entitlement.
+
+The report publication checkbox is a local UI confirmation, not an invented reason/UUID audit contract. Only current administrators mutate reports; supplied grade/summary is not a validated grading engine. Named school/educator reviewers must record language, publication, accessibility and retention decisions. Synthetic suite results and prototype labels do not execute these UAT cases.

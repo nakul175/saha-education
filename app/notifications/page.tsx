@@ -11,11 +11,13 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readError, setReadError] = useState<string | null>(null);
+  const [marking, setMarking] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch('/api/notifications');
+        const response = await fetch('/api/notifications', { cache: 'no-store' });
         if (!response.ok) {
           throw new Error('Failed to fetch notifications');
         }
@@ -32,6 +34,9 @@ export default function NotificationsPage() {
   }, []);
 
   const handleMarkAsRead = async (id: string) => {
+    if (marking) return;
+    setMarking(id);
+    setReadError(null);
     try {
       const response = await fetch(`/api/notifications?id=${id}`, {
         method: 'PATCH',
@@ -47,8 +52,10 @@ export default function NotificationsPage() {
           notif.id === id ? { ...notif, readAt: new Date().toISOString() } : notif
         )
       );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch {
+      setReadError('The read status could not be confirmed. Your inbox is retained; retry Mark as Read for the same notice to recover its saved status.');
+    } finally {
+      setMarking(null);
     }
   };
 
@@ -65,7 +72,7 @@ export default function NotificationsPage() {
       <div className="flex justify-center items-center h-64">
         <Card className="max-w-md">
           <CardContent className="pt-6">
-            <p className="text-red-500">Error: {error}</p>
+            <p role="alert" className="text-red-500">Error: {error}</p>
           </CardContent>
         </Card>
       </div>
@@ -86,20 +93,23 @@ export default function NotificationsPage() {
           <CardTitle>Notification Inbox</CardTitle>
         </CardHeader>
         <CardContent>
+          {readError && <p role="alert" className="mb-4 break-words text-destructive">{readError}</p>}
           {notifications.length === 0 ? (
             <p className="text-muted-foreground">No notifications found.</p>
           ) : (
             <div className="space-y-4">
               {notifications.map((notification) => (
-                <div 
+                <article
                   key={notification.id} 
+                  data-notification-id={notification.id}
+                  aria-labelledby={'notification-title-' + notification.id}
                   className={`border rounded-lg p-4 transition-colors ${
                     !notification.readAt ? 'bg-blue-50 border-blue-200' : ''
                   }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium">{notification.title}</h3>
+                  <div className="flex flex-wrap justify-between items-start gap-3">
+                    <div className="min-w-0 flex-1 break-words">
+                      <h3 id={'notification-title-' + notification.id} className="font-medium">{notification.title}</h3>
                       <p className="text-sm text-muted-foreground mt-1">{notification.body}</p>
                       <p className="text-xs text-muted-foreground mt-2">
                         {format(new Date(notification.createdAt), 'MMM d, yyyy h:mm a')}
@@ -113,14 +123,15 @@ export default function NotificationsPage() {
                     <div className="mt-3">
                       <Button 
                         size="sm" 
+                        disabled={marking !== null}
                         onClick={() => handleMarkAsRead(notification.id)}
                         className="bg-blue-600 hover:bg-blue-700"
                       >
-                        Mark as Read
+                        {marking === notification.id ? 'Saving…' : 'Mark as Read'}
                       </Button>
                     </div>
                   )}
-                </div>
+                </article>
               ))}
             </div>
           )}

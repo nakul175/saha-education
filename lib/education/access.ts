@@ -26,11 +26,22 @@ export function assertSchool(principal: Principal, schoolId?: string | null): vo
   if (schoolId !== undefined && schoolId !== principal.schoolId) throw new AccessError('School access denied');
 }
 
+// A session lookup is only an earlier snapshot. Every protected database
+// operation also checks that the account still holds that school and role.
+export function livePrincipalScope(principal: Principal): SQL {
+  assertPrincipal(principal);
+  return sql`exists (select 1 from users live_actor where live_actor.id = ${principal.id}
+    and live_actor.school_id = ${principal.schoolId} and live_actor.role = ${principal.role}
+    and live_actor.disabled_at is null
+    and live_actor.identity_issuer is not null and live_actor.identity_issuer <> ''
+    and live_actor.identity_subject is not null and live_actor.identity_subject <> '')`;
+}
+
 // Correlated EXISTS clauses scope records before they leave the database. Identity
 // links are explicit foreign keys; a profile ID is never treated as a login ID.
 export function studentScope(principal: Principal): SQL {
   assertPrincipal(principal);
-  const school = eq(students.schoolId, principal.schoolId);
+  const school = and(eq(students.schoolId, principal.schoolId), livePrincipalScope(principal))!;
   if (principal.role === 'admin') return school;
   if (principal.role === 'student') return and(school, eq(students.userId, principal.id))!;
   if (principal.role === 'guardian') return and(school, sql`exists (
@@ -45,7 +56,7 @@ export function studentScope(principal: Principal): SQL {
 }
 export function classScope(principal: Principal): SQL {
   assertPrincipal(principal);
-  const school = eq(classes.schoolId, principal.schoolId);
+  const school = and(eq(classes.schoolId, principal.schoolId), livePrincipalScope(principal))!;
   if (principal.role === 'admin') return school;
   if (principal.role === 'teacher') return and(school, eq(classes.teacherId, principal.id))!;
   return and(school, sql`exists (
@@ -55,7 +66,7 @@ export function classScope(principal: Principal): SQL {
 }
 export function guardianScope(principal: Principal): SQL {
   assertPrincipal(principal);
-  const school = eq(guardians.schoolId, principal.schoolId);
+  const school = and(eq(guardians.schoolId, principal.schoolId), livePrincipalScope(principal))!;
   if (principal.role === 'admin') return school;
   if (principal.role === 'guardian') return and(school, eq(guardians.userId, principal.id))!;
   return and(school, sql`exists (
@@ -83,7 +94,7 @@ export async function assertStudentInClass(principal: Principal, studentId: stri
   await assertStudentAccess(principal, studentId);
   const [row] = await getDb().select({ id: enrolments.id }).from(enrolments).where(and(
     eq(enrolments.studentId, studentId), eq(enrolments.classId, classId), eq(enrolments.status, 'active'),
-    classReferenceScope(principal, enrolments.classId)
+    classReferenceScope(principal, enrolments.classId), studentReferenceScope(principal, enrolments.studentId)
   )).limit(1);
   if (!row) throw new AccessError('Student must be actively enrolled in this class', 400);
 }
@@ -91,7 +102,9 @@ export async function assertUserLink(principal: Principal, userId: string | null
   assertPrincipal(principal);
   if (!userId) return;
   const [row] = await getDb().select({ id: users.id }).from(users).where(and(
-    eq(users.id, userId), eq(users.schoolId, principal.schoolId), eq(users.role, role), isNull(users.disabledAt)
+    eq(users.id, userId), eq(users.schoolId, principal.schoolId), eq(users.role, role), isNull(users.disabledAt),
+    sql`${users.identityIssuer} is not null and ${users.identityIssuer} <> ''
+      and ${users.identitySubject} is not null and ${users.identitySubject} <> ''`, livePrincipalScope(principal)
   )).limit(1);
   if (!row) throw new AccessError('User must have the matching role in this school', 400);
 }

@@ -1,8 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.2 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.3 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Current boundary matrix
 
@@ -120,3 +120,13 @@ Stage persists immutable original preview and zero observations. Staff reviews a
 Confirmation inserts all original manual-reviewed checks plus durable item->check/declared source/result/reviewer/time receipts in one atomic UPDATE/trigger transaction. Exact school+sourceLabel+externalReference consumed-result uniqueness applies across DIFFERENT draft UUIDs. A conflict rolls back the entire confirm and leaves staged. Pending duplicates coexist and can reject. Same UUID/payload/actor retry returns current evidence; collision/change cannot replace originals. No source verification, norms, diagnosis, efficacy, synchronization or family publication is established. Verified automatic adapters remain FR-25 planned.
 
 The local control interface is an application-cookie/same-origin staff API. It must not be treated as a third-party bearer/webhook endpoint or activated provider contract. Future adapter work needs supported provider-owned authentication, permission, payload/learner mapping, source verification, correction and reconciliation contracts.
+
+## v2.3 internal commit contract
+
+Trace: FR-03, FR-05–FR-07, FR-11, FR-12, FR-26; NFR-01–NFR-03.
+
+Current permission composes into actual common student/class/guardian and remaining original-domain SQL. School/course/class/account reads and mutations cannot keep cached enabled-role-school authority; class INSERT/UPDATE also rechecks course school and enabled trusted teacher. A class roster response is one scoped joined query. This adds no new transfer, repair or bootstrap contract.
+
+Report publication is internal SQL integration: unique private receipt INSERT, guarded one-report timestamp update and DISTINCT current eligible guardian-login notice creation within one statement/trigger transaction. Failing/revoked/zero-row publication creates no notice; losing/repeated publication only reads the scoped established winner. Explicit guardian relation/profile/account/student school and enabled trusted guardian role are evaluated at commit. No recipients is allowed; historical reports/notices receive no fabricated receipt/backfill or replayed notification. No provider API or receipt endpoint is introduced.
+
+Manual notice insertion repeats current staff/recipient scope in actual SQL. Notice reads/read acknowledgements require a live recipient; retained personal historical notices do not grant current pupil/report access after unlink. Email/SMS labels remain storage-only. Draft creation lacks client UUID idempotency; uncertain draft saves require scoped reload/reconciliation, while same-report publication retry remains nonduplicating. SQL/session tests and local served checks are related evidence, not vendor/educator/production acceptance.

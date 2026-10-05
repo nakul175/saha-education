@@ -1,8 +1,8 @@
 # Saha high-level design
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
+Version 2.3 draft, 5 October 2026. Historical v2.0 baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## 1. System context and responsibility
 
@@ -102,7 +102,7 @@ See [DATA-DICTIONARY](DATA-DICTIONARY.md) for storage relationships and [API-CON
 
 Trace: BR-01; FR-05–FR-12; NFR-02.
 
-School administrators manage permitted school metadata, students/guardians, course/class setup and enrolment. Teacher IDs and identity-profile links must refer to enabled, matching-role users in the same school. Attendance uses one guarded JSON INSERT SELECT/upsert; results use an atomic guarded JSON insert/update batch. Both recheck all current eligibility and the live actor in actual statements. Report creation forces a private draft; administrator publication and mapped guardian notices commit together, using deterministic notice IDs for repeat safety.
+School administrators manage permitted school metadata, students/guardians, course/class setup and enrolment. Teacher IDs and identity-profile links must refer to enabled, matching-role users in the same school. Attendance uses one guarded JSON INSERT SELECT/upsert; results use an atomic guarded JSON insert/update batch. Both recheck all current eligibility and the live actor in actual statements. Report creation forces a private draft and rechecks current actor/student authority in its INSERT. New publication is one guarded receipt INSERT whose trigger publishes exactly one report and derives eligible guardian notices; deterministic notice IDs preserve repeat safety. Legacy published reports receive no new receipt.
 
 Core workflow limits remain explicit: legacy academic date rules are weak, correction history is incomplete, new enrolment/result duplicate pairs are guarded while unresolved legacy duplicates remain stored, and family assessment publication is deferred. Read/write scope is implemented, but complete administration, academic acceptance and correction policy are not established by that fact.
 
@@ -243,3 +243,28 @@ Import drafts keep one explicit class and every normalized learner ID. Server-pr
 Submission-window review is independent of due_date and resource content versions. A latest immutable open policy accepts unless its cutoff has elapsed; no policy means unrestricted. The actual learner attempt INSERT uses database time and the latest revision, closing the prevalidation race. Committed UUID replay precedes that new-write check and still requires current learner authority. Feedback remains permitted on authorized saved attempts after closure.
 
 Academic pair guards preserve existing duplicates without a destructive migration or invented review history. Attendance shares one all-member eligibility predicate in a single statement; result insert/update shares current class/max-score/active-member/ambiguity predicates inside an atomic batch. These controls do not add academic-calendar acceptance, general corrections or production-scale guarantees. Node SQLite tests and local workerd checks remain different execution layers; actual root-run evidence is recorded separately.
+
+## v2.3 authority and publication transaction boundary
+
+Trace: BR-01, BR-02, BR-10; FR-03, FR-05–FR-07, FR-11, FR-12, FR-26; NFR-01–NFR-03.
+
+`livePrincipalScope` composes into actual common student/class/guardian SQL predicates and remaining school/course/users/notice statements. It compares current user ID, role and school with the principal and requires enabled nonempty trusted mapping. The current Principal does not carry an issuer/subject snapshot: this guards absent mappings, not arbitrary replacement of one nonempty identity pair with another. Identity remapping remains unavailable through application APIs. Mutation-time references complement early validation; neither browser controls nor an earlier session lookup supplies lasting authority.
+
+Class detail is one scoped class/enrolment/student join, avoiding a cached class response assembled after dependent roster lookups. Class persistence checks course and teacher eligibility in the same INSERT/UPDATE. These changes preserve current entitlement rules, historical records, private account fields and existing response shapes.
+
+```mermaid
+flowchart LR
+  UI[Administrator reviews saved report] --> API[Authenticated publish API]
+  API --> Receipt[Guarded unique report receipt INSERT]
+  subgraph AtomicStatement[One SQL statement and triggers]
+    Receipt --> Guard[Current unpublished report and live school admin]
+    Guard --> Publish[Stamp exactly one report]
+    Publish --> Recipients[Current explicit trusted guardian accounts]
+    Recipients --> Notices[Distinct deterministic in-app notices]
+  end
+  Notices --> Read[Scoped read of winning report]
+```
+
+An authority conflict or later trigger/notice failure rolls back the whole statement. A publication with no eligible recipients still commits the report. Concurrent losers and retries only read the current permitted winner; they cannot independently assemble notices. Six-field immutable `report_publication_receipts` is private database evidence, not a new API or complete audit/retention system. Historical reports/notices are not recreated or backfilled.
+
+The report UI separates uncertain draft creation from repeat-safe publication. The inbox retains content after acknowledgement failure. Role-appropriate school/course/class forms use verified-school context, while APIs remain authoritative. Local tests/builds do not prove hosted D1 recovery, real provider delivery, educator policy or production readiness.

@@ -1,9 +1,9 @@
 {
-  "version": "2.2-draft",
+  "version": "2.3-draft",
   "date": "2026-10-05",
-  "source_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2",
+  "source_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
   "approved": false,
-  "execution_notice": "All 133 designed cases remain not-run-for-this-specification. Existing evidence links are related runnable/source context only, not intentional case execution or business acceptance. Historical 101-case v2.0/v2.1 design and observed suite records remain separate.",
+  "execution_notice": "All 157 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context only, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence and the published 133-case v2.2 design at 82f20ce remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -878,7 +878,7 @@
       "layer": "integration",
       "priority": "P0",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
-      "data": "maxScore=20; scores -1,0,20,21; enrolled/unrelated learners.",
+      "data": "maxScore=20; scores -1, 0, 20, 21; enrolled/unrelated learners.",
       "steps": [
         "Create assigned-class assessment.",
         "Record boundary scores and invalid student.",
@@ -953,7 +953,8 @@
       "evidenceFiles": [
         "tests/integration/api-contract.mjs",
         "tests/worker-access-check.mjs",
-        "lib/education/report-cards.ts"
+        "lib/education/report-cards.ts",
+        "tests/integration/live-domain-authority-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -971,18 +972,21 @@
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
       "data": "Report-A linked to guardian user-A; publication retry and batch fault.",
       "steps": [
-        "Publish twice; inspect guardian recipient and notice count.",
-        "Inject report/notice batch failure on another draft."
+        "Publish twice; inspect guardian LOGIN recipient, immutable receipt and notice count.",
+        "Inject publication receipt/report/notice trigger failure on another draft."
       ],
       "expected": [
-        "Retry produces one correct user-linked notice and stable publication.",
-        "Fault leaves no half-published record/notice pair."
+        "Retry gives one correct user-linked notice and stable winning publication/receipt.",
+        "Fault rolls back receipt/publication/all notices; no historical receipt backfill."
       ],
       "automation": "planned",
       "evidenceFiles": [
         "tests/integration/api-contract.mjs",
         "tests/worker-access-check.mjs",
-        "lib/education/report-cards.ts"
+        "lib/education/report-cards.ts",
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "drizzle/0012_report_publication_receipts.sql"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1010,7 +1014,8 @@
       "evidenceFiles": [
         "tests/integration/api-contract.mjs",
         "tests/worker-access-check.mjs",
-        "lib/education/notifications.ts"
+        "lib/education/notifications.ts",
+        "tests/integration/live-domain-authority-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1037,7 +1042,8 @@
       "automation": "planned",
       "evidenceFiles": [
         "lib/education/notification-channel.ts",
-        "docs/current/AUTH-ACCESS.md"
+        "docs/current/AUTH-ACCESS.md",
+        "tests/integration/live-domain-authority-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1717,7 +1723,7 @@
       "layer": "integration",
       "priority": "P1",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
-      "data": "100 attempted,91 correct,60.001 seconds; second sample 3 attempted,2 correct,30 seconds.",
+      "data": "100 attempted, 91 correct, 60.001 seconds; second sample 3 attempted, 2 correct, 30 seconds.",
       "steps": [
         "POST valid manual reviewed checks.",
         "Reload stored duration/counts and server metrics."
@@ -2056,7 +2062,7 @@
       "layer": "integration",
       "priority": "P0",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
-      "data": "Mock provider timeout,429,503 and network failure after draft inputs entered.",
+      "data": "Mock provider timeout, 429, 503 and network failure after draft inputs entered.",
       "steps": [
         "Run each failure during future generation.",
         "Retry after transient recovery while preserving request context."
@@ -2746,7 +2752,8 @@
       "evidenceFiles": [
         "tests/integration/api-contract.mjs",
         "tests/worker-access-check.mjs",
-        "docs/specification/BRD.md"
+        "docs/specification/BRD.md",
+        "tests/integration/live-domain-authority-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -3460,7 +3467,7 @@
       "layer": "unit",
       "priority": "P0",
       "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
-      "data": "Formats/unknown keys;0/26 rows;duplicate reference;correct>attempted;future/impossible date;names/URLs/audio/derived score.",
+      "data": "Formats/unknown keys; 0/26 rows;duplicate reference;correct>attempted;future/impossible date;names/URLs/audio/derived score.",
       "steps": [
         "Validate all envelope/row boundaries and submit invalid samples through authenticated route.",
         "Try unmapped/foreign Saha learner and whitespace namespace; inspect storage after each."
@@ -3918,7 +3925,7 @@
       "layer": "uat",
       "priority": "P1",
       "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
-      "data": "Nominated staff reviewer, device timezone, small viewport, future cutoff,409 conflict and uncertain response.",
+      "data": "Nominated staff reviewer, device timezone, small viewport, future cutoff, 409 conflict and uncertain response.",
       "steps": [
         "Use assignment window controls with keyboard/screen reader; inspect UTC-to-local conversion and current summary/history.",
         "Edit state/time/reason or refresh version after checking review; retry unchanged uncertainty.",
@@ -3938,6 +3945,814 @@
         "tests/worker-wireframes-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-134",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "FR-07",
+        "NFR-01"
+      ],
+      "title": "Original structure and account feeds deny late actor changes",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Actor disabled, demoted, moved school, issuer null or subject empty before SELECT.",
+      "steps": [
+        "Read school/course/class lists/details and admin account feed using actual sessions.",
+        "Inject each actor change before domain SELECT; inspect no-store and safe data."
+      ],
+      "expected": [
+        "Collections empty/details unavailable under changed authority; no cached old-school feed escapes.",
+        "Users output remains id/name/role for enabled mapped accounts; disabled fresh session is unauthenticated."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-135",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Structure mutation SQL denies stale administrator authority",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Actor revoked after preflight before course/class INSERT or school/course/class UPDATE.",
+      "steps": [
+        "Capture original rows/counts and inject each actor change at mutation.",
+        "Issue valid request from earlier session and inspect every original field."
+      ],
+      "expected": [
+        "Safe 409, zero created rows or modified fields; no fabricated successful save.",
+        "Existing records retained; no transfer/automatic repair follows rejection."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-136",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "NFR-02"
+      ],
+      "title": "Class persistence rechecks selected course school",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Selected course passes lookup then moves school before create/update.",
+      "steps": [
+        "Move selected course immediately before class INSERT and UPDATE separately.",
+        "Compare all class rows with original state."
+      ],
+      "expected": [
+        "Both mutations conflict 409; no cross-school course/class pair introduced.",
+        "Existing class/history remains unchanged."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-137",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Class persistence rechecks enabled trusted teacher eligibility",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Teacher passes lookup then is disabled, wrong role/school or absent/empty identity.",
+      "steps": [
+        "Repeat each teacher change before class INSERT and UPDATE.",
+        "Test already-ineligible teacher as independent preflight negative."
+      ],
+      "expected": [
+        "SQL-time changed reference conflicts 409 with no write; initial invalid reference safely denied.",
+        "No untrusted teacher assignment or automatic historical repair."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-138",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-07",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Final joined class detail scopes current roster members",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Teacher reassignment/disable, pupil transfer, actual reviewed guardian/student unlink before class SELECT.",
+      "steps": [
+        "Inject each change before actual joined class detail query.",
+        "Compare nested roster for assigned staff, student and guardian."
+      ],
+      "expected": [
+        "Unavailable class authority 404; otherwise unauthorized pupils omitted in same statement.",
+        "Existing response shape and entitlement retained; family sees no unrelated pupils."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-139",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "FR-07",
+        "NFR-01"
+      ],
+      "title": "Structure role and origin denial precedes body parsing",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Malformed/oversized JSON, wrong origin, missing session, teacher/family mutation and cross-school input.",
+      "steps": [
+        "Call structure POST/PATCH with each authority/body combination.",
+        "Try valid admin school bootstrap and cross-school class/course payload."
+      ],
+      "expected": [
+        "401/403 precede unauthorized parsing; authorized invalid body 400 with 128 KiB bound.",
+        "Bootstrap remains 403 and no school created; client school cannot grant authority."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-140",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-05",
+        "FR-07",
+        "NFR-02",
+        "NFR-09"
+      ],
+      "title": "Structure D1 returns and server fields remain compatible",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Actual Drizzle D1 driver over SQLite, optional schedule/address/description and spoofed ID/time.",
+      "steps": [
+        "Create/update authorized structure through actual handlers using D1 adapter.",
+        "Read joined roster and inspect returned IDs/time/optional fields."
+      ],
+      "expected": [
+        "Correct nested return shape and server-owned creation IDs/time; updates preserve ID.",
+        "No mock-only success or private account identity expansion."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-141",
+      "scenario": "SC-23",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "FR-07",
+        "NFR-05",
+        "NFR-09"
+      ],
+      "title": "Role-appropriate structure administration usability",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Nominated synthetic roles, verified school, missing choices, errors and small viewport.",
+      "steps": [
+        "Use structure pages by keyboard/screen reader across roles.",
+        "Inspect admin verified-school forms, no school-create control, loading/save/reload errors."
+      ],
+      "expected": [
+        "Only admin has mutation controls; other roles load scoped lists without admin-account dependency.",
+        "Labels/focus/status/mobile usable; uncertain saves never called confirmed, and policy/UAT separately recorded."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/school-structure-authority-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/classes.ts",
+        "lib/education/courses.ts",
+        "lib/education/schools.ts",
+        "lib/education/access.ts",
+        "app/api/users/route.ts",
+        "docs/specification/WIREFRAMES.md",
+        "app/classes/page.tsx",
+        "app/courses/page.tsx",
+        "app/schools/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-142",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-03",
+        "FR-11",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Report draft insertion rechecks actor and learner school",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Admin or student scope revoked before INSERT; spoofed publication/id/time fields.",
+      "steps": [
+        "Create valid draft and inspect server-owned private state.",
+        "Inject actor/student changes before INSERT and compare counts/content."
+      ],
+      "expected": [
+        "Server UUID/time and null publishedAt; client timestamp cannot publish.",
+        "Late authority 409 and zero new reports; no creation UUID guarantee inferred."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-143",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-03",
+        "FR-11",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Report publication role parsing and draft privacy",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Linked/unrelated families, assigned teacher/admin, malformed publish JSON and foreign origin.",
+      "steps": [
+        "Read list/detail/page before and after publication by each role.",
+        "Call report POST/PATCH with wrong role and malformed or unauthorized body."
+      ],
+      "expected": [
+        "Families see only current linked published reports; drafts remain private.",
+        "Admin denial before JSON; safe origin/auth/body errors and no public receipt endpoint."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-144",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-11",
+        "FR-12",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Concurrent publication has one receipt and notice winner",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "One unpublished report, two authorized publishers, multiple/duplicate guardian relationships.",
+      "steps": [
+        "Coordinate competing receipt INSERTs and retry same report after success.",
+        "Inspect receipt actor/time and DISTINCT deterministic notice rows."
+      ],
+      "expected": [
+        "Exactly one receipt and first publication evidence; one notice per eligible guardian login.",
+        "Loser/repeat recovery reads current scoped winner without changing time/count."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-145",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-03",
+        "FR-11",
+        "FR-12",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Zero-row or revoked publication creates no notice",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Actor disabled/demoted/moved/unmapped or learner/report unavailable before receipt statement.",
+      "steps": [
+        "Capture report/receipt/notice state; inject final authority changes.",
+        "Inspect safe response and every persisted field after failure."
+      ],
+      "expected": [
+        "No receipt/publication/new notice from denied or zero-row operation.",
+        "No orphan notice exposing pupil name or misleading partial publication."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-146",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-11",
+        "FR-12",
+        "NFR-03"
+      ],
+      "title": "Publication derives current eligible guardian accounts",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Actual reviewed unlink/remap; recipient/guardian/student wrong school, disabled/unmapped guardian.",
+      "steps": [
+        "Apply reviewed unlink before receipt commit; test other recipient changes.",
+        "Test duplicate relationships and zero eligible guardians."
+      ],
+      "expected": [
+        "Former/ineligible account receives no new notice; DISTINCT current trusted same-school guardians only.",
+        "Zero recipients still permits publication; historical personal notices remain."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-147",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-11",
+        "FR-12",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Trigger failure rolls back every publication member",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Synthetic report or later notice INSERT fault with multiple eligible recipients.",
+      "steps": [
+        "Fail after receipt/report writes but before statement completes.",
+        "Inspect receipt/report/all notices, remove fault and retry."
+      ],
+      "expected": [
+        "Failure leaves no receipt/stamp/new notice, including earlier member of failed insert.",
+        "Valid recovery publishes once with deterministic identities and no original overwrite."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-148",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-11",
+        "FR-12",
+        "FR-26",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Migration preserves legacy evidence and immutable receipts",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Pre-0012 published report/notice, new receipt and raw modification attempts.",
+      "steps": [
+        "Apply migration on populated legacy fixture and retry legacy publication.",
+        "Attempt receipt UPDATE/DELETE and unauthorized/already-published receipt insertion."
+      ],
+      "expected": [
+        "No backfilled receipt/replayed notices; original legacy publication time retained.",
+        "Immutable guards and current insert authority enforced; no full audit/retention promise."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-149",
+      "scenario": "SC-24",
+      "requirements": [
+        "FR-11",
+        "FR-12",
+        "NFR-05",
+        "NFR-09"
+      ],
+      "title": "Saved-report review and uncertain draft recovery usability",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Synthetic roles, lost successful create/publish responses, failed reload and long text.",
+      "steps": [
+        "Use labelled admin draft/saved-report review controls and verify other roles lack mutations.",
+        "Lose creation response; reconcile reload before new create; lose publication response and retry same report."
+      ],
+      "expected": [
+        "Local checkbox is clear; API stays publish:true without invented review UUID/reason.",
+        "Entered text retained; draft create not claimed exactly once; same-report publication nonduplicating and UAT separately recorded."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/report-publication-contract.mjs",
+        "tests/integration/live-domain-authority-contract.mjs",
+        "lib/education/report-cards.ts",
+        "drizzle/0012_report_publication_receipts.sql",
+        "lib/education/profile-links.ts",
+        "app/report-cards/page.tsx",
+        "docs/specification/WIREFRAMES.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-150",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-03",
+        "FR-12",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Notice reads and acknowledgements reject stale actors",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Recipient disabled/demoted/moved/unmapped after session resolution.",
+      "steps": [
+        "Inject changes before inbox SELECT and read-status UPDATE.",
+        "Inspect safe response and original read_at/body; repeat unrelated recipient."
+      ],
+      "expected": [
+        "No cached authority exposes notices; changed predicate yields empty feed/hidden acknowledgement.",
+        "Denied update changes no row; unrelated recipient cannot read/ack."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-151",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-03",
+        "FR-12",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Teacher notice INSERT rechecks class and active pupil relation",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Recipient passes lookup then teacher reassigned, enrolment withdrawn or pupil transferred.",
+      "steps": [
+        "Inject eligibility changes immediately before actual notice INSERT.",
+        "Compare notice count/content; retain permitted/self positive controls."
+      ],
+      "expected": [
+        "Safe 409 with no stale teacher-recipient notice.",
+        "Current active relationship and self scope retained; no broadcast permission."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-152",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-12",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Manual notice INSERT rechecks recipient school and account",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Recipient disabled/moved/unmapped, guardian profile moved or relationship removed after lookup.",
+      "steps": [
+        "Create notice under each final recipient/relationship mutation.",
+        "Test admin same-school and narrower teacher recipient scopes."
+      ],
+      "expected": [
+        "Changed authority conflicts 409 and creates no row.",
+        "No foreign profile disclosure or family relationship auto-repair."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-153",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-12",
+        "NFR-01"
+      ],
+      "title": "Notice auth origin body and channel boundaries",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Missing session, guardian POST, malformed/oversized JSON, unknown notice and body-free PATCH.",
+      "steps": [
+        "Call notice POST across authority/body combinations; acknowledge by query ID without JSON.",
+        "Inspect stored channel and outbound-call counter."
+      ],
+      "expected": [
+        "Staff denial precedes POST body, no-store/body bound/safe errors retained.",
+        "Own PATCH needs no body; stored email/SMS labels never imply external delivery, zero outbound calls."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-154",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-11",
+        "FR-12",
+        "NFR-03"
+      ],
+      "title": "Personal notices survive unlink without learner access",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Prior legitimate notice, actual reviewed guardian unlink and legacy personal notice.",
+      "steps": [
+        "Unlink profile and obtain fresh same-recipient account session.",
+        "Read personal inbox separately from learner/report access; publish new report."
+      ],
+      "expected": [
+        "Old notice retained while removed pupil/report relationship denies current access.",
+        "No new notice to removed account; no retroactive deletion/backfill/retention decision."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-155",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-12",
+        "NFR-02"
+      ],
+      "title": "Acknowledgement retry preserves content and row identity",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Own unread notice, lost acknowledgement response and client-forged timestamp.",
+      "steps": [
+        "Acknowledge same query ID repeatedly, including timestamp/body spoof.",
+        "Inspect count/ID/title/body/server time and unrelated actor denial."
+      ],
+      "expected": [
+        "One retained notice with unchanged content/identity; first server readAt and original updatedAt preserved on exact notice-ID retries.",
+        "First-read preservation is implemented in the service SQL, not database-wide notice immutability or an approved retention policy; foreign actor cannot acknowledge."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-156",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-12",
+        "NFR-05",
+        "NFR-09"
+      ],
+      "title": "Inbox uncertainty retains rows and recovery action",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Successful/failed/lost PATCH response and local marking state.",
+      "steps": [
+        "Interrupt browser read acknowledgement while retaining inbox.",
+        "Inspect alert/busy controls and retry same notice before local success update."
+      ],
+      "expected": [
+        "Uncertain response never silently marks/removes notice; recovery text remains.",
+        "Confirmed success changes selected notice only; no external delivery or completed UAT."
+      ],
+      "automation": "planned",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-157",
+      "scenario": "SC-25",
+      "requirements": [
+        "FR-12",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Inbox accessibility and retention wording review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "data": "Nominated synthetic roles, long text/read error, keyboard/screen reader/mobile/pilot language.",
+      "steps": [
+        "Review inbox loading/empty/error and Mark as Read with assistive navigation.",
+        "Inspect wrapping/status/history wording and current report privacy separately."
+      ],
+      "expected": [
+        "Usable labels/focus/status/layout and visible save failures.",
+        "Language/retention/usability policy recorded by reviewers, no acceptance from automation/source."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs",
+        "lib/education/notifications.ts",
+        "app/api/notifications/route.ts",
+        "lib/education/profile-links.ts",
+        "app/notifications/page.tsx",
+        "docs/specification/WIREFRAMES.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
     }
   ],
   "delivery_metadata": {
@@ -3946,7 +4761,8 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented batch, not the containing publication commit. Changes were uncommitted when the specification was assembled; historical v2.0 baseline and v2.1 execution remain preserved. Publication and actual runs are separately dated; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2"
+    "note": "source_commit records the parent of this documented second batch, not its containing publication commit. Published v2.2 evidence at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs and publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb"
   }
 }

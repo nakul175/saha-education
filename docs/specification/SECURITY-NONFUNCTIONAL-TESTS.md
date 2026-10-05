@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -76,3 +76,11 @@ Test new academic pair guards without deleting legacy duplicates, ambiguous resu
 Test window review staff-only, safe student summary/no history metadata, immutable CAS/current-state replay, database-clock latest-policy enforcement on actual attempt insertion, prior committed UUID/feedback preservation and live authority after closure. Clock/timezone labels and page controls need intentional accessibility/pilot review; server scope remains final authority.
 
 [Development recovery](../../tests/integration/development-recovery-contract.mjs) links local encrypted populated restore/privacy/retry evidence to designed recovery cases. Actual host export/cutover, key custody, periodic backup, RPO/RTO, workload, screen-reader and educator policy evidence remain pending. Neither 34 restored tables nor a browser screenshot certifies operational/security/accessibility readiness.
+
+## v2.3 current SQL and publication threats
+
+TC-134–TC-157 cover late account disable/role/school/mapping removal, class reassignment, selected course/teacher eligibility, pupil transfer and actual reviewed guardian/student unlink. Change state immediately before the final target statement and inspect that no stale-school row/private pupil/account field or newly misdirected notice escapes. Root's common scope and each actual mutation are both required; a UI role check or early lookup is insufficient.
+
+A publication receipt uniquely arbitrates the report; its triggers must roll back report and all notices on any failure. Test zero eligible recipient, losing concurrent writer, duplicate guardian mappings, legacy publication without backfill and raw receipt UPDATE/DELETE guards. Notice history remains recipient-owned after unlink, independently of current report entitlement; retention/deletion approval is unresolved. The live predicate checks matching current ID/role/school and nonempty trusted identity, but cannot compare a prior issuer/subject absent from Principal; arbitrary identity remapping is not an implemented capability.
+
+Related actual SQLite/session/D1/localhost checks do not establish representative load, full screen-reader compliance, hosted backup/key custody, real provider operations or production readiness. Every designed case remains unrun.

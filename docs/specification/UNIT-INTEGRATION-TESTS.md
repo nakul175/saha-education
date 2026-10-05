@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -74,3 +74,13 @@ Capture suite results plus per-case actual expected comparisons, persisted invar
 | TC-091/TC-092 related local recovery scope | [development-recovery-contract](../../tests/integration/development-recovery-contract.mjs), existing recovery utility | Exact populated local encrypted roundtrip and rechecked privacy/retry/triggers, not hosted cutover/key custody/schedule |
 
 Tests use actual isolated SQLite/sessions/routes, inspect persisted counts/values and inject authority changes immediately before actual statements. Browser/served implementation uses separate manual checkers; no test count, evidence link or local restored row promotes a requirement or designed case to acceptance. Array/transport caps are implementation limits, not performance guarantees.
+
+## v2.3 statement-boundary mappings
+
+| Designed group | Related runnable/source | Observable boundary |
+|---|---|---|
+| TC-134–TC-141 current structure | [structure-authority contract](../../tests/integration/school-structure-authority-contract.mjs), [independent live-domain contract](../../tests/integration/live-domain-authority-contract.mjs) | Current SQL actor/reference guards, final joined roster, role-before-body, D1 RETURNING and retained originals; final UI acceptance separate |
+| TC-142–TC-149 publication | [report-publication contract](../../tests/integration/report-publication-contract.mjs), independent live-domain contract, migration 0012 | One receipt winner, report/notices atomic rollback, reviewed unlink before commit, DISTINCT guardian login IDs, no legacy backfill and no draft-create UUID guarantee |
+| TC-150–TC-157 notices | Independent live-domain contract and current notice/UI source | Final recipient/teacher relationship, acknowledgement live scope, personal historical retention, no external delivery; planned browser recovery/manual UAT separate |
+
+A fresh isolated DB and real session are required per adversarial scenario; injecting a cached Principal alone cannot replace route/session checks. The D1 prepared-driver adapter verifies actual conditional INSERT/RETURNING mapping, while localhost Worker checks exercise runtime behavior separately. Source/catalogue mapping remains related evidence only. No arbitrary nonempty issuer/subject replacement is claimed detectable from a Principal that lacks that snapshot; trusted remapping stays outside implemented writes.

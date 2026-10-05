@@ -1,8 +1,8 @@
 # Platform test strategy
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Purpose and scope
 
@@ -10,7 +10,7 @@ Validate identity/access, coherent academic records, original teacher preparatio
 
 ## Four distinct records
 
-1. **Design coverage:** a canonical requirement is linked to one or more concrete cases. All 133 cases here are designed, not executed; the historical v2.0/v2.1 design contained 101.
+1. **Design coverage:** a canonical requirement is linked to one or more concrete cases. All 157 cases here are designed, not executed; the historical v2.0/v2.1 design contained 101.
 2. **Existing automation mapping:** evidenceFiles point to existing suite/source/prior-record files. A suite may cover only part of the mapped design case. The runner's layer is a catalogue classification, not a guarantee that a suite is pure unit/integration.
 3. **Execution evidence:** revision, environment, migrations, fixtures, command/procedure, timestamp, actual outcomes, sanitized artifacts and defects for an intentional run. Pass requires all expected outcomes; unrun/blocked is not pass.
 4. **Business acceptance:** named sponsor/educator/QA/operator decision against approved policies and release scope. Neither source presence nor automation counts establishes it.
@@ -56,8 +56,14 @@ Historical outcomes in [VALIDATION](../../VALIDATION.md) include 482 counted sta
 
 ## v2.2 focused coverage and recovery boundary
 
-SC-19–SC-22 add 32 concrete designs for profile ownership, academic integrity, local reading drafts and submission windows. The register now contains 133 cases across 22 scenarios, mapped 63 existing/44 planned/26 manual. Existing mapping means related automation/source is available; it never populates TC outcome or business approval. Fixture additions include legacy duplicate pairs/bindings, typed current profile revisions, revoked old/new/reviewer sessions,25-row drafts, stable consumed-result namespaces, rejected/staged/confirmed histories and latest open/closed/future/elapsed policies.
+SC-19–SC-22 add 32 concrete designs for profile ownership, academic integrity, local reading drafts and submission windows. The register now contains 157 cases across 25 scenarios, mapped 83 existing/45 planned/29 manual. Existing mapping means related automation/source is available; it never populates TC outcome or business approval. Fixture additions include legacy duplicate pairs/bindings, typed current profile revisions, revoked old/new/reviewer sessions,25-row drafts, stable consumed-result namespaces, rejected/staged/confirmed histories and latest open/closed/future/elapsed policies.
 
 Related current suites are profile-links-contract, academic-integrity-contract, reading-imports-contract, submission-windows-contract and development-recovery-contract under `tests/integration/`. New manually invoked [served checks](../../tests/worker-development-check.mjs) and [browser checks](../../tests/worker-development-ui-check.mjs) use freshly built disposable local Worker/session fixtures. No assertion counts are copied into case statuses. Actual runs/publication are recorded in [batch evidence](../current/DEVELOPMENT-BATCH-1.md).
 
 The populated encrypted local recovery suite restores exact 34-table evidence/index/trigger state and rechecks current scopes/retries/source consumption. Its disposable local roundtrip does not satisfy hosted restore/cutover, key custody/schedule, operational ownership, RPO/RTO or approved recovery procedure. Those remain intentional separate gates.
+
+## v2.3 reproduced-race design
+
+SC-23–SC-25 add TC-134–TC-157: current actor/reference SQL, final joined roster privacy, atomic publication winner/rollback/recipient selection, preserved legacy evidence and notice scope/recovery. Their procedures deliberately inject authority changes between session/prevalidation and actual SELECT/INSERT/UPDATE. Assert row counts, every original field, receipt/report/notice winner identity, rollback and safe response content, rather than relying on HTTP success alone.
+
+Related suites are [structure authority](../../tests/integration/school-structure-authority-contract.mjs), [independent live-domain authority](../../tests/integration/live-domain-authority-contract.mjs) and [report publication](../../tests/integration/report-publication-contract.mjs). [Local served domain checks](../../tests/worker-domain-check.mjs) remain manual environment evidence. No new designed case is promoted by these links or by a historical v2.2 run. Current pack: 157 designed cases/25 scenarios, 83 existing evidence mappings/45 planned/29 manual. Hosted D1, chosen identity provider, real ORF, representative performance, retention and intentional accessibility/educator UAT remain separate gates.

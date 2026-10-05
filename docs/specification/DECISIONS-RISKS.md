@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -73,3 +73,17 @@ Severity, likelihood, named owners and due dates require pilot review; this regi
 | R-20 | Local encrypted recovery evidence mistaken for hosted readiness | Related recovery suite covers disposable local roundtrip only; require separate hosted export/cutover, key custody, backup schedule and owner/RPO/RTO evidence |
 
 None of these working choices is a sponsor/educator/vendor approval. The [batch record](../current/DEVELOPMENT-BATCH-1.md) carries observed checks separately from unrun designed cases.
+
+## v2.3 working choices and residual risks
+
+| Item | Current choice / remaining decision |
+|---|---|
+| Statement-time authority | Live enabled mapped actor/current school/role in actual SQL; no cached-principal override. Nonempty identity pair replacement remains unavailable policy, not a snapshot comparison guarantee. |
+| New publication | One immutable private winner receipt and atomic current eligible guardian notices; zero recipients allowed. No legacy receipt backfill or notice replay. |
+| Uncertain draft creation | No client creation UUID/unique student-term guarantee. UI retains text, blocks repeat and requires reload/check; broader exactly-once draft creation remains absent. |
+| Historical notice ownership | Personal notice remains after relationship unlink; current pupil/report access denied independently. School privacy/retention owner must approve real-use retention/deletion. |
+| Review and grades | Admin UI requires saved-report review; API remains publish:true without reason/UUID. No complete report correction log or accepted grade engine. |
+| Structure administration | Verified-school admin controls, scoped nonadmin lists and disabled school bootstrap; no transfer/repair/deletion capability added. |
+| Readiness | Provider/ORF/pilot policies, representative performance, hosted recovery/key custody/scheduling and intentional educator/accessibility UAT still open; race fixes do not certify all source. |
+
+A subsequent dashboard inspection reproduced cached actor/profile/class exposure across assembled reads and misleading result/attendance labels. FR-03 is partial while a coherent live-scoped dashboard snapshot is pending. Those diagnostic assertions are not passing execution evidence; the current structure/publication batch does not claim to resolve dashboard pages.

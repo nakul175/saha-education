@@ -2,7 +2,7 @@
 
 Draft process, 5 October 2026. Purpose: keep business intent, functional behavior, design, data, screens and test evidence aligned as the platform changes. Repository AGENTS/HANDOVER instructions govern source publication and sponsor merge authority. This process does not add a new permission gate to already authorized drafting or development.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Document sequence and responsibilities
 
@@ -40,4 +40,6 @@ Do not mark acceptance true automatically because code exists, a unit test passe
 
 Run `python3 scripts/check-documentation.py`, `node scripts/audit-requirements.mjs --check` and `node scripts/check-specification.mjs`. The first two maintain the historical/current docs; the specification check validates new IDs, source paths, links/exports and traceability consistency. These are offline consistency checks, not runtime or educator acceptance.
 
-The v2.2 inventory is 34 tables/288 fields,51 route files/84 handlers,133 designed cases/22 scenarios, with 12 offline prototype screens. Requirements and every case remain unapproved/unrun; API/data CSVs mirror current saved contracts. Final publication/run facts belong in root-owned dated batch records.
+The historical v2.2 inventory was 34 tables/288 fields, 51 route files/84 handlers, 133 designed cases/22 scenarios, with 12 offline prototype screens. Requirements and every case remain unapproved/unrun; API/data CSVs mirror current saved contracts. Final publication/run facts belong in root-owned dated batch records.
+
+For v2.3, source_commit is `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the published v2.2 commit and parent of this documented second batch, not its containing commit. Preserve the v2.2 34-table/288-field, 133-case/22-scenario design and execution as historical. Current v2.3 inventory is 35 tables/294 fields, unchanged 51 routes/84 handlers, 157 designed cases/25 scenarios and the same 12 offline prototype screens. All case execution/requirement approval states remain unchanged; publication/run facts belong to separately dated root-owned evidence.

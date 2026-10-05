@@ -26,7 +26,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 188
+      "minPassed": 202
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -42,6 +42,11 @@
       "layer": "integration",
       "file": "tests/integration/identity-admin-contract.mjs",
       "minPassed": 153
+    },
+    "integration/live-domain-authority-contract": {
+      "layer": "integration",
+      "file": "tests/integration/live-domain-authority-contract.mjs",
+      "minPassed": 783
     },
     "integration/profile-links-contract": {
       "layer": "integration",
@@ -63,6 +68,11 @@
       "file": "tests/integration/reading-review-contract.mjs",
       "minPassed": 177
     },
+    "integration/report-publication-contract": {
+      "layer": "integration",
+      "file": "tests/integration/report-publication-contract.mjs",
+      "minPassed": 221
+    },
     "integration/resource-access-contract": {
       "layer": "integration",
       "file": "tests/integration/resource-access-contract.mjs",
@@ -72,6 +82,11 @@
       "layer": "integration",
       "file": "tests/integration/resources-contract.mjs",
       "minPassed": 147
+    },
+    "integration/school-structure-authority-contract": {
+      "layer": "integration",
+      "file": "tests/integration/school-structure-authority-contract.mjs",
+      "minPassed": 275
     },
     "integration/submission-windows-contract": {
       "layer": "integration",
@@ -86,7 +101,7 @@
     "smoke/basic-smoke": {
       "layer": "smoke",
       "file": "tests/smoke/basic-smoke.mjs",
-      "minPassed": 93
+      "minPassed": 117
     },
     "unit/auth-contract": {
       "layer": "unit",

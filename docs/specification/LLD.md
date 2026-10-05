@@ -1,8 +1,8 @@
 # Saha low-level design
 
-Version 2.2 draft, 5 October 2026. Written after [BRD](BRD.md), [FSD](FSD.md) and [HLD](HLD.md). Historical source baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. [requirements.json](requirements.json) is canonical. Sections 1–9 retain the foundation with relevant current corrections; section 10 defines the historical v2.1 manual extensions; section 11 specifies v2.2 local controls; section 12 identifies remaining proposals. No provider, queue, classroom adapter or AI runtime is inferred from a proposed model. This is an implementer/QA reference, not deployment or acceptance evidence.
+Version 2.3 draft, 5 October 2026. Written after [BRD](BRD.md), [FSD](FSD.md) and [HLD](HLD.md). Historical source baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. [requirements.json](requirements.json) is canonical. Sections 1–9 retain the foundation with relevant current corrections; section 10 defines the historical v2.1 manual extensions; section 11 specifies v2.2 local controls; section 12 defines v2.3 authority/publication controls; section 13 identifies remaining proposals. No provider, queue, classroom adapter or AI runtime is inferred from a proposed model. This is an implementer/QA reference, not deployment or acceptance evidence.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## 1. Modules, contracts and execution adapters
 
@@ -137,7 +137,7 @@ Trace: FR-03–FR-12; NFR-01, NFR-02, NFR-03.
 
 Attendance uses the unique class/student/date index in one all-member guarded JSON upsert. Results use an atomic JSON insert/update batch whose actual predicates recheck current score maximum, class/member/actor authority and legacy duplicate ambiguity. Migration 0009 guards new/changed pair duplicates while preserving existing rows. Academic changes currently overwrite selected values without a general append-only correction log. Implementers must not promote these operations to FR-26 completion.
 
-Report creation always overrides `publishedAt` to null. Publication computes distinct mapped, enabled guardian user recipients in the same school, conditionally stamps an unpublished report and inserts in-app notices in one D1 batch. IDs `report-card-published:<reportId>:<userId>` make notice retries nonduplicating; an already published report returns its established evidence. Guardian profile IDs are never notice recipient IDs. The notification schema accepts `in_app | email | sms` channel labels, but `createNotification` only stores a row; it does not deliver externally. `deliverNotification` invokes the in-app create path and rejects other channels as unconfigured. A stored email/SMS-labeled row is not delivery evidence.
+Report creation always overrides `publishedAt` to null and uses a current-actor/student-scoped INSERT SELECT. Publication inserts a unique private receipt; its trigger stamps exactly one draft and inserts distinct currently eligible guardian notices atomically in the same SQL statement. IDs `report-card-published:<reportId>:<userId>` make notice retries nonduplicating; an already published report returns its established evidence. Guardian profile IDs are never notice recipient IDs. The notification schema accepts `in_app | email | sms` channel labels, but `createNotification` only stores a row; it does not deliver externally. `deliverNotification` invokes the in-app create path and rejects other channels as unconfigured. A stored email/SMS-labeled row is not delivery evidence.
 
 Current active/current-assignment predicates remove some historical access after withdrawal, completion or teacher reassignment. Rows remain stored. No temporal relationship snapshots or agreed historical-access exceptions exist; resolve that policy before real records or correction workflows.
 
@@ -310,7 +310,7 @@ Trace: NFR-02, FR-08–FR-16, FR-20, FR-26.
 | Login rate | Atomic upsert increment per bucket | Relies on trusted deployed edge IP |
 | Attendance batch | Validate all entries, then one all-member live guarded JSON upsert; unique class/student/date | No correction audit; date policy incomplete |
 | Results batch | All-member live/current-max/legacy-ambiguity guarded JSON atomic batch; duplicate pair triggers | Legacy duplicates preserved; append-only correction history pending |
-| Report publication | Conditional publication plus deterministic notices in one D1 batch | Broader publication/correction policy pending |
+| Report publication | Unique receipt INSERT and atomic guarded trigger publication/current recipients; deterministic notices | No legacy backfill or draft-create UUID guarantee; broader publication/correction/retention policy pending |
 | Resource create | Stable resource + version-one D1 batch; actor/content retry equality | Create retry always refers to original version; no automatic merge |
 | Revision | Unique resource/version number arbitrates writers | Reload/review required after conflict or lost response |
 | Review | First conditional approval update; reread winner | Self-review allowed; no unapproval endpoint |
@@ -331,7 +331,7 @@ QA should exercise actual sessions and migrations, foreign/peer IDs, active/inac
 
 Sources include `tests/integration/api-auth-guards.mjs`, `api-contract.mjs`, `external-apps-contract.mjs`, `reading-checks-contract.mjs`, `resources-contract.mjs`, `tests/unit/auth-contract.mjs` and `tests/worker-access-check.mjs`. The latter needs an isolated served Worker and fixture environment. Test coverage, execution and acceptance are distinct; consult [TEST-STRATEGY](TEST-STRATEGY.md) and [VALIDATION](../../VALIDATION.md) for real recorded evidence rather than inferring it from this design.
 
-There is no numerical performance/availability target, deployed-provider validation, production recovery evidence, comprehensive audit/correction model, confirmed retention policy, accepted accessibility result or approved pilot-language matrix. `listResources` now uses one scoped latest-version join; the dashboard enabled-teacher count is a real scoped aggregate. Administration lists cap 500 users/200 latest events; other lists generally lack pagination and curriculum/submission feedback retain some per-item queries. No measured capacity improvement is claimed. NFR-09 keeps requirement/design/API/case/evidence links together; historical `docs/education` remains source context.
+There is no numerical performance/availability target, deployed-provider validation, production recovery evidence, comprehensive audit/correction model, confirmed retention policy, accepted accessibility result or approved pilot-language matrix. `listResources` now uses one scoped latest-version join; the dashboard enabled-teacher aggregate still relies on its earlier principal school and lacks a live actor predicate. Coherent role-dashboard reads are the next slice, separate from this batch. Administration lists cap 500 users/200 latest events; other lists generally lack pagination and curriculum/submission feedback retain some per-item queries. No measured capacity improvement is claimed. NFR-09 keeps requirement/design/API/case/evidence links together; historical `docs/education` remains source context.
 
 The NFR-09 catalogue report reads `requirements.json` and case `evidenceFiles`, deduplicates existing runnable paths and reports linked requirement IDs. `tests/unit/catalogue-contract.mjs` checks canonical totals, distinct links, missing-file handling and unchanged case/approval states. Evidence-link totals do not populate per-case results or acceptance.
 
@@ -425,7 +425,52 @@ Current summary omits review reason/reviewer/hash and permits staff/own active-c
 
 The UI retains UUID for an unchanged uncertain review payload, clears confirmation on fields/revision/refresh, displays acknowledged current outcome before refreshing history, and preserves unsaved text on conflict. Device-local datetime input converts to canonical UTC. Native controls/status/error/focus/mobile layouts are candidate source behavior; browser and educator acceptance require intentional evidence.
 
-## 12. Remaining proposed design contracts — not implemented
+## 12. v2.3 exact live authority and publication
+
+Trace: FR-03, FR-05–FR-07, FR-11, FR-12, FR-26; NFR-01–NFR-03, NFR-05, NFR-09.
+
+### 12.1 Live actor and current structure
+
+`livePrincipalScope(principal)` asserts principal shape and returns correlated EXISTS users actor with exact current id/school/role, disabled_at NULL and nonnull/nonempty identity_issuer/identity_subject. Common studentScope/classScope/guardianScope embed it. It does not authorize arbitrary nonempty pair remapping, since Principal lacks the original issuer/subject snapshot; remapping is outside current application writes. School/course reads/updates and users inventory include it directly; course INSERT SELECT returns no row after revocation. Zero-row writes throw AccessError 409 rather than returning a fabricated save. School bootstrap remains forbidden.
+
+Class INSERT SELECT and UPDATE include selected_course current-school existence and selected_teacher matching school, role teacher, enabled state and nonempty trusted mapping. Prevalidation gives useful invalid-reference errors, but actual persistence remains authoritative. `getClassWithStudents` performs one FROM classes LEFT JOIN enrolments/students with current class scope and student-reference/student scope, then builds the existing `{...class,enrolledStudents}` shape. No unrelated learner or private account identity is added. Existing legacy membership/history policy is retained.
+
+### 12.2 Report draft and atomic publication receipt
+
+Report POST remains non-strict legacy ReportInput: required studentId/term/overallGrade, optional summary; supplied ID/time/publication fields confer no ownership. The service explicitly inserts server UUID/time, actor-scoped student and published_at NULL. There is no client UUID replay or unique student/term key. A failed/uncertain response may follow a committed draft; reload and inspect, do not assert exactly-once creation.
+
+Publication PATCH requires the existing `{publish:true}` shape after admin/origin/auth checks. Initial getReportCard is current-scoped; an already published row returns its established state without adding a receipt. For an unpublished row:
+
+```text
+INSERT publication receipt SELECT server UUID, report/student/school/actor/time
+  WHERE same initial report student, report still unpublished, live current admin/student scope
+  ON CONFLICT(report_id) DO NOTHING
+BEFORE INSERT trigger: require matching unpublished report/student/school and live trusted admin
+AFTER INSERT trigger:
+  UPDATE exact still-unpublished report with matching current actor/student authority
+  require changes() = 1, otherwise abort
+  INSERT DISTINCT deterministic guardian LOGIN notices from current relationships
+    require student/guardian/account same school, guardian role, enabled trusted account
+    ON CONFLICT(notice id) DO NOTHING
+Any failure rolls back receipt + report update + every notice
+Final scoped report SELECT returns winner; no winner after zero INSERT -> safe 409
+```
+
+One receipt per report arbitrates the winner. Concurrent loser/repeated report-ID retry reads the winner under current authority; no later linked guardian gets a new notice from such a retry. IDs remain `report-card-published:<reportId>:<userId>`. Missing eligible recipients is allowed. No API exposes receipt/hash/identity metadata; receipt has six fields and UPDATE/DELETE are blocked. Migration 0012 does not backfill legacy publications, replay historic notices, or establish report-content immutability/retention. Historical published report retry preserves its original time without fabricating a receipt.
+
+### 12.3 Notice statements and UI uncertainty
+
+Notice GET/get and read-status UPDATE require exact recipient account and livePrincipalScope. Manual notice INSERT SELECT repeats current recipientScope after early lookup: same-school enabled trusted account plus teacher self/current scoped learner/guardian relationship where relevant. Current studentScope rechecks actor, learner school, active enrolment and assigned class. Changed authority creates zero rows and safe 409; unavailable acknowledgement is 404. Manual channel labels may still be stored, but only in-app delivery is implemented. No email/SMS provider call occurs.
+
+Historical personal notice ownership is independent of current guardian-profile linkage. Unlinking blocks newly derived publication notices and current learner/report access; it does not delete prior personal notices. First read acknowledgement uses server time; repeat acknowledgement preserves both the first readAt and original updatedAt.
+
+`/report-cards` loads verified principal/scoped learners, shows draft-create/publication controls only to admin, requires local saved-report review checkbox and renders persisted term/grade/summary/publication status. Checkbox is not an invented backend review reason/UUID. Uncertain creation retains text, blocks another save and requires report reload/check; uncertain publication requires reload/review and report-ID retry remains nonduplicating. `/notifications` checks response.ok, retains rows on read failure and exposes an alert plus same-notice retry. Role-appropriate structure forms derive school from session and distinguish saved rows from subsequent reload failures. Exact UI source/browser evidence governs practical behavior; no broader acceptance or provider readiness inferred.
+
+### 12.4 Final structure UI
+
+Final structure UI parity: `/classes` uses current course IDs and administrator-safe `{id,name,role}` teacher choices from `/api/users?role=teacher`; nonadmins issue no account query. `/courses` supplies verified school ownership without an editable school ID. `/schools` PATCHes only the verified existing record; no school-create call/extra shell is introduced, and unchanged blank optional address does not replace SQL null. A synchronous in-flight lock blocks double save. 409 reloads choices; 500/network uncertainty preserves entries and blocks another create until explicit reload/check. A confirmed successful save plus failed refresh reports both facts. School reload compares saved details with retained form edits. These forms add no client creation UUID, transfer or field-length policy.
+
+## 13. Remaining proposed design contracts — not implemented
 
 Trace: FR-04, FR-21–FR-26; NFR-03–NFR-09. The following names are conceptual model roles, not exported TypeScript types, migration tables, routes or configured services.
 

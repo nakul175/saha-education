@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **133 cases in 22 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **157 cases in 25 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -33,6 +33,10 @@ This draft contains **133 cases in 22 scenarios**, covers all **35 functional/no
 | SC-20 | Academic actual-write integrity and legacy pair preservation | TC-110, TC-111, TC-112, TC-113, TC-114, TC-115, TC-116, TC-117 | FR-03, FR-08, FR-09, FR-10, FR-26, NFR-01, NFR-02, NFR-03, NFR-09 |
 | SC-21 | Normalized local reading draft review and consumed-result receipts | TC-118, TC-119, TC-120, TC-121, TC-122, TC-123, TC-124, TC-125 | FR-03, FR-20, FR-21, FR-25, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
 | SC-22 | Reviewed submission windows, retries and preserved attempts | TC-126, TC-127, TC-128, TC-129, TC-130, TC-131, TC-132, TC-133 | FR-03, FR-17, FR-24, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
+
+| SC-23 | Current actor and structure reference authority | TC-134, TC-135, TC-136, TC-137, TC-138, TC-139, TC-140, TC-141 | FR-03, FR-05, FR-06, FR-07, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
+| SC-24 | Atomic report publication winner and safe recovery | TC-142, TC-143, TC-144, TC-145, TC-146, TC-147, TC-148, TC-149 | FR-03, FR-06, FR-11, FR-12, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
+| SC-25 | Current notice relation, personal history and acknowledgement | TC-150, TC-151, TC-152, TC-153, TC-154, TC-155, TC-156, TC-157 | FR-03, FR-06, FR-11, FR-12, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
 
 ## Execution boundaries
 
@@ -282,3 +286,42 @@ Cases: TC-126, TC-127, TC-128, TC-129, TC-130, TC-131, TC-132, TC-133. Full proc
 - TC-131 — Committed submission replay and feedback survive closure (regression, existing).
 - TC-132 — Timed cutoff boundary and deterministic reopening (integration, existing).
 - TC-133 — Submission window review usability and educator policy (uat, manual).
+
+## SC-23 — Current structure authority
+
+Cases: TC-134, TC-135, TC-136, TC-137, TC-138, TC-139, TC-140, TC-141. Inject actor and selected reference changes at actual statement boundaries, compare nested roster/privacy and every retained original field, then separately review role-appropriate admin/family screen behavior. All procedures remain unrun.
+
+- TC-134 — Original structure and account feeds deny late actor changes (security, existing).
+- TC-135 — Structure mutation SQL denies stale administrator authority (integration, existing).
+- TC-136 — Class persistence rechecks selected course school (integration, existing).
+- TC-137 — Class persistence rechecks enabled trusted teacher eligibility (integration, existing).
+- TC-138 — Final joined class detail scopes current roster members (security, existing).
+- TC-139 — Structure role and origin denial precedes body parsing (security, existing).
+- TC-140 — Structure D1 returns and server fields remain compatible (regression, existing).
+- TC-141 — Role-appropriate structure administration usability (uat, manual).
+
+## SC-24 — Atomic report publication
+
+Cases: TC-142, TC-143, TC-144, TC-145, TC-146, TC-147, TC-148, TC-149. Coordinate winner/loser receipts, actual reviewed guardian unlink, zero-row authority and late trigger faults. Inspect receipt/report/all notice rows, no legacy backfill and no invented draft-create retry guarantee. All procedures remain unrun.
+
+- TC-142 — Report draft insertion rechecks actor and learner school (integration, existing).
+- TC-143 — Report publication role parsing and draft privacy (security, existing).
+- TC-144 — Concurrent publication has one receipt and notice winner (integration, existing).
+- TC-145 — Zero-row or revoked publication creates no notice (security, existing).
+- TC-146 — Publication derives current eligible guardian accounts (integration, existing).
+- TC-147 — Trigger failure rolls back every publication member (integration, existing).
+- TC-148 — Migration preserves legacy evidence and immutable receipts (regression, existing).
+- TC-149 — Saved-report review and uncertain draft recovery usability (uat, manual).
+
+## SC-25 — Notice current scope and historical ownership
+
+Cases: TC-150, TC-151, TC-152, TC-153, TC-154, TC-155, TC-156, TC-157. Inject final actor/teacher/recipient changes, compare personal history after reviewed unlink separately from current learner/report rights, and distinguish same-notice first-timestamp-preserving acknowledgement from uncertain UI/UAT recovery. All procedures remain unrun.
+
+- TC-150 — Notice reads and acknowledgements reject stale actors (security, existing).
+- TC-151 — Teacher notice INSERT rechecks class and active pupil relation (integration, existing).
+- TC-152 — Manual notice INSERT rechecks recipient school and account (integration, existing).
+- TC-153 — Notice auth origin body and channel boundaries (security, existing).
+- TC-154 — Personal notices survive unlink without learner access (regression, existing).
+- TC-155 — Acknowledgement retry preserves content and row identity (regression, existing).
+- TC-156 — Inbox uncertainty retains rows and recovery action (regression, planned).
+- TC-157 — Inbox accessibility and retention wording review (uat, manual).

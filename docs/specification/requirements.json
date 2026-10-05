@@ -1,7 +1,7 @@
 {
-  "version": "2.2-draft",
+  "version": "2.3-draft",
   "date": "2026-10-05",
-  "source_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2",
+  "source_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -40,9 +40,9 @@
       "id": "FR-03",
       "business": "BR-02",
       "title": "Record authorization",
-      "implementation_status": "implemented",
+      "implementation_status": "partial",
       "source": "lib/education/access.ts",
-      "requirement": "Scope every read/write to school, role, class assignment and explicit profile links.",
+      "requirement": "Scope domain reads/writes to current school, role, class assignment and explicit profile links; coherent dashboard snapshot enforcement remains the next slice.",
       "approved": false
     },
     {
@@ -60,7 +60,7 @@
       "title": "School setup",
       "implementation_status": "partial",
       "source": "lib/education/schools.ts",
-      "requirement": "School-scoped administration; school bootstrap remains operator provisioned.",
+      "requirement": "School-scoped administration with current actor checks in SQL; school bootstrap remains operator provisioned.",
       "approved": false
     },
     {
@@ -78,7 +78,7 @@
       "title": "Courses and classes",
       "implementation_status": "partial",
       "source": "lib/education/classes.ts",
-      "requirement": "Maintain courses/classes and eligible school teachers.",
+      "requirement": "Maintain school course/class structure with current course and enabled trusted teacher references checked at persistence.",
       "approved": false
     },
     {
@@ -114,7 +114,7 @@
       "title": "Published reports",
       "implementation_status": "partial",
       "source": "lib/education/report-cards.ts",
-      "requirement": "Keep drafts private and publish scoped term reports with repeat-safe notices.",
+      "requirement": "Keep drafts private and publish scoped term reports with one immutable winner receipt and atomic eligible-guardian notices; draft creation is not UUID-idempotent.",
       "approved": false
     },
     {
@@ -123,7 +123,7 @@
       "title": "In-app notices",
       "implementation_status": "partial",
       "source": "lib/education/notifications.ts",
-      "requirement": "Show recipient-owned in-app notices; external delivery remains disabled.",
+      "requirement": "Show live recipient-owned in-app notices and recheck current permitted recipients at creation; historical notices remain retained and external delivery disabled.",
       "approved": false
     },
     {
@@ -340,7 +340,8 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented batch, not the containing publication commit. Changes were uncommitted when the specification was assembled; historical v2.0 baseline and v2.1 execution remain preserved. Publication and actual runs are separately dated; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2"
+    "note": "source_commit records the parent of this documented second batch, not its containing publication commit. Published v2.2 evidence at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs and publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb"
   }
 }

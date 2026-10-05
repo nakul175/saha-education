@@ -2,7 +2,7 @@
 
 Draft, 5 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Screen inventory
 
@@ -63,3 +63,18 @@ Open the three new navigation buttons. Profile review links/unlinks a fictional 
 Prototype validation illustrates selected boundaries and is not the server schema, live scope, race/retry, database-clock or persistence implementation. No network, localStorage, credentials, vendor integration or school data exists in this artifact. Browser and educator acceptance remain unrun; [case register](TEST-CASES.json) contains intentional procedures.
 
 The [offline wireframe checker](../../tests/worker-wireframes-check.mjs) provides reproducible synthetic checks for screen focus, labels, responsive width and selected review interactions. It exercises the local prototype separately from served application checks; it does not execute or accept the designed UAT cases.
+
+## v2.3 existing structure, report and inbox mappings
+
+The same 12-screen offline prototype remains labelled fictional and does not gain a new screen merely because publication receipts were added. Existing WF-07 family progress and WF-08 roster sketches carry clarified scope text; persisted admin/report/inbox journeys are described here from source, not simulated as verified API responses.
+
+| Existing application page | Current role/control behavior | Required review/error states |
+|---|---|---|
+| `/schools`, `/courses`, `/classes` (WF-08 context) | Scoped role lists; only admin updates existing school/creates course/class in verified school. Teacher picker uses admin-safe account fields; no typed tenant switch or Create School control. | Loading/empty, unavailable school/teacher/course, invalid fields, permission/conflict, uncertain save and saved-row/reload failure; native labels, focus, mobile wrapping |
+| `/report-cards` (WF-07 context) | Scoped learner selector/reports. Admin only: draft term/grade/summary, saved-report review checkbox and publish. Teacher/family read permitted reports; family drafts private. | Draft save uncertainty retains text and blocks another create until reload/check; publication uncertainty reloads persisted status/review; no new draft UUID guarantee; visible alerts/status/mobile labels |
+| `/report-cards/{id}` | Scoped persisted report details and browser print | Loading, unavailable/denied/error; grade/summary remain school supplied, no inferred grading engine |
+| `/notifications` (WF-07 context) | Personal recipient inbox and Mark as Read; retained historical notice does not grant current student/report access | Loading/empty/error; in-flight disabled action, failed/uncertain acknowledgement keeps inbox and offers same-notice retry; long text wraps |
+
+API authorization remains independent of rendered controls. Publication receipt/reviewer metadata is private and no receipt/history UI is invented. Local prototype/source/automated browser evidence does not substitute for intentional screen-reader, language, publication/retention or educator acceptance.
+
+Final structure source state rules: class selects current course/teacher choices, course uses verified school with no editable tenant ID, and existing-school name/address updates preserve an unchanged null address. Native required fields and synchronous save locks apply. Rejected requests retain text; 409 requires current inventory reload, and network/500 uncertainty blocks new create until explicit saved-list inspection. Confirmed-save refresh failure reports the save separately. School recovery loads saved values without replacing retained edits. Actual browser evidence remains separate from intentional UAT.

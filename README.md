@@ -157,3 +157,5 @@ Test results are aggregated and reported with counts for each layer, showing pas
 - Provider-based sign-in replaces role-selection demo login; provider configuration is pending
 - All records require verified school and relationship scopes; no role cookie grants access
 - Reviewed account provisioning and status administration are implemented; role, identity, school and profile remapping remain pending
+
+Current timed continuation: [authority/publication batch](docs/current/DEVELOPMENT-BATCH-2.md), [actual tested evidence](docs/current/DEVELOPMENT-BATCH-2-EXECUTION.json) and [four-hour progress](docs/current/FOUR-HOUR-DEVELOPMENT.md). The v2.3 design pack contains 35 tables/294 fields, 51 routes/84 handlers and 157 unrun designed cases; source verification does not imply business acceptance or deployment.

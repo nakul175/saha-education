@@ -1,8 +1,8 @@
 # Data dictionary
 
-Version 2.2 draft, 5 October 2026. Current working inventory: **34 implemented SQL tables and 288 columns**, obtained by applying migrations 0000–0011 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+Version 2.3 draft, 5 October 2026. Current working inventory: **35 implemented SQL tables and 294 columns**, obtained by applying migrations 0000–0012 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 Requirement references: FR-01–FR-03 identity/access; FR-05–FR-12 school/academic records; FR-13–FR-18 teacher resources; FR-20 reviewed reading; NFR-01/NFR-02 constraints and concurrency; NFR-03 retention. IDs and status are canonical in [requirements.json](requirements.json); business context is in [BRD](BRD.md).
 
@@ -25,11 +25,13 @@ Sensitivity labels are engineering handling descriptions, not an approved legal 
 - `attendance.recorded_by` is TEXT without an FK. Newer reading/resource actor references have user FKs. User/guardian/student relationship backfill is not performed by migration 0001.
 
 - New administration, curriculum and submission CHECK/unique keys enforce local row shape and revision uniqueness; same-school, live role, review and exact-version authority remain guarded service predicates. Identity status/session/evidence changes and curriculum resource-copy/provenance use atomic D1 batches.
-- Reading corrections, profile-link events, submission-window reviews, import items and import receipts have no-update/no-delete triggers. Import draft originals and terminal decisions are guarded; a confirmation trigger inserts all checks and receipts in one atomic UPDATE. Other domain histories remain append-only through their APIs; no platform-wide immutable audit is inferred.
+- Reading corrections, profile-link events, submission-window reviews, import items/receipts and report publication receipts block UPDATE/DELETE with immutable-row triggers. Import draft originals and terminal decisions are guarded; a confirmation trigger inserts all checks and receipts in one atomic UPDATE. Other domain histories remain append-only through their APIs; no platform-wide immutable audit is inferred.
 
 
 - Staged import rows are not reading observations. A confirmed receipt uniquely consumes `(school_id, source_label, external_reference)`; a conflict rolls back the entire confirmation and leaves the draft staged. User-declared source labels/references are not verified vendor identities.
 - `assignment_submission_windows` is separate from `resource_assignments.due_date`. No window row means unrestricted; latest closed/elapsed policy denies new attempts using the database clock, while authorized committed UUID replay and feedback remain available.
+
+- Migration 0012 creates no receipts for historical published reports and changes no historical notices. A new receipt atomically publishes exactly one draft and derives DISTINCT eligible guardian login recipients at commit; failure rolls back receipt, report and all notices. The receipt has no public API/export. Report content and notice history do not acquire platform-wide DB immutability or a new retention policy.
 
 ## `assessment_results`
 
@@ -243,14 +245,14 @@ Source: db/identity-admin-schema.ts; drizzle/0004_identity_admin.sql.
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
-| id | TEXT | no | none | PK | Stable text record identifier; usually a server UUID. Reading/resource IDs can be validated client UUID retry keys. | Private recipient communication |
-| user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Recipient account ID, never a guardian profile ID. | Private recipient communication |
+| id | TEXT | no | none | PK | Server UUID for manually stored notice, or deterministic `report-card-published:<reportId>:<userId>` identity for a publication notice. | Private recipient communication |
+| user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Explicit recipient LOGIN account, never guardian profile ID; recipient-owned historical notice remains after relationship unlink. | Private recipient communication |
 | channel | TEXT | no | none | No additional DB constraint | Service enum in_app, email or sms; stored channel does not establish provider delivery. | Private recipient communication |
 | title | TEXT | no | none | No additional DB constraint | Private notification heading. | Private recipient communication |
 | body | TEXT | no | none | No additional DB constraint | Private notification text. | Private recipient communication |
-| read_at | TEXT | yes | none | No additional DB constraint | Null until recipient acknowledgment; repeated acknowledgment refreshes timestamps. | Private recipient communication |
+| read_at | TEXT | yes | none | No additional DB constraint | Nullable first server acknowledgement timestamp; COALESCE preserves it on authorized same-notice retries. No DB immutable-row trigger. | Private recipient communication |
 | created_at | TEXT | no | none | No additional DB constraint | ISO creation timestamp, generated by service; no database timestamp default. | Private recipient communication |
-| updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Private recipient communication |
+| updated_at | TEXT | no | none | No additional DB constraint | Server last-update timestamp; read acknowledgement sets it only when unread and preserves the original value on retry. | Private recipient communication |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 
@@ -399,16 +401,29 @@ Source: db/reading-import-schema.ts; drizzle/0010_reading_imports.sql.
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
-| id | TEXT | no | none | PK | Stable text record identifier; usually a server UUID. Reading/resource IDs can be validated client UUID retry keys. | Protected learner education record |
+| id | TEXT | no | none | PK | Server UUID for a report draft. No client creation UUID or unique student/term retry guarantee. | Protected learner education record |
 | student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Student receiving the report. | Protected learner education record |
 | term | TEXT | no | none | No additional DB constraint | Term label; no unique student/term constraint. | Protected learner education record |
 | summary | TEXT | yes | none | No additional DB constraint | Optional report summary. | Protected learner education record |
 | overall_grade | TEXT | no | none | No additional DB constraint | Overall grade label, not a standardized calculation. | Protected learner education record |
-| published_at | TEXT | yes | none | No additional DB constraint | Null means draft; publication sets ISO timestamp once; family reads require nonnull. | Protected learner education record |
+| published_at | TEXT | yes | none | No additional DB constraint | Null private draft; first new publication set by atomic receipt trigger. Existing published times preserved; no legacy receipt backfill. | Protected learner education record |
 | created_at | TEXT | no | none | No additional DB constraint | ISO creation timestamp, generated by service; no database timestamp default. | Protected learner education record |
 | updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Protected learner education record |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
+
+## `report_publication_receipts`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Server publication UUID for the winning commit; not a client draft-create retry key. | Private attributable report publication evidence |
+| report_id | TEXT | no | none | FK report_cards.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE report_publication_receipts_report (report_id); current unpublished report authority checked by INSERT trigger; UPDATE/DELETE blocked by immutable-row triggers | Exactly one receipt per newly published report; legacy published reports are not backfilled. | Private attributable report publication evidence |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INSERT trigger matches current report student and school; UPDATE/DELETE blocked by immutable-row triggers | Original learner profile of this publication, matched to the report at commit. | Private attributable report publication evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INSERT trigger matches current actor and student school; UPDATE/DELETE blocked by immutable-row triggers | Authenticated publication school; not supplied by browser. | Private attributable report publication evidence |
+| published_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INSERT trigger requires enabled admin with nonempty trusted identity in school; UPDATE/DELETE blocked by immutable-row triggers | Authenticated current-school administrator whose receipt won publication. | Private attributable report publication evidence |
+| published_at | TEXT | no | none | CHECK length(published_at) > 0; UPDATE/DELETE blocked by immutable-row triggers | Server ISO publication timestamp reused for report and eligible guardian notices in the same atomic statement. | Private attributable report publication evidence |
+
+Source: db/report-publication-schema.ts; drizzle/0012_report_publication_receipts.sql.
 
 ## `resource_assignments`
 
@@ -556,6 +571,3 @@ Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 | disabled_at | TEXT | yes | none | No additional DB constraint | ISO timestamp disabling application access; null permits access subject to other checks. | Protected account identity |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql, drizzle/0002_reviewed_reading.sql, drizzle/0003_teacher_resources.sql.
-## Remaining proposed entities and policies
-
-AI generation/provider provenance/budgets, verified external identity mappings and automatic adapters, general academic correction/audit, verified licensing, grading/attachments/guardian publication, and approved retention/export/deletion remain unimplemented or unresolved. Reviewed profile binding does not verify family relationships or remap account roles/identities/schools. Local JSON import receipts record explicit manual review and exact user-declared source references; they are not authenticated provider events. Submission windows govern new text attempts only, with no automatic penalties or grades. See [integration contracts](INTEGRATION-CONTRACTS.md) and [API contracts](API-CONTRACTS.md).

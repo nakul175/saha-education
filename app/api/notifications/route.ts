@@ -1,5 +1,5 @@
 import { authenticated, body, query } from '@/lib/education/http';
-import { listNotifications, createNotification, markNotificationRead } from '@/lib/education/notifications';
+import { listNotifications, createNotification, markNotificationRead, assertNotificationWriter } from '@/lib/education/notifications';
 import { notificationSchema } from '@/lib/education/validation';
 import { z } from 'zod';
 
@@ -10,6 +10,7 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   return authenticated(request, true, async principal => {
+    assertNotificationWriter(principal);
     return Response.json(await createNotification(principal, await body(request, notificationSchema)), { status: 201 });
   });
 }

@@ -1,8 +1,8 @@
 # Risk-based regression plan
 
-Version 2.2 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.2 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `398df9c8bf57659a5fd97718f76fe962011cf7d2`, the parent of this documented batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`, and v2.1 evidence remains historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Historical reference, not acceptance baseline
 
@@ -46,4 +46,8 @@ Reading import changes require existing original reading semantics and correctio
 
 Submission-window changes require original default/past-due workflow, existing immutable attempts/feedback, current/latest policy, close/expire between validation and INSERT, exact committed replay after closure, later policy preservation, current-authority rechecks and history cap. Recover all new review/provenance states using the populated disposable local encrypted suite, preserving exact indexes/triggers and scope rather than claiming hosted readiness.
 
-Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 133 designed cases remain unrun until intentionally executed and recorded.
+Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 157 designed cases remain unrun until intentionally executed and recorded.
+
+## v2.3 original-domain preservation
+
+Always retain existing resource/version, profile/session, curriculum, reading/import and attempt/window suites alongside structure/live-domain/publication contracts when common scopes change. Recheck report/notice response shapes, teacher/student/guardian roster intersections, server-owned IDs/time and admin-only forms. Verify no receipt backfill, no historical notice removal, preserved publication time on retry, no notice after denied/losing publication, and complete rollback after a late notice fault. Explicitly distinguish uncertain non-idempotent draft creation from same-report publication retry and repeat acknowledgement preserving first read/update times. No source fix authorizes legacy deletion, role/school transfer or new educator policy.

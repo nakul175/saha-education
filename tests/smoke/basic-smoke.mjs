@@ -17,6 +17,8 @@ const paths = [
   ['app/api/admin/profile-links/route.ts', 'GET'], ['app/api/admin/profile-links/history/route.ts', 'GET'],
   ['app/api/reading-imports/route.ts', 'GET'], ['app/api/reading-imports/[id]/route.ts', 'GET'], ['app/api/reading-imports/[id]/decision/route.ts', 'POST'],
   ['app/api/assignments/[id]/submission-window/route.ts', 'GET'], ['app/api/assignments/[id]/submission-window/history/route.ts', 'GET'],
+  ['app/api/schools/route.ts', 'GET'], ['app/api/courses/route.ts', 'GET'], ['app/api/classes/route.ts', 'GET'],
+  ['app/api/users/route.ts', 'GET'], ['app/api/report-cards/route.ts', 'GET'], ['app/api/notifications/route.ts', 'GET'],
 ];
 const originalFetch = globalThis.fetch;
 let externalCalls = 0;
@@ -25,6 +27,7 @@ try {
   const tables = new Set(sqlite.prepare("SELECT name FROM sqlite_schema WHERE type='table'").all().map(row => row.name));
   for (const name of ['identity_admin_events', 'identity_admin_user_versions', 'curriculum_references', 'curriculum_reference_versions', 'resource_reference_bindings', 'submission_attempts', 'submission_feedback', 'reading_corrections', 'profile_link_versions', 'profile_link_events', 'reading_import_drafts', 'reading_import_items', 'reading_import_receipts', 'assignment_submission_windows']) check(tables.has(name), true, 'Migration boots ' + name);
   await seedSecurityData(db, schema);
+  check(tables.has('report_publication_receipts'), true, 'Publication evidence migration boots');
   const { createSession } = await load('lib/education/session.ts');
   const sessions = {};
   for (const user of ['admin-a', 'teacher-a', 'student-user-a', 'guardian-a']) sessions[user] = (await createSession(user)).split(';')[0];
@@ -63,6 +66,15 @@ try {
   check((await windows.GET(request('GET', 'teacher-a'), context)).status, 404, 'Missing window stays safely unavailable');
   check((await windows.POST(request('POST', 'student-user-a'), context)).status, 403, 'Learner window write denied before invalid body');
   check((await routes.get('app/api/assignments/[id]/submission-window/history/route.ts').GET(request('GET', 'student-user-a'), context)).status, 403, 'Staff window history denies learner');
+  check((await routes.get('app/api/users/route.ts').GET(request('GET', 'teacher-a'))).status, 403, 'Account picker denies staff');
+  check((await routes.get('app/api/report-cards/route.ts').POST(request('POST', 'guardian-a'))).status, 403, 'Report creation denies family before invalid body');
+  const report = await load('app/api/report-cards/[id]/route.ts');
+  const publication = await report.PATCH(new Request(origin + '/api/report-cards/draft-a', {
+    method: 'PATCH', headers: { origin, cookie: sessions['admin-a'], 'content-type': 'application/json' }, body: JSON.stringify({ publish: true }),
+  }), { params: Promise.resolve({ id: 'draft-a' }) });
+  check(publication.status, 200, 'Report publication trigger boots through actual route');
+  check(sqlite.prepare('SELECT count(*) n FROM report_publication_receipts WHERE report_id=?').get('draft-a').n, 1, 'Smoke publication saves one private receipt');
+  check(sqlite.prepare('SELECT count(*) n FROM notifications WHERE id=?').get('report-card-published:draft-a:guardian-a').n, 1, 'Smoke publication saves one linked guardian in-app notice');
   const login = await load('app/api/auth/login/route.ts');
   check((await login.POST(request('POST'))).status, 503, 'Unconfigured provider login fails closed');
   check(externalCalls, 0, 'Smoke does not call a provider');

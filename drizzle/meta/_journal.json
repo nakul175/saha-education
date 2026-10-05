@@ -85,6 +85,13 @@
       "when": 1791182763604,
       "tag": "0011_submission_windows",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1791182763605,
+      "tag": "0012_report_publication_receipts",
+      "breakpoints": true
     }
   ]
 }

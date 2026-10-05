@@ -33,6 +33,9 @@ const routes = {
   attempts: await load('app/api/assignments/[id]/submissions/route.ts'),
   feedback: await load('app/api/assignments/[id]/submissions/[submissionId]/feedback/route.ts'),
   window: await load('app/api/assignments/[id]/submission-window/route.ts'),
+  reports: await load('app/api/report-cards/route.ts'),
+  report: await load('app/api/report-cards/[id]/route.ts'),
+  notices: await load('app/api/notifications/route.ts'),
 };
 const curriculum = await load('lib/education/curriculum.ts');
 const resources = await load('lib/education/resources.ts');
@@ -144,6 +147,11 @@ try {
   await enrolments.enrolStudent(admin, 'student-other', 'class-a');
   await attendance.markAttendance(teacher, 'class-a', today, [{ studentId: 'student-a', status: 'present' }, { studentId: 'student-other', status: 'late' }], 'teacher-a');
   await assessments.recordResults(teacher, 'assessment-a', [{ studentId: 'student-a', score: 7, grade: 'Synthetic supplied', feedback: 'Confirmed synthetic result' }, { studentId: 'student-other', score: 8 }]);
+  const publication = await json(await routes.report.PATCH(request('admin-a', 'PATCH', { publish: true }), params('draft-a')), 200, 'Source publishes an actual report before encrypted snapshot');
+  check(count(sqlite, 'report_publication_receipts'), 1, 'Source has one attributable publication receipt');
+  const publicationReceipt = sqlite.prepare('SELECT * FROM report_publication_receipts WHERE report_id=?').get('draft-a');
+  const publicationNoticeId = 'report-card-published:draft-a:guardian-a';
+  check(sqlite.prepare('SELECT count(*) n FROM notifications WHERE id=?').get(publicationNoticeId).n, 1, 'Source has exactly one current linked guardian notice');
 
   const before = databaseSnapshot(sqlite);
   check(sqlite.prepare('PRAGMA foreign_key_check').all(), [], 'Populated source has no foreign-key violations');
@@ -168,7 +176,7 @@ try {
   check(restored.prepare('PRAGMA integrity_check').get().integrity_check, 'ok', 'Restored populated database passes SQLite integrity check');
   globalThis.__sahaTestDb = proxyFor(restored);
 
-  const preservedCounts = Object.fromEntries(['identity_admin_events', 'profile_link_events', 'profile_link_versions', 'reading_import_drafts', 'reading_import_items',
+  const preservedCounts = Object.fromEntries(['report_publication_receipts', 'report_cards', 'notifications', 'identity_admin_events', 'profile_link_events', 'profile_link_versions', 'reading_import_drafts', 'reading_import_items',
     'reading_import_receipts', 'reading_checks', 'reading_corrections', 'assignment_submission_windows', 'submission_attempts', 'submission_feedback',
     'curriculum_references', 'curriculum_reference_versions', 'resource_reference_bindings', 'teaching_resources', 'resource_versions'].map(table => [table, count(restored, table)]));
   for (let index = 0; index < profileInputs.length; index++) {
@@ -195,9 +203,16 @@ try {
   check(await readingReview.appendReadingCorrection(teacher, originalReading.id, correctionInput), correction, 'Restored correction UUID replay retains original attributable correction');
   check((await curriculum.createCurriculumReference(teacher, curriculumInput)).id, reference.id, 'Restored curriculum source UUID replay preserves original source');
   check(await curriculum.copyCurriculumToDraft(teacher, reference.id, copyInput), { resource: { ...copied.resource, latest: { ...copied.resource.latest, approvedBy: 'teacher-a', approvedAt: restored.prepare('SELECT approved_at FROM resource_versions WHERE id=?').get(copied.resource.latest.id).approved_at } }, provenance: copied.provenance }, 'Restored approved-source copy retry preserves durable provenance and current approval evidence');
+  const publicationReplay = await json(await routes.report.PATCH(request('admin-a', 'PATCH', { publish: true }), params('draft-a')), 200, 'Restored publication retry uses actual session-backed route');
+  check(publicationReplay, publication, 'Restored publication retains original report fields and timestamp');
+  check(restored.prepare('SELECT * FROM report_publication_receipts WHERE report_id=?').get('draft-a'), publicationReceipt, 'Restored retry preserves exact publication receipt');
+  const restoredNotices = await json(await routes.notices.GET(request('guardian-a')), 200, 'Restored guardian reads own original notice');
+  check(restoredNotices.filter(row => row.id === publicationNoticeId).length, 1, 'Restored publication replay appends no duplicate notice');
   check(Object.fromEntries(Object.keys(preservedCounts).map(table => [table, count(restored, table)])), preservedCounts, 'All exact UUID retries append no duplicate evidence after restore');
 
   const guards = [
+    ["UPDATE report_publication_receipts SET published_at='Changed timestamp' WHERE id=?", publicationReceipt.id],
+    ['DELETE FROM report_publication_receipts WHERE id=?', publicationReceipt.id],
     ["UPDATE profile_link_events SET reason='Changed recovery reason' WHERE id=?", profileDecisions[0].event.id],
     ['DELETE FROM profile_link_events WHERE id=?', profileDecisions[0].event.id],
     ["UPDATE assignment_submission_windows SET state='open' WHERE id=?", closed.review.id],
