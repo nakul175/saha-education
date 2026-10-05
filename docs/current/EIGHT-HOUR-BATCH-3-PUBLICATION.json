@@ -1,0 +1,87 @@
+{
+  "recorded_at": "2026-10-05T21:41:05.569201+00:00",
+  "published_application_revision": "c664224c95c1ddfe46237621dab11b964997cfb1",
+  "published_tree": "ff7a074ad0a5ee122a88439e2e08bf722ed51d37",
+  "branch": "feat/specification-delivery",
+  "remote_head_verified": true,
+  "main_revision_unchanged": "856f0927af711a7963ae96208ac40378fe3c0474",
+  "draft_pr": "https://github.com/nakul175/saha-education/pull/6",
+  "earliest_merge_utc": "2026-10-06T02:18:00Z",
+  "local_demo": {
+    "url": "http://127.0.0.1:8798/login",
+    "source_revision": "c664224c95c1ddfe46237621dab11b964997cfb1",
+    "isolated_synthetic_state_preserved": true,
+    "mounted_result": {
+      "executedAt": "2026-10-05T21:38:34.498Z",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0,
+      "plannedProcedures": 26,
+      "localApiRequests": 42,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "deliveryErrors": 0,
+      "setup": "Separate local pristine migrated synthetic database; SAHA_DEMO_ENABLED=true, UUID installation ID and all OIDC settings absent; no session fixture.",
+      "scope": "Mounted local browser with real demo/session responses; delayed unaltered session-read delivery and one deliberately lost committed DELETE reply; no provider/real-record/hosted/UAT/accessibility-certification claim.",
+      "checks": [
+        "Separate configured demo is available and this fresh browser starts signed out",
+        "All four role choices require the labelled fictional-data acknowledgement",
+        "Phone login retains labelled controls without horizontal overflow",
+        "administrator: same-frame real role entry opens the appropriate scoped dashboard",
+        "administrator: synthetic banner and native role navigation are clear",
+        "Transient anonymous shared-header Login is one native anchor, without an interactive parent",
+        "administrator: keyboard skip link focuses the main content",
+        "administrator: phone shared header and dashboard remain readable and labelled",
+        "administrator: same-frame actual sign-out ends the opaque session once",
+        "teacher: same-frame real role entry opens the appropriate scoped dashboard",
+        "teacher: synthetic banner and native role navigation are clear",
+        "teacher: keyboard skip link focuses the main content",
+        "teacher: phone shared header and dashboard remain readable and labelled",
+        "teacher: same-frame actual sign-out ends the opaque session once",
+        "guardian: same-frame real role entry opens the appropriate scoped dashboard",
+        "guardian: synthetic banner and native role navigation are clear",
+        "guardian: keyboard skip link focuses the main content",
+        "guardian: phone shared header and dashboard remain readable and labelled",
+        "guardian: same-frame actual sign-out ends the opaque session once",
+        "learner: same-frame real role entry opens the appropriate scoped dashboard",
+        "learner: synthetic banner and native role navigation are clear",
+        "learner: keyboard skip link focuses the main content",
+        "learner: phone shared header and dashboard remain readable and labelled",
+        "learner: same-frame actual sign-out ends the opaque session once",
+        "Deliberately lost committed sign-out delivery hides previous page and offers a clear retry",
+        "Explicit ordinary sign-out retry acknowledges the already-signed-out state and returns to login"
+      ],
+      "screenshots": [
+        "/private/tmp/saha-demo-ui-login-mobile.png",
+        "/private/tmp/saha-demo-ui-admin-mobile.png",
+        "/private/tmp/saha-demo-ui-teacher-mobile.png",
+        "/private/tmp/saha-demo-ui-guardian-mobile.png",
+        "/private/tmp/saha-demo-ui-student-mobile.png",
+        "/private/tmp/saha-demo-ui-sign-out-recovery-mobile.png"
+      ],
+      "failure": null,
+      "externalRequestDetails": [],
+      "pageErrorDetails": []
+    },
+    "result_sha256": "75bb9589c4bf336cf041ed092dd4416265e11569656c485783a3987734bd80a8",
+    "visual_review": "Readable390px login and administrator dashboard inspected; other four-role procedure screenshots retained. No representative accessibility certification."
+  },
+  "hosted_demo": {
+    "status": "failed",
+    "saved_version_number": 1,
+    "saved_source_revision": "8088b5f88213401ff900506362c227a55120f3c1",
+    "failure": "incomplete input: SQLITE_ERROR",
+    "url": null,
+    "failed_applied_migration_boundary": "unknown; pending requested filename/last applied migration; no history rewrite or identical retry"
+  },
+  "ongoing_run": {
+    "deadline_utc": "2026-10-06T03:18:00Z",
+    "heartbeat": "ACTIVE",
+    "next_bounded_source": "course catalog and school current-read/private-recovery UI; not part of these c664 checks"
+  },
+  "limits": [
+    "This follow-up preserves enclosing-publication-pending evidence in the previous execution record as historical.",
+    "Local demo verification is not a hosted URL, provider callback, designed-case execution or business acceptance."
+  ]
+}
