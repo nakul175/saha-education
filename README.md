@@ -115,7 +115,7 @@ pnpm db:generate
 
 ## Data model
 
-The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) covers all 34 tables/288 fields, including authentication, teaching resources and the specification extensions. Core school-administration tables include:
+The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) covers all 39 tables/325 fields, including authentication, teaching resources and the specification extensions. Core school-administration tables include:
 
 - **schools**: Stores school information including name, address, and timestamps
 - **users**: User accounts with roles (admin|teacher|guardian|student) and associated school references

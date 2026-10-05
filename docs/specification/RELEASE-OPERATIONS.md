@@ -23,7 +23,7 @@ Execute applicable [smoke](SMOKE-TESTS.md), [unit/integration](UNIT-INTEGRATION-
 
 ## Deployment verification and rollback
 
-After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, all migrations 0000–0011 and actual journal state, configured external app state and monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
+After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, all migrations 0000–0014 and actual journal state, configured external app state and monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
 
 Rollback must preserve confirmed records and additive schema compatibility. Do not blindly undo applied migrations or delete revisions/receipts. If persistence is uncertain, inspect the authoritative record before retrying. Define and rehearse the operator’s restore/rollback method for the actual environment before real records are stored.
 
