@@ -1,0 +1,63 @@
+{
+  "description": "Minimum passed-assertion count per suite, from a real run. Changed only by node scripts/test.mjs --update-baseline.",
+  "updatedAt": "2026-10-05",
+  "node": "v24.19.0",
+  "suites": {
+    "integration/api-auth-guards": {
+      "layer": "integration",
+      "file": "tests/integration/api-auth-guards.mjs",
+      "minPassed": 80
+    },
+    "integration/api-contract": {
+      "layer": "integration",
+      "file": "tests/integration/api-contract.mjs",
+      "minPassed": 26
+    },
+    "integration/external-apps-contract": {
+      "layer": "integration",
+      "file": "tests/integration/external-apps-contract.mjs",
+      "minPassed": 70
+    },
+    "integration/reading-checks-contract": {
+      "layer": "integration",
+      "file": "tests/integration/reading-checks-contract.mjs",
+      "minPassed": 84
+    },
+    "integration/resources-contract": {
+      "layer": "integration",
+      "file": "tests/integration/resources-contract.mjs",
+      "minPassed": 147
+    },
+    "unit/auth-contract": {
+      "layer": "unit",
+      "file": "tests/unit/auth-contract.mjs",
+      "minPassed": 6
+    },
+    "unit/i18n-contract": {
+      "layer": "unit",
+      "file": "tests/unit/i18n-contract.mjs",
+      "minPassed": 11
+    },
+    "unit/request-body-contract": {
+      "layer": "unit",
+      "file": "tests/unit/request-body-contract.mjs",
+      "minPassed": 10
+    },
+    "unit/roles-contract": {
+      "layer": "unit",
+      "file": "tests/unit/roles-contract.mjs",
+      "minPassed": 15
+    },
+    "unit/schools-courses-contract": {
+      "layer": "unit",
+      "file": "tests/unit/schools-courses-contract.mjs",
+      "minPassed": 6
+    },
+    "unit/validation-contract": {
+      "layer": "unit",
+      "file": "tests/unit/validation-contract.mjs",
+      "minPassed": 27
+    }
+  },
+  "log": []
+}

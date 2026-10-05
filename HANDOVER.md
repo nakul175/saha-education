@@ -2,9 +2,9 @@
 
 ## Current delivery
 
-The latest implementation candidate is on `feat/teacher-resource-workspace`, incorporating the authentication/access and external-reading candidates. It imports the existing Next.js rebuild onto a branch created from main, includes the education documentation baseline, and adds provider-based authentication plus record access control. The default remote rebuild previously used demo role selection. No branch was merged and no hosted service was deployed by this work.
+The current documentation candidate is on `docs/platform-specification`, based on the application candidate `5488bc0` from `feat/teacher-resource-workspace`. The application incorporates the authentication/access and external-reading candidates and imports the existing Next.js rebuild onto a branch created from main. The default remote rebuild previously used demo role selection. No branch was merged and no hosted service was deployed by this work.
 
-Read [authentication/access delivery](docs/current/AUTH-ACCESS.md), [validation](VALIDATION.md), and the [requirements documentation](docs/education/README.md). The original architecture/data/API documents outside docs/education are historical and may contain unsupported statements.
+Start with the current [BRD](docs/specification/BRD.md), then [FSD](docs/specification/FSD.md), [HLD](docs/specification/HLD.md) and [LLD](docs/specification/LLD.md). The [specification index](docs/specification/README.md) links the parallel test pack, wireframes, data dictionary, API/integration contracts, risks and operations documents. Read [authentication/access delivery](docs/current/AUTH-ACCESS.md) and [validation](VALIDATION.md) for implementation evidence. The original [education requirements baseline](docs/education/README.md) remains historical; older architecture/data/API documents may contain unsupported statements.
 
 ## Implementation boundary
 
@@ -19,6 +19,8 @@ node scripts/run-framework.mjs build
 node scripts/test.mjs static unit integration --fast
 python3 scripts/check-documentation.py
 node scripts/audit-requirements.mjs --check
+node scripts/check-specification.mjs
+node scripts/test.mjs static unit integration --fast --guard
 ```
 
 Use the manifest's Node/pnpm toolchain; current check environment and actual results are in VALIDATION.md. Fast tests reuse a build; perform a fresh build after code changes. No empty/placeholder test layer is acceptance proof. Served checks are manual and synthetic; see tests/worker-access-check.mjs and its local-only environment requirements.
@@ -33,7 +35,8 @@ Use the manifest's Node/pnpm toolchain; current check environment and actual res
 | EDU-F11/F12 | Partial, unapproved | Private drafts and retry-safe user-mapped publication notices; policy/UAT pending |
 | EDU-N04 | Partial, unapproved | Atomic batch behavior/guard contracts checked; pair concurrency constraints remain |
 | TCH-01–04 | Partial, unapproved | Structured drafts, immutable revisions, exact-version approval/assignment and learner-safe views; educator/UAT acceptance pending |
-| Next delivery | Teacher workspace validation and provider setup | Choose pilot curriculum/templates, run educator review, confirm provider and verify live synthetic callback; submissions, AI drafting and external adapters follow |
+| BR-01–12; FR-01–26; NFR-01–09 | Draft, unapproved | Current specification separates implemented, partial and planned behavior; 101 designed cases across 18 scenarios remain unrun for this specification |
+| Next delivery | Review BRD, then FSD and designs before further feature work | Confirm business scope and open decisions; review wireframes and acceptance procedures; choose pilot curriculum/templates, confirm provider/ORF destination and verify a live synthetic callback |
 
 ## Remaining product gaps
 
@@ -45,8 +48,14 @@ Read AGENTS.md. Commit/push meaningful batches; preserve concurrent work; never 
 
 ## Literacy extension candidate
 
-External ORF launch and append-only manually reviewed reading checks are implemented on `feat/education-literacy-apps`, dependent on the authentication candidate. Destination remains blank pending sponsor confirmation; no external SSO/result sync is implemented. Staff UI is `/external-apps`. Migration0002 is additive. See [external reading](docs/current/EXTERNAL-READING.md) and [AmplifiU teacher workspace plan](docs/current/AMPLIFY-LITERACY-PLAN.md). The sponsor confirmed AmplifiU as the reference teacher AI product. Next: structured resource drafts/review and class assignments; confirm the ORF destination and identity provider separately. AI drafting and external result sync remain unimplemented.
+External ORF launch and append-only manually reviewed reading checks are implemented on `feat/education-literacy-apps`, dependent on the authentication candidate and included in the current candidate. Destination remains blank pending sponsor confirmation; no external SSO/result sync is implemented. Staff UI is `/external-apps`. Migration0002 is additive. See [external reading](docs/current/EXTERNAL-READING.md) and [AmplifiU teacher workspace plan](docs/current/AMPLIFY-LITERACY-PLAN.md). The sponsor confirmed AmplifiU as the reference teacher AI product. Structured resource drafts/review and class assignments are implemented in the following candidate; confirm the ORF destination and identity provider separately. AI drafting and external result sync remain unimplemented.
 
 ## Teacher workspace candidate
 
 Manual lesson/worksheet/quiz/activity drafts, immutable revisions, explicit exact-version review, class assignments and learner views are implemented. Teachers manage their own resources; school administrators manage school resources. Assignments recheck class authority at insertion, preserve the approved version and omit private notes/answer keys from all learner-facing API responses. Staff can print student or explicitly chosen teacher editions. See [teacher workspace](docs/current/TEACHER-WORKSPACE.md) for scope and draft requirements. No AI provider, curriculum import, online submission/grading or notification service is activated. Templates remain curriculum-neutral until a pilot curriculum is chosen.
+
+## Specification and test pack
+
+Version 2.0 was drafted in BRD → FSD → HLD → LLD order, with parallel QA and contract documentation. The shared register contains 12 business requirements and 35 functional/nonfunctional requirements. The pack includes 101 cases/18 scenarios, smoke/unit/integration/regression/security/nonfunctional/UAT plans, nine clickable wireframe screens, a 20-table/156-field dictionary and 31-route/55-handler API inventory. Planned features and unresolved policies are explicit proposals. No requirement or case has been accepted by document creation.
+
+On 5 October 2026, existing executable suites passed 482 counted checks (75 unit, 407 integration) and three static steps. An actual-run baseline covers eleven meaningful unit/integration suites; its guarded recheck passed with zero quarantine exemptions. Twenty prototype checks passed with desktop/mobile inspection and zero network calls. All 101 newly specified cases remain unrun. See [execution record](docs/specification/TEST-EXECUTION.md) for dates, commands and limits. The placeholder smoke suite is not acceptance evidence.

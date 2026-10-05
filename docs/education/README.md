@@ -8,6 +8,8 @@ This set provides a product and engineering baseline for the school management r
 
 For the subsequent implementation candidate, see [authentication/access delivery](../current/AUTH-ACCESS.md) and [current validation](../../VALIDATION.md). See also [external reading](../current/EXTERNAL-READING.md) and [literacy product plan](../current/AMPLIFY-LITERACY-PLAN.md). The subsequent [teacher workspace delivery](../current/TEACHER-WORKSPACE.md) records its implementation boundary. The source baseline below remains an immutable historical assessment.
 
+The current version 2.0 [specification pack](../specification/README.md) starts with BRD → FSD → HLD → LLD and adds parallel test cases/plans, traceability, wireframes, data/API contracts and operations documentation for application candidate `5488bc0`. Its draft requirements and unrun cases do not imply acceptance. This version 1.0 source assessment is preserved.
+
 ## Document map
 
 | Document | Purpose | Primary audience |

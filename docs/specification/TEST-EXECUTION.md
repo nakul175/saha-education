@@ -1,0 +1,23 @@
+# Saha specification validation and execution record
+
+5 October 2026. Scope: specification consistency and existing executable unit/integration suites in the working tree of `docs/platform-specification`, based on application candidate `5488bc0`. Newly designed TC cases remain unrun; no business acceptance or live-provider/deployment evidence is inferred.
+
+## Evidence categories
+
+Specification checks validate IDs, JSON/CSV exports, traceability, migrated schema parity and route/source inventory. Existing executable suites test current application behaviors with synthetic data. Newly designed cases are future execution procedures, even when mapped to an existing suite. Historical served/browser evidence remains in [root validation](../../VALIDATION.md); it is not a new run of this specification’s 101 cases.
+
+## Current validation
+
+| Check | Observed result | Limits |
+|---|---|---|
+| Documentation/link checks | 43 Markdown files passed at this stage | Offline consistency, not content/acceptance certification |
+| Historical requirement audit | 20 historical requirements mapped | Preserves the earlier source baseline |
+| New specification check | 12 BR, 35 FR/NFR, 101 cases, 20 tables/156 fields, 31 route files checked | Exact IDs/exports/schema/source consistency; no runtime case status |
+| Existing static/unit/integration suites | 482 counted checks passed: 75 unit, 407 integration; 3 static steps passed | Synthetic current implementation only; no live provider/AI/adapter |
+| Regression counter baseline | 11 meaningful existing suites recorded; guarded rerun passed, no quarantine exemptions | Assertion counts detect dropped checks, not semantic completeness or learning outcomes |
+| Wireframe browser review | 20 prototype checks passed; desktop/mobile inspected; zero network calls | Prototype only, not application behavior or formal accessibility audit |
+| Affected-script lint | 0 errors, 1 pre-existing unused-variable warning in test runner | No claim of a clean whole-repository lint run |
+
+The [committed execution summary](EXECUTION-SUMMARY.json) records actual per-suite counts and guard result. Baseline setup command: `node scripts/test.mjs static unit integration --fast --update-baseline --reason 'Initialize reviewed executable education unit/integration count baseline alongside the specification; exclude placeholder smoke and unrun planned cases.'`. Verification: `node scripts/test.mjs static unit integration --fast --guard`. Fast mode reused the independently verified application build from the unchanged source candidate; this stage changed documentation/consistency tooling, not application behavior.
+
+The placeholder `tests/smoke/basic-smoke.mjs` is excluded from meaningful smoke evidence and from the baseline. Hosted smoke, new case procedures, recovery/load/accessibility/UAT and proposed features still need their own configured runs. No case status is changed automatically. No paid provider, real learner record, external message, database migration or deployment was activated by this stage.

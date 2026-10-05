@@ -1,0 +1,225 @@
+# Platform test scenarios
+
+Version 2.0 draft, 5 October 2026. Source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+
+The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
+
+This draft contains **101 cases in 18 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+
+| Scenario | Scope | Cases | Requirement IDs |
+|---|---|---|---|
+| SC-01 | OIDC sign-in and provider boundaries | TC-001, TC-002, TC-003, TC-004, TC-005, TC-006, TC-007, TC-008, TC-009, TC-010 | FR-01, FR-02, FR-04, NFR-01, NFR-02, NFR-04, NFR-08 |
+| SC-02 | Session lifecycle and live account authority | TC-011, TC-012, TC-013, TC-014, TC-015 | FR-02, FR-03, FR-04, NFR-01 |
+| SC-03 | Record and origin authorization | TC-016, TC-017, TC-018, TC-019, TC-020 | FR-01, FR-03, FR-06, FR-13, FR-17, NFR-01 |
+| SC-04 | School, user and family administration | TC-021, TC-022, TC-023, TC-024, TC-025 | FR-03, FR-04, FR-05, FR-06, FR-08, NFR-02 |
+| SC-05 | Academic structure and recording | TC-026, TC-027, TC-028, TC-029, TC-030, TC-031, TC-032 | FR-03, FR-07, FR-08, FR-09, FR-10, FR-26, NFR-02 |
+| SC-06 | Report publication and recipient notices | TC-033, TC-034, TC-035, TC-036 | FR-03, FR-11, FR-12, NFR-02, NFR-03 |
+| SC-07 | Original resource authoring | TC-037, TC-038, TC-039, TC-040, TC-041, TC-042 | FR-03, FR-13, NFR-01, NFR-02, NFR-05 |
+| SC-08 | Concurrent revisions and exact-version review | TC-043, TC-044, TC-045, TC-046, TC-047, TC-048, TC-049 | FR-03, FR-14, FR-15, NFR-02, NFR-05 |
+| SC-09 | Assignment, learner privacy and printing | TC-050, TC-051, TC-052, TC-053, TC-054, TC-055, TC-056 | FR-03, FR-08, FR-15, FR-16, FR-17, FR-18, NFR-02, NFR-03, NFR-05 |
+| SC-10 | External application launch | TC-057, TC-058, TC-059, TC-060 | FR-03, FR-19, FR-25, NFR-01, NFR-03 |
+| SC-11 | Reviewed numeric ORF and correction gaps | TC-061, TC-062, TC-063, TC-064, TC-065, TC-066, TC-067 | FR-03, FR-20, FR-21, FR-26, NFR-01, NFR-02, NFR-03, NFR-06 |
+| SC-12 | Curriculum sources and language suitability | TC-068, TC-069, TC-070, TC-071 | FR-13, FR-21, FR-22, FR-23, NFR-06 |
+| SC-13 | Future AI drafting: failure, review and privacy | TC-072, TC-073, TC-074, TC-075, TC-076, TC-077 | FR-15, FR-22, FR-23, NFR-01, NFR-02, NFR-03, NFR-04, NFR-06, NFR-08 |
+| SC-14 | Future submissions and verified adapters | TC-078, TC-079, TC-080, TC-081 | FR-03, FR-17, FR-24, FR-25, FR-26, NFR-01, NFR-02, NFR-03 |
+| SC-15 | Audit, retention and data minimization | TC-082, TC-083, TC-084, TC-085 | FR-09, FR-10, FR-14, FR-15, FR-21, FR-26, NFR-01, NFR-03, NFR-08 |
+| SC-16 | Performance and accessibility | TC-086, TC-087, TC-088, TC-089, TC-090 | FR-13, FR-15, FR-16, FR-17, FR-18, NFR-02, NFR-04, NFR-05 |
+| SC-17 | Recovery, incidents and release environment | TC-091, TC-092, TC-093, TC-094, TC-095 | FR-03, FR-04, NFR-01, NFR-02, NFR-03, NFR-07, NFR-08, NFR-09 |
+| SC-18 | Business UAT and change traceability | TC-096, TC-097, TC-098, TC-099, TC-100, TC-101 | FR-03, FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, NFR-01, NFR-05, NFR-06, NFR-07, NFR-09 |
+
+## Execution boundaries
+
+Current positive/negative resource/session/reading cases can be implemented against the candidate with synthetic data. Planned corrections, curriculum library, AI, submissions, adapters and hosted recovery must remain blocked until their contracts and policies exist. Their expected results describe proposed acceptance behavior, not available endpoints. Live provider/browser callback and external-app availability require independently verified configuration.
+
+Do not convert grouped historical assertions to case passes. A tester must execute the specified steps, compare each expected result and record revision/environment/fixture/defect evidence. Cases can be failed or blocked while the containing suite passes a narrower check.
+
+## SC-01: OIDC sign-in and provider boundaries
+
+Cases: TC-001, TC-002, TC-003, TC-004, TC-005, TC-006, TC-007, TC-008, TC-009, TC-010. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-001 — Provider unset fails closed (smoke, existing).
+- TC-002 — Real signed synthetic code flow (integration, existing).
+- TC-003 — Wrong issuer, audience or authorized party (security, existing).
+- TC-004 — Expired token and missing required claims (security, planned).
+- TC-005 — Wrong nonce or browser binding (security, existing).
+- TC-006 — One-time transaction replay and expiry (integration, existing).
+- TC-007 — Email match cannot provision an account (security, planned).
+- TC-008 — Shared login rate limit (integration, planned).
+- TC-009 — Provider timeout and error response (integration, planned).
+- TC-010 — Live synthetic provider/browser callback (uat, manual).
+
+## SC-02: Session lifecycle and live account authority
+
+Cases: TC-011, TC-012, TC-013, TC-014, TC-015. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-011 — Session token digest and cookie properties (unit, existing).
+- TC-012 — Expired, malformed and duplicate cookies (security, existing).
+- TC-013 — Logout revocation and double logout (integration, planned).
+- TC-014 — Disabled user and live role/school changes (integration, planned).
+- TC-015 — Disable/re-enable lifecycle revokes prior sessions (integration, planned).
+
+## SC-03: Record and origin authorization
+
+Cases: TC-016, TC-017, TC-018, TC-019, TC-020. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-016 — Demo cookies and public identity headers rejected (smoke, existing).
+- TC-017 — Cross-school and unassigned-class matrix (security, planned).
+- TC-018 — Guardian/student profile ownership (security, planned).
+- TC-019 — Mutation Origin and no-store contract (security, existing).
+- TC-020 — Safe errors and hostile text (security, planned).
+
+## SC-04: School, user and family administration
+
+Cases: TC-021, TC-022, TC-023, TC-024, TC-025. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-021 — Operator school bootstrap and school updates (integration, planned).
+- TC-022 — Reviewed provisioning and identity uniqueness (integration, planned).
+- TC-023 — Student required fields and duplicate policy (integration, planned).
+- TC-024 — Guardian relationship linking retries (integration, planned).
+- TC-025 — Roster reconciliation after withdrawals (uat, manual).
+
+## SC-05: Academic structure and recording
+
+Cases: TC-026, TC-027, TC-028, TC-029, TC-030, TC-031, TC-032. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-026 — Same-school course and eligible class teacher (integration, planned).
+- TC-027 — Enrolment duplicate race and status history (integration, planned).
+- TC-028 — Attendance valid save and class membership (integration, planned).
+- TC-029 — Attendance whole-batch invalid input and failure (integration, planned).
+- TC-030 — Attendance date and attributable corrections (uat, manual).
+- TC-031 — Assessment scores and family privacy (integration, planned).
+- TC-032 — Result retry race and correction trail (integration, planned).
+
+## SC-06: Report publication and recipient notices
+
+Cases: TC-033, TC-034, TC-035, TC-036. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-033 — Report drafts private across all entry points (security, existing).
+- TC-034 — Report publication and notice atomic retry (integration, planned).
+- TC-035 — Notification recipient ownership (integration, existing).
+- TC-036 — External notifications remain disabled (regression, planned).
+
+## SC-07: Original resource authoring
+
+Cases: TC-037, TC-038, TC-039, TC-040, TC-041, TC-042. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-037 — Four original resource types persist (integration, planned).
+- TC-038 — Strict authoring field and authority validation (integration, existing).
+- TC-039 — Repeat-safe creation after lost response (integration, existing).
+- TC-040 — Concurrent creation and actor UUID collision (integration, existing).
+- TC-041 — Author workspace scoping (security, existing).
+- TC-042 — Template switch and failed save preserve editing (regression, planned).
+
+## SC-08: Concurrent revisions and exact-version review
+
+Cases: TC-043, TC-044, TC-045, TC-046, TC-047, TC-048, TC-049. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-043 — Revision appends and retains prior content (integration, existing).
+- TC-044 — Competing version edits reject stale winner (integration, existing).
+- TC-045 — Multi-actor revision authorization (integration, planned).
+- TC-046 — Explicit exact-version approval (integration, existing).
+- TC-047 — Concurrent approval retains first reviewer/time (integration, existing).
+- TC-048 — Conflict UI retains unsaved edits (regression, planned).
+- TC-049 — Approval requires explicit self-review confirmation (uat, manual).
+
+## SC-09: Assignment, learner privacy and printing
+
+Cases: TC-050, TC-051, TC-052, TC-053, TC-054, TC-055, TC-056. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-050 — Draft assignment denied and exact approved version pinned (integration, existing).
+- TC-051 — Assignment retry and scoped class checks (integration, planned).
+- TC-052 — Assignment authority rechecked during race (integration, planned).
+- TC-053 — Learner/server response excludes private fields (security, existing).
+- TC-054 — Withdrawal and unrelated learner assignment visibility (integration, existing).
+- TC-055 — Print exact approved student edition (regression, planned).
+- TC-056 — Teacher print edition explicitly opted in (uat, manual).
+
+## SC-10: External application launch
+
+Cases: TC-057, TC-058, TC-059, TC-060. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-057 — Unconfigured/unsafe external app fails closed (smoke, existing).
+- TC-058 — Trusted launch sends no learner/session context (integration, existing).
+- TC-059 — External launch family and foreign student denial (security, existing).
+- TC-060 — Confirmed app availability and separate sign-in (uat, manual).
+
+## SC-11: Reviewed numeric ORF and correction gaps
+
+Cases: TC-061, TC-062, TC-063, TC-064, TC-065, TC-066, TC-067. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-061 — Reviewed numeric counts and derived measures (integration, existing).
+- TC-062 — Invalid ORF numeric/date/language input (unit, existing).
+- TC-063 — ORF immutable retries and actor collisions (integration, existing).
+- TC-064 — Manual provenance cannot be forged (security, existing).
+- TC-065 — ORF assigned roster and family visibility (integration, existing).
+- TC-066 — Attributable ORF corrections future flow (integration, planned).
+- TC-067 — Comparable-task trends and non-diagnostic language (uat, manual).
+
+## SC-12: Curriculum sources and language suitability
+
+Cases: TC-068, TC-069, TC-070, TC-071. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-068 — Versioned original/licensed curriculum sources (integration, planned).
+- TC-069 — Missing/withdrawn source and unsupported alignment (integration, planned).
+- TC-070 — English/Hindi content and locale completeness (uat, manual).
+- TC-071 — Language-specific assessment interpretation (uat, manual).
+
+## SC-13: Future AI drafting: failure, review and privacy
+
+Cases: TC-072, TC-073, TC-074, TC-075, TC-076, TC-077. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-072 — Future AI structured provisional draft (integration, planned).
+- TC-073 — AI timeout/rate limit/outage preserves teacher work (integration, planned).
+- TC-074 — AI malformed/truncated/unsafe response rejection (security, planned).
+- TC-075 — AI request privacy and source prompt injection (security, planned).
+- TC-076 — AI budget and repeat-request controls (integration, planned).
+- TC-077 — Educator AI content review and disclosure (uat, manual).
+
+## SC-14: Future submissions and verified adapters
+
+Cases: TC-078, TC-079, TC-080, TC-081. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-078 — Future authorized learner submission and feedback (integration, planned).
+- TC-079 — Submission retries, corrections and late policy (integration, planned).
+- TC-080 — Verified external result mapping and schema (integration, planned).
+- TC-081 — Adapter replay, outage and revoked authorization (integration, planned).
+
+## SC-15: Audit, retention and data minimization
+
+Cases: TC-082, TC-083, TC-084, TC-085. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-082 — Attributable academic/resource/reading corrections (integration, planned).
+- TC-083 — Retention/export/deletion enforcement (integration, planned).
+- TC-084 — Credential and learner data absent from logs (security, planned).
+- TC-085 — Approval audit reproducibility after later edits (regression, existing).
+
+## SC-16: Performance and accessibility
+
+Cases: TC-086, TC-087, TC-088, TC-089, TC-090. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-086 — Representative list/query performance baseline (performance, manual).
+- TC-087 — Contention and retry performance envelope (performance, manual).
+- TC-088 — Keyboard/focus and validation announcements (accessibility, manual).
+- TC-089 — Screen-reader learner and print accessibility (accessibility, manual).
+- TC-090 — Mobile and long-content editing recovery (regression, planned).
+
+## SC-17: Recovery, incidents and release environment
+
+Cases: TC-091, TC-092, TC-093, TC-094, TC-095. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-091 — Local encrypted snapshot/restore verification (recovery, manual).
+- TC-092 — Wrong key/tampered backup and destination refusal (recovery, planned).
+- TC-093 — Hosted restore and compatible rollback drill (recovery, manual).
+- TC-094 — Correlated failure and incident ownership (integration, planned).
+- TC-095 — Fresh migration and legacy fail-closed upgrade (regression, planned).
+
+## SC-18: Business UAT and change traceability
+
+Cases: TC-096, TC-097, TC-098, TC-099, TC-100, TC-101. See the case register for each explicit fixture, procedure and expected outcome.
+
+- TC-096 — School and academic administrator UAT (uat, manual).
+- TC-097 — Teacher manual preparation and exact-version UAT (uat, manual).
+- TC-098 — Student approved learning and guardian boundary UAT (uat, manual).
+- TC-099 — Reviewed ORF interpretation UAT (uat, manual).
+- TC-100 — Canonical requirement/case/business traceability (regression, manual).
+- TC-101 — Risk-based release acceptance and defect disposition (uat, manual).

@@ -1,0 +1,173 @@
+{
+  "date": "2026-10-05",
+  "application_source_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+  "specification_working_tree": "docs/platform-specification",
+  "command": "node scripts/test.mjs static unit integration --fast --guard",
+  "node": "v24.19.0",
+  "generatedAt": "2026-10-05T06:15:24.442Z",
+  "environment": "isolated synthetic unit/integration fixtures; no live provider or hosted deployment",
+  "totals": {
+    "suites": 11,
+    "passed": 482,
+    "failed": 0,
+    "skipped": 0,
+    "failedSuites": 0,
+    "durationMs": 5096
+  },
+  "suites": [
+    {
+      "id": "static/catalogue",
+      "layer": "static",
+      "file": "node scripts/test.mjs --check-catalogue",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "static/typecheck",
+      "layer": "static",
+      "file": "tsc --noEmit",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "static/specification",
+      "layer": "static",
+      "file": "node scripts/check-specification.mjs",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/auth-contract",
+      "layer": "unit",
+      "file": "tests/unit/auth-contract.mjs",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/i18n-contract",
+      "layer": "unit",
+      "file": "tests/unit/i18n-contract.mjs",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/request-body-contract",
+      "layer": "unit",
+      "file": "tests/unit/request-body-contract.mjs",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/roles-contract",
+      "layer": "unit",
+      "file": "tests/unit/roles-contract.mjs",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/schools-courses-contract",
+      "layer": "unit",
+      "file": "tests/unit/schools-courses-contract.mjs",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/validation-contract",
+      "layer": "unit",
+      "file": "tests/unit/validation-contract.mjs",
+      "status": "passed",
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/api-auth-guards",
+      "layer": "integration",
+      "file": "tests/integration/api-auth-guards.mjs",
+      "status": "passed",
+      "passed": 80,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/api-contract",
+      "layer": "integration",
+      "file": "tests/integration/api-contract.mjs",
+      "status": "passed",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/external-apps-contract",
+      "layer": "integration",
+      "file": "tests/integration/external-apps-contract.mjs",
+      "status": "passed",
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/reading-checks-contract",
+      "layer": "integration",
+      "file": "tests/integration/reading-checks-contract.mjs",
+      "status": "passed",
+      "passed": 84,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/resources-contract",
+      "layer": "integration",
+      "file": "tests/integration/resources-contract.mjs",
+      "status": "passed",
+      "passed": 147,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    }
+  ],
+  "regression_guard": {
+    "ok": true,
+    "findings": [],
+    "warnings": [],
+    "evaluated": 11,
+    "newSuites": []
+  },
+  "wireframe_review": {
+    "artifact": "wireframe prototype only",
+    "checked": 20,
+    "failed": 0,
+    "networkCalls": 0
+  },
+  "designed_case_execution": "All 101 new TC cases remain not-run-for-this-specification; suite runs do not imply case completion or business acceptance."
+}

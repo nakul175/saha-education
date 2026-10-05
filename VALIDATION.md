@@ -54,3 +54,18 @@ The browser caught a vinext beta client-link transition error on opening resourc
 Limits: synthetic sessions are supplied to isolated local workerd/D1; real provider callback and hosted deployment remain unverified. Manual templates do not establish curriculum/content accuracy, learning efficacy or teacher usability acceptance. Self-review is permitted; independent approval and guardian publication remain policy decisions. No student submission/grading, AI drafting, external Classroom adapter or file-format export was tested or implemented.
 
 Final built application verification passed 23/23 served resource scenarios and 14/14 real-browser checks, including dashboard links, create/review/assign/print, pinned approved content after revision and learner denial/privacy. All data and sessions were synthetic. The local server was stopped after verification.
+
+## Requirements, design and parallel test documentation
+
+5 October 2026, `docs/platform-specification`, application source `5488bc0`. The BRD was written first, followed by FSD, HLD and LLD; QA/data/contracts were developed in parallel against one canonical register. This stage changes documentation, consistency tooling and the test-count baseline; application behavior is unchanged.
+
+| Check | Observed result | Limits |
+|---|---|---|
+| Documentation and historical audit | 43 Markdown files and 20 historical requirements passed | Offline links/source/register consistency |
+| New specification consistency | 12 BR, 35 FR/NFR, 101 cases; 20 tables/156 fields; 31 routes/55 handlers | CSV/JSON/trace parity, actual migrated columns and exported route methods checked |
+| Existing static/unit/integration | 482 checks passed: 75 unit, 407 integration; three static steps | Synthetic fixtures; fast mode reused the previously verified unchanged application build |
+| Regression baseline and guarded recheck | Eleven meaningful unit/integration suites; guard passed, zero quarantine exemptions | Counts detect lost assertions, not semantic completeness or business acceptance |
+| Clickable wireframe review | Twenty checks passed; desktop/mobile inspected, zero network calls | Isolated fictional prototype; no formal accessibility certification |
+| Affected-script lint | Zero errors, one pre-existing unused-variable warning | Limited to specification checker and test runner |
+
+See the [execution record](docs/specification/TEST-EXECUTION.md) and [sanitized machine-readable evidence](docs/specification/EXECUTION-SUMMARY.json). All 101 designed cases remain `not-run-for-this-specification`; existing-suite success does not execute those procedures. The vacuous smoke placeholder is excluded from the baseline and meaningful evidence. No live identity/ORF/AI provider, real learner record, external message, database migration, acceptance approval or hosted deployment occurred in this stage.

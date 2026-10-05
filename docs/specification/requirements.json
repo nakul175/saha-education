@@ -1,0 +1,337 @@
+{
+  "version": "2.0-draft",
+  "date": "2026-10-05",
+  "source_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+  "approved": false,
+  "business_requirements": [
+    "BR-01",
+    "BR-02",
+    "BR-03",
+    "BR-04",
+    "BR-05",
+    "BR-06",
+    "BR-07",
+    "BR-08",
+    "BR-09",
+    "BR-10",
+    "BR-11",
+    "BR-12"
+  ],
+  "requirements": [
+    {
+      "id": "FR-01",
+      "business": "BR-02",
+      "title": "Trusted sign-in",
+      "implementation_status": "partial",
+      "source": "lib/education/oidc.ts",
+      "requirement": "Configure chosen OIDC provider; verify issuer/subject and callback before creating a session.",
+      "approved": false
+    },
+    {
+      "id": "FR-02",
+      "business": "BR-02",
+      "title": "Session lifecycle",
+      "implementation_status": "implemented",
+      "source": "lib/education/session.ts",
+      "requirement": "Opaque hashed sessions, expiry, logout and live disabled/role/school checks.",
+      "approved": false
+    },
+    {
+      "id": "FR-03",
+      "business": "BR-02",
+      "title": "Record authorization",
+      "implementation_status": "implemented",
+      "source": "lib/education/access.ts",
+      "requirement": "Scope every read/write to school, role, class assignment and explicit profile links.",
+      "approved": false
+    },
+    {
+      "id": "FR-04",
+      "business": "BR-01",
+      "title": "Identity administration",
+      "implementation_status": "planned",
+      "source": "docs/current/AUTH-ACCESS.md",
+      "requirement": "Reviewed provisioning, disablement and profile linking workflows; no automatic public registration.",
+      "approved": false
+    },
+    {
+      "id": "FR-05",
+      "business": "BR-01",
+      "title": "School setup",
+      "implementation_status": "partial",
+      "source": "lib/education/schools.ts",
+      "requirement": "School-scoped administration; school bootstrap remains operator provisioned.",
+      "approved": false
+    },
+    {
+      "id": "FR-06",
+      "business": "BR-01",
+      "title": "Student and guardian records",
+      "implementation_status": "partial",
+      "source": "lib/education/students.ts",
+      "requirement": "Maintain student and guardian links with explicit role-matched school identity ownership.",
+      "approved": false
+    },
+    {
+      "id": "FR-07",
+      "business": "BR-01",
+      "title": "Courses and classes",
+      "implementation_status": "partial",
+      "source": "lib/education/classes.ts",
+      "requirement": "Maintain courses/classes and eligible school teachers.",
+      "approved": false
+    },
+    {
+      "id": "FR-08",
+      "business": "BR-01",
+      "title": "Enrolment lifecycle",
+      "implementation_status": "partial",
+      "source": "lib/education/enrolments.ts",
+      "requirement": "Record active/withdrawn/completed enrolment and preserve agreed history.",
+      "approved": false
+    },
+    {
+      "id": "FR-09",
+      "business": "BR-01",
+      "title": "Attendance",
+      "implementation_status": "partial",
+      "source": "lib/education/attendance.ts",
+      "requirement": "Record authorized class/student attendance with agreed academic dates and correction policy.",
+      "approved": false
+    },
+    {
+      "id": "FR-10",
+      "business": "BR-01",
+      "title": "Assessments and results",
+      "implementation_status": "partial",
+      "source": "lib/education/assessments.ts",
+      "requirement": "Manage assigned-class assessments/results; family result publication remains deferred.",
+      "approved": false
+    },
+    {
+      "id": "FR-11",
+      "business": "BR-01",
+      "title": "Published reports",
+      "implementation_status": "partial",
+      "source": "lib/education/report-cards.ts",
+      "requirement": "Keep drafts private and publish scoped term reports with repeat-safe notices.",
+      "approved": false
+    },
+    {
+      "id": "FR-12",
+      "business": "BR-01",
+      "title": "In-app notices",
+      "implementation_status": "partial",
+      "source": "lib/education/notifications.ts",
+      "requirement": "Show recipient-owned in-app notices; external delivery remains disabled.",
+      "approved": false
+    },
+    {
+      "id": "FR-13",
+      "business": "BR-03",
+      "title": "Resource authoring",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Create original lesson/worksheet/quiz/activity drafts with curriculum context and private staff fields.",
+      "approved": false
+    },
+    {
+      "id": "FR-14",
+      "business": "BR-04",
+      "title": "Resource revisions",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Append immutable content versions and reject stale concurrent edits.",
+      "approved": false
+    },
+    {
+      "id": "FR-15",
+      "business": "BR-04",
+      "title": "Exact-version review",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Explicitly approve a saved version with one-time reviewer/time; later versions need review.",
+      "approved": false
+    },
+    {
+      "id": "FR-16",
+      "business": "BR-05",
+      "title": "Class assignment",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Assign exact approved version to an authorized class with repeat-safe writes.",
+      "approved": false
+    },
+    {
+      "id": "FR-17",
+      "business": "BR-05",
+      "title": "Learner resource view",
+      "implementation_status": "implemented",
+      "source": "app/learning/page.tsx",
+      "requirement": "Show active-class approved assignments; omit staff notes/answer keys in server output.",
+      "approved": false
+    },
+    {
+      "id": "FR-18",
+      "business": "BR-05",
+      "title": "Reviewed printing",
+      "implementation_status": "implemented",
+      "source": "app/resources/[id]/print/page.tsx",
+      "requirement": "Print exact approved student edition; staff explicitly choose teacher edition.",
+      "approved": false
+    },
+    {
+      "id": "FR-19",
+      "business": "BR-06",
+      "title": "External ORF launch",
+      "implementation_status": "partial",
+      "source": "lib/education/external-apps.ts",
+      "requirement": "Launch confirmed trusted HTTPS app with separate sign-in and no learner/session forwarding.",
+      "approved": false
+    },
+    {
+      "id": "FR-20",
+      "business": "BR-07",
+      "title": "Reviewed ORF records",
+      "implementation_status": "implemented",
+      "source": "lib/education/reading-checks.ts",
+      "requirement": "Record manual reviewed counts/duration/provenance; derive rate/accuracy and protect retries.",
+      "approved": false
+    },
+    {
+      "id": "FR-21",
+      "business": "BR-07",
+      "title": "Reading review and trends",
+      "implementation_status": "planned",
+      "source": "docs/current/EXTERNAL-READING.md",
+      "requirement": "Add attributable corrections and comparable-task history after educator scoring policy.",
+      "approved": false
+    },
+    {
+      "id": "FR-22",
+      "business": "BR-03",
+      "title": "Curriculum reference library",
+      "implementation_status": "planned",
+      "source": "docs/current/AMPLIFY-LITERACY-PLAN.md",
+      "requirement": "Use versioned original/licensed reference sources for selected curricula and languages.",
+      "approved": false
+    },
+    {
+      "id": "FR-23",
+      "business": "BR-08",
+      "title": "Optional AI draft assistance",
+      "implementation_status": "planned",
+      "source": "docs/current/AMPLIFY-LITERACY-PLAN.md",
+      "requirement": "Produce structured provisional teacher drafts with references, review, provenance and budget controls.",
+      "approved": false
+    },
+    {
+      "id": "FR-24",
+      "business": "BR-05",
+      "title": "Learner submission and feedback",
+      "implementation_status": "planned",
+      "source": "docs/current/TEACHER-WORKSPACE.md",
+      "requirement": "Collect authorized submissions and reviewed feedback without modifying assigned content.",
+      "approved": false
+    },
+    {
+      "id": "FR-25",
+      "business": "BR-09",
+      "title": "External result and class adapters",
+      "implementation_status": "planned",
+      "source": "docs/current/EXTERNAL-READING.md",
+      "requirement": "Verify contracts before mapped repeat-safe import/export; no assumed API or shared session.",
+      "approved": false
+    },
+    {
+      "id": "FR-26",
+      "business": "BR-10",
+      "title": "Audit and corrections",
+      "implementation_status": "planned",
+      "source": "docs/education/SECURITY-PRIVACY.md",
+      "requirement": "Preserve attributable correction/review evidence and agree retention before real records.",
+      "approved": false
+    },
+    {
+      "id": "NFR-01",
+      "business": "BR-02",
+      "title": "Security",
+      "implementation_status": "partial",
+      "source": "lib/education/http.ts",
+      "requirement": "Trusted identity, same-origin mutations, scope, strict new schemas and safe errors; broader review pending.",
+      "approved": false
+    },
+    {
+      "id": "NFR-02",
+      "business": "BR-10",
+      "title": "Atomicity and concurrency",
+      "implementation_status": "partial",
+      "source": "lib/education/resources.ts",
+      "requirement": "Preserve confirmed records through repeat-safe writes, atomic batches and conflict handling.",
+      "approved": false
+    },
+    {
+      "id": "NFR-03",
+      "business": "BR-10",
+      "title": "Privacy and retention",
+      "implementation_status": "planned",
+      "source": "docs/current/EXTERNAL-READING.md",
+      "requirement": "Minimize data; approve retention, deletion, access and export policies without claiming legal certification.",
+      "approved": false
+    },
+    {
+      "id": "NFR-04",
+      "business": "BR-10",
+      "title": "Performance and scale",
+      "implementation_status": "planned",
+      "source": "docs/education/ROADMAP.md",
+      "requirement": "Measure agreed workload and approve latency/availability targets before pilot.",
+      "approved": false
+    },
+    {
+      "id": "NFR-05",
+      "business": "BR-11",
+      "title": "Accessibility",
+      "implementation_status": "planned",
+      "source": "app/resources/page.tsx",
+      "requirement": "Validate keyboard, screen-reader, contrast, focus, errors and print at agreed target.",
+      "approved": false
+    },
+    {
+      "id": "NFR-06",
+      "business": "BR-11",
+      "title": "Language suitability",
+      "implementation_status": "partial",
+      "source": "lib/education/i18n.ts",
+      "requirement": "Confirm locale coverage, language-specific content and separate reading interpretation.",
+      "approved": false
+    },
+    {
+      "id": "NFR-07",
+      "business": "BR-10",
+      "title": "Recovery",
+      "implementation_status": "planned",
+      "source": "docs/education/OPERATIONS.md",
+      "requirement": "Agree RPO/RTO and demonstrate authorized environment restore with verification.",
+      "approved": false
+    },
+    {
+      "id": "NFR-08",
+      "business": "BR-10",
+      "title": "Observability and support",
+      "implementation_status": "planned",
+      "source": "docs/education/OPERATIONS.md",
+      "requirement": "Correlate failures without credentials/learner data and assign incident ownership.",
+      "approved": false
+    },
+    {
+      "id": "NFR-09",
+      "business": "BR-12",
+      "title": "Traceable change control",
+      "implementation_status": "partial",
+      "source": "VALIDATION.md",
+      "requirement": "Keep requirements/design/case/evidence links and review impact without promoting coverage to acceptance.",
+      "approved": false
+    }
+  ]
+}

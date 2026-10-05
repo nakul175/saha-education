@@ -8,7 +8,7 @@ root = Path(__file__).resolve().parents[1]
 docs = root / 'docs/education'
 register = json.loads((docs / 'requirements.json').read_text())
 errors = []
-files = [root / 'README.md', root / 'HANDOVER.md', root / 'VALIDATION.md', *sorted(docs.glob('*.md')), *sorted((root / 'docs/current').glob('*.md'))]
+files = [root / 'README.md', root / 'HANDOVER.md', root / 'VALIDATION.md', *sorted(docs.glob('*.md')), *sorted((root / 'docs/current').glob('*.md')), *sorted((root / 'docs/specification').rglob('*.md'))]
 for file in files:
     text = file.read_text()
     if not text.startswith('# '):
