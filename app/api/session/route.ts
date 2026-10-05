@@ -1,4 +1,4 @@
-import { getPrincipal } from '@/lib/education/auth';
+import { getPrincipal, DEMO_USERS } from '@/lib/education/auth';
 import type { Principal } from '@/lib/education/types';
 
 export async function POST(request: Request) {
@@ -6,17 +6,10 @@ export async function POST(request: Request) {
   const { role } = body;
   
   // Get the principal (this would normally come from an actual session)
-  const principal = getPrincipal();
+  const principal = getPrincipal(request);
   
   if (!principal) {
     // For demo purposes, we'll look up a demo user based on role
-    const DEMO_USERS: Record<string, Principal> = {
-      admin: { id: 'admin-001', role: 'admin', schoolId: 'school-001' },
-      teacher: { id: 'teacher-001', role: 'teacher', schoolId: 'school-001' },
-      guardian: { id: 'guardian-001', role: 'guardian', schoolId: 'school-001' },
-      student: { id: 'student-001', role: 'student', schoolId: 'school-001' },
-    };
-    
     const demoUser = DEMO_USERS[role || ''];
     
     if (!demoUser) {
