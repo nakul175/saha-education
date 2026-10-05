@@ -1,14 +1,15 @@
 # Saha functional specification document
 
-Version 2.3 draft, 5 October 2026. Derived from [BRD](BRD.md) and [requirement register](requirements.json); technical design follows in [HLD](HLD.md) and [LLD](LLD.md). Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. All acceptance remains unapproved. An “implemented” entry describes candidate behavior, not a deployed service or approved business outcome.
+Version 2.4 draft, 5 October 2026. Derived from [BRD](BRD.md) and [requirement register](requirements.json); technical design follows in [HLD](HLD.md) and [LLD](LLD.md). Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. All acceptance remains unapproved. An “implemented” entry describes candidate behavior, not a deployed service or approved business outcome.
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Product modules and navigation
 
 | Module | Intended user | Current entry | Boundary |
 |---|---|---|---|
 | Identity and session | All provisioned roles | `/login`, `/api/auth/*`, `/api/session` | Real provider/tenant still pending; no public self-registration |
+| Role dashboards | Current enabled mapped role | `/dashboard/admin`, `/dashboard/teacher`, `/dashboard/guardian`, `/dashboard/student` | One current snapshot; exact totals and bounded displayed lists; observed records, no calculated learning outcome |
 | School and roster | Administrator; scoped teacher/family reads | `/schools`, `/students`, `/guardians`, `/courses`, `/classes`, `/enrolments` | Operator school bootstrap; explicit profile links; historical/role-remapping policy pending |
 | Reviewed accounts and profile links | School administrator | `/admin/users`, `/admin/profile-links` | Provision/status plus versioned student/guardian login link/unlink; existing role/issuer/school immutable; no relationship verification |
 | Academic records | Administrator/assigned teacher; scoped published family reads | `/attendance`, `/assessments`, `/report-cards`, `/notifications` | Grade/calendar/correction policies and complete UAT pending |
@@ -26,7 +27,7 @@ The v2.3 implementation candidate was prepared on `feat/specification-delivery`.
 |---|---|---|---|---|
 | FR-01 | BR-02 | Configure chosen OIDC provider; verify issuer/subject and callback before creating a session. | partial | `lib/education/oidc.ts` |
 | FR-02 | BR-02 | Opaque hashed sessions, expiry, logout and live disabled/role/school checks. | implemented | `lib/education/session.ts` |
-| FR-03 | BR-02 | Scope domain reads/writes to current school, role, class assignment and explicit profile links; coherent dashboard snapshot enforcement remains the next slice. | partial | `lib/education/access.ts` |
+| FR-03 | BR-02 | Scope domain reads/writes to current school, enabled mapped actor role, class assignment and explicit profile links; assemble each role dashboard in one coherent current-scoped SQL snapshot. | implemented | `lib/education/access.ts`, `lib/education/dashboard.ts` |
 | FR-04 | BR-01 | Reviewed provisioning, status and versioned student/guardian login link/unlink workflows; no public registration or existing identity/role/school remapping. | partial | `lib/education/identity-admin.ts` |
 | FR-05 | BR-01 | School-scoped administration; school bootstrap remains operator provisioned. | partial | `lib/education/schools.ts` |
 | FR-06 | BR-01 | Maintain student and guardian links with explicit role-matched school identity ownership. | partial | `lib/education/students.ts` |
@@ -205,3 +206,21 @@ Trace: FR-03, FR-05–FR-07, FR-11, FR-12, FR-26; NFR-01–NFR-03, NFR-05, NFR-0
 The report and notice pages are authenticated; create/publish controls are administrator-only and server routes independently deny unauthorized roles before parsing mutation JSON. Browser/educator acceptance, publication policy and historical retention remain unrun/unapproved.
 
 The final structure forms use native required fields: class course/teacher choices, name/term and optional schedule; course code/title/grade level and optional description; existing-school name and optional address. An unchanged blank address preserves an existing SQL null. Nonadmin class lists use the stored course ID when an admin-only choice catalogue is unavailable, rather than inventing a name. Rejected input/permission responses retain entries; conflicts require inventory reload. Network/500 uncertainty blocks another creation until explicit reload/check of saved records; confirmed success followed by refresh failure says saved and blocks repeat until reload. School update recovery reloads saved details separately from retained edits for comparison. No class/course creation UUID guarantee or new field/grade/date policy is added.
+
+## v2.4 role dashboard journey and limits
+
+After resolving a real server Principal, each role page calls `getRoleDashboard` exactly once. A wrong role, missing principal or null/role-mismatched view redirects through `/`; the page never presents denied authority as authorized zero totals. The service rechecks current ID, school, role, enabled status and nonempty trusted identity mapping in the actual SELECT. A common SQL UTC `asOf` identifies the snapshot; Refresh dashboard performs a full-page read. Principal contains no session hash, so session-only revocation after resolution is not a promised snapshot check.
+
+| View | Displayed data | Exact total and cap |
+|---|---|---|
+| Administrator | Verified current school name; current-school students, courses/classes and enabled mapped teacher accounts | Exact aggregate counts; no capped list substituted for a total |
+| Teacher | Assigned class name, same-school course title/nullable unavailable state, term and distinct active learner count | Up to 100 classes, exact authorized total and explicit truncation |
+| Teacher assessment | Stored title/kind/date/nullable valid maximum; current active roster recording counts and review flags | Up to 100 assessments, exact total and explicit truncation |
+| Student/guardian | Current linked profile name/admission number, observed attendance status/date counts and published reports | Up to 50 profiles, exact linked total and explicit truncation |
+| Each linked profile report list | Stored term and school-supplied grade, publication time and scoped report link | Up to 20 published reports per profile, exact published total and explicit truncation |
+
+Teacher labels are `no-current-roster`, `missing-results`, `recorded-for-current-roster` or `needs-review`. Unique valid score pairs in `0..maxScore` count as recorded, including existing maximum 0/score 0. Missing means no saved pair; duplicate or invalid existing pairs are separate evidence. Whole enrolment-pair duplicates are flagged for an active pupil, including active+withdrawn legacy rows; no arbitrary result selection, inferred grade or record repair occurs. Invalid negative/fractional/text/unrepresentable maxima are unavailable and flagged. All counts concern today's active roster, not historical assessment completion.
+
+Family attendance reports recorded rows and present/absent/late/excused/other counts. Two class rows on one date remain two observations. Only real `YYYY-MM-DD` values form first/last date coverage; invalid-date rows still count and are flagged. No percentage, expected-day denominator or absence policy is added. Existing family `studentScope` and `classScope` apply together; a fully withdrawn linked learner may retain published reports while losing class attendance eligibility. Empty profile, empty attendance and empty publication each have their own message. Drafts, raw results/feedback, reading evidence and attendance notes are excluded.
+
+Native full-page anchors open classes, attendance, saved assessment results and published reports. Text wraps on mobile and stored text remains escaped. A failed refresh does not prove that records are empty; a delivered snapshot may become outdated after its SQL cutoff. Exact fields/ordering are in [dashboard design](DASHBOARD-DESIGN.md); designed SC-26–SC-28 cases remain unrun and all approvals remain false.

@@ -1,8 +1,8 @@
 # Data dictionary
 
-Version 2.3 draft, 5 October 2026. Current working inventory: **35 implemented SQL tables and 294 columns**, obtained by applying migrations 0000–0012 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+Version 2.4 draft, 5 October 2026. Current working inventory: **35 implemented SQL tables and 294 columns**, obtained by applying migrations 0000–0012 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 Requirement references: FR-01–FR-03 identity/access; FR-05–FR-12 school/academic records; FR-13–FR-18 teacher resources; FR-20 reviewed reading; NFR-01/NFR-02 constraints and concurrency; NFR-03 retention. IDs and status are canonical in [requirements.json](requirements.json); business context is in [BRD](BRD.md).
 
@@ -571,3 +571,9 @@ Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 | disabled_at | TEXT | yes | none | No additional DB constraint | ISO timestamp disabling application access; null permits access subject to other checks. | Protected account identity |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql, drizzle/0002_reviewed_reading.sql, drizzle/0003_teacher_resources.sql.
+
+## v2.4 derived dashboard views
+
+Dashboard DTOs are read projections, not persisted tables/columns; the SQL dictionary and matching CSV remain exactly 35 tables/294 fields. No schema or route inventory changes. [Dashboard design](DASHBOARD-DESIGN.md) lists every derived role field, bound, count and null meaning.
+
+`asOf` is SQL UTC time. `DashboardList.total` is an exact uncapped authorized count; `items` is bounded; `truncated` means total exceeds limit. Administrator teachers count only current enabled accounts with nonempty trusted mapping. Teacher coverage counts distinct active same-school pupils, unique valid recorded pairs, absent pairs, duplicate whole enrolment/result pairs and invalid evidence; invalidMaximum has unavailable maxScore=null. Legitimate zero remains recorded. Family attendance counts observed rows/statuses and invalid dates with nullable real-date coverage; no percent/expected-day field exists. Report grades are stored text and published-only counts exclude drafts. These fields add no approved educational/retention meaning.

@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -84,3 +84,9 @@ TC-134–TC-157 cover late account disable/role/school/mapping removal, class re
 A publication receipt uniquely arbitrates the report; its triggers must roll back report and all notices on any failure. Test zero eligible recipient, losing concurrent writer, duplicate guardian mappings, legacy publication without backfill and raw receipt UPDATE/DELETE guards. Notice history remains recipient-owned after unlink, independently of current report entitlement; retention/deletion approval is unresolved. The live predicate checks matching current ID/role/school and nonempty trusted identity, but cannot compare a prior issuer/subject absent from Principal; arbitrary identity remapping is not an implemented capability.
 
 Related actual SQLite/session/D1/localhost checks do not establish representative load, full screen-reader compliance, hosted backup/key custody, real provider operations or production readiness. Every designed case remains unrun.
+
+## v2.4 dashboard security and nonfunctional matrix
+
+SC-26–SC-28 require current actor ID/role/school/enabled/nonempty mapping on the actual SELECT, current explicit family ownership/class relationships and published-only reports. Lost actor is null/denied, not a zero metric. A one-query snapshot must omit old names/admission/class IDs after current relation loss and exclude family raw results, private notes/drafts/summaries, reading evidence and identity secrets. Quoted/HTML/Unicode stored text remains literal and escaped.
+
+The prepared D1 driver checks JSON objects/empty arrays and bound count; a single statement/capped output is not a measured performance target. Capacity TC-179 remains planned. Native links, role/status headings, long-text mobile wrapping and explicit counts/no-data/limits have designed accessibility TC-180 and educator TC-181, intentionally unrun. No session-hash revocation guarantee after Principal resolution, historical-entitlement expansion, norm/efficacy or compliance/accessibility certification is added.

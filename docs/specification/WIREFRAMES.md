@@ -2,13 +2,13 @@
 
 Draft, 5 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Screen inventory
 
 | ID | Screen and role | Requirement links | Current or proposed | Important states |
 |---|---|---|---|---|
-| WF-01 | Teacher dashboard | FR-03, FR-13, FR-19 | Proposed consolidated layout for existing entries | Loading, empty resources, unavailable reading connection |
+| WF-01 | Teacher dashboard | FR-03, FR-08, FR-10 | Current-roster recording panel; consolidated resource shortcuts remain proposed | No roster, partial/recorded/zero, ambiguous/invalid records, limits and scoped refresh |
 | WF-02 | Resource authoring, staff | FR-13, FR-22 | Original prototype illustrates manual authoring; current library has separate screens below | Empty fields, template switch, validation, saving, uncertain response |
 | WF-03 | Saved-version review and class assignment, staff | FR-14–16 | Current workflow illustrated | Draft/approved selection, unsaved edits, stale conflict, no authorized classes, matching/conflicting retry |
 | WF-04 | Assigned learning, student | FR-17 | Current workflow illustrated | No assignments, pinned approved content, disabled/withdrawn relationship |
@@ -78,3 +78,13 @@ The same 12-screen offline prototype remains labelled fictional and does not gai
 API authorization remains independent of rendered controls. Publication receipt/reviewer metadata is private and no receipt/history UI is invented. Local prototype/source/automated browser evidence does not substitute for intentional screen-reader, language, publication/retention or educator acceptance.
 
 Final structure source state rules: class selects current course/teacher choices, course uses verified school with no editable tenant ID, and existing-school name/address updates preserve an unchanged null address. Native required fields and synchronous save locks apply. Rejected requests retain text; 409 requires current inventory reload, and network/500 uncertainty blocks new create until explicit saved-list inspection. Confirmed-save refresh failure reports the save separately. School recovery loads saved values without replacing retained edits. Actual browser evidence remains separate from intentional UAT.
+
+## v2.4 existing dashboard implementation mapping
+
+| Existing screen | Current structure | Explicit states and limits |
+|---|---|---|
+| `/dashboard/admin` | Current-school name → exact student/course/class/eligible-teacher counts → scoped native links → SQL snapshot time | Lost actor redirects; enabled mapped teacher accounts; no global or capped fake totals |
+| `/dashboard/teacher` | Assigned classes/course/term/current roster → actual assessment recording coverage → native attendance/results links → refresh/snapshot | Missing/recorded/no roster/needs review; saved zero counts; duplicate/invalid flags; 100 per collection with exact total/truncation |
+| `/dashboard/guardian`, `/dashboard/student` | Current linked profiles → observed attendance status/date counts → published school-supplied report summaries/links → refresh/snapshot | No profile/no attendance/no reports distinct; excused-only/other/invalid dates; 50 profiles/20 reports each with exact total/truncation; private data excluded |
+
+The existing offline teacher dashboard panel now illustrates recording states with fictional counts; no new screen is invented for the read service. Consolidated resource/reading buttons remain a labelled layout proposal separate from current role-dashboard behavior. Family report prototype includes a raw attendance/no-percentage explanation. The prototype remains 12 local screens with zero sign-in/API/persistence; it cannot prove live SQL scope, actual server redirects or production access. Intentional TC-180/TC-181 accessibility/educator review remains unrun.

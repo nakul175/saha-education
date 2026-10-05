@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -86,4 +86,13 @@ None of these working choices is a sponsor/educator/vendor approval. The [batch 
 | Structure administration | Verified-school admin controls, scoped nonadmin lists and disabled school bootstrap; no transfer/repair/deletion capability added. |
 | Readiness | Provider/ORF/pilot policies, representative performance, hosted recovery/key custody/scheduling and intentional educator/accessibility UAT still open; race fixes do not certify all source. |
 
-A subsequent dashboard inspection reproduced cached actor/profile/class exposure across assembled reads and misleading result/attendance labels. FR-03 is partial while a coherent live-scoped dashboard snapshot is pending. Those diagnostic assertions are not passing execution evidence; the current structure/publication batch does not claim to resolve dashboard pages.
+The pre-v2.4 dashboard inspection reproduced cached actor/profile/class exposure across assembled reads and misleading result/attendance labels. The v2.4 service/pages address that identified gap with one current-scoped snapshot, actual recording states and observed attendance counts. FR-03 is implemented for its specified current authorization contract, with approval false; the original diagnostic assertions remain reproduced defects, never passing execution evidence.
+
+## v2.4 dashboard choices and residual risks
+
+- One SQL snapshot supplies each role view. A resolved Principal lacks a session hash; actor/relationship scope is checked at execution, while session-only revocation after resolution is outside this contract. Later changes require a new refresh and cannot retract delivered content.
+- Current roster recording is distinct from historical completeness or student learning. Duplicate enrolment/result evidence and invalid values remain review warnings, with no chosen score, repair or new educational policy.
+- Raw attendance counts avoid an unapproved denominator or excused weighting. Current family class eligibility is retained; broader historical entitlement, approved dates/calendar and correction policy remain open.
+- Caps 100 classes/100 assessments/50 profiles/20 published reports per profile constrain displayed output, not exact totals or representative SQL work. Related full lists remain subject to their existing pagination limits; no SLA/performance completion is inferred.
+- Publication strings/grades remain legacy school-supplied data. Stored publication/date ordering does not identify an approved current term; invalid date evidence stays visible without normative interpretations.
+- Full-page anchors match current runtime behavior. Broader assistive technology/browser/language/educator acceptance remains unrun; synthetic related automation is separate evidence.

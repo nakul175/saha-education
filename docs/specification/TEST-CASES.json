@@ -1,9 +1,9 @@
 {
-  "version": "2.3-draft",
+  "version": "2.4-draft",
   "date": "2026-10-05",
-  "source_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+  "source_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
   "approved": false,
-  "execution_notice": "All 157 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context only, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence and the published 133-case v2.2 design at 82f20ce remain separate.",
+  "execution_notice": "All 181 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context only, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence, published 133-case v2.2 design at 82f20ce and published 157-case v2.3 design at 88205cd remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -1857,7 +1857,7 @@
       "layer": "integration",
       "priority": "P1",
       "preconditions": "Current corrections/review endpoints, migration 0007 and assigned staff in isolated synthetic fixtures; educator interpretation/retention approval remains pending.",
-      "data": "Existing manual reviewed record; correct miscount 91→90 with explicit review, reason, expectedRevision and stable clientCorrectionId.",
+      "data": "Existing manual reviewed record; correct miscount 91\u219290 with explicit review, reason, expectedRevision and stable clientCorrectionId.",
       "steps": [
         "POST reviewed numeric replacement metrics once and retry using the same clientCorrectionId.",
         "GET corrections and reading-review; inspect immutable original plus effective latest revision."
@@ -2918,7 +2918,7 @@
       "title": "Reviewed profile-link surface and legacy version zero",
       "layer": "smoke",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Existing unlinked and linked student/guardian profiles; no profile version/event backfill.",
       "steps": [
         "GET administrator inventory/history; GET as anonymous, teacher, student and guardian.",
@@ -2948,7 +2948,7 @@
       "title": "Typed same-school login link and explicit unlink",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Unlinked student-A/guardian-A and eligible exact student/guardian account IDs; role/school/disabled/unmapped candidates.",
       "steps": [
         "POST reviewed link with UUID/expected 0/reason/confirmation; reload.",
@@ -2979,7 +2979,7 @@
       "title": "Profile decision replay returns current ownership",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Link request UUID X, later reviewed unlink UUID Y, original expectedVersion and reason.",
       "steps": [
         "Save link then unlink.",
@@ -3011,7 +3011,7 @@
       "title": "Profile CAS and affected-session atomicity",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two eligible candidate accounts, sessions for prior/new and reviewing admin; malformed legacy profile->admin binding.",
       "steps": [
         "Race competing expected-version link decisions and race identical UUID requests.",
@@ -3045,7 +3045,7 @@
       "title": "Legacy profile writes cannot bypass reviewed binding",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Student POST/PATCH and guardian POST with nonnull/changed userId; omitted/unchanged binding; concurrent reviewed link.",
       "steps": [
         "Create unlinked profiles and edit ordinary fields with omitted/unchanged mapping.",
@@ -3082,7 +3082,7 @@
       "title": "Profile history and retry live authority/privacy",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Saved event, profile transferred to schoolB, admin disabled/demoted or unmapped before downstream evidence SELECT.",
       "steps": [
         "Inject actor/profile school changes immediately before final inventory/history/replay SQL.",
@@ -3112,7 +3112,7 @@
       "title": "Legacy guardian duplicates retained and new occupancy blocked",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two pre-migration guardians share one login; unchanged legacy edits and new candidate duplicate.",
       "steps": [
         "Seed duplicates before applying migration 0008 and reconcile row counts.",
@@ -3143,7 +3143,7 @@
       "title": "Profile ownership review usability and policy acceptance",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Nominated school reviewer and fictional same-name profiles/accounts; stale conflict and uncertain response.",
       "steps": [
         "Navigate /admin/profile-links using keyboard/screen reader and small viewport.",
@@ -3176,7 +3176,7 @@
       "title": "Academic guard migration preserves legacy duplicate evidence",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Pre-0009 duplicate enrolment and assessment-result pairs, existing confirmed row IDs.",
       "steps": [
         "Seed legacy duplicates, apply 0009, inspect foreign keys and counts.",
@@ -3208,7 +3208,7 @@
       "title": "Enrolment duplicate race and live current-school write",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two concurrent new student-A/class-A enrollment requests; revoked admin/current school changed before INSERT.",
       "steps": [
         "POST pair concurrently and repeat it.",
@@ -3241,7 +3241,7 @@
       "title": "Atomic attendance current membership recheck",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two-item valid attendance batch; second learner withdrawn or transferred after prevalidation.",
       "steps": [
         "Submit normal batch and inspect server recorder/count.",
@@ -3274,7 +3274,7 @@
       "title": "Assessment results use actual current score maximum",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Assessment max 20 and two active learners with scores 18/19; max lowered to 10 before batch.",
       "steps": [
         "Prevalidate valid batch then lower current maxScore before atomic insert/update.",
@@ -3307,7 +3307,7 @@
       "title": "Ambiguous legacy result pair cannot choose arbitrary winner",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two historical rows for learnerA/assessment; a new eligible learnerB in same proposed batch.",
       "steps": [
         "Submit batch including ambiguousA and newB.",
@@ -3340,7 +3340,7 @@
       "title": "Academic role-before-body and downstream privacy",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Anonymous/family/unassigned/foreign actors, malformed attendance/result JSON; role/class changes before reads.",
       "steps": [
         "Call academic writes with wrong-role malformed bodies and foreign identifiers.",
@@ -3372,7 +3372,7 @@
       "title": "Academic batch fault and maximum bounded transport",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Valid two-member batch with injected second write failure; request larger than128KiB.",
       "steps": [
         "Inject a database failure during atomic attendance/result mutation and inspect every touched row.",
@@ -3405,7 +3405,7 @@
       "title": "Academic duplicate and correction policy review",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Named academic owner, unresolved legacy duplicate pairs and school calendar/grade policy.",
       "steps": [
         "Review duplicate preservation/conflict behavior with owner.",
@@ -3436,7 +3436,7 @@
       "title": "Normalized reading draft boot and zero observations",
       "layer": "smoke",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two synthetic normalized results, one explicit class and exact source namespace.",
       "steps": [
         "Stage strict envelope with clientImportId and GET detail/list.",
@@ -3466,7 +3466,7 @@
       "title": "Strict reading JSON validation and explicit mapping",
       "layer": "unit",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Formats/unknown keys; 0/26 rows;duplicate reference;correct>attempted;future/impossible date;names/URLs/audio/derived score.",
       "steps": [
         "Validate all envelope/row boundaries and submit invalid samples through authenticated route.",
@@ -3474,7 +3474,7 @@
       ],
       "expected": [
         "Strict 400 invalid schema; unknown/out-of-class/foreign mapping denied, no name/email/autolink.",
-        "Row bound 1–25, numeric/date/language semantics and128KiB body apply; no draft/item/check persisted or URL fetched."
+        "Row bound 1\u201325, numeric/date/language semantics and128KiB body apply; no draft/item/check persisted or URL fetched."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -3496,7 +3496,7 @@
       "title": "Reviewed import confirmation and durable declared provenance",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Valid 25-row draft across active synthetic learners; explicit review reason and confirmation.",
       "steps": [
         "Stage maximum valid envelope without observations.",
@@ -3530,7 +3530,7 @@
       "title": "Import duplicate consumption across draft UUIDs",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Confirmed sourceLabel S/refX in schoolA; new draftID with X plus freshY; same namespace/ref in schoolB.",
       "steps": [
         "Stage duplicate pending drafts and confirm original.",
@@ -3563,7 +3563,7 @@
       "title": "Import confirmation fault CAS and exact retry",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Two-item draft; injected failure on second receipt; competing confirm/reject and exact same payload retry.",
       "steps": [
         "Inject late receipt failure and inspect terminal decision/readings/prior receipt.",
@@ -3598,7 +3598,7 @@
       "title": "Import stage/confirm actual authority and historical rejection",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Creator teacher, unassigned peer, admin and school transfer/withdrawal/revocation before final mutation/read.",
       "steps": [
         "Inject disabled/unmapped/reassigned actor before stage INSERT and confirm UPDATE.",
@@ -3632,7 +3632,7 @@
       "title": "Rejected draft never appears as a reading",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Staged draft, reviewed rejection, unrelated manual original and prior corrected reading.",
       "steps": [
         "Reject draft then replay exact decision.",
@@ -3666,7 +3666,7 @@
       "title": "Import preview educator review and accessible uncertainty",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Nominated educator; synthetic local JSON with exact IDs and two languages/tasks; network uncertainty and 409 duplicate.",
       "steps": [
         "Use /reading-imports keyboard/screen reader/mobile; inspect template, field errors and every staged original.",
@@ -3698,7 +3698,7 @@
       "title": "Default submission access and safe current view",
       "layer": "smoke",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Approved assignment with past dueDate and no window row, linked active student and guardian.",
       "steps": [
         "GET window and staff history; POST new student attempt.",
@@ -3730,7 +3730,7 @@
       "title": "Strict window review schema and calendar UTC bounds",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Canonical UTC three-millisecond date; offsets/missing-millis/impossible date; missing closesAt; closed+future;bad reason/revision/extra actor.",
       "steps": [
         "POST valid null/future/elapsed open and closed-null policies.",
@@ -3738,7 +3738,7 @@
       ],
       "expected": [
         "Strict reviewed mandatory closesAt contract accepts canonical real UTC/null only; closed requires null.",
-        "Expected 0–999999,UUID/reason 10–500/confirmation enforced; invalid 400/wrong-role-origin denied, no review row."
+        "Expected 0\u2013999999,UUID/reason 10\u2013500/confirmation enforced; invalid 400/wrong-role-origin denied, no review row."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -3762,7 +3762,7 @@
       "title": "Submission window current role and history privacy",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Own active student, guardian, assigned/unassigned staff and revocation before final current/history/replay query.",
       "steps": [
         "Read current summary versus staff latest 100 review history.",
@@ -3795,7 +3795,7 @@
       "title": "Window CAS history and current-state old UUID replay",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "PolicyX closed revision 1 then Y open revision 2; concurrent expected 2 writers and identical UUID.",
       "steps": [
         "Save X then Y; replay X exact and with changed actor/reason/state/expected number.",
@@ -3827,7 +3827,7 @@
       "title": "Close or expire after prevalidation prevents actual attempt write",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Open assignment, new expected attempt; concurrent closed or elapsed-open policy inserted immediately before attempt INSERT.",
       "steps": [
         "Let normal precheck pass then inject closed policy before actual submission insert.",
@@ -3859,7 +3859,7 @@
       "title": "Committed submission replay and feedback survive closure",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Committed attemptUUID A, later closure, subsequent reviewed staff feedback and reopened window.",
       "steps": [
         "Replay exact A while closed; change A response/actor/expected number.",
@@ -3892,7 +3892,7 @@
       "title": "Timed cutoff boundary and deterministic reopening",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Future canonical cutoff, elapsed cutoff, open-null review and informational due-date boundaries.",
       "steps": [
         "Read future/elapsed policies and submit at/after database cutoff.",
@@ -3924,7 +3924,7 @@
       "title": "Submission window review usability and educator policy",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000–0011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
+      "preconditions": "Disposable synthetic schools A/B with mapped live admins, assigned/unassigned teachers, active/withdrawn learners and linked/unlinked families; actual migrations 0000\u20130011, real synthetic sessions and SQLite/served environment as appropriate. Reset the affected fixture before each case; no external calls or real records.",
       "data": "Nominated staff reviewer, device timezone, small viewport, future cutoff, 409 conflict and uncertain response.",
       "steps": [
         "Use assignment window controls with keyboard/screen reader; inspect UTC-to-local conversion and current summary/history.",
@@ -3958,7 +3958,7 @@
       "title": "Original structure and account feeds deny late actor changes",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Actor disabled, demoted, moved school, issuer null or subject empty before SELECT.",
       "steps": [
         "Read school/course/class lists/details and admin account feed using actual sessions.",
@@ -3993,7 +3993,7 @@
       "title": "Structure mutation SQL denies stale administrator authority",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Actor revoked after preflight before course/class INSERT or school/course/class UPDATE.",
       "steps": [
         "Capture original rows/counts and inject each actor change at mutation.",
@@ -4026,7 +4026,7 @@
       "title": "Class persistence rechecks selected course school",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Selected course passes lookup then moves school before create/update.",
       "steps": [
         "Move selected course immediately before class INSERT and UPDATE separately.",
@@ -4060,7 +4060,7 @@
       "title": "Class persistence rechecks enabled trusted teacher eligibility",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Teacher passes lookup then is disabled, wrong role/school or absent/empty identity.",
       "steps": [
         "Repeat each teacher change before class INSERT and UPDATE.",
@@ -4095,7 +4095,7 @@
       "title": "Final joined class detail scopes current roster members",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Teacher reassignment/disable, pupil transfer, actual reviewed guardian/student unlink before class SELECT.",
       "steps": [
         "Inject each change before actual joined class detail query.",
@@ -4129,7 +4129,7 @@
       "title": "Structure role and origin denial precedes body parsing",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Malformed/oversized JSON, wrong origin, missing session, teacher/family mutation and cross-school input.",
       "steps": [
         "Call structure POST/PATCH with each authority/body combination.",
@@ -4163,7 +4163,7 @@
       "title": "Structure D1 returns and server fields remain compatible",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Actual Drizzle D1 driver over SQLite, optional schedule/address/description and spoofed ID/time.",
       "steps": [
         "Create/update authorized structure through actual handlers using D1 adapter.",
@@ -4198,7 +4198,7 @@
       "title": "Role-appropriate structure administration usability",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Nominated synthetic roles, verified school, missing choices, errors and small viewport.",
       "steps": [
         "Use structure pages by keyboard/screen reader across roles.",
@@ -4236,7 +4236,7 @@
       "title": "Report draft insertion rechecks actor and learner school",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Admin or student scope revoked before INSERT; spoofed publication/id/time fields.",
       "steps": [
         "Create valid draft and inspect server-owned private state.",
@@ -4269,7 +4269,7 @@
       "title": "Report publication role parsing and draft privacy",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Linked/unrelated families, assigned teacher/admin, malformed publish JSON and foreign origin.",
       "steps": [
         "Read list/detail/page before and after publication by each role.",
@@ -4302,7 +4302,7 @@
       "title": "Concurrent publication has one receipt and notice winner",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "One unpublished report, two authorized publishers, multiple/duplicate guardian relationships.",
       "steps": [
         "Coordinate competing receipt INSERTs and retry same report after success.",
@@ -4336,7 +4336,7 @@
       "title": "Zero-row or revoked publication creates no notice",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Actor disabled/demoted/moved/unmapped or learner/report unavailable before receipt statement.",
       "steps": [
         "Capture report/receipt/notice state; inject final authority changes.",
@@ -4370,7 +4370,7 @@
       "title": "Publication derives current eligible guardian accounts",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Actual reviewed unlink/remap; recipient/guardian/student wrong school, disabled/unmapped guardian.",
       "steps": [
         "Apply reviewed unlink before receipt commit; test other recipient changes.",
@@ -4403,7 +4403,7 @@
       "title": "Trigger failure rolls back every publication member",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Synthetic report or later notice INSERT fault with multiple eligible recipients.",
       "steps": [
         "Fail after receipt/report writes but before statement completes.",
@@ -4437,7 +4437,7 @@
       "title": "Migration preserves legacy evidence and immutable receipts",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Pre-0012 published report/notice, new receipt and raw modification attempts.",
       "steps": [
         "Apply migration on populated legacy fixture and retry legacy publication.",
@@ -4470,7 +4470,7 @@
       "title": "Saved-report review and uncertain draft recovery usability",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Synthetic roles, lost successful create/publish responses, failed reload and long text.",
       "steps": [
         "Use labelled admin draft/saved-report review controls and verify other roles lack mutations.",
@@ -4504,7 +4504,7 @@
       "title": "Notice reads and acknowledgements reject stale actors",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Recipient disabled/demoted/moved/unmapped after session resolution.",
       "steps": [
         "Inject changes before inbox SELECT and read-status UPDATE.",
@@ -4537,7 +4537,7 @@
       "title": "Teacher notice INSERT rechecks class and active pupil relation",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Recipient passes lookup then teacher reassigned, enrolment withdrawn or pupil transferred.",
       "steps": [
         "Inject eligibility changes immediately before actual notice INSERT.",
@@ -4571,7 +4571,7 @@
       "title": "Manual notice INSERT rechecks recipient school and account",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Recipient disabled/moved/unmapped, guardian profile moved or relationship removed after lookup.",
       "steps": [
         "Create notice under each final recipient/relationship mutation.",
@@ -4602,7 +4602,7 @@
       "title": "Notice auth origin body and channel boundaries",
       "layer": "security",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Missing session, guardian POST, malformed/oversized JSON, unknown notice and body-free PATCH.",
       "steps": [
         "Call notice POST across authority/body combinations; acknowledge by query ID without JSON.",
@@ -4636,7 +4636,7 @@
       "title": "Personal notices survive unlink without learner access",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Prior legitimate notice, actual reviewed guardian unlink and legacy personal notice.",
       "steps": [
         "Unlink profile and obtain fresh same-recipient account session.",
@@ -4667,7 +4667,7 @@
       "title": "Acknowledgement retry preserves content and row identity",
       "layer": "regression",
       "priority": "P0",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Own unread notice, lost acknowledgement response and client-forged timestamp.",
       "steps": [
         "Acknowledge same query ID repeatedly, including timestamp/body spoof.",
@@ -4699,7 +4699,7 @@
       "title": "Inbox uncertainty retains rows and recovery action",
       "layer": "regression",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Successful/failed/lost PATCH response and local marking state.",
       "steps": [
         "Interrupt browser read acknowledgement while retaining inbox.",
@@ -4732,7 +4732,7 @@
       "title": "Inbox accessibility and retention wording review",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000–0012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admins/teachers/learners/guardians, assigned/unassigned classes and explicit relationships. Apply migrations 0000\u20130012 to isolated SQLite/D1; use real synthetic sessions and exported handlers. Inject the change after authentication/preflight immediately before the actual target statement. No external requests or real records; reset affected data before each case.",
       "data": "Nominated synthetic roles, long text/read error, keyboard/screen reader/mobile/pilot language.",
       "steps": [
         "Review inbox loading/empty/error and Mark as Read with assistive navigation.",
@@ -4751,6 +4751,749 @@
         "lib/education/profile-links.ts",
         "app/notifications/page.tsx",
         "docs/specification/WIREFRAMES.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-158",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Role snapshots expose only current scoped projections",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Four real synthetic sessions plus foreign-school and role-mismatched Principals.",
+      "steps": [
+        "Call dashboard service by each current role and inspect JSON fields.",
+        "Compare linked family, assigned teacher and own-school administrator scopes."
+      ],
+      "expected": [
+        "Role-discriminated view matches current authorized actor and school; no foreign or peer profile/class/report.",
+        "No identity credentials, birth dates, private notes, scores, drafts or unnecessary report summaries in family projection."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/admin/page.tsx",
+        "app/dashboard/teacher/page.tsx",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-159",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "SQL-time actor revocation returns denied snapshot",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Actor disabled/demoted/moved or issuer/subject null/empty after session resolution.",
+      "steps": [
+        "Inject each actor change before actual SELECT for every role.",
+        "Inspect result and counted database statements."
+      ],
+      "expected": [
+        "Result is null with one statement; no old records or authorized-looking zero aggregate.",
+        "Page redirects on null/mismatched role and never renders stale counts."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/admin/page.tsx",
+        "app/dashboard/teacher/page.tsx",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-160",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Reviewed profile unlink removes family snapshot atomically",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Actual reviewed student/guardian unlink; relationship removed or profile/student moved.",
+      "steps": [
+        "Resolve session then apply reviewed link decision before SELECT.",
+        "Compare name/admission, report and attendance sections together."
+      ],
+      "expected": [
+        "Old learner fields and dependent data disappear from the same current snapshot.",
+        "New Principal resolution follows existing session revocation; snapshot scope does not claim session-hash revalidation after resolution."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "lib/education/profile-links.ts",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-161",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-10",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Teacher snapshot follows current class and roster relationships",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Teacher reassigned; class/learner transferred; enrolment withdrawn before SELECT.",
+      "steps": [
+        "Apply each relation change immediately before awaited query.",
+        "Inspect displayed classes, assessment set and current expected counts."
+      ],
+      "expected": [
+        "Former class metadata/actions and dependent assessments disappear together after reassignment/transfer.",
+        "Withdrawal changes current roster coverage without deleting historical results."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-162",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "NFR-02",
+        "NFR-04"
+      ],
+      "title": "One prepared SELECT produces coherent nested role views",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "SQLite proxy and production Drizzle D1 prepared driver; coherent replacement fixture.",
+      "steps": [
+        "Instrument actual prepared execution and bound values.",
+        "Apply a complete authorized relation/data replacement before execution; call all roles."
+      ],
+      "expected": [
+        "Exactly one dashboard statement with canonical SQL asOf and no per-item queries.",
+        "JSON arrays contain objects; empty arrays are []; current coherent replacement only; at most 100 bound parameters."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-163",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "FR-07",
+        "NFR-03"
+      ],
+      "title": "Administrator exact counts exclude ineligible teacher accounts",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Own and foreign schools; enabled mapped, disabled and partly unmapped teachers.",
+      "steps": [
+        "Inspect administrator school/name and four summary counts.",
+        "Disable/remove teacher mapping and refresh snapshot."
+      ],
+      "expected": [
+        "Students/courses/classes are exact current-school counts; enabledMappedTeachers excludes disabled or missing mapping.",
+        "Labels describe current-school records/accounts, not global totals or learner outcomes."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/admin/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-164",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Current SQL cutoff prevents assembled snapshot mixing",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Guardian relink/student replacement and teacher-class reassignment between former read boundaries.",
+      "steps": [
+        "Reproduce former mixed-name/feed setup using current service.",
+        "Change all relevant records before the single SELECT and compare entire response."
+      ],
+      "expected": [
+        "No earlier profile/class array can remain with a later unauthorized feed.",
+        "Scope is the statement snapshot; later database changes require refresh and are not claimed to retract already delivered content."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-165",
+      "scenario": "SC-26",
+      "requirements": [
+        "FR-03",
+        "NFR-03",
+        "NFR-05"
+      ],
+      "title": "Literal dashboard text and private fields stay separated",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Quotes, backslashes, emoji, long HTML-like names/terms/grades and private source fields.",
+      "steps": [
+        "Read service projections and inspect role rendering on disposable fixture.",
+        "Follow current authorized record links and inspect source fields."
+      ],
+      "expected": [
+        "Stored text survives JSON faithfully and renders escaped; no generated grade or normalization.",
+        "No private family score/feedback/attendance note/report draft/reading evidence disclosure."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/admin/page.tsx",
+        "app/dashboard/teacher/page.tsx",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-166",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-10",
+        "NFR-02"
+      ],
+      "title": "Saved zero and zero maximum count as actual results",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "One expected learner with unique score 0; current maximum 20 then 0.",
+      "steps": [
+        "Record zero through existing result service, then load dashboard.",
+        "Change fixture maximum to 0 and compare original saved row."
+      ],
+      "expected": [
+        "recordedStudents=1, missingStudents=0 and recorded-for-current-roster both times.",
+        "Neither zero is invented, erased or labelled missing."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-167",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-08",
+        "FR-10",
+        "NFR-02"
+      ],
+      "title": "Partial and fully recorded current roster coverage",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Two active same-school learners, one saved valid pair, then both.",
+      "steps": [
+        "Load partial coverage and inspect active/recorded/missing counts.",
+        "Save second valid result and refresh."
+      ],
+      "expected": [
+        "Distinct activeStudents=2, recordedStudents=1 and missingStudents=1 with missing-results.",
+        "After all unique valid pairs, recorded-for-current-roster; no educational completion/grade inference."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-168",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-08",
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "No current roster preserves historical result evidence",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Only expected learner withdrawn, existing confirmed score retained.",
+      "steps": [
+        "Withdraw in synthetic fixture, read dashboard and persisted result.",
+        "Compare empty current roster versus historical records."
+      ],
+      "expected": [
+        "no-current-roster and zero current expected/recorded counts, not completed assessment.",
+        "Every historical result row and field remains unchanged."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-169",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Legacy duplicate results require review without arbitrary selection",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Two pre-0009 saved pairs for one current learner; apply guards afterward.",
+      "steps": [
+        "Capture duplicate rows, migrate and read dashboard.",
+        "Inspect ambiguousResultStudents, valid count and attempted new duplicate guard."
+      ],
+      "expected": [
+        "needs-review with one ambiguous pupil; recordedStudents=0 and missingStudents=0 for duplicate existing evidence.",
+        "No score chosen/merged; all original rows unchanged and new duplicate still blocked."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-170",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-08",
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Legacy whole enrolment pairs remain visibly ambiguous",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Active+withdrawn or duplicate active enrolment pair existing before 0009.",
+      "steps": [
+        "Apply migration on legacy fixture and read class/assessment coverage.",
+        "Inspect distinct active count and ambiguousEnrolmentStudents."
+      ],
+      "expected": [
+        "Learner counted once as active; whole pair ambiguity remains explicit even if one duplicate is inactive.",
+        "needs-review prevents a completeness claim; no enrolment repair/deletion."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-171",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-10",
+        "NFR-02"
+      ],
+      "title": "Invalid legacy scores and maxima remain reviewable",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Negative/fractional/text/above-max score; negative/fractional/text/unsafe numeric maximum.",
+      "steps": [
+        "Load one unique invalid saved pair per variant.",
+        "Inspect maximum projection and each coverage counter."
+      ],
+      "expected": [
+        "Invalid saved evidence yields needs-review with invalidResultStudents, not missing or valid recorded score.",
+        "Invalid maximum has invalidMaximum=true and maxScore=null; no numeric/grade value fabricated."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-172",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-03",
+        "FR-10",
+        "NFR-03"
+      ],
+      "title": "Foreign and out-of-roster results cannot inflate coverage",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Saved rows for foreign-school and unassigned/withdrawn learners.",
+      "steps": [
+        "Add synthetic unrelated saved pairs to an authorized assessment.",
+        "Compare expected/recorded/missing counts and projected fields."
+      ],
+      "expected": [
+        "Only current same-school active roster pairs contribute.",
+        "No unrelated student identifiers/grades/feedback exposed and original rows retained."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-173",
+      "scenario": "SC-27",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "FR-10",
+        "NFR-04"
+      ],
+      "title": "Teacher lists use exact totals with bounded deterministic display",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "100 then 101 classes/assessments; course changed to foreign school.",
+      "steps": [
+        "Read exact cap and cap+1 snapshots repeatedly.",
+        "Move linked course before SELECT and inspect displayed title."
+      ],
+      "expected": [
+        "100 displayed per list, exact totals before cap, truncated only beyond cap and deterministic stored name/date+ID order.",
+        "Foreign course title becomes unavailable; no invented course or hidden total."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/teacher/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-174",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-09",
+        "FR-11"
+      ],
+      "title": "Family missing-profile and absent-evidence states are distinct",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "No linked profile; linked profile without attendance or published reports.",
+      "steps": [
+        "Read guardian/student views and compare service/visible empty states.",
+        "Inspect all zero counts/date endpoints."
+      ],
+      "expected": [
+        "No linked profile is identified separately from no attendance and no published reports.",
+        "No empty attendance percentage or inferred enrollment/failure/progress claim."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-175",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-09",
+        "NFR-03"
+      ],
+      "title": "Attendance shows actual statuses including excused-only evidence",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Present/absent/late/excused/unrecognized stored statuses.",
+      "steps": [
+        "Read raw status totals with excused-only positive control.",
+        "Inspect family wording and absence of percentage/denominator."
+      ],
+      "expected": [
+        "Every observed row contributes to exactly one status count; other is visible when unrecognized.",
+        "Excused-only state states its actual evidence; no absence weighting or grade/norm inferred."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-176",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-09",
+        "NFR-03"
+      ],
+      "title": "Attendance dates and current class eligibility remain explicit",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Two class sessions same date; malformed/noncalendar date; fully withdrawn linked learner.",
+      "steps": [
+        "Inspect observed-row count, first/last valid dates and invalidDateRows.",
+        "Withdraw all linked class memberships and reload family view."
+      ],
+      "expected": [
+        "Counts describe recorded rows, not expected school days; only real YYYY-MM-DD forms date coverage; invalid rows still counted.",
+        "Existing studentScope plus family classScope retained; withdrawn class attendance may disappear while linked published reports remain."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-177",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "FR-11",
+        "NFR-03"
+      ],
+      "title": "Family published reports retain supplied grade and exclude drafts",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Linked and unrelated reports, draft report and school supplied arbitrary grade text.",
+      "steps": [
+        "Read guardian/student dashboard projection and report links.",
+        "Inspect total, exact term/grade fields and excluded private summary."
+      ],
+      "expected": [
+        "Only current linked published report metadata is included; private drafts absent from items and total.",
+        "Grades are labelled school supplied; no calculated progress, current-term selection or normative interpretation."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-178",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "FR-11",
+        "NFR-04"
+      ],
+      "title": "Family profile and report caps preserve exact totals",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "51 linked profiles and 21 published reports for one, publication timestamp ties.",
+      "steps": [
+        "Read bounded snapshot twice with synthetic guardian then student.",
+        "Inspect displayed/profile/report totals, truncation and native record links."
+      ],
+      "expected": [
+        "At most 50 profiles and 20 reports per profile; exact uncapped totals, explicit truncation and deterministic ties.",
+        "Student retains only own explicit profile, not guardian inventory; dates/order do not imply an approved current term."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-179",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "NFR-04",
+        "NFR-09"
+      ],
+      "title": "Representative dashboard capacity remains a measured gate",
+      "layer": "performance",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Agreed pilot roster/results/attendance/report volume and intended Worker/D1 environment, not yet nominated.",
+      "steps": [
+        "Agree dataset/concurrency and latency/error targets with operator.",
+        "Measure one-statement dashboards and SQL limits with privacy controls."
+      ],
+      "expected": [
+        "Recorded environment/workload/latency/errors meet agreed target or documented defects block acceptance.",
+        "Bounded output and one SELECT alone are not a capacity/SLA claim."
+      ],
+      "automation": "planned",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "docs/specification/RELEASE-OPERATIONS.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-180",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "NFR-05",
+        "NFR-06"
+      ],
+      "title": "Role dashboard keyboard mobile and language review",
+      "layer": "accessibility",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Four nominated synthetic roles, long literals, empty/limited/review states and pilot browser/language matrix.",
+      "steps": [
+        "Use native full-page dashboard/record links with keyboard and screen reader.",
+        "Inspect focus/headings/count descriptions at mobile size and selected locales."
+      ],
+      "expected": [
+        "Usable labels/focus/reading order, visible no-data/ambiguity/limits and escaped wrapping text.",
+        "No broken client transition, nested action button/link or accepted accessibility claim inferred from source."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/admin/page.tsx",
+        "app/dashboard/teacher/page.tsx",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx",
+        "tests/worker-dashboard-ui-check.mjs",
+        "docs/specification/WIREFRAMES.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-181",
+      "scenario": "SC-28",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-09",
+        "FR-10",
+        "FR-11",
+        "NFR-09"
+      ],
+      "title": "Educator review of dashboard meaning and historical limits",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Use disposable synthetic schools A/B, real opaque sessions for four mapped enabled roles, current explicit profiles/relationships/classes and migrations 0000\u20130012. Resolve Principal first, then inject authority changes immediately before actual awaited SELECT where required. Build legacy duplicate fixtures before 0009 and apply remaining migrations without removing guards. No provider, external requests or real records; compare preserved rows and minimal response fields.",
+      "data": "Named educator/family/school reviewers, synthetic missing/partial/zero/duplicate/withdrawn fixtures and retained original records.",
+      "steps": [
+        "Explain current-roster recording states and raw attendance status/date evidence to reviewers.",
+        "Review published-only supplied grades, historical access limits and refresh cutoff."
+      ],
+      "expected": [
+        "Reviewer records clarity/limits/open school policies separately from implementation test evidence.",
+        "No learning efficacy, diagnostic norms, approved grading/absence/historical-entitlement policy or business acceptance fabricated."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/dashboard.ts",
+        "tests/integration/dashboard-contract.mjs",
+        "tests/integration/dashboard-access-contract.mjs",
+        "app/dashboard/admin/page.tsx",
+        "app/dashboard/teacher/page.tsx",
+        "app/dashboard/guardian/page.tsx",
+        "app/dashboard/student/page.tsx",
+        "docs/specification/UAT.md"
       ],
       "execution_status": "not-run-for-this-specification"
     }

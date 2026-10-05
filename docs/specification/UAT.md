@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -68,3 +68,9 @@ Use fictional data and intentional keyboard, screen-reader, device timezone and 
 TC-141: administrators use verified-school course/class creation and existing-school update; teacher/family lists stay usable without admin account lookup and no Create School is offered. TC-149: review saved report before publication; interrupt draft create/publication responses, inspect retained text and stored status and distinguish non-idempotent draft creation from safe same-report publication retry. TC-157: read long personal notices on mobile/keyboard/screen reader, interrupt acknowledgement, inspect retained inbox and same-notice recovery, and review history/retention language separately from current pupil/report entitlement.
 
 The report publication checkbox is a local UI confirmation, not an invented reason/UUID audit contract. Only current administrators mutate reports; supplied grade/summary is not a validated grading engine. Named school/educator reviewers must record language, publication, accessibility and retention decisions. Synthetic suite results and prototype labels do not execute these UAT cases.
+
+## v2.4 intentional dashboard review
+
+TC-180 and TC-181 require nominated reviewers and approved browser/language/assistive targets. Walk all four synthetic roles using native links and Refresh dashboard. Explain absent profile versus absent observation/publication; verify excused-only and unknown attendance status wording, invalid-date flags, partial/no-roster/zero/duplicate/invalid result states and exact totals versus cap. Ask educators whether current-roster recording and school-supplied grades are understandable without implying learning progress or historical completeness.
+
+Record actual judgments, remaining absence/calendar/grade/history policies and defects separately. Current FR-03 implementation status is not educator approval; all 181 TC procedures remain unrun for this specification. Related browser automation or local suite outcomes cannot satisfy this intentional review.

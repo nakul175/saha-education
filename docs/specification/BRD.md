@@ -1,8 +1,8 @@
 # Saha business requirements document
 
-Version 2.3 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
+Version 2.4 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Business purpose
 
@@ -106,3 +106,13 @@ Trace: BR-01, BR-02, BR-10, BR-11; FR-03, FR-05–FR-07, FR-11, FR-12, FR-26; NF
 18. Role-appropriate screens show current verified-school controls. An uncertain draft-create response requires reloading and checking stored reports before creating again; the current API does not promise draft-create idempotency. Publication reviews the saved report and acknowledgement recovery retains the inbox. School bootstrap, provider activation and external delivery remain unavailable.
 
 Real-use publication, family notice retention, corrections, grade meaning, accessibility, provider/ORF setup and operations still require named policy and acceptance decisions. Fixing these reproduced races does not certify every source path or production readiness.
+
+## v2.4 truthful role dashboard scope
+
+Trace: BR-01, BR-02, BR-11, BR-12; FR-03, FR-08–FR-11; NFR-01–NFR-05, NFR-09.
+
+Administrators see exact current-school record counts and enabled mapped teacher accounts. Teachers see current assigned classes and actual recording coverage against the current active same-school roster. A zero score is a recorded value; partial recording, no current roster and ambiguous/invalid legacy evidence have distinct labels. Neither recording coverage nor stored grades establish educational progress, grading approval or learning efficacy.
+
+Students/guardians see current explicit linked profiles, observed attendance statuses/date coverage and published school-supplied report grades. No attendance data is identified as missing evidence, rather than 0% attendance. Excused and unrecognized statuses remain visible without inventing weighting, a school-calendar denominator or expected days. Existing family class eligibility is preserved; this batch creates no new historical access right.
+
+One current-authority database snapshot supplies each role dashboard. Display caps and exact totals are distinct and visible; refresh obtains a new snapshot. This closes the reproduced dashboard composition/count gap within FR-03's current authorization contract, while its approval remains false. Provider verification, retention, representative capacity/accessibility and educator/UAT acceptance remain separate gates.

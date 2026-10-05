@@ -1,7 +1,7 @@
 {
-  "version": "2.3-draft",
+  "version": "2.4-draft",
   "date": "2026-10-05",
-  "source_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+  "source_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -40,9 +40,9 @@
       "id": "FR-03",
       "business": "BR-02",
       "title": "Record authorization",
-      "implementation_status": "partial",
+      "implementation_status": "implemented",
       "source": "lib/education/access.ts",
-      "requirement": "Scope domain reads/writes to current school, role, class assignment and explicit profile links; coherent dashboard snapshot enforcement remains the next slice.",
+      "requirement": "Scope domain reads/writes to current school, enabled mapped actor role, class assignment and explicit profile links; assemble each role dashboard in one coherent current-scoped SQL snapshot.",
       "approved": false
     },
     {
@@ -340,8 +340,9 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented second batch, not its containing publication commit. Published v2.2 evidence at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs and publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
-    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb"
+    "note": "source_commit records the parent of this documented third dashboard batch, not its containing publication commit. Published v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+    "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37"
   }
 }

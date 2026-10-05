@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -84,3 +84,14 @@ Tests use actual isolated SQLite/sessions/routes, inspect persisted counts/value
 | TC-150–TC-157 notices | Independent live-domain contract and current notice/UI source | Final recipient/teacher relationship, acknowledgement live scope, personal historical retention, no external delivery; planned browser recovery/manual UAT separate |
 
 A fresh isolated DB and real session are required per adversarial scenario; injecting a cached Principal alone cannot replace route/session checks. The D1 prepared-driver adapter verifies actual conditional INSERT/RETURNING mapping, while localhost Worker checks exercise runtime behavior separately. Source/catalogue mapping remains related evidence only. No arbitrary nonempty issuer/subject replacement is claimed detectable from a Principal that lacks that snapshot; trusted remapping stays outside implemented writes.
+
+## v2.4 coherent dashboard mappings
+
+| Designed scope | Related existing source/suite | Boundaries |
+|---|---|---|
+| TC-158–TC-165 live/coherent role snapshots | `dashboard-contract.mjs`, `dashboard-access-contract.mjs`, `lib/education/dashboard.ts` and four server pages | Actual actor/relationship SQL cutoff; one statement, null denial, minimal fields/JSON; no session-hash recheck promise |
+| TC-166–TC-173 result coverage | Same focused/independent suites and academic integrity regression | Current distinct roster, actual zero/max0, partial/no roster, preserved duplicate/invalid evidence, exact limits |
+| TC-174–TC-178 family data | Same suites and published-report/attendance sources | Raw observed counts/dates, other/invalid evidence, existing current class scope, private drafts/notes excluded, exact limits |
+| TC-179–TC-181 capacity/accessibility/UAT | [dashboard UI script](../../tests/worker-dashboard-ui-check.mjs) as related source; planned/manual procedures | Representative targets and intentional acceptance remain unrun; browser script presence is not execution |
+
+The new service has no writes, migration or API. Focused/independent runnable suites cover actual session/SQLite and prepared-driver behavior; observed counts belong to dated run evidence and never populate the designed case register.

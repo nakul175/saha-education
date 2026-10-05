@@ -2,7 +2,7 @@
 
 Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Environment boundaries
 
@@ -58,3 +58,9 @@ Verify a new publication has one receipt with authenticated actor/student/school
 An uncertain report draft-create response may already have committed: reload and inspect before creating another. Publication can retry the same report without adding recipients/notices; acknowledgement repeats preserve first read/update times. Historical notices are not deleted after unlink. Root owns dated actual build/test/browser/publication evidence in the continuation log; no acceptance/deployment or retention decision is implied by this draft.
 
 See [second-batch scope and dated evidence boundary](../current/DEVELOPMENT-BATCH-2.md) for integration/publication progress. Historical v2.2 evidence remains separate.
+
+## v2.4 dashboard release and support boundary
+
+No migration/API/provider is added: 35 SQL tables/294 fields and 51 routes/84 handlers remain. Build the matching server service/four pages, prepare only synthetic local fixtures, and verify current role/link/class changes, raw observed counts, coverage warnings, bounded lists/exact totals and native navigation. Preserve prior batch source/evidence, confirmed rows and legacy duplicate guards. Root maintains third-batch build/suite/Worker/browser execution with actual revision/time/count/limits.
+
+If a dashboard warns needs-review, route legacy data review through existing administrator/educator process; do not choose a score or delete a duplicate automatically. Treat unavailability/failed refresh separately from no observations. `asOf` is the SQL cutoff, and later relation/session changes require new resolution/read. Session-only revocation after resolved Principal is not a live-actor snapshot guarantee. Representative capacity, retention, incident owners, chosen provider/ORF and hosted release remain unresolved gates.

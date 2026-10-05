@@ -23,6 +23,16 @@
       "file": "tests/integration/curriculum-contract.mjs",
       "minPassed": 131
     },
+    "integration/dashboard-access-contract": {
+      "layer": "integration",
+      "file": "tests/integration/dashboard-access-contract.mjs",
+      "minPassed": 414
+    },
+    "integration/dashboard-contract": {
+      "layer": "integration",
+      "file": "tests/integration/dashboard-contract.mjs",
+      "minPassed": 135
+    },
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",

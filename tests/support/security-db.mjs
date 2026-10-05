@@ -33,10 +33,13 @@ registerHooks({
 export const load = path => import(pathToFileURL(resolve(root, path)).href);
 const schema = await load('db/schema.ts');
 const {drizzle} = await import('drizzle-orm/sqlite-proxy');
-export function freshDatabase() {
+export function freshDatabase({ beforeMigration } = {}) {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec('PRAGMA foreign_keys=ON');
-  for (const file of readdirSync(join(root,'drizzle')).filter(f=>/^\d.*\.sql$/.test(f)).sort()) {
+  const migrations = readdirSync(join(root,'drizzle')).filter(f=>/^\d.*\.sql$/.test(f)).sort();
+  const boundary = beforeMigration === undefined ? migrations.length : migrations.indexOf(beforeMigration);
+  if (boundary < 0) throw new Error('Unknown test migration boundary');
+  for (const file of migrations.slice(0, boundary)) {
     sqlite.exec(readFileSync(join(root,'drizzle',file),'utf8').replaceAll('--> statement-breakpoint',''));
   }
   function execute(sql,params,method) {

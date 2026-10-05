@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.3 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.3 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `82f20ce9ae023bdb78d53aecc229331b57bce5eb`, the parent of this documented second batch, rather than the commit containing its changes. The changes were uncommitted when this specification was assembled; dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and the published v2.2 batch at `82f20ce` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **157 cases in 25 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **181 cases in 28 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -37,6 +37,10 @@ This draft contains **157 cases in 25 scenarios**, covers all **35 functional/no
 | SC-23 | Current actor and structure reference authority | TC-134, TC-135, TC-136, TC-137, TC-138, TC-139, TC-140, TC-141 | FR-03, FR-05, FR-06, FR-07, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
 | SC-24 | Atomic report publication winner and safe recovery | TC-142, TC-143, TC-144, TC-145, TC-146, TC-147, TC-148, TC-149 | FR-03, FR-06, FR-11, FR-12, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
 | SC-25 | Current notice relation, personal history and acknowledgement | TC-150, TC-151, TC-152, TC-153, TC-154, TC-155, TC-156, TC-157 | FR-03, FR-06, FR-11, FR-12, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
+
+| SC-26 | Current-authority coherent role dashboards | TC-158, TC-159, TC-160, TC-161, TC-162, TC-163, TC-164, TC-165 | FR-02, FR-03, FR-05, FR-06, FR-07, FR-08, FR-10, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05 |
+| SC-27 | Truthful current-roster result coverage and retained ambiguity | TC-166, TC-167, TC-168, TC-169, TC-170, TC-171, TC-172, TC-173 | FR-03, FR-07, FR-08, FR-10, FR-26, NFR-02, NFR-03, NFR-04 |
+| SC-28 | Family observed attendance, publication privacy and bounded display | TC-174, TC-175, TC-176, TC-177, TC-178, TC-179, TC-180, TC-181 | FR-03, FR-06, FR-08, FR-09, FR-10, FR-11, NFR-03, NFR-04, NFR-05, NFR-06, NFR-09 |
 
 ## Execution boundaries
 
@@ -325,3 +329,42 @@ Cases: TC-150, TC-151, TC-152, TC-153, TC-154, TC-155, TC-156, TC-157. Inject fi
 - TC-155 — Acknowledgement retry preserves content and row identity (regression, existing).
 - TC-156 — Inbox uncertainty retains rows and recovery action (regression, planned).
 - TC-157 — Inbox accessibility and retention wording review (uat, manual).
+
+## SC-26: Current-authority coherent role dashboards
+
+Cases: TC-158, TC-159, TC-160, TC-161, TC-162, TC-163, TC-164, TC-165. All remain unrun for this specification.
+
+- TC-158 — Role snapshots expose only current scoped projections (security, existing).
+- TC-159 — SQL-time actor revocation returns denied snapshot (security, existing).
+- TC-160 — Reviewed profile unlink removes family snapshot atomically (security, existing).
+- TC-161 — Teacher snapshot follows current class and roster relationships (security, existing).
+- TC-162 — One prepared SELECT produces coherent nested role views (integration, existing).
+- TC-163 — Administrator exact counts exclude ineligible teacher accounts (integration, existing).
+- TC-164 — Current SQL cutoff prevents assembled snapshot mixing (regression, existing).
+- TC-165 — Literal dashboard text and private fields stay separated (security, existing).
+
+## SC-27: Truthful current-roster result coverage and retained ambiguity
+
+Cases: TC-166, TC-167, TC-168, TC-169, TC-170, TC-171, TC-172, TC-173. All remain unrun for this specification.
+
+- TC-166 — Saved zero and zero maximum count as actual results (integration, existing).
+- TC-167 — Partial and fully recorded current roster coverage (integration, existing).
+- TC-168 — No current roster preserves historical result evidence (regression, existing).
+- TC-169 — Legacy duplicate results require review without arbitrary selection (regression, existing).
+- TC-170 — Legacy whole enrolment pairs remain visibly ambiguous (regression, existing).
+- TC-171 — Invalid legacy scores and maxima remain reviewable (integration, existing).
+- TC-172 — Foreign and out-of-roster results cannot inflate coverage (security, existing).
+- TC-173 — Teacher lists use exact totals with bounded deterministic display (integration, existing).
+
+## SC-28: Family observed attendance, publication privacy and bounded display
+
+Cases: TC-174, TC-175, TC-176, TC-177, TC-178, TC-179, TC-180, TC-181. All remain unrun for this specification.
+
+- TC-174 — Family missing-profile and absent-evidence states are distinct (integration, existing).
+- TC-175 — Attendance shows actual statuses including excused-only evidence (integration, existing).
+- TC-176 — Attendance dates and current class eligibility remain explicit (integration, existing).
+- TC-177 — Family published reports retain supplied grade and exclude drafts (security, existing).
+- TC-178 — Family profile and report caps preserve exact totals (integration, existing).
+- TC-179 — Representative dashboard capacity remains a measured gate (performance, planned).
+- TC-180 — Role dashboard keyboard mobile and language review (accessibility, manual).
+- TC-181 — Educator review of dashboard meaning and historical limits (uat, manual).
