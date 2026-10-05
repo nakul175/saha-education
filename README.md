@@ -1,5 +1,9 @@
 # Saha Education
 
+## Documentation baseline
+
+The [education documentation set](docs/education/README.md) covers business/product/software requirements, current implementation gaps, architecture, data, APIs, security, user and developer guides, testing, operations and roadmap for the Next.js rebuild. This branch retains the legacy application; follow the documented branch boundary before setup.
+
 Saha Education is an open-source learning management system designed to support students, teachers, guardians, and schools. Built on modern web technologies, it provides a comprehensive platform for managing courses, classes, enrolments, attendance, assessments, and report cards.
 
 ## Repository Structure
