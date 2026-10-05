@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -15,7 +15,7 @@ The v2.4 implementation candidate was prepared on `feat/specification-delivery`.
 | D-05 | Pilot languages/content | Open; language tags supported, content review not established | Educator lead | No cross-language ranking or validated scoring norms |
 | D-06 | Resource reviewer policy | Open; explicit author self-review currently permitted | School leadership | Approval means attributed confirmation, not independent certification |
 | D-07 | Family resource/result publication | Open; reports published, raw assessments/ORF and assignments remain restricted | School leadership | Do not expand guardian visibility implicitly |
-| D-08 | Academic dates, grades and corrections | Open; candidate validations are incomplete | Academic administrator | Block real academic usage until policy and correction evidence agreed |
+| D-08 | Academic dates, grades and corrections | Open; reviewed attendance real-date/CAS evidence current, broader calendar/grade/correction governance incomplete | Academic administrator | Block real academic usage until policy and correction evidence agreed |
 | D-09 | Historical enrolment visibility | Open broadly; reading review and staff attempts retain current-class same-school history; learner assignment view remains active-only | School leadership | Current specific history rules need educator/pilot review; no temporal entitlement model |
 | D-10 | Retention, deletion, audio and export | Open; no audio/transcripts currently collected | Data owner | No legal compliance certification; approve appropriate policy before real data |
 | D-11 | Hosting/environment and recovery objectives | Open; source publication does not verify deployment wiring | Operator | No real migration/deployment or RPO/RTO claim |
@@ -96,3 +96,17 @@ The pre-v2.4 dashboard inspection reproduced cached actor/profile/class exposure
 - Caps 100 classes/100 assessments/50 profiles/20 published reports per profile constrain displayed output, not exact totals or representative SQL work. Related full lists remain subject to their existing pagination limits; no SLA/performance completion is inferred.
 - Publication strings/grades remain legacy school-supplied data. Stored publication/date ordering does not identify an approved current term; invalid date evidence stays visible without normative interpretations.
 - Full-page anchors match current runtime behavior. Broader assistive technology/browser/language/educator acceptance remains unrun; synthetic related automation is separate evidence.
+
+## v2.5 attendance choices and residual risks
+
+| Item | Current choice / remaining review |
+|---|---|
+| Reviewed evidence | Dirty-only exact full before fields, attributable reason/checkbox, one atomic receipt/mark/change statement and immutable new history; legacy replacements unchanged and no backfill. |
+| Roster boundary | New reviewed saves require current active same-school pupils, nonempty distinct roster <=100 and no whole-pair legacy ambiguity anywhere; preserved duplicate reconciliation remains a separate policy. |
+| Date/note semantics | Exact real YYYY-MM-DD, no future/term restriction; local UI date without timezone shift. Reason/new notes count code points; exact unchanged longer legacy notes can persist within transport. School calendar/absence/correction governance unapproved. |
+| Recovery and permission loss | Uncertain/denied acknowledgement may follow durable commit. Keep original UUID/payload, clear private stale evidence after permission loss and verify current access before exact retry; no blind new-review success claim. |
+| Original history scope | Current original-class staff may read same-school withdrawal history. One transferred original pupil hides the entire batch; current family historical entitlement is not expanded. |
+| Raw summaries | Coherent names/status/date evidence with exact scoped total/cap 100, no notes/percentage/grade/expected days. Legacy invalid/unrecognized evidence is counted/flagged, never silently repaired. |
+| Remaining audit/operations | Assessment correction, legacy replacement history, unified export/retention, hosted recovery, representative performance and intentional educator/accessibility acceptance remain pending. |
+
+The short-emoji reason reproduction formerly reached a SQL CHECK and returned 500. Current validation aligns code-point bounds with SQL length and rejects invalid input as 400; diagnostic reproduction is not passing execution evidence. Scope fixes or new domain receipts do not certify every source, production readiness or compliance.

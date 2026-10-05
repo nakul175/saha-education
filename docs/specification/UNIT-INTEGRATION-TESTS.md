@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.5 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -95,3 +95,16 @@ A fresh isolated DB and real session are required per adversarial scenario; inje
 | TC-179–TC-181 capacity/accessibility/UAT | [dashboard UI script](../../tests/worker-dashboard-ui-check.mjs) as related source; planned/manual procedures | Representative targets and intentional acceptance remain unrun; browser script presence is not execution |
 
 The new service has no writes, migration or API. Focused/independent runnable suites cover actual session/SQLite and prepared-driver behavior; observed counts belong to dated run evidence and never populate the designed case register.
+
+## v2.5 attendance contract mappings
+
+| Designed cases | Related runnable/source context | Scope boundary |
+|---|---|---|
+| TC-182–TC-189 snapshot/strict evidence | [primary reviewed contract](../../tests/integration/attendance-review-contract.mjs), [independent access contract](../../tests/integration/attendance-review-access-contract.mjs) | Actual authenticated routes/SQLite; role before parsing, no default present, exact dates, Unicode/notes, empty/cap/legacy ambiguity |
+| TC-190–TC-197 CAS/history | Same reviewed suites plus [academic integrity](../../tests/integration/academic-integrity-contract.mjs) | Actual-write scope/full-record CAS, concurrent unique/exact UUID, forced rollback, immutable before/after, scoped readback, original replay after legacy change/withdrawal, no old API regression |
+| TC-198–TC-202 summary | [summary contract](../../tests/integration/attendance-summary-contract.mjs), [summary service](../../lib/education/attendance-summary.ts) | One current statement, names/raw counts/date/currentActive, cap/total, linked family privacy, no notes/percentage/false no-data |
+| TC-203–TC-205 UI/capacity/UAT | [recorder browser procedure](../../tests/worker-attendance-ui-check.mjs), viewer source and intentional procedures | Uncertain original request, cleared private stale evidence, reload comparison, mobile labels/status/native links; measured operational and intentional acceptance pending |
+
+New test links do not populate designed-case outcomes. Actual built Worker/D1 execution differs from Node SQLite/prepared-driver evidence; source count/privacy and a cap do not imply capacity, accessibility or educator acceptance.
+
+Independent summary [access contract](../../tests/integration/attendance-summary-access-contract.mjs) supplies related actual-session/SQLite/prepared-driver scope/coherence/minimal-field/legacy/cap evidence. This source mapping does not populate any TC outcome or business acceptance.

@@ -2,7 +2,7 @@
 
 Draft, 5 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
 
-The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Screen inventory
 
@@ -88,3 +88,15 @@ Final structure source state rules: class selects current course/teacher choices
 | `/dashboard/guardian`, `/dashboard/student` | Current linked profiles → observed attendance status/date counts → published school-supplied report summaries/links → refresh/snapshot | No profile/no attendance/no reports distinct; excused-only/other/invalid dates; 50 profiles/20 reports each with exact total/truncation; private data excluded |
 
 The existing offline teacher dashboard panel now illustrates recording states with fictional counts; no new screen is invented for the read service. Consolidated resource/reading buttons remain a labelled layout proposal separate from current role-dashboard behavior. Family report prototype includes a raw attendance/no-percentage explanation. The prototype remains 12 local screens with zero sign-in/API/persistence; it cannot prove live SQL scope, actual server redirects or production access. Intentional TC-180/TC-181 accessibility/educator review remains unrun.
+
+## v2.5 attendance implementation mapping
+
+The offline prototype remains 12 fictional screens; no new screen is invented merely for the new evidence tables. The existing role dashboard context carries the raw attendance/explicit review boundary; the following mappings describe actual source journeys independently of prototype interaction.
+
+| Actual route | Current structure | Required state and decision boundary |
+|---|---|---|
+| `/attendance` | Native class selector + Refresh → current selected class/SQL snapshot time → named pupil/admission/currentActive cards → raw status/date evidence | Clear old content before selection; cancel obsolete loads; empty/denied/error separate; invalid dates/no data/other/excused and exact total/cap 100 visible; no notes/percentage; staff-only native review link |
+| `/classes/{id}/attendance` | Staff/current class → local calendar date + Reload → current saved full evidence + deliberate status/note controls → dirty count/reason/review → confirmed original receipt/history | Blank unrecorded status, no default present; empty/cap/legacy ambiguity blocks saves; any change clears review; null/empty/unchanged long note retained; expected before fields submitted exactly |
+| Same recorder recovery | Announced/focused failure/status → saved/current evidence comparison → original pending request action | 409 retains intended dirty entries until reload/review; uncertain request freezes UUID/payload/date/edits; access loss clears private stale evidence and verifies access before retry; acknowledged receipt persists after refresh failure |
+
+History shows latest 100 exact-date original reviews with total/truncation and reviewer/reason/time plus full before/after records; name lookup uses current roster with stable pupil-ID fallback for withdrawn history. Date selection clears prior edits/reason/review/history and preserves literal calendar values. Native labels/fieldset/checkbox/status/focus and wrapping cards support keyboard/mobile review; [recorder browser procedure](../../tests/worker-attendance-ui-check.mjs) is related evidence, not screen-reader/educator acceptance. The source design is in [attendance design](ATTENDANCE-DESIGN.md), with intentional TC-203/TC-205 still unrun.

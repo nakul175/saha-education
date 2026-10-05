@@ -1,7 +1,7 @@
 {
-  "version": "2.4-draft",
+  "version": "2.5-draft",
   "date": "2026-10-05",
-  "source_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+  "source_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -96,7 +96,7 @@
       "title": "Attendance",
       "implementation_status": "partial",
       "source": "lib/education/attendance.ts",
-      "requirement": "Record authorized class/student attendance with atomic current-eligibility batches; agree academic dates and correction policy.",
+      "requirement": "Record authorized attendance; use current-scoped observed summaries and reviewed dirty-only full-evidence CAS with immutable before/after receipts, preserving legacy replacement semantics; school calendar, correction governance and historical entitlement remain unapproved.",
       "approved": false
     },
     {
@@ -248,8 +248,8 @@
       "business": "BR-10",
       "title": "Audit and corrections",
       "implementation_status": "partial",
-      "source": "docs/current/SPECIFICATION-DELIVERY.md",
-      "requirement": "Preserve attributable correction/review evidence and agree retention before real records.",
+      "source": "lib/education/attendance-reviews.ts",
+      "requirement": "Preserve attributable domain correction/review evidence including reviewed attendance; complete unified audit, assessment corrections and agreed retention before real records.",
       "approved": false
     },
     {
@@ -340,9 +340,10 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented third dashboard batch, not its containing publication commit. Published v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+    "note": "source_commit records the parent of this documented fourth attendance batch, not its containing publication commit. Published v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
-    "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37"
+    "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911"
   }
 }

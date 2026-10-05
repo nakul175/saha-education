@@ -306,3 +306,4 @@ export { profileLinkVersions, profileLinkEvents } from './profile-links-schema';
 export { readingImportDrafts, readingImportItems, readingImportReceipts } from './reading-import-schema';
 export { assignmentSubmissionWindows } from './submission-window-schema';
 export { reportPublicationReceipts } from './report-publication-schema';
+export { attendanceReviews, attendanceReviewEntries } from './attendance-reviews-schema';

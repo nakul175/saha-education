@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.5 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **181 cases in 28 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **205 cases in 31 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -41,6 +41,10 @@ This draft contains **181 cases in 28 scenarios**, covers all **35 functional/no
 | SC-26 | Current-authority coherent role dashboards | TC-158, TC-159, TC-160, TC-161, TC-162, TC-163, TC-164, TC-165 | FR-02, FR-03, FR-05, FR-06, FR-07, FR-08, FR-10, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05 |
 | SC-27 | Truthful current-roster result coverage and retained ambiguity | TC-166, TC-167, TC-168, TC-169, TC-170, TC-171, TC-172, TC-173 | FR-03, FR-07, FR-08, FR-10, FR-26, NFR-02, NFR-03, NFR-04 |
 | SC-28 | Family observed attendance, publication privacy and bounded display | TC-174, TC-175, TC-176, TC-177, TC-178, TC-179, TC-180, TC-181 | FR-03, FR-06, FR-08, FR-09, FR-10, FR-11, NFR-03, NFR-04, NFR-05, NFR-06, NFR-09 |
+
+| SC-29 | Current reviewed attendance snapshot and explicit evidence validation | TC-182, TC-183, TC-184, TC-185, TC-186, TC-187, TC-188, TC-189 | FR-02, FR-03, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04 |
+| SC-30 | Atomic full-evidence attendance review, exact retries and immutable history | TC-190, TC-191, TC-192, TC-193, TC-194, TC-195, TC-196, TC-197 | FR-03, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04 |
+| SC-31 | Coherent raw attendance summaries, accessible recovery and policy boundaries | TC-198, TC-199, TC-200, TC-201, TC-202, TC-203, TC-204, TC-205 | FR-03, FR-06, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-08, NFR-09 |
 
 ## Execution boundaries
 
@@ -368,3 +372,42 @@ Cases: TC-174, TC-175, TC-176, TC-177, TC-178, TC-179, TC-180, TC-181. All remai
 - TC-179 — Representative dashboard capacity remains a measured gate (performance, planned).
 - TC-180 — Role dashboard keyboard mobile and language review (accessibility, manual).
 - TC-181 — Educator review of dashboard meaning and historical limits (uat, manual).
+
+## SC-29: Current reviewed attendance snapshot and explicit evidence validation
+
+Cases: TC-182, TC-183, TC-184, TC-185, TC-186, TC-187, TC-188, TC-189. All remain unrun for this specification.
+
+- TC-182 — Reviewed attendance authentication role origin and bounded body (security, existing).
+- TC-183 — One current editor snapshot has no default present mark (integration, existing).
+- TC-184 — Exact real attendance date without invented calendar restrictions (integration, existing).
+- TC-185 — Strict full saved-record and explicit note contract (integration, existing).
+- TC-186 — Dirty-only review preserves null empty and untouched notes (integration, existing).
+- TC-187 — Bounded roster and preserved global legacy ambiguity (regression, existing).
+- TC-188 — Unicode reason and preserved long legacy note bounds (regression, existing).
+- TC-189 — SQL-time staff class and roster authority on editor reads (security, existing).
+
+## SC-30: Atomic full-evidence attendance review, exact retries and immutable history
+
+Cases: TC-190, TC-191, TC-192, TC-193, TC-194, TC-195, TC-196, TC-197. All remain unrun for this specification.
+
+- TC-190 — Full-evidence CAS and late active-membership write guards (security, existing).
+- TC-191 — Mid-audit fault rolls back full reviewed attendance batch (integration, existing).
+- TC-192 — Concurrent different reviewed UUIDs have one CAS winner (integration, existing).
+- TC-193 — Concurrent exact UUID and reordered entries replay once (integration, existing).
+- TC-194 — Original UUID replay survives legacy edits and withdrawal (regression, existing).
+- TC-195 — Committed result readback denies late authority loss (security, existing).
+- TC-196 — Immutable reviewed history and unchanged legacy replacements (regression, existing).
+- TC-197 — Current whole-batch history privacy exact filtering and cap (security, existing).
+
+## SC-31: Coherent raw attendance summaries, accessible recovery and policy boundaries
+
+Cases: TC-198, TC-199, TC-200, TC-201, TC-202, TC-203, TC-204, TC-205. All remain unrun for this specification.
+
+- TC-198 — Coherent named attendance summary under current record scope (integration, existing).
+- TC-199 — Raw summary status and real-date coverage without percentages (integration, existing).
+- TC-200 — Exact summary totals and family roster minimization (security, existing).
+- TC-201 — Actual summary SELECT follows late actor and profile relationships (security, existing).
+- TC-202 — Attendance viewer selection cancellation and explicit refresh (integration, existing).
+- TC-203 — Reviewed recorder uncertainty conflict and accessible evidence (accessibility, manual).
+- TC-204 — Reviewed attendance capacity recovery and support gates (performance, planned).
+- TC-205 — Educator attendance meaning and correction governance acceptance (uat, manual).

@@ -1,9 +1,9 @@
 {
-  "version": "2.4-draft",
+  "version": "2.5-draft",
   "date": "2026-10-05",
-  "source_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+  "source_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
   "approved": false,
-  "execution_notice": "All 181 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context only, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence, published 133-case v2.2 design at 82f20ce and published 157-case v2.3 design at 88205cd remain separate.",
+  "execution_notice": "All 205 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context only, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence and published v2.2 (133 cases), v2.3 (157 cases), v2.4 (181 cases) design/execution remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -849,21 +849,23 @@
       "title": "Attendance date and attributable corrections",
       "layer": "uat",
       "priority": "P1",
-      "preconditions": "Academic date, historical enrolment and audit/correction policies must be agreed; correction history is not currently complete.",
+      "preconditions": "Named academic owner and proposed local-date/term/history policies; current reviewed attendance endpoints available on synthetic records, with broader academic correction governance unapproved.",
       "data": "Teacher correction to prior attendance; timezone/term/withdrawal boundaries.",
       "steps": [
-        "Apply approved local-date policy at boundary dates.",
-        "Correct a recorded status with reason.",
-        "Inspect actor/time/original/new values."
+        "Review exact real YYYY-MM-DD editor dates and local UI date selection; separately agree pilot calendar restrictions.",
+        "Correct a saved attendance status through the reviewed editor with full expected record, reason and explicit confirmation.",
+        "Inspect immutable before/after evidence and remaining historical/term policy."
       ],
       "expected": [
-        "Date eligibility follows agreed policy rather than browser timezone assumptions.",
-        "Correction retains original evidence and attributable reason; existing gap is not accepted as overwrite-only behavior."
+        "Current service enforces real exact dates but no future/past/term restriction; proposed school policy is separately reviewed.",
+        "Reviewed attendance preserves full old/new evidence and actor/time/reason; legacy overwrite API and assessment/unified audit gaps remain explicit."
       ],
       "automation": "manual",
       "evidenceFiles": [
         "lib/education/attendance.ts",
-        "docs/education/SECURITY-PRIVACY.md"
+        "docs/education/SECURITY-PRIVACY.md",
+        "lib/education/attendance-reviews.ts",
+        "docs/specification/ATTENDANCE-DESIGN.md"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2324,13 +2326,13 @@
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
       "data": "Approved correction requests with actor,reason,old/new values; unauthorized actor.",
       "steps": [
-        "Inspect implemented reviewed identity, curriculum, submission-feedback and reading evidence.",
-        "Correct reading through its current append-only endpoint and reject unauthorized requests.",
-        "Separately specify pending attendance/result correction and general audit/retention workflows without fabricating endpoints."
+        "Inspect implemented reviewed identity, curriculum, submission-feedback, attendance and reading evidence.",
+        "Correct reading and attendance through their current reviewed endpoints and reject unauthorized requests.",
+        "Separately specify pending assessment correction, legacy attendance replacement auditing and general retention/export without fabricating endpoints."
       ],
       "expected": [
-        "Implemented domain evidence preserves actor/time/version or reason where its contract requires it; reading original remains unchanged.",
-        "Attendance/results and complete platform audit/retention remain incomplete, so this broader case is not fulfilled by the new domain suites."
+        "Implemented domain evidence preserves actor/time/version or reason where its contract requires; reading originals and reviewed attendance before/after receipts remain reproducible.",
+        "Legacy attendance replacements, assessment correction and complete platform audit/retention remain incomplete; narrower domain suites do not fulfill the broader case."
       ],
       "automation": "planned",
       "evidenceFiles": [
@@ -2338,7 +2340,9 @@
         "HANDOVER.md",
         "tests/integration/reading-review-contract.mjs",
         "tests/integration/identity-admin-contract.mjs",
-        "tests/integration/submissions-contract.mjs"
+        "tests/integration/submissions-contract.mjs",
+        "lib/education/attendance-reviews.ts",
+        "tests/integration/attendance-review-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -3410,7 +3414,7 @@
       "steps": [
         "Review duplicate preservation/conflict behavior with owner.",
         "Record agreed reconciliation and temporal/correction policy, including required actor/time/reason/original values.",
-        "Inspect current overwrite-only attendance/results and record remaining gap."
+        "Compare immutable reviewed attendance evidence with retained overwrite-only legacy attendance and assessment-result workflows; record remaining policy/audit gaps."
       ],
       "expected": [
         "Current guards are not accepted as a complete correction/audit model.",
@@ -3421,7 +3425,9 @@
         "docs/specification/DECISIONS-RISKS.md",
         "lib/education/academic-integrity.ts",
         "tests/worker-development-ui-check.mjs",
-        "tests/worker-wireframes-check.mjs"
+        "tests/worker-wireframes-check.mjs",
+        "lib/education/attendance-reviews.ts",
+        "docs/specification/ATTENDANCE-DESIGN.md"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -5496,6 +5502,784 @@
         "docs/specification/UAT.md"
       ],
       "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-182",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-09",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Reviewed attendance authentication role origin and bounded body",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Anonymous/forged/family/unassigned/foreign sessions, malformed date/JSON and >128 KiB payload.",
+      "steps": [
+        "Call editor GET/POST and history GET with each actor.",
+        "Submit wrong-role malformed JSON/date and unauthorized origin before a valid staff request."
+      ],
+      "expected": [
+        "401 for absent session, 403 family before body/date parsing, 404 scoped unavailable class; no private response.",
+        "Matching origin and bounded strict body required for POST; all failures no-store and create no marks/receipts."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-183",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-09",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "One current editor snapshot has no default present mark",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Two current active same-school pupils plus withdrawn/foreign/other-class records.",
+      "steps": [
+        "Read editor and instrument its actual class-scoped SELECT.",
+        "Inspect row fields, exact roster total, SQL asOf and nullable saved record."
+      ],
+      "expected": [
+        "One SELECT supplies current class/active roster/full saved marks; absent saved tuple is record=null.",
+        "Only id/name/admission, mark evidence and pair ambiguity fields; no contacts, birth date or login mapping."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-184",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-09",
+        "NFR-02"
+      ],
+      "title": "Exact real attendance date without invented calendar restrictions",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Leap 2000-02-29, future 2099-12-31; nonleap/rollover/padded/date-time invalid variants.",
+      "steps": [
+        "GET snapshots and POST reviewed marks for valid and invalid dates.",
+        "Inspect exact saved date and original records."
+      ],
+      "expected": [
+        "Valid real YYYY-MM-DD dates accepted including past/future; invalid/rollover/nonexact dates return 400.",
+        "No approved term, school-day, timezone cutoff or future prohibition is invented; legacy API remains unchanged."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-185",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-09",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Strict full saved-record and explicit note contract",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Missing expectedRecord/note/system fields, spoofed actor/ID, duplicate pupil IDs and >100 entries.",
+      "steps": [
+        "Submit unknown/missing/duplicate/oversized fields.",
+        "Review with expectedRecord=null for absent tuple, then full exact saved record for an existing tuple."
+      ],
+      "expected": [
+        "Strict envelope requires date/UUID/review/reason and explicit status/note/expectedRecord for every changed entry; invalid inputs 400.",
+        "Actor/time/attendance identity server derived; full before record id/status/note/recordedBy/createdAt/updatedAt binds existing mark."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-186",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-09",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Dirty-only review preserves null empty and untouched notes",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Existing null, explicit empty and nonempty notes; one dirty pupil and one unchanged pupil.",
+      "steps": [
+        "Review note-only and status-only changes with exact expected evidence.",
+        "Submit a no-op and mixed dirty/no-op batch; inspect untouched pupil."
+      ],
+      "expected": [
+        "Null and empty remain distinct in API/evidence; unchanged note/row is not overwritten or defaulted.",
+        "Every submitted entry must be dirty; no-op batches return 400 and create no receipt."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-187",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-08",
+        "FR-09",
+        "FR-26",
+        "NFR-02",
+        "NFR-04"
+      ],
+      "title": "Bounded roster and preserved global legacy ambiguity",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Empty/100/101 current pupils; legacy active+withdrawn duplicate pair on a pupil outside chosen dirty subset.",
+      "steps": [
+        "Inspect exact roster total, cap/truncation and canReview at each boundary.",
+        "Try subset review while another current pair is ambiguous; compare original rows."
+      ],
+      "expected": [
+        "Empty, >100 or any whole-pair ambiguity blocks new reviewed save with 409; 100 unique pupils remains allowed.",
+        "Distinct pupils counted once; all legacy rows remain and no arbitrary resolution/deletion occurs."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-188",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-09",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Unicode reason and preserved long legacy note bounds",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Reason 5/10/500/501 emoji; new note 2000/2001 Unicode code points; unchanged long legacy note.",
+      "steps": [
+        "Submit short Unicode reason that formerly caused SQL CHECK 500.",
+        "Review status while preserving exact long prior note, then attempt changed oversize replacement."
+      ],
+      "expected": [
+        "Reason trimmed 10\u2013500 Unicode code points without controls; invalid reason is 400 rather than server failure.",
+        "New/replacement note max 2000 Unicode code points; exact unchanged legacy note may persist within 100000 UTF-16-unit record/transport bound and 128 KiB total request."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-189",
+      "scenario": "SC-29",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "SQL-time staff class and roster authority on editor reads",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Disable/demote/move actor, null issuer/blank subject, class reassignment/transfer immediately before SELECT.",
+      "steps": [
+        "Resolve real session and inject each current-authority change at actual editor SELECT.",
+        "Inspect final response and record inventory."
+      ],
+      "expected": [
+        "Current authority rechecked at statement execution; inaccessible class returns safe 404, no old roster/mark metadata.",
+        "Active current same-school roster follows same snapshot; no new family historical entitlement."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-190",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-09",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Full-evidence CAS and late active-membership write guards",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Concurrent note/actor/timestamp change, withdrawal/class move/transfer or activated legacy ambiguity after preview.",
+      "steps": [
+        "Capture editor expected record, mutate prior fields or current roster just before receipt INSERT.",
+        "POST reviewed subset/batch and inspect marks plus both evidence tables."
+      ],
+      "expected": [
+        "Actual INSERT/trigger rechecks live actor/class/active same-school eligibility/global cap/ambiguity and exact full prior fields.",
+        "Any stale member/record conflicts 409; no unauthorized or partial dirty row, receipt or entry."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-191",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-09",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Mid-audit fault rolls back full reviewed attendance batch",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Two confirmed marks; forced second audit-entry INSERT failure after mark upserts.",
+      "steps": [
+        "Inject controlled SQLite failure at second audit entry.",
+        "Attempt dirty two-pupil review and compare all marks, receipts and changes."
+      ],
+      "expected": [
+        "Safe 500 for unexpected internal failure; every mark retains prior status/note/id/actor/timestamps.",
+        "Receipt plus any audit entries roll back together; no partial review success."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-192",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-09",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Concurrent different reviewed UUIDs have one CAS winner",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Two current staff, same exact before record/null absence and different UUID/payload.",
+      "steps": [
+        "Submit competing reviews concurrently.",
+        "Inspect response statuses and mark/evidence counts."
+      ],
+      "expected": [
+        "Exactly one 201 and one 409; winner has one immutable receipt/change per dirty pupil.",
+        "No silently merged/reapplied mark and original creation identity preserved."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-193",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-09",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Concurrent exact UUID and reordered entries replay once",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Same actor/UUID/canonical payload concurrently; reversed changed-entry order; altered actor/reason.",
+      "steps": [
+        "Submit identical concurrent requests and retry entries in reverse order.",
+        "Attempt same UUID with changed actor/reason/payload."
+      ],
+      "expected": [
+        "One 201 and one 200 exact replay; same original receipt, no second mark application.",
+        "Changed actor/payload is 409; canonical changed-row ordering makes equivalent order repeat-safe."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-194",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-09",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Original UUID replay survives legacy edits and withdrawal",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Reviewed mark, later legacy replacement, then same-school pupil withdrawal.",
+      "steps": [
+        "Retry original UUID after later replacement and withdrawal.",
+        "Compare immutable receipt, current saved mark and attempted new review."
+      ],
+      "expected": [
+        "Current original-class staff receives original immutable review with replayed=true; later mark never reapplied.",
+        "Withdrawal alone preserves staff receipt/history/replay; new review still requires active roster and exact current evidence."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-195",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "FR-26",
+        "NFR-01",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Committed result readback denies late authority loss",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Actor disable, class reassign or original pupil transfer between committed receipt and final evidence SELECT.",
+      "steps": [
+        "Inject authority change at second actual receipt SELECT.",
+        "Inspect HTTP result and persisted mark/receipt/entries."
+      ],
+      "expected": [
+        "Safe 404 with no committed evidence disclosure after lost scope; durable committed rows remain.",
+        "Client retains outcome uncertainty/original UUID; no assumption a denied acknowledgement means rollback or permission for a new request."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-196",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-09",
+        "FR-26",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Immutable reviewed history and unchanged legacy replacements",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Reviewed receipt/change plus historical legacy rows and concurrent legacy replacements.",
+      "steps": [
+        "Attempt UPDATE/DELETE on new receipt and entry tables.",
+        "Call legacy POST concurrently then omit a note; inspect old rows and absence of invented receipts."
+      ],
+      "expected": [
+        "DB immutable-row triggers preserve new before/after evidence; no historical review backfill.",
+        "Legacy concurrent replacements retain 200/200 and omitted-note-clears behavior; they remain mutable and do not gain fabricated audit receipts."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs",
+        "lib/education/attendance.ts",
+        "tests/integration/academic-integrity-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-197",
+      "scenario": "SC-30",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "FR-26",
+        "NFR-01",
+        "NFR-03",
+        "NFR-04"
+      ],
+      "title": "Current whole-batch history privacy exact filtering and cap",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "102 reviews, exact date/pupil filter, withdrawn pupil and one transferred pupil within two-pupil batch.",
+      "steps": [
+        "Read latest 100/history exact totals and deterministic time/UUID ordering.",
+        "Transfer one original pupil at actual history/retry SELECT and request remaining-pupil filter."
+      ],
+      "expected": [
+        "History latest 100 with exact total/truncated; filter date/student cannot expand access.",
+        "Entire receipt hidden if any original pupil no longer same-school; count and retry cannot reveal partial original batch; withdrawal alone retains staff history."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-198",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-08",
+        "FR-09",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Coherent named attendance summary under current record scope",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Four real roles, current active pupils plus accessible historical marks and unrelated pupils.",
+      "steps": [
+        "GET new class summary and instrument actual prepared statement.",
+        "Inspect pupil names/admission/currentActive and exact observed evidence together."
+      ],
+      "expected": [
+        "One scoped SELECT produces names and raw counts under current actor/class/student scope; unavailable class 404.",
+        "No notes, recorder identity, contacts/login, individual raw rows or unrelated family pupils; no extra historical entitlement."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "app/api/classes/[id]/attendance-summary/route.ts",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-199",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-09",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Raw summary status and real-date coverage without percentages",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Present/absent/late/excused/unrecognized rows, malformed/noncalendar dates, no rows and excused-only pupil.",
+      "steps": [
+        "Read summary raw status counts, recordedRows and first/last valid dates.",
+        "Compare zero-data/excused-only/invalid-date rendering and retained rows."
+      ],
+      "expected": [
+        "Every actual row counted; invalid dates remain in raw count but not real-date endpoints and invalidDateRows is visible.",
+        "No percentage, expected-school-day denominator, excused weighting or grade/progress/norm claim; no rows gives null dates and zero evidence."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "app/attendance/page.tsx",
+        "tests/worker-attendance-summary-ui-check.mjs",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-200",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-08",
+        "FR-09",
+        "NFR-03",
+        "NFR-04"
+      ],
+      "title": "Exact summary totals and family roster minimization",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "100/101+ visible pupils, guardian-linked child subset and unrelated current roster; withdrawn historical access variants.",
+      "steps": [
+        "Read staff and family summaries at cap boundaries.",
+        "Inspect displayed pupil IDs, exact totals, truncation and currentActive."
+      ],
+      "expected": [
+        "At most 100 visible pupils, exact uncapped authorized total, deterministic name/ID order and explicit limit/truncation.",
+        "Family class access never grants whole roster; active/profile/record eligibility retained independently, and currentActive does not imply every historical mark is current enrolment."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "app/attendance/page.tsx",
+        "tests/worker-attendance-summary-ui-check.mjs",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-201",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-08",
+        "FR-09",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Actual summary SELECT follows late actor and profile relationships",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Current account revoked/moved/role/mapping changed; reviewed profile unlink, class assignment/enrolment/student transfer.",
+      "steps": [
+        "Inject each authority change immediately before summary SELECT.",
+        "Inspect safe null/404 or reduced current pupil set and total."
+      ],
+      "expected": [
+        "No stale name with later unauthorized count/feed; scope and aggregate evidence share one SQL snapshot.",
+        "Session-only revocation after Principal resolution remains a documented compact-Principal limit; actual account/reference authority is rechecked."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "lib/education/access.ts",
+        "lib/education/profile-links.ts",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-202",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Attendance viewer selection cancellation and explicit refresh",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Delayed earlier class response, changed links/counts, empty/limited/denied/error views.",
+      "steps": [
+        "Switch class while earlier summary is in flight, then explicitly Refresh.",
+        "Inspect native named-pupil cards/calendar date strings and current class links."
+      ],
+      "expected": [
+        "Older request cannot replace newer selection; selected content cleared before load and failures do not present stale summary as current.",
+        "Refresh fetches actual new snapshot; raw statuses/limits/no-data/date review remain visible; review-marks link staff-only."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "app/attendance/page.tsx",
+        "tests/worker-attendance-summary-ui-check.mjs",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-203",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-03",
+        "FR-09",
+        "FR-26",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Reviewed recorder uncertainty conflict and accessible evidence",
+      "layer": "accessibility",
+      "priority": "P1",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Dirty rows, local date change, 409, acknowledgement loss and confirmed-save refresh failure at mobile/keyboard sizes.",
+      "steps": [
+        "Edit mark/note/reason/date and inspect review reset; cause conflict and compare reloaded saved evidence with retained intended edits.",
+        "Cause uncertain acknowledgement; retry original pending UUID then failed refresh; navigate and inspect history."
+      ],
+      "expected": [
+        "No default present; blank unrecorded status requires deliberate choice; native labels/status/focus/full-page links and escaped wrapping text.",
+        "Pending UUID/payload stays fixed and edits/date locked until exact retry; conflict reload compares intent; confirmed receipt remains truthful even if refresh fails."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs",
+        "app/classes/[id]/attendance/page.tsx",
+        "tests/worker-attendance-ui-check.mjs",
+        "docs/specification/WIREFRAMES.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-204",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-09",
+        "NFR-04",
+        "NFR-07",
+        "NFR-08"
+      ],
+      "title": "Reviewed attendance capacity recovery and support gates",
+      "layer": "performance",
+      "priority": "P1",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Agreed maximum-note/100-pupil/history workload, intended Worker/D1 and hosted recovery/support target not yet nominated.",
+      "steps": [
+        "Agree response/body/database parameter/latency targets and measure representative review/summary/history.",
+        "Exercise authorized recovery with reviewed evidence and source snapshots; verify replay/privacy postrestore."
+      ],
+      "expected": [
+        "Measured evidence and documented unresolved limits meet agreed environment target or block release.",
+        "Bounded roster/one-statement writes and synthetic local checks do not certify SLA, hosted recovery, retention/key custody or production support."
+      ],
+      "automation": "planned",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs",
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "tests/integration/development-recovery-contract.mjs",
+        "docs/specification/RELEASE-OPERATIONS.md",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-205",
+      "scenario": "SC-31",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-09",
+        "FR-26",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Educator attendance meaning and correction governance acceptance",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Use fresh disposable synthetic schools A/B, real opaque sessions and exact migrations 0000\u20130013 with foreign keys on. Current mapped enabled school administrator/assigned teacher, active/withdrawn/foreign pupils and linked/unlinked family actors. Inject changes immediately before actual awaited SQL where specified. Construct legacy duplicate pairs before 0009 then apply final guards without dropping them. No real records or external requests; compare every confirmed row and safe response.",
+      "data": "Named school/staff/family reviewers and proposed calendar/correction/history/retention policy with synthetic absent/empty/excused/withdrawn/legacy fixtures.",
+      "steps": [
+        "Walk reviewed recorder and named raw summary with nominated users.",
+        "Review exact before/after/actor/reason and distinguish legacy replacements, immutable reviews and current-access cutoff."
+      ],
+      "expected": [
+        "Reviewer records clarity and outstanding calendar/absence/historical entitlement/correction governance decisions.",
+        "No provider/real learner use, educational efficacy, certification or business acceptance inferred from source/tests; all designed cases remain unrun until intentionally executed."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/attendance-reviews.ts",
+        "drizzle/0013_attendance_reviews.sql",
+        "tests/integration/attendance-review-contract.mjs",
+        "tests/integration/attendance-review-access-contract.mjs",
+        "lib/education/attendance-summary.ts",
+        "tests/integration/attendance-summary-contract.mjs",
+        "app/classes/[id]/attendance/page.tsx",
+        "tests/worker-attendance-ui-check.mjs",
+        "app/attendance/page.tsx",
+        "tests/worker-attendance-summary-ui-check.mjs",
+        "docs/specification/UAT.md",
+        "tests/integration/attendance-summary-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
     }
   ],
   "delivery_metadata": {
@@ -5504,8 +6288,10 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented second batch, not its containing publication commit. Published v2.2 evidence at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs and publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
-    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb"
+    "note": "source_commit records the parent of this documented fourth attendance batch, not its containing publication commit. Published v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+    "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911"
   }
 }

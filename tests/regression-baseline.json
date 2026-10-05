@@ -11,12 +11,32 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 122
+      "minPassed": 127
     },
     "integration/api-contract": {
       "layer": "integration",
       "file": "tests/integration/api-contract.mjs",
       "minPassed": 26
+    },
+    "integration/attendance-review-access-contract": {
+      "layer": "integration",
+      "file": "tests/integration/attendance-review-access-contract.mjs",
+      "minPassed": 3782
+    },
+    "integration/attendance-review-contract": {
+      "layer": "integration",
+      "file": "tests/integration/attendance-review-contract.mjs",
+      "minPassed": 390
+    },
+    "integration/attendance-summary-access-contract": {
+      "layer": "integration",
+      "file": "tests/integration/attendance-summary-access-contract.mjs",
+      "minPassed": 271
+    },
+    "integration/attendance-summary-contract": {
+      "layer": "integration",
+      "file": "tests/integration/attendance-summary-contract.mjs",
+      "minPassed": 103
     },
     "integration/curriculum-contract": {
       "layer": "integration",
@@ -36,7 +56,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 202
+      "minPassed": 226
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -111,7 +131,7 @@
     "smoke/basic-smoke": {
       "layer": "smoke",
       "file": "tests/smoke/basic-smoke.mjs",
-      "minPassed": 117
+      "minPassed": 142
     },
     "unit/auth-contract": {
       "layer": "unit",

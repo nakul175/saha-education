@@ -36,6 +36,8 @@ const routes = {
   reports: await load('app/api/report-cards/route.ts'),
   report: await load('app/api/report-cards/[id]/route.ts'),
   notices: await load('app/api/notifications/route.ts'),
+  attendanceEditor: await load('app/api/classes/[id]/attendance-editor/route.ts'),
+  attendanceHistory: await load('app/api/classes/[id]/attendance-editor/history/route.ts'),
 };
 const curriculum = await load('lib/education/curriculum.ts');
 const resources = await load('lib/education/resources.ts');
@@ -153,6 +155,19 @@ try {
   const publicationNoticeId = 'report-card-published:draft-a:guardian-a';
   check(sqlite.prepare('SELECT count(*) n FROM notifications WHERE id=?').get(publicationNoticeId).n, 1, 'Source has exactly one current linked guardian notice');
 
+  const savedMarks = await json(await routes.attendanceEditor.GET(request('teacher-a', 'GET', undefined,
+    '/api/classes/class-a/attendance-editor?date=' + today), params('class-a')), 200, 'Saved attendance snapshot loads before encrypted recovery');
+  const priorMark = savedMarks.roster.items.find(row => row.student.id === 'student-a').record;
+  const attendanceReviewInput = { date: today, clientRequestId: crypto.randomUUID(), reviewConfirmed: true,
+    reason: 'Reviewed synthetic saved absence for recovery verification.',
+    entries: [{ studentId: 'student-a', status: 'absent', note: 'Synthetic reviewed recovery explanation', expectedRecord: priorMark }] };
+  const attendanceReview = await json(await routes.attendanceEditor.POST(request('teacher-a', 'POST', attendanceReviewInput), params('class-a')),
+    201, 'Reviewed saved attendance and exact before/after evidence commit before encrypted snapshot');
+  check(attendanceReview.review.changes[0].beforeRecord, priorMark, 'Source review binds the exact existing saved mark');
+  check(attendanceReview.review.changes[0].afterRecord.status, 'absent', 'Source review saves the explicitly chosen absence');
+  check(count(sqlite, 'attendance_reviews'), 1, 'Source has one immutable attendance review');
+  check(count(sqlite, 'attendance_review_entries'), 1, 'Source has one attributable attendance change');
+
   const before = databaseSnapshot(sqlite);
   check(sqlite.prepare('PRAGMA foreign_key_check').all(), [], 'Populated source has no foreign-key violations');
   check(sqlite.prepare('PRAGMA integrity_check').get().integrity_check, 'ok', 'Populated source passes SQLite integrity check');
@@ -176,7 +191,7 @@ try {
   check(restored.prepare('PRAGMA integrity_check').get().integrity_check, 'ok', 'Restored populated database passes SQLite integrity check');
   globalThis.__sahaTestDb = proxyFor(restored);
 
-  const preservedCounts = Object.fromEntries(['report_publication_receipts', 'report_cards', 'notifications', 'identity_admin_events', 'profile_link_events', 'profile_link_versions', 'reading_import_drafts', 'reading_import_items',
+  const preservedCounts = Object.fromEntries(['attendance_reviews', 'attendance_review_entries', 'attendance', 'report_publication_receipts', 'report_cards', 'notifications', 'identity_admin_events', 'profile_link_events', 'profile_link_versions', 'reading_import_drafts', 'reading_import_items',
     'reading_import_receipts', 'reading_checks', 'reading_corrections', 'assignment_submission_windows', 'submission_attempts', 'submission_feedback',
     'curriculum_references', 'curriculum_reference_versions', 'resource_reference_bindings', 'teaching_resources', 'resource_versions'].map(table => [table, count(restored, table)]));
   for (let index = 0; index < profileInputs.length; index++) {
@@ -208,9 +223,24 @@ try {
   check(restored.prepare('SELECT * FROM report_publication_receipts WHERE report_id=?').get('draft-a'), publicationReceipt, 'Restored retry preserves exact publication receipt');
   const restoredNotices = await json(await routes.notices.GET(request('guardian-a')), 200, 'Restored guardian reads own original notice');
   check(restoredNotices.filter(row => row.id === publicationNoticeId).length, 1, 'Restored publication replay appends no duplicate notice');
+  const attendanceReplay = await json(await routes.attendanceEditor.POST(request('teacher-a', 'POST', attendanceReviewInput), params('class-a')),
+    200, 'Exact attendance review UUID replays after actual encrypted restore');
+  check(attendanceReplay.replayed, true, 'Restored retry is identified as the original committed review');
+  check(attendanceReplay.review, attendanceReview.review, 'Restored review retains exact ID, actor, reason, time and before/after evidence');
+  const attendanceHistory = await json(await routes.attendanceHistory.GET(request('teacher-a', 'GET', undefined,
+    '/api/classes/class-a/attendance-editor/history?date=' + today), params('class-a')), 200, 'Restored staff attendance history remains readable');
+  check(attendanceHistory.items, [attendanceReview.review], 'Restored history contains exactly the original reviewed outcome');
+  const restoredMarks = await json(await routes.attendanceEditor.GET(request('teacher-a', 'GET', undefined,
+    '/api/classes/class-a/attendance-editor?date=' + today), params('class-a')), 200, 'Restored current saved attendance can be checked separately from a receipt');
+  check(restoredMarks.roster.items.find(row => row.student.id === 'student-a').record,
+    attendanceReview.review.changes[0].afterRecord, 'Exact retry did not alter the restored saved mark');
   check(Object.fromEntries(Object.keys(preservedCounts).map(table => [table, count(restored, table)])), preservedCounts, 'All exact UUID retries append no duplicate evidence after restore');
 
   const guards = [
+    ["UPDATE attendance_reviews SET reason='Changed reviewed reason' WHERE id=?", attendanceReview.review.id],
+    ['DELETE FROM attendance_reviews WHERE id=?', attendanceReview.review.id],
+    ["UPDATE attendance_review_entries SET after_record='{}' WHERE review_id=?", attendanceReview.review.id],
+    ['DELETE FROM attendance_review_entries WHERE review_id=?', attendanceReview.review.id],
     ["UPDATE report_publication_receipts SET published_at='Changed timestamp' WHERE id=?", publicationReceipt.id],
     ['DELETE FROM report_publication_receipts WHERE id=?', publicationReceipt.id],
     ["UPDATE profile_link_events SET reason='Changed recovery reason' WHERE id=?", profileDecisions[0].event.id],

@@ -1,8 +1,8 @@
 # Data dictionary
 
-Version 2.4 draft, 5 October 2026. Current working inventory: **35 implemented SQL tables and 294 columns**, obtained by applying migrations 0000–0012 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+Version 2.5 draft, 5 October 2026. Current working inventory: **37 implemented SQL tables and 309 columns**, obtained by applying migrations 0000–0013 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
 
-The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 Requirement references: FR-01–FR-03 identity/access; FR-05–FR-12 school/academic records; FR-13–FR-18 teacher resources; FR-20 reviewed reading; NFR-01/NFR-02 constraints and concurrency; NFR-03 retention. IDs and status are canonical in [requirements.json](requirements.json); business context is in [BRD](BRD.md).
 
@@ -25,7 +25,7 @@ Sensitivity labels are engineering handling descriptions, not an approved legal 
 - `attendance.recorded_by` is TEXT without an FK. Newer reading/resource actor references have user FKs. User/guardian/student relationship backfill is not performed by migration 0001.
 
 - New administration, curriculum and submission CHECK/unique keys enforce local row shape and revision uniqueness; same-school, live role, review and exact-version authority remain guarded service predicates. Identity status/session/evidence changes and curriculum resource-copy/provenance use atomic D1 batches.
-- Reading corrections, profile-link events, submission-window reviews, import items/receipts and report publication receipts block UPDATE/DELETE with immutable-row triggers. Import draft originals and terminal decisions are guarded; a confirmation trigger inserts all checks and receipts in one atomic UPDATE. Other domain histories remain append-only through their APIs; no platform-wide immutable audit is inferred.
+- Reading corrections, profile-link events, submission-window reviews, import items/receipts, report publication receipts and reviewed attendance receipts/entries block UPDATE/DELETE with immutable-row triggers. Import draft originals and terminal decisions are guarded; a confirmation trigger inserts all checks and receipts in one atomic UPDATE. Other domain histories remain append-only through their APIs; no platform-wide immutable audit is inferred.
 
 
 - Staged import rows are not reading observations. A confirmed receipt uniquely consumes `(school_id, source_label, external_reference)`; a conflict rolls back the entire confirmation and leaves the draft staged. User-declared source labels/references are not verified vendor identities.
@@ -104,6 +104,35 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 | expires_at | INTEGER | no | none | No additional DB constraint | Expiry as Unix epoch milliseconds for the ten-minute login window. | Restricted operational metadata |
 
 Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
+
+## `attendance_reviews`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Client attendance-review UUID; stable exact actor/canonical payload retry, not an attendance row ID. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX attendance_reviews_class_date_time (school_id, class_id, attendance_date, created_at); UPDATE/DELETE blocked by immutable-row triggers | Authenticated current school fixed at review; whole original batch remains current same-school for history/replay. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| class_id | TEXT | no | none | FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX attendance_reviews_class_date_time (school_id, class_id, attendance_date, created_at); UPDATE/DELETE blocked by immutable-row triggers | Current staff-authorized class; actual INSERT rechecks class/live actor and every changed active pupil. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| attendance_date | TEXT | no | none | INDEX attendance_reviews_class_date_time (school_id, class_id, attendance_date, created_at); CHECK exact 10-character YYYY-MM-DD GLOB and real SQLite calendar roundtrip; UPDATE/DELETE blocked by immutable-row triggers | Exact real YYYY-MM-DD date; no future/past/term or school-calendar policy inferred. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| reviewed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated enabled mapped school administrator or current assigned teacher. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| reason | TEXT | no | none | CHECK length(reason) BETWEEN 10 AND 500; UPDATE/DELETE blocked by immutable-row triggers | Trimmed explicit review reason, 10–500 Unicode code points; service rejects controls. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| request_hash | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Private SHA-256 canonical actor/school/class/date/reason/sorted-entry digest for exact UUID replay; never serialized. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| entries_json | TEXT | no | none | CHECK valid JSON array length 1–100; BEFORE INSERT current authority/roster/full-record CAS guard; AFTER INSERT atomic mark/evidence commit; UPDATE/DELETE blocked by immutable-row triggers | Private normalized changed-entry array plus server attendance IDs; strict API requires full expected record or null and explicit status/note; atomic trigger validates current eligibility/CAS and writes marks plus evidence. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| created_at | TEXT | no | none | INDEX attendance_reviews_class_date_time (school_id, class_id, attendance_date, created_at); UPDATE/DELETE blocked by immutable-row triggers | Server ISO review time reused for saved mark update/new creation; original creation time retained on replacement. | Protected staff-reviewed attendance evidence; private notes and attribution |
+
+Source: db/attendance-reviews-schema.ts; drizzle/0013_attendance_reviews.sql.
+
+## `attendance_review_entries`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Deterministic review UUID plus pupil ID audit-entry identifier. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| review_id | TEXT | no | none | FK attendance_reviews.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX attendance_review_entries_student (student_id, review_id); UNIQUE attendance_review_entries_pupil (review_id, student_id); UPDATE/DELETE blocked by immutable-row triggers | Owning immutable reviewed attendance batch; exactly one change per submitted pupil. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| attendance_id | TEXT | no | none | FK attendance.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Stable saved attendance tuple row linked to this before/after decision; later legacy changes do not rewrite evidence. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX attendance_review_entries_student (student_id, review_id); UNIQUE attendance_review_entries_pupil (review_id, student_id); UPDATE/DELETE blocked by immutable-row triggers | Pupil whose exact attendance record changed; same-school active member required at new reviewed write. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| before_record | TEXT | yes | none | CHECK SQL NULL or valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Nullable serialized exact prior id/status/note/recordedBy/createdAt/updatedAt; null means no saved tuple existed. | Protected staff-reviewed attendance evidence; private notes and attribution |
+| after_record | TEXT | no | none | CHECK valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Serialized exact committed id/status/note/recordedBy/createdAt/updatedAt; derived from actual saved row by atomic trigger. | Protected staff-reviewed attendance evidence; private notes and attribution |
+
+Source: db/attendance-reviews-schema.ts; drizzle/0013_attendance_reviews.sql.
 
 ## `auth_sessions`
 
@@ -327,18 +356,18 @@ Source: db/schema.ts; drizzle/0002_reviewed_reading.sql.
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
 |---|---|---|---|---|---|---|
-| id | TEXT | no | none | PK; No UPDATE/DELETE: immutable-row triggers | Client correction UUID, stable across exact reviewed-payload retries. | Protected learner observation correction evidence |
-| reading_check_id | TEXT | no | none | FK reading_checks.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE reading_corrections_check_revision (reading_check_id, revision); No UPDATE/DELETE: immutable-row triggers | Original manual observation; source row is preserved. | Protected learner observation correction evidence |
-| revision | INTEGER | no | none | UNIQUE reading_corrections_check_revision (reading_check_id, revision); CHECK typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000000; No UPDATE/DELETE: immutable-row triggers | Successive correction revision, expectedRevision plus 1,1–1000000. | Protected learner observation correction evidence |
-| corrected_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX reading_corrections_actor (corrected_by, corrected_at); No UPDATE/DELETE: immutable-row triggers | Current assigned teacher or school administrator, rechecked at insertion. | Protected learner observation correction evidence |
-| corrected_at | TEXT | no | none | INDEX reading_corrections_actor (corrected_by, corrected_at); No UPDATE/DELETE: immutable-row triggers | Server ISO correction timestamp. | Protected learner observation correction evidence |
-| reason | TEXT | no | none | CHECK length(trim(reason)) BETWEEN 1 AND 1000; No UPDATE/DELETE: immutable-row triggers | Plain reviewed correction reason, trimmed 1–1000, excludes controls and angle brackets. | Protected learner observation correction evidence |
-| language | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement language tag; effective history uses latest correction. | Protected learner observation correction evidence |
-| passage_reference | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement plain task reference, service maximum 200; not a transcript/full passage. | Protected learner observation correction evidence |
-| reading_date | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement valid nonfuture UTC calendar date as YYYY-MM-DD. | Protected learner observation correction evidence |
-| duration_ms | INTEGER | no | none | CHECK typeof(duration_ms) = 'integer' AND duration_ms BETWEEN 1000 AND 3600000; No UPDATE/DELETE: immutable-row triggers | Replacement rounded integer duration 1000–3600000 milliseconds. | Protected learner observation correction evidence |
-| words_attempted | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer attempted words 1–500. | Protected learner observation correction evidence |
-| words_correct | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer correct words 0–words_attempted; rate/accuracy are derived, not stored. | Protected learner observation correction evidence |
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Client correction UUID, stable across exact reviewed-payload retries. | Protected learner observation correction evidence |
+| reading_check_id | TEXT | no | none | FK reading_checks.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE reading_corrections_check_revision (reading_check_id, revision); UPDATE/DELETE blocked by immutable-row triggers | Original manual observation; source row is preserved. | Protected learner observation correction evidence |
+| revision | INTEGER | no | none | UNIQUE reading_corrections_check_revision (reading_check_id, revision); CHECK typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000000; UPDATE/DELETE blocked by immutable-row triggers | Successive correction revision, expectedRevision plus 1,1–1000000. | Protected learner observation correction evidence |
+| corrected_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX reading_corrections_actor (corrected_by, corrected_at); UPDATE/DELETE blocked by immutable-row triggers | Current assigned teacher or school administrator, rechecked at insertion. | Protected learner observation correction evidence |
+| corrected_at | TEXT | no | none | INDEX reading_corrections_actor (corrected_by, corrected_at); UPDATE/DELETE blocked by immutable-row triggers | Server ISO correction timestamp. | Protected learner observation correction evidence |
+| reason | TEXT | no | none | CHECK length(trim(reason)) BETWEEN 1 AND 1000; UPDATE/DELETE blocked by immutable-row triggers | Plain reviewed correction reason, trimmed 1–1000, excludes controls and angle brackets. | Protected learner observation correction evidence |
+| language | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Replacement language tag; effective history uses latest correction. | Protected learner observation correction evidence |
+| passage_reference | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Replacement plain task reference, service maximum 200; not a transcript/full passage. | Protected learner observation correction evidence |
+| reading_date | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Replacement valid nonfuture UTC calendar date as YYYY-MM-DD. | Protected learner observation correction evidence |
+| duration_ms | INTEGER | no | none | CHECK typeof(duration_ms) = 'integer' AND duration_ms BETWEEN 1000 AND 3600000; UPDATE/DELETE blocked by immutable-row triggers | Replacement rounded integer duration 1000–3600000 milliseconds. | Protected learner observation correction evidence |
+| words_attempted | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; UPDATE/DELETE blocked by immutable-row triggers | Replacement integer attempted words 1–500. | Protected learner observation correction evidence |
+| words_correct | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; UPDATE/DELETE blocked by immutable-row triggers | Replacement integer correct words 0–words_attempted; rate/accuracy are derived, not stored. | Protected learner observation correction evidence |
 
 Source: db/reading-correction-schema.ts; drizzle/0007_reading_corrections.sql.
 
@@ -574,6 +603,12 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_tru
 
 ## v2.4 derived dashboard views
 
-Dashboard DTOs are read projections, not persisted tables/columns; the SQL dictionary and matching CSV remain exactly 35 tables/294 fields. No schema or route inventory changes. [Dashboard design](DASHBOARD-DESIGN.md) lists every derived role field, bound, count and null meaning.
+Dashboard DTOs are read projections, not persisted tables/columns; their published v2.4 slice used 35 tables/294 fields and added no route/schema. The current v2.5 dictionary/CSV has 37 tables/309 fields after additive attendance evidence. [Dashboard design](DASHBOARD-DESIGN.md) lists every derived role field, bound, count and null meaning.
 
 `asOf` is SQL UTC time. `DashboardList.total` is an exact uncapped authorized count; `items` is bounded; `truncated` means total exceeds limit. Administrator teachers count only current enabled accounts with nonempty trusted mapping. Teacher coverage counts distinct active same-school pupils, unique valid recorded pairs, absent pairs, duplicate whole enrolment/result pairs and invalid evidence; invalidMaximum has unavailable maxScore=null. Legitimate zero remains recorded. Family attendance counts observed rows/statuses and invalid dates with nullable real-date coverage; no percent/expected-day field exists. Report grades are stored text and published-only counts exclude drafts. These fields add no approved educational/retention meaning.
+
+## v2.5 reviewed attendance evidence and summary projections
+
+Migration 0013 adds only `attendance_reviews` (9 fields) and `attendance_review_entries` (6 fields). Existing `attendance` fields remain mutable, uniquely keyed by class/student/date and have no backfilled receipt. A new reviewed receipt/trigger statement atomically writes changed marks plus exact immutable before/after JSON; UPDATE/DELETE is blocked on both new tables. History/current-school/privacy and full expected-record CAS are explicit service/trigger rules, not implied by FKs alone.
+
+Editor/review/history/summary DTOs are derived views described in [attendance design](ATTENDANCE-DESIGN.md), not additional persisted fields. Summary raw counts/real-date coverage and currentActive add no denominator, percentage, expected school days, grade, norm or historical entitlement. Notes and attribution remain private staff evidence; summary excludes them. Reason/note Unicode and preserved legacy bounds are interface limits, not approved record-retention policy.

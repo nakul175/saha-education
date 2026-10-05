@@ -19,6 +19,8 @@ const paths = [
   ['app/api/assignments/[id]/submission-window/route.ts', 'GET'], ['app/api/assignments/[id]/submission-window/history/route.ts', 'GET'],
   ['app/api/schools/route.ts', 'GET'], ['app/api/courses/route.ts', 'GET'], ['app/api/classes/route.ts', 'GET'],
   ['app/api/users/route.ts', 'GET'], ['app/api/report-cards/route.ts', 'GET'], ['app/api/notifications/route.ts', 'GET'],
+  ['app/api/classes/[id]/attendance-summary/route.ts', 'GET'], ['app/api/classes/[id]/attendance-editor/route.ts', 'GET'],
+  ['app/api/classes/[id]/attendance-editor/history/route.ts', 'GET'],
 ];
 const originalFetch = globalThis.fetch;
 let externalCalls = 0;
@@ -28,6 +30,7 @@ try {
   for (const name of ['identity_admin_events', 'identity_admin_user_versions', 'curriculum_references', 'curriculum_reference_versions', 'resource_reference_bindings', 'submission_attempts', 'submission_feedback', 'reading_corrections', 'profile_link_versions', 'profile_link_events', 'reading_import_drafts', 'reading_import_items', 'reading_import_receipts', 'assignment_submission_windows']) check(tables.has(name), true, 'Migration boots ' + name);
   await seedSecurityData(db, schema);
   check(tables.has('report_publication_receipts'), true, 'Publication evidence migration boots');
+  for (const name of ['attendance_reviews', 'attendance_review_entries']) check(tables.has(name), true, 'Reviewed attendance migration boots ' + name);
   const { createSession } = await load('lib/education/session.ts');
   const sessions = {};
   for (const user of ['admin-a', 'teacher-a', 'student-user-a', 'guardian-a']) sessions[user] = (await createSession(user)).split(';')[0];
@@ -68,6 +71,33 @@ try {
   check((await routes.get('app/api/assignments/[id]/submission-window/history/route.ts').GET(request('GET', 'student-user-a'), context)).status, 403, 'Staff window history denies learner');
   check((await routes.get('app/api/users/route.ts').GET(request('GET', 'teacher-a'))).status, 403, 'Account picker denies staff');
   check((await routes.get('app/api/report-cards/route.ts').POST(request('POST', 'guardian-a'))).status, 403, 'Report creation denies family before invalid body');
+  const attendanceEditor = routes.get('app/api/classes/[id]/attendance-editor/route.ts');
+  for (const user of ['guardian-a', 'student-user-a']) {
+    check((await attendanceEditor.GET(request('GET', user), context)).status, 403, 'Family cannot read staff attendance editor before date validation');
+    check((await attendanceEditor.POST(request('POST', user), context)).status, 403, 'Family cannot save reviewed attendance before body validation');
+  }
+  const editorContext = { params: Promise.resolve({ id: 'class-a' }) };
+  const attendanceRequest = (path, method = 'GET', payload) => new Request(origin + path, { method,
+    headers: { origin, cookie: sessions['teacher-a'], ...(payload ? { 'content-type': 'application/json' } : {}) },
+    ...(payload ? { body: JSON.stringify(payload) } : {}) });
+  check((await attendanceEditor.GET(attendanceRequest('/api/classes/class-a/attendance-editor?date=2026-02-30'), editorContext)).status, 400, 'Impossible calendar date is rejected');
+  const marks = await attendanceEditor.GET(attendanceRequest('/api/classes/class-a/attendance-editor?date=2026-10-05'), editorContext);
+  check(marks.status, 200, 'Staff attendance snapshot boots');
+  check((await marks.json()).roster.items[0].record, null, 'Fresh mark is explicitly unrecorded');
+  const reviewInput = { date: '2026-10-05', clientRequestId: crypto.randomUUID(), reviewConfirmed: true,
+    reason: 'Reviewed synthetic attendance boot check.', entries: [{ studentId: 'student-a', status: 'absent', note: 'Synthetic saved explanation', expectedRecord: null }] };
+  const saved = await attendanceEditor.POST(attendanceRequest('/api/classes/class-a/attendance-editor', 'POST', reviewInput), editorContext);
+  check(saved.status, 201, 'Reviewed attendance and evidence commit through actual route');
+  const savedBody = await saved.json();
+  check(savedBody.review.changes[0].afterRecord.status, 'absent', 'Explicit reviewed absence remains saved');
+  check(sqlite.prepare('SELECT count(*) n FROM attendance_review_entries').get().n, 1, 'One immutable attendance change is recorded');
+  const replay = await attendanceEditor.POST(attendanceRequest('/api/classes/class-a/attendance-editor', 'POST', reviewInput), editorContext);
+  check(replay.status, 200, 'Exact attendance UUID retry boots');
+  check((await replay.json()).review, savedBody.review, 'Retry returns original immutable review');
+  const history = await routes.get('app/api/classes/[id]/attendance-editor/history/route.ts').GET(
+    attendanceRequest('/api/classes/class-a/attendance-editor/history?date=2026-10-05'), editorContext);
+  check(history.status, 200, 'Reviewed attendance history boots');
+  check((await history.json()).total, 1, 'Retry creates no second review');
   const report = await load('app/api/report-cards/[id]/route.ts');
   const publication = await report.PATCH(new Request(origin + '/api/report-cards/draft-a', {
     method: 'PATCH', headers: { origin, cookie: sessions['admin-a'], 'content-type': 'application/json' }, body: JSON.stringify({ publish: true }),

@@ -34,6 +34,9 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-attendance-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local built reviewed attendance snapshot/save/replay/history and legacy boundaries; synthetic records only' },
+  'tests/worker-attendance-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local reviewed attendance browser preservation, conflict and exact retry journeys; synthetic records only' },
+  'tests/worker-attendance-summary-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local attendance viewer selection/refresh/failure/date/privacy and mobile journeys; synthetic records only' },
   'tests/worker-dashboard-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser role dashboard accuracy, bounded lists, navigation and mobile journeys; synthetic sessions only' },
   'tests/worker-accessibility-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'automated rendered localhost WCAG-rule sample of role workflows; not formal accessibility acceptance' },
   'tests/worker-domain-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser report/notice role, review and recovery journeys; synthetic sessions only' },

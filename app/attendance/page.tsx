@@ -1,176 +1,160 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { listClasses } from '@/lib/education/client-api';
-import { listAttendance } from '@/lib/education/client-api';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table';
+import { Label } from '@/components/ui/label';
+import type { Principal } from '@/lib/education/types';
+import type { AttendanceSummary } from '@/lib/education/attendance-summary';
+
+type ClassChoice = { id: string; name: string };
+async function read<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const response = await fetch(path, { cache: 'no-store', signal });
+  if (response.status === 401) {
+    await response.text();
+    window.location.assign(new URL('/login', window.location.origin).href);
+    throw new Error('Please sign in again.');
+  }
+  if (!response.ok) {
+    await response.text();
+    throw new Error(response.status === 403 || response.status === 404
+      ? 'This class is no longer available. Refresh the class choices before continuing.'
+      : 'Attendance could not be loaded. Refresh to try again.');
+  }
+  return response.json() as Promise<T>;
+}
 
 export default function AttendancePage() {
-  const [classes, setClasses] = useState<{ id: string; name: string }[]>([]);
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
-  const [attendanceData, setAttendanceData] = useState<Record<string, { studentId: string; date: string; status: string }[]>>({});
-  const [loading, setLoading] = useState(false);
+  const [principal, setPrincipal] = useState<Principal | null>(null);
+  const [choices, setChoices] = useState<ClassChoice[]>([]);
+  const [selected, setSelected] = useState('');
+  const [snapshot, setSnapshot] = useState<AttendanceSummary | null>(null);
+  const [loadingChoices, setLoadingChoices] = useState(true);
+  const [loadingRecords, setLoadingRecords] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refresh, setRefresh] = useState(0);
+  const selectionGeneration = useRef(0);
+  const inventoryGeneration = useRef(0);
+  const inventoryAbort = useRef<AbortController | null>(null);
+  const message = useRef<HTMLDivElement>(null);
 
-  // Load classes on component mount
-  useEffect(() => {
-    const loadClasses = async () => {
-      try {
-        const classList = await listClasses();
-        setClasses(classList);
-        
-        if (classList.length > 0) {
-          setSelectedClassId(classList[0].id);
-        }
-      } catch (err) {
-        setError('Failed to load classes');
-        console.error(err);
-      }
-    };
-
-    loadClasses();
+  const reload = useCallback(async (preferred: string) => {
+    const generation = ++inventoryGeneration.current;
+    ++selectionGeneration.current;
+    inventoryAbort.current?.abort();
+    const controller = new AbortController();
+    inventoryAbort.current = controller;
+    setSnapshot(null); setLoadingRecords(false); setLoadingChoices(true); setError(null);
+    try {
+      const [account, rows] = await Promise.all([
+        read<Principal>('/api/session', controller.signal), read<ClassChoice[]>('/api/classes', controller.signal),
+      ]);
+      if (generation !== inventoryGeneration.current) return;
+      const sorted = [...rows].sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
+      setPrincipal(account); setChoices(sorted);
+      setSelected(sorted.some(row => row.id === preferred) ? preferred : sorted[0]?.id ?? '');
+      setRefresh(value => value + 1);
+    } catch (failure) {
+      if (generation !== inventoryGeneration.current || controller.signal.aborted) return;
+      setChoices([]); setSelected(''); setSnapshot(null);
+      setError(failure instanceof Error ? failure.message : 'Class choices could not be loaded. Refresh to try again.');
+    } finally {
+      if (generation === inventoryGeneration.current) setLoadingChoices(false);
+    }
   }, []);
 
-  // Load attendance data when class changes
   useEffect(() => {
-    const loadAttendanceData = async () => {
-      if (!selectedClassId) return;
-      
-      setLoading(true);
-      setError(null);
-      
+    const inventory = inventoryGeneration, selection = selectionGeneration, abort = inventoryAbort;
+    let active = true;
+    queueMicrotask(() => { if (active) void reload(''); });
+    return () => { active = false; ++inventory.current; ++selection.current; abort.current?.abort(); };
+  }, [reload]);
+
+  useEffect(() => {
+    if (!selected || loadingChoices) return;
+    const selection = selectionGeneration;
+    const generation = ++selection.current;
+    const controller = new AbortController();
+    void (async () => {
+      setLoadingRecords(true);
       try {
-        // Get all students in this class
-        const attendanceRecords = await listAttendance({ classId: selectedClassId });
-        
-        // Group records by student ID
-        const groupedData: Record<string, { studentId: string; date: string; status: string }[]> = {};
-        attendanceRecords.forEach(record => {
-          if (!groupedData[record.studentId]) {
-            groupedData[record.studentId] = [];
-          }
-          groupedData[record.studentId].push(record);
-        });
-        
-        setAttendanceData(groupedData);
-      } catch (err) {
-        setError('Failed to load attendance data');
-        console.error(err);
+        const data = await read<AttendanceSummary>('/api/classes/' + encodeURIComponent(selected) + '/attendance-summary', controller.signal);
+        if (generation !== selectionGeneration.current || controller.signal.aborted) return;
+        if (data.class.id !== selected) throw new Error('Attendance did not match the selected class. Refresh before continuing.');
+        setSnapshot(data); setError(null);
+      } catch (failure) {
+        if (generation !== selectionGeneration.current || controller.signal.aborted) return;
+        setSnapshot(null);
+        setError(failure instanceof Error ? failure.message : 'Attendance could not be loaded. Refresh to try again.');
       } finally {
-        setLoading(false);
+        if (generation === selectionGeneration.current) setLoadingRecords(false);
       }
-    };
+    })();
+    return () => { ++selection.current; controller.abort(); };
+  }, [selected, refresh, loadingChoices]);
 
-    loadAttendanceData();
-  }, [selectedClassId]);
+  useEffect(() => { if (error) message.current?.focus(); }, [error]);
+  function choose(value: string) {
+    if (value === selected) return;
+    ++selectionGeneration.current;
+    setSnapshot(null); setError(null); setLoadingRecords(Boolean(value)); setSelected(value);
+  }
+  const current = snapshot?.class.id === selected ? snapshot : null;
+  const staff = current?.role === 'admin' || current?.role === 'teacher';
 
-  // Calculate attendance percentage for a student
-  const calculateAttendancePercentage = (records: { studentId: string; date: string; status: string }[]): number => {
-    if (records.length === 0) return 0;
-    
-    const attended = records.filter(record => 
-      record.status === 'present' || record.status === 'late'
-    ).length;
-    
-    return Math.round((attended / records.length) * 100);
-  };
-
-  // Format date for display
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
-
-  return (
-    <div className="container mx-auto py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6 flex items-center gap-4">
-            <div className="w-full">
-              <label className="block text-sm font-medium mb-2">Select Class</label>
-              <Select value={selectedClassId || ''} onValueChange={setSelectedClassId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a class" />
-                </SelectTrigger>
-                <SelectContent>
-                  {classes.map(cls => (
-                    <SelectItem key={cls.id} value={cls.id}>
-                      {cls.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={() => setSelectedClassId(null)} variant="outline">
-              Refresh
-            </Button>
+  return <AppShell principal={principal}>
+    <div className="min-w-0 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-bold">Attendance Summary</h1>
+        <p className="text-muted-foreground">Observed records for the selected class. Counts describe saved rows; they do not infer missing school days.</p>
+      </header>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="min-w-0 flex-1 basis-56 space-y-2">
+          <Label htmlFor="attendance-class">Select Class</Label>
+          <select id="attendance-class" className="w-full min-w-0 rounded-md border bg-background px-3 py-2" value={selected}
+            onChange={event => choose(event.target.value)} disabled={loadingChoices}>
+            <option value="">{loadingChoices ? 'Loading class choices…' : 'Choose a class'}</option>
+            {choices.map(row => <option key={row.id} value={row.id}>{row.name}</option>)}
+          </select>
+        </div>
+        <Button variant="outline" onClick={() => void reload(selected)} disabled={loadingChoices}>Refresh</Button>
+      </div>
+      {error && <div ref={message} tabIndex={-1} role="alert" className="rounded-md border border-destructive p-4">{error}</div>}
+      {(loadingChoices || loadingRecords) && <p role="status">{loadingChoices ? 'Loading class choices…' : 'Loading attendance records…'}</p>}
+      {!loadingChoices && choices.length === 0 && !error && <p>No classes are currently available to your account.</p>}
+      {!loadingChoices && !loadingRecords && !selected && choices.length > 0 && <p>Choose a class to view its available records.</p>}
+      {current && !loadingChoices && !loadingRecords && <section className="min-w-0 space-y-4" aria-labelledby="attendance-class-heading">
+        <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 break-words">
+            <h2 id="attendance-class-heading" className="text-xl font-semibold">{current.class.name}</h2>
+            <p className="text-sm text-muted-foreground">Records loaded at <time dateTime={current.asOf}>{new Date(current.asOf).toLocaleString()}</time>.</p>
           </div>
-
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
-              {error}
-            </div>
-          )}
-
-          {loading ? (
-            <div className="text-center py-8">Loading attendance data...</div>
-          ) : selectedClassId && attendanceData ? (
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Student</TableCell>
-                  <TableCell>Attendance %</TableCell>
-                  <TableCell>Days Recorded</TableCell>
-                  <TableCell>Last Attendance</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Object.entries(attendanceData).map(([studentId, records]) => {
-                  const attendancePercentage = calculateAttendancePercentage(records);
-                  const latestRecord = records.sort((a, b) => 
-                    new Date(b.date).getTime() - new Date(a.date).getTime()
-                  )[0];
-                  
-                  return (
-                    <TableRow key={studentId}>
-                      <TableCell className="font-medium">
-                        {/* In a real app, you would fetch student details here */}
-                        Student {studentId.substring(0, 6)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span>{attendancePercentage}%</span>
-                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${
-                                attendancePercentage >= 80 ? 'bg-green-500' : 
-                                attendancePercentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                              }`}
-                              style={{ width: `${attendancePercentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{records.length}</TableCell>
-                      <TableCell>
-                        {latestRecord ? formatDate(latestRecord.date) : 'N/A'}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="text-center py-8">Select a class to view attendance data</div>
-          )}
-        </CardContent>
-      </Card>
+          {staff && <a className="rounded-md border px-3 py-2 underline" href={'/classes/' + encodeURIComponent(current.class.id) + '/attendance'}>Review attendance marks</a>}
+        </div>
+        {current.pupils.truncated && <p role="status" className="rounded-md border p-3">Showing {current.pupils.items.length} of {current.pupils.total} available learners. This view is limited to {current.pupils.limit}; omitted learners are not counted as having no records.</p>}
+        {current.pupils.total === 0 && <p>No learner profiles or saved attendance rows are currently available for this class.</p>}
+        {current.pupils.items.map(pupil => <article key={pupil.id} data-attendance-pupil={pupil.id} aria-labelledby={'attendance-pupil-' + pupil.id}
+          className="min-w-0 space-y-3 rounded-lg border p-4">
+          <div className="min-w-0 break-words">
+            <h3 id={'attendance-pupil-' + pupil.id} className="text-lg font-semibold">{pupil.firstName} {pupil.lastName}</h3>
+            <p className="text-sm text-muted-foreground">Admission number: {pupil.admissionNumber}</p>
+            <p className="text-sm">{pupil.currentActive ? 'Current active enrolment' : 'Saved records; no current active enrolment in this class'}</p>
+          </div>
+          {pupil.attendance.recordedRows === 0 ? <p>No attendance has been recorded for this learner in this class.</p> : <>
+            <p>{pupil.attendance.recordedRows} saved {pupil.attendance.recordedRows === 1 ? 'row' : 'rows'}.</p>
+            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {Object.entries(pupil.attendance.counts).map(([status, count]) => <div key={status}>
+                <dt className="text-sm capitalize text-muted-foreground">{status === 'other' ? 'Other saved status' : status}</dt>
+                <dd className="font-semibold">{count}</dd>
+              </div>)}
+            </dl>
+            <p className="break-words">{pupil.attendance.firstDate && pupil.attendance.lastDate
+              ? <>Recorded date coverage: <time dateTime={pupil.attendance.firstDate}>{pupil.attendance.firstDate}</time> to <time dateTime={pupil.attendance.lastDate}>{pupil.attendance.lastDate}</time>.</>
+              : 'No valid calendar-date coverage is available for these saved rows.'}</p>
+            {pupil.attendance.invalidDateRows > 0 && <p role="status">{pupil.attendance.invalidDateRows} saved {pupil.attendance.invalidDateRows === 1 ? 'row has' : 'rows have'} an invalid date and are excluded from the date range. Original rows are retained.</p>}
+          </>}
+        </article>)}
+      </section>}
     </div>
-  );
+  </AppShell>;
 }

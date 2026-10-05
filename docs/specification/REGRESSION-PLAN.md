@@ -1,8 +1,8 @@
 # Risk-based regression plan
 
-Version 2.4 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.5 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.4 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `88205cdce71840066d37ebc3a08d317cea7e3f37`, the parent of this documented third batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence, published v2.2 at `82f20ce` and published v2.3 at `88205cd` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Historical reference, not acceptance baseline
 
@@ -46,7 +46,7 @@ Reading import changes require existing original reading semantics and correctio
 
 Submission-window changes require original default/past-due workflow, existing immutable attempts/feedback, current/latest policy, close/expire between validation and INSERT, exact committed replay after closure, later policy preservation, current-authority rechecks and history cap. Recover all new review/provenance states using the populated disposable local encrypted suite, preserving exact indexes/triggers and scope rather than claiming hosted readiness.
 
-Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 181 designed cases remain unrun until intentionally executed and recorded.
+Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 205 designed cases remain unrun until intentionally executed and recorded.
 
 ## v2.3 original-domain preservation
 
@@ -57,3 +57,9 @@ Always retain existing resource/version, profile/session, curriculum, reading/im
 Retain older atomic report/notice, academic, reviewed profile, curriculum/resource, attempt/window and reading suites. Add related [focused dashboard](../../tests/integration/dashboard-contract.mjs), [independent dashboard authority](../../tests/integration/dashboard-access-contract.mjs) and [built dashboard UI](../../tests/worker-dashboard-ui-check.mjs) checks against matching fresh source/build. New read projections must not mutate confirmed rows, remove legacy duplicates, publish drafts, introduce a percentage/grade policy or broaden family historical class access.
 
 SC-26–SC-28 remain unrun designs. Compare original legacy rows before/after migration plus read, correct current-role cutoff, exact uncapped totals with bounded lists, nullable invalid maxima, actual zero scores, raw attendance and published-only fields. Build/browser and prior evidence remain dated separately; v2.3 at 88205cd is historical, not a rewritten v2.4 execution record.
+
+## v2.5 reviewed attendance preservation
+
+Select primary/independent reviewed suites, summary suites, old academic integrity, dashboard/access, report/notification/profile link and populated recovery as appropriate. Confirm all original attendance tuple identities/creation fields and legacy duplicate rows survive migration. Legacy concurrent accepted replacements, omitted-note clearing and flexible legacy date contract stay unchanged; no old record receives a fabricated review event. Full-record reviewed CAS, atomic mark/audit failure, immutable history, exact UUID replay after later replacement and current class/school privacy must hold independently.
+
+Retest new recorder/viewer native navigation, selection/date cancellation, explicit confirmation reset, original pending UUID after uncertain or access-denied acknowledgement, conflict reload comparison and confirmed-save refresh failure. Preserve prior v2.4 design/execution separately. SC-29–SC-31 remain designed unrun cases and cannot inherit suite or browser passes; broader assessment correction, calendar/absence/retention and real provider policy stay pending.
