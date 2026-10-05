@@ -18,7 +18,7 @@ These records are manually entered from an external app and are not authenticate
 
 Apply migration `0002_reviewed_reading.sql` with the prior migrations in an authorized environment. Configure exact allowed origins and the already-required account/session setup. Confirm the actual external app URL before setting its binding. There are no external API keys or automated messages in this stage. Contract tests cover verified sessions, school/class/student scope, URL validation, strict input, calculated metrics and idempotent retries. These do not establish live external sign-in or result exchange.
 
-See [literacy product plan](AMPLIFY-LITERACY-PLAN.md) for the conditional Amplify comparison and phased delivery. Next decisions: confirmed reading app, exact Amplify product, existing sign-in provider, curriculum/grades/languages and publication/correction policy.
+See [literacy product plan](AMPLIFY-LITERACY-PLAN.md) for the confirmed AmplifiU comparison and phased delivery. Next decisions: confirmed reading app,  existing sign-in provider, curriculum/grades/languages and publication/correction policy.
 
 ## Delivery requirements and evidence
 
@@ -29,4 +29,4 @@ These are draft additions, not accepted changes to the historical requirements b
 | LIT-01 | Verified school staff launch only a trusted configured HTTPS destination without forwarding learner data or credentials. | `tests/integration/external-apps-contract.mjs` | Local contract verified; app confirmation pending |
 | LIT-02 | Staff record reviewed numeric checks only for authorized enrolled students; clients cannot assign authorship or derived scores. | `tests/integration/reading-checks-contract.mjs` | Local contract verified; curriculum/policy review pending |
 | LIT-03 | Preserve append-only provenance and reject conflicting retry payloads. | Same reading-check contract; additive migration0002 | Local contract verified; correction workflow outstanding |
-| LIT-04 | Provide original skill teaching, practice and progress workflows informed by the conditional Amplify comparison. | `AMPLIFY-LITERACY-PLAN.md` | Planned; product identification and scope pending |
+| LIT-04 | Provide original skill teaching, practice and progress workflows informed by the confirmed AmplifiU comparison. | `AMPLIFY-LITERACY-PLAN.md` | Planned; curriculum and delivery scope pending |
