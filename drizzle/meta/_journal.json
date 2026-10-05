@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1791092851146,
+      "tag": "0000_youthful_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791179251146,
+      "tag": "0001_trusted_identity",
+      "breakpoints": true
+    }
+  ]
+}

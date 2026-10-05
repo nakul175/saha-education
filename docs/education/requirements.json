@@ -1,0 +1,187 @@
+{
+  "version": "1.0",
+  "baseline": "b4cbfc5f6855479ed523b5bf4c0aed0d2b6f6e3d",
+  "approved": false,
+  "requirements": [
+    {
+      "id": "EDU-F01",
+      "priority": "P0",
+      "title": "Authenticated identity",
+      "acceptance": "Verify a real account and derive its role and school from trusted server-side identity; logout invalidates the session.",
+      "status": "Demo only",
+      "source": "lib/education/auth.ts",
+      "case": "UAT-01"
+    },
+    {
+      "id": "EDU-F02",
+      "priority": "P0",
+      "title": "Object authorization",
+      "acceptance": "Reject cross-school access, unassigned teacher access and unrelated guardian/student access on every read and write.",
+      "status": "Gap",
+      "source": "lib/education/roles.ts",
+      "case": "UAT-02"
+    },
+    {
+      "id": "EDU-F03",
+      "priority": "P1",
+      "title": "School management",
+      "acceptance": "An authorized administrator creates, reads and updates a school; required name validation and persistence are demonstrated.",
+      "status": "Partial",
+      "source": "app/api/schools/route.ts",
+      "case": "UAT-03"
+    },
+    {
+      "id": "EDU-F04",
+      "priority": "P0",
+      "title": "User administration",
+      "acceptance": "Provision/disable users and assign only approved school roles; class teacher selection resolves to a valid same-school teacher.",
+      "status": "Gap",
+      "source": "db/schema.ts",
+      "case": "UAT-03"
+    },
+    {
+      "id": "EDU-F05",
+      "priority": "P1",
+      "title": "Student records",
+      "acceptance": "Create and update a student with valid school, name, birth date, admission number and grade; reject duplicates and unauthorized changes.",
+      "status": "Partial",
+      "source": "app/api/students/route.ts",
+      "case": "UAT-04"
+    },
+    {
+      "id": "EDU-F06",
+      "priority": "P1",
+      "title": "Guardian relationships",
+      "acceptance": "Create a guardian and link approved same-school students; repeated linking is safe and unauthorized links are rejected.",
+      "status": "Partial",
+      "source": "lib/education/students.ts",
+      "case": "UAT-04"
+    },
+    {
+      "id": "EDU-F07",
+      "priority": "P1",
+      "title": "Courses and classes",
+      "acceptance": "Create a course and a term class with valid same-school course and teacher; display a persisted roster.",
+      "status": "Partial",
+      "source": "app/api/classes/route.ts",
+      "case": "UAT-05"
+    },
+    {
+      "id": "EDU-F08",
+      "priority": "P1",
+      "title": "Enrolment lifecycle",
+      "acceptance": "Enrol a student once in a compatible class, then withdraw or complete without erasing history.",
+      "status": "Partial",
+      "source": "app/api/enrolments/route.ts",
+      "case": "UAT-05"
+    },
+    {
+      "id": "EDU-F09",
+      "priority": "P1",
+      "title": "Attendance",
+      "acceptance": "Save one status per class/student/date, reload it and correct it with attributable history; identify partial failures.",
+      "status": "Partial",
+      "source": "lib/education/attendance.ts",
+      "case": "UAT-06"
+    },
+    {
+      "id": "EDU-F10",
+      "priority": "P1",
+      "title": "Assessments/results",
+      "acceptance": "Create an assessment and record only enrolled student results within 0..maxScore, using the approved grade policy and attributable corrections.",
+      "status": "Partial",
+      "source": "lib/education/assessments.ts",
+      "case": "UAT-07"
+    },
+    {
+      "id": "EDU-F11",
+      "priority": "P1",
+      "title": "Report publication",
+      "acceptance": "Create a private term draft, publish with approved authority and expose it only to authorized family/student accounts.",
+      "status": "Partial",
+      "source": "app/api/report-cards/[id]/route.ts",
+      "case": "UAT-08"
+    },
+    {
+      "id": "EDU-F12",
+      "priority": "P1",
+      "title": "In-app notifications",
+      "acceptance": "Store publication notices against the guardian user account; recipients read and mark only their own notices; retry avoids duplicate notices.",
+      "status": "Partial",
+      "source": "app/api/notifications/route.ts",
+      "case": "UAT-08"
+    },
+    {
+      "id": "EDU-F13",
+      "priority": "P2",
+      "title": "Search and lists",
+      "acceptance": "Authorized filters/search return matching scoped records with bounded, deterministic pagination.",
+      "status": "Gap",
+      "source": "app/api/students/route.ts",
+      "case": "UAT-09"
+    },
+    {
+      "id": "EDU-F14",
+      "priority": "P1",
+      "title": "Role views",
+      "acceptance": "Admin, teacher, guardian and student views complete the approved journeys without dead links or inaccessible required functions.",
+      "status": "Partial",
+      "source": "app/dashboard/teacher/page.tsx",
+      "case": "UAT-09"
+    },
+    {
+      "id": "EDU-N01",
+      "priority": "P0",
+      "title": "Privacy and audit",
+      "acceptance": "Log actor/action/time/object for sensitive changes without record bodies or secrets; implement approved retention and correction policy.",
+      "status": "Gap",
+      "source": "db/schema.ts",
+      "case": "UAT-10"
+    },
+    {
+      "id": "EDU-N02",
+      "priority": "P0",
+      "title": "Recovery",
+      "acceptance": "Restore a synthetic backup in an isolated environment and demonstrate integrity plus approved recovery objectives.",
+      "status": "Unverified",
+      "source": "scripts/recovery.mjs",
+      "case": "UAT-11"
+    },
+    {
+      "id": "EDU-N03",
+      "priority": "P2",
+      "title": "Accessibility",
+      "acceptance": "Complete primary journeys with keyboard and screen reader; evaluate WCAG 2.2 AA as the proposed acceptance standard.",
+      "status": "Unverified",
+      "source": "components/app-shell.tsx",
+      "case": "UAT-09"
+    },
+    {
+      "id": "EDU-N04",
+      "priority": "P0",
+      "title": "Reliability and errors",
+      "acceptance": "Use consistent 400/401/403/404/409/500 contracts; mutation retry/concurrency cannot silently corrupt records.",
+      "status": "Gap",
+      "source": "lib/education/request-body.ts",
+      "case": "UAT-12"
+    },
+    {
+      "id": "EDU-N05",
+      "priority": "P2",
+      "title": "Performance",
+      "acceptance": "Demonstrate bounded list queries and an agreed response-time/concurrency target using realistic synthetic school volumes.",
+      "status": "Unverified",
+      "source": "lib/education/students.ts",
+      "case": "UAT-12"
+    },
+    {
+      "id": "EDU-N06",
+      "priority": "P0",
+      "title": "Release control",
+      "acceptance": "Record revision, migration state, environment and evidence; deploy only after acceptance and rehearse rollback without losing confirmed data.",
+      "status": "Unverified",
+      "source": "vite.config.ts",
+      "case": "UAT-11"
+    }
+  ]
+}

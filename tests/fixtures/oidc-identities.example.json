@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "schools": [{"id":"synthetic-school", "name":"Synthetic School"}],
+  "users": [
+    {"id":"synthetic-admin", "name":"Synthetic Administrator", "email":"admin@example.test", "role":"admin", "schoolId":"synthetic-school", "identityIssuer":"https://identity.example.test", "identitySubject":"synthetic-admin-subject"},
+    {"id":"synthetic-teacher", "name":"Synthetic Teacher", "email":"teacher@example.test", "role":"teacher", "schoolId":"synthetic-school", "identityIssuer":"https://identity.example.test", "identitySubject":"synthetic-teacher-subject"}
+  ]
+}
