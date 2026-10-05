@@ -1,46 +1,27 @@
+import { cookies } from 'next/headers';
+import { cookie, AuthError } from './identity';
+import { principalForToken, SESSION_COOKIE } from './session';
 import type { Principal } from './types';
+export { AuthError, authFailure, requireSameOrigin } from './identity';
 
-export const DEMO_USERS: Record<string, Principal> = {
-  admin: { id: 'admin-001', role: 'admin', schoolId: 'school-001' },
-  teacher: { id: 'teacher-001', role: 'teacher', schoolId: 'school-001' },
-  guardian: { id: 'guardian-001', role: 'guardian', schoolId: 'school-001' },
-  student: { id: 'student-001', role: 'student', schoolId: 'school-001' },
-};
-
-export function getPrincipal(request?: Request): Principal | null {
-  if (!request) {
-    return null;
-  }
-  
-  const cookie = request.headers.get('Cookie');
-  if (!cookie) {
-    return null;
-  }
-  
-  // Parse cookies to find saha_demo_role
-  const cookies = cookie.split(';').map(c => c.trim());
-  const demoRoleCookie = cookies.find(c => c.startsWith('saha_demo_role='));
-  
-  if (!demoRoleCookie) {
-    return null;
-  }
-  
-  const role = demoRoleCookie.split('=')[1];
-  
-  // Return the demo user for the role if it exists
-  return DEMO_USERS[role] || null;
+export async function getPrincipal(request?: Request): Promise<Principal | null> {
+  if (!request) return null;
+  // Legacy role cookies and identity headers confer no authority.
+  return principalForToken(cookie(request, SESSION_COOKIE));
 }
 
-export function requirePrincipal(request?: Request): Principal {
-  const principal = getPrincipal(request);
-  if (!principal) {
-    throw new Error('Authentication required');
-  }
+export async function getServerPrincipal(): Promise<Principal | null> {
+  const jar = await cookies();
+  const values = jar.getAll(SESSION_COOKIE);
+  return principalForToken(values.length === 1 ? values[0].value : null);
+}
+
+export async function requirePrincipal(request?: Request): Promise<Principal> {
+  const principal = await getPrincipal(request);
+  if (!principal) throw new AuthError('Authentication required', 401);
   return principal;
 }
 
 export function requireRole(principal: Principal, role: string): void {
-  if (principal.role !== role) {
-    throw new Error(`Role ${role} required`);
-  }
+  if (principal.role !== role) throw new AuthError('Permission denied', 403);
 }

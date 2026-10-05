@@ -1,43 +1,33 @@
+import type { Principal } from './types';
 import { getDb } from '@/db/index';
 import type { SelectSchool, InsertSchool } from '@/db/schema';
-import { schoolSchema } from './validation';
-import { eq } from 'drizzle-orm';
 import { schools } from '@/db/schema';
+import { schoolSchema } from './validation';
+import { and, eq } from 'drizzle-orm';
+import { AccessError, assertPrincipal, assertAdmin } from './access';
 
-export async function listSchools(): Promise<SelectSchool[]> {
-  const db = getDb();
-  return await db.select().from(schools);
+export async function listSchools(principal: Principal): Promise<SelectSchool[]> {
+  assertPrincipal(principal);
+
+  return await getDb().select().from(schools).where(eq(schools.id, principal.schoolId!));
 }
-
-export async function getSchool(id: string): Promise<SelectSchool | null> {
-  const db = getDb();
-  const [school] = await db.select().from(schools).where(eq(schools.id, id)).limit(1);
-  return school ?? null;
+export async function getSchool(principal: Principal, id: string): Promise<SelectSchool | null> {
+  assertPrincipal(principal);
+  const [record] = await getDb().select().from(schools).where(and(eq(schools.id, id), eq(schools.id, principal.schoolId!))).limit(1);
+  return record ?? null;
 }
-
-export async function createSchool(input: Omit<InsertSchool, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectSchool> {
-  const validatedInput = schoolSchema.parse(input);
-  const db = getDb();
-  
-  const now = new Date().toISOString();
-  const [school] = await db.insert(schools).values({ 
-    ...validatedInput, 
-    id: crypto.randomUUID(), 
-    createdAt: now, 
-    updatedAt: now 
-  }).returning();
-  return school;
+export async function createSchool(principal: Principal, input: Omit<InsertSchool, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectSchool> {
+  assertAdmin(principal);
+  void input;
+  throw new AccessError('School provisioning is not available to school administrators');
 }
+export async function updateSchool(principal: Principal, id: string, input: Omit<InsertSchool, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectSchool | null> {
+  assertAdmin(principal);
 
-export async function updateSchool(id: string, input: Omit<InsertSchool, 'id' | 'createdAt' | 'updatedAt'>): Promise<SelectSchool | null> {
-  const validatedInput = schoolSchema.parse(input);
+  const existing = await getSchool(principal, id);
+  if (!existing) throw new AccessError('School not found', 404);
+  const data = schoolSchema.omit({ id: true, createdAt: true, updatedAt: true }).parse(input);
   const db = getDb();
-  
-  const now = new Date().toISOString();
-  const [school] = await db.update(schools)
-    .set({ ...validatedInput, updatedAt: now })
-    .where(eq(schools.id, id))
-    .returning();
-  
-  return school ?? null;
+  const [record] = await db.update(schools).set({ ...data, updatedAt: new Date().toISOString() }).where(and(eq(schools.id, id), eq(schools.id, principal.schoolId!))).returning();
+  return record ?? null;
 }

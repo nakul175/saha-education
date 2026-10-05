@@ -104,12 +104,12 @@ export default function EnrolmentsPage() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/enrolments/${enrolmentId}`, {
+      const response = await fetch(`/api/enrolments`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ id: enrolmentId, status }),
       });
 
       if (!response.ok) {

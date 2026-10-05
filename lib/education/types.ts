@@ -26,6 +26,7 @@ export type User = {
 
 export type Student = {
   id: string;
+  userId?: string;
   schoolId: string;
   firstName: string;
   lastName: string;
@@ -38,6 +39,7 @@ export type Student = {
 
 export type Guardian = {
   id: string;
+  schoolId?: string;
   userId?: string;
   name: string;
   phone?: string;

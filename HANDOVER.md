@@ -1,122 +1,43 @@
-# Saha Education Handover
+# Saha Education handover
 
-## 1. What Saha Education is
+## Current delivery
 
-Saha Education is a school management web application designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
+The implementation candidate is on `feat/education-auth-access`. It imports the existing Next.js rebuild onto a branch created from main, includes the education documentation baseline, and adds provider-based authentication plus record access control. The default remote rebuild previously used demo role selection. No branch was merged and no hosted service was deployed by this work.
 
-## 2. Stack
+Read [authentication/access delivery](docs/current/AUTH-ACCESS.md), [validation](VALIDATION.md), and the [requirements documentation](docs/education/README.md). The original architecture/data/API documents outside docs/education are historical and may contain unsupported statements.
 
-The application uses the same stack as Saha Health with these key components:
-- Next.js 16.3.6 App Router code (app/), React 19.2.6, TypeScript 5.9.3
-- Cloudflare Workers runtime via vinext/vite/wrangler 4.92.0  
-- Database: Cloudflare D1 (SQLite) via drizzle-orm 0.45.2
-- UI: Tailwind CSS 4.2, shadcn components in components/
-- Package manager: pnpm
+## Implementation boundary
 
-The architecture mirrors Saha Health's tooling and patterns.
+Verified OIDC issuer/subject mappings, browser-bound one-use sign-in transactions, opaque digest-stored D1 sessions, live role/school/disabled checks, matching-origin mutation checks, authenticated APIs/page layouts and scoped domain services are implemented. Role cookies/public identity headers confer no authority. Families see linked records and published reports; unpublished assessment results are staff-only. School bootstrap remains explicit operator provisioning.
 
-## 3. Setup and running locally
+Provider name/tenant/configuration remains pending. Login fails closed without it. No automatic user registration or real recipient/provider activation exists. Migration 0001 intentionally does not backfill legacy relationships; approve and map identities/profile ownership explicitly before usage.
 
-To get started with Saha Education:
+## Verification commands
 
-```bash
-# Install dependencies
-pnpm install
-
-# Run development server 
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Run tests
-pnpm test
-
-# Type check
-pnpm tsc
-
-# Lint
-pnpm lint
-
-# Generate database schema
-pnpm db:generate
+```sh
+node scripts/run-framework.mjs build
+node scripts/test.mjs static unit integration --fast
+python3 scripts/check-documentation.py
+node scripts/audit-requirements.mjs --check
 ```
 
-Database migrations use Drizzle ORM and can be applied locally with wrangler d1 migrations.
+Use the manifest's Node/pnpm toolchain; current check environment and actual results are in VALIDATION.md. Fast tests reuse a build; perform a fresh build after code changes. No empty/placeholder test layer is acceptance proof. Served checks are manual and synthetic; see tests/worker-access-check.mjs and its local-only environment requirements.
 
-## 4. Folder structure
+## Requirement assessment and next delivery
 
-- `app/` - Next.js app directory with pages and API routes
-- `components/` - UI library (shadcn components)
-- `lib/education/` - Business logic modules for school management 
-- `drizzle/` - Database migrations and schema
-- `docs/` - Documentation files
-- `scripts/` - Helper scripts for build, test etc.
-- `tests/` - Test suite files
+| Requirement | Assessment | Evidence / next boundary |
+|---|---|---|
+| EDU-F01 | Partial, unapproved | OIDC/session tests pass; real provider and browser callback pending |
+| EDU-F02 | Partial, unapproved | Scoped DB/API/served checks pass; full role journey/UAT approval pending |
+| EDU-F04/F06 | Partial, unapproved | Explicit identity/profile mapping and safe user listing; provisioning administration pending |
+| EDU-F11/F12 | Partial, unapproved | Private drafts and retry-safe user-mapped publication notices; policy/UAT pending |
+| EDU-N04 | Partial, unapproved | Atomic batch behavior/guard contracts checked; pair concurrency constraints remain |
+| Next delivery | Provider and account lifecycle | Obtain provider/tenant registration, verify live synthetic callback, implement reviewed provisioning/disable/link workflows |
 
-## 5. Roles and features built
+## Remaining product gaps
 
-User roles: admin, teacher, guardian, student
+Teacher/family UI journeys and controls need broader UAT. Academic dates/grade policy, result publication, historical enrolment eligibility, duplicate pair constraints, audit revisions, retention, performance/accessibility and recovery remain unapproved or incomplete. Email/SMS delivery remains disabled. A production database/hosting pipeline is not established by the local build.
 
-Features implemented:
-- School management
-- Student registration and profile management  
-- Guardian/guardian relationship tracking
-- Course catalog and class creation
-- Class attendance tracking
-- Assessment management and grading
-- Report card generation and publishing
-- Notification system for students, teachers, and guardians
+## Git and release rules
 
-## 6. Test layout and how to run the tests
-
-Tests use a layered approach:
-1. Static: Type checking, code analysis 
-2. Unit: Business logic testing in isolation
-3. Integration: API endpoints and database operations
-4. Smoke: Rapid validation of core functionality
-
-Test scripts:
-- `pnpm test` - Run the full test suite
-- `pnpm test:static`, `pnpm test:unit`, `pnpm test:integration`, `pnpm test:smoke`
-- Test files in tests/unit/, tests/integration/, tests/smoke/
-
-## 7. Current status
-
-- TypeScript compile: 0 errors
-- ESLint: 71 warnings (0 errors) 
-- Build: Successful exit code 0
-- Tests: 8 passed, 0 failed, 0 skipped (after 482a199 fix)
-- All tests pass after removing Saha Health-specific checks
-
-Stage 9 and Stage 10 history:
-- Stage 9 and 10 initially failed due to Saha Health-specific static checks  
-- Fixed by removing Saha Health-only scripts: scripts/check-documentation.py, scripts/audit-requirements.mjs, scripts/build-documentation.py, scripts/update-baseline.py
-- Removed placeholder directories: requirements/, docs/verification/
-- Updated test runner to skip Saha Health validation steps
-
-## 8. Known gaps
-
-- Authentication is demo-only (saha_demo_role cookie) - no real login/password/session storage
-- roles.ts is minimal (canRead/canWrite/canDelete only)
-- Stray app/api/_assessments/route.ts file present
-- app/api/students/route.ts passes schoolId to listStudents(); needs signature check
-- Saha Health tooling leftovers: .openai/hosting.json, build/sites-vite-plugin, scripts like security-gate.mjs, recovery.mjs, cloudflare-staging.mjs, verify-export.mjs
-- No deployment done yet - D1 database id is a placeholder
-
-## 9. Next steps
-
-- Implement real authentication and authorization 
-- Remove stray files
-- Deploy to Cloudflare with a real D1 database  
-- Add UI/e2e tests (Playwright installed but unused)
-- Fix minimal roles implementation for per-school/per-class scoping
-
-## 10. Branches
-
-- `main`: Old Express version of Saha Education (commits 56de198 Initial scaffold, 4b5404a, 856f092)
-- `rebuild/nextjs`: New rebuild (this branch) - currently not pushed to GitHub
-
-## 11. How it was built 
-
-All code written by local Qwen model (ollama/qwen3-coder-256k) via OpenCode with restricted permissions and gated runner in ~/saha-edu-runner.
+Read AGENTS.md. Commit/push meaningful batches; preserve concurrent work; never force-push. Pull requests target main and require sponsor authority for merge. Main held the legacy Express app before this candidate, so the implementation PR includes the existing rebuild as well as the new stage. Preserve hosting config and historical commits. Confirm actual deployment wiring before merging. Keep secrets, records, fixtures with credentials, databases, caches and generated artifacts out of Git.

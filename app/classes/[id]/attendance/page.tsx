@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AppShell } from '@/components/app-shell';
 import type { Class, Student, Principal } from '@/lib/education/types';
-import { getPrincipal } from '@/lib/education/auth';
+import { getPrincipal } from '@/lib/education/client-api';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 

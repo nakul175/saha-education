@@ -14,12 +14,21 @@ import type { Principal } from "@/lib/education/types";
 import { canRead, canWrite, canDelete } from "@/lib/education/roles";
 
 export function AppShell({
-  principal,
+  principal: initialPrincipal,
   children,
 }: {
   principal: Principal | null;
   children: React.ReactNode;
 }) {
+  const [principal, setPrincipal] = React.useState<Principal | null>(initialPrincipal);
+  React.useEffect(() => {
+    if (initialPrincipal) { setPrincipal(initialPrincipal); return; }
+    let active = true;
+    fetch('/api/session', {cache: 'no-store'}).then(async response => {
+      if (response.ok && active) setPrincipal(await response.json() as Principal);
+    }).catch(() => { /* The protected layout and APIs enforce authentication. */ });
+    return () => { active = false; };
+  }, [initialPrincipal]);
   const handleSignOut = async () => {
     await fetch("/api/session", { method: "DELETE" });
     window.location.href = "/login";
@@ -30,7 +39,7 @@ export function AppShell({
     { 
       id: 'dashboard', 
       label: 'Dashboard',
-      path: '/dashboard'
+      path: '/'
     },
     { 
       id: 'students', 
@@ -101,12 +110,12 @@ export function AppShell({
     
     // Guardian can access guardians and notifications
     if (principal.role === 'guardian') {
-      return ['guardians', 'notifications'].includes(item.id);
+      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications'].includes(item.id);
     }
     
     // Student can only access dashboard and notifications
     if (principal.role === 'student') {
-      return ['dashboard', 'notifications'].includes(item.id);
+      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications'].includes(item.id);
     }
     
     return false;
@@ -161,7 +170,7 @@ export function AppShell({
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <a
-                      href="/dashboard"
+                      href="/"
                       className={cn(
                         "block select-none space-y-1 rounded-md p-2 text-sm font-medium no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none",
                         "text-primary dark:bg-muted dark:focus:bg-muted dark:text-muted-foreground",

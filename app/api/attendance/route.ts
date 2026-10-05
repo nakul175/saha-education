@@ -1,77 +1,16 @@
-import { NextRequest } from 'next/server';
+import { authenticated, body, query } from '@/lib/education/http';
 import { listAttendance, markAttendance } from '@/lib/education/attendance';
-import { getPrincipal, requireRole } from '@/lib/education/auth';
-import { parseRequestBodyWithErrorHandling } from '@/lib/education/request-body';
+import { attendanceSchema } from '@/lib/education/validation';
 import { z } from 'zod';
-
-// GET /api/attendance - List attendance records
-export async function GET(request: NextRequest) {
-  try {
-    const principal = getPrincipal();
-    if (!principal) {
-      return Response.json({ error: 'Authentication required' }, { status: 401 });
-    }
-    
-    const { searchParams } = new URL(request.url);
-    const classId = searchParams.get('classId');
-    const date = searchParams.get('date');
-    const studentId = searchParams.get('studentId');
-    
-    // Only teachers and admins can view attendance records
-    requireRole(principal, 'teacher');
-    
-    // Build filter object for listAttendance function
-    const filter: { classId?: string; date?: string; studentId?: string } = {};
-    if (classId) filter.classId = classId;
-    if (date) filter.date = date;
-    if (studentId) filter.studentId = studentId;
-    
-    const records = await listAttendance(filter);
-    
-    return Response.json(records);
-  } catch (error) {
-    console.error('Error fetching attendance:', error);
-    return Response.json({ error: 'Failed to fetch attendance records' }, { status: 500 });
-  }
+const markSchema = z.object({ classId: z.string().min(1), date: z.string().min(1), entries: z.array(attendanceSchema.pick({ studentId: true, status: true, note: true })) });
+export async function GET(request: Request) {
+  return authenticated(request, false, async principal => {
+    return Response.json(await listAttendance(principal, { classId: query(request, 'classId'), date: query(request, 'date'), studentId: query(request, 'studentId') }));
+  });
 }
-
-// POST /api/attendance - Mark attendance for a class
-export async function POST(request: NextRequest) {
-  try {
-    const principal = getPrincipal();
-    if (!principal) {
-      return Response.json({ error: 'Authentication required' }, { status: 401 });
-    }
-    
-    // Only teachers and admins can mark attendance
-    requireRole(principal, 'teacher');
-    
-    // Parse request body
-    const schema = z.object({
-      classId: z.string(),
-      date: z.string(),
-      entries: z.array(z.object({
-        studentId: z.string(),
-        status: z.enum(['present', 'absent', 'late', 'excused']),
-        note: z.string().optional()
-      }))
-    });
-    
-    const result = await parseRequestBodyWithErrorHandling(schema, request);
-    if (!result.success) {
-      return Response.json({ error: result.error }, { status: 400 });
-    }
-    
-    const { classId, date, entries } = result.data;
-    
-    // Mark attendance for the entire class
-    const records = await markAttendance(classId, date, entries, principal.id);
-    
-    // Note: Guardians are not notified in this implementation as no notification function exists
-    
-    return Response.json(records);
-  } catch (error) {
-    console.error('Error creating attendance records:', error);
-    return Response.json({ error: 'Failed to create attendance records' }, { status: 500 });
-  }
+export async function POST(request: Request) {
+  return authenticated(request, true, async principal => {
+    const input = await body(request, markSchema);
+    return Response.json(await markAttendance(principal, input.classId, input.date, input.entries, principal.id));
+  });
 }

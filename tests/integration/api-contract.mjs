@@ -1,259 +1,124 @@
-const tests = [];
-const test = (name, fn) => tests.push({ name, fn });
+// Synthetic SQLite persistence + real exported HTTP handlers. Not a served-Worker test.
 import assert from 'node:assert/strict';
-
-import { registerHooks } from 'node:module';
-import { pathToFileURL, fileURLToPath } from 'node:url';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
-
-const root = fileURLToPath(new URL('../../', import.meta.url));  // repo root (test files live in tests/<layer>/)
-
-registerHooks({
-  resolve(spec, ctx, next) {
-    if (spec === '@/db' || spec === '@/db/index') return { url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;', shortCircuit: true };
-    if (/^next\/[a-z-]+$/.test(spec)) return next(spec + '.js', ctx);
-    let s = spec;
-    if (s.startsWith('@/')) s = pathToFileURL(join(root, s.slice(2))).href;
-    if ((s.startsWith('.') || s.startsWith('file:')) && !/\.[cm]?[jt]sx?$/.test(s)) {
-      const base = new URL(s, ctx.parentURL);
-      for (const ext of ['.ts', '.tsx', '/index.ts']) {
-        const u = new URL(base.href + ext);
-        if (existsSync(u)) return { url: u.href, shortCircuit: true };
-      }
-    }
-    return next(s, ctx);
-  }
-});
-
-function freshDb() {
-  const sqlite = new DatabaseSync(':memory:');
-  for (const f of readdirSync(join(root, 'drizzle')).filter((f) => /^\d.*\.sql$/.test(f)).sort()) {
-    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint')) {
-      if (st.trim()) sqlite.exec(st);
-    }
-  }
-  return sqlite;
+import { freshDatabase, seedSecurityData, load, bindings, stamp } from '../support/security-db.mjs';
+const {db,schema,sqlite}=freshDatabase();
+await seedSecurityData(db,schema);
+bindings.SAHA_ALLOWED_ORIGINS='https://school.example.invalid';
+const students=await load('lib/education/students.ts');
+const classes=await load('lib/education/classes.ts');
+const reports=await load('lib/education/report-cards.ts');
+const notices=await load('lib/education/notifications.ts');
+const results=await load('lib/education/assessments.ts');
+const sessions=await load('lib/education/session.ts');
+const principals={admin:{id:'admin-a',role:'admin',schoolId:'a'},teacher:{id:'teacher-a',role:'teacher',schoolId:'a'},guardian:{id:'guardian-a',role:'guardian',schoolId:'a'},student:{id:'student-user-a',role:'student',schoolId:'a'}};
+const tests=[];const test=(name,run)=>tests.push({name,run});
+for(const [role,p] of Object.entries(principals)) {
+  test(role+' student list is scoped',async()=>{
+    const records=await students.listStudents(p);
+    assert.deepEqual(records.map(r=>r.id).sort(),role==='admin'?['student-a','student-other']:['student-a']);
+    assert.equal(await students.getStudent(p,'student-b'),null);
+    if(role!=='admin') assert.equal(await students.getStudent(p,'student-other'),null);
+  });
+  test(role+' class list is scoped',async()=>{
+    const records=await classes.listClasses(p);
+    assert.deepEqual(records.map(r=>r.id).sort(),role==='admin'?['class-a','class-other']:['class-a']);
+    assert.equal(await classes.getClass(p,'class-b'),null);
+  });
 }
-
-const { drizzle } = await import('drizzle-orm/sqlite-proxy');
-const schema = await import(pathToFileURL(join(root, 'db/schema.ts')).href);
-
-function installTestDb(sqlite) {
-  globalThis.__sahaTestDb = drizzle(async (sql, params, method) => {
-    const st = sqlite.prepare(sql);
-    if (method === 'run') {
-      st.run(...params);
-      return { rows: [] };
-    }
-    if (method === 'get') {
-      const r = st.get(...params);
-      return { rows: r ? Object.values(r) : undefined };
-    }
-    return { rows: st.all(...params).map((r) => Object.values(r)) };
-  }, { schema });
+for(const role of ['guardian','student']) test(role+' report drafts are private',async()=>{
+  assert.deepEqual((await reports.listReportCards(principals[role])).map(r=>r.id),['published-a']);
+  assert.equal(await reports.getReportCard(principals[role],'draft-a'),null);
+  assert.equal(await reports.getReportCard(principals[role],'published-b'),null);
+});
+test('Missing school is rejected instead of global admin access',async()=>{
+  await assert.rejects(()=>students.listStudents({id:'admin-a',role:'admin'}));
+});
+test('Explicit second-school filter rejected',async()=>{
+  await assert.rejects(()=>students.listStudents(principals.admin,'b'));
+});
+test('Teacher cannot change student administration',async()=>{
+  await assert.rejects(()=>students.updateStudent(principals.teacher,'student-a',{schoolId:'a',firstName:'Changed',lastName:'Synthetic',dateOfBirth:'2012-01-01',admissionNumber:'student-a',gradeLevel:'8'}));
+  assert.equal((await students.getStudent(principals.admin,'student-a')).firstName,'student-a');
+});
+test('Guardian notices are own-recipient only',async()=>{
+  const rows=await notices.listNotifications(principals.guardian,principals.guardian.id);
+  assert.deepEqual(rows.map(r=>r.id),['notice-guardian-a']);
+  await assert.rejects(()=>notices.markNotificationRead(principals.guardian,'notice-guardian-other'));
+  assert.equal(sqlite.prepare('SELECT read_at FROM notifications WHERE id=?').get('notice-guardian-other').read_at,null);
+});
+test('Result correction never overwrites a different student',async()=>{
+  await db.insert(schema.enrolments).values({id:'second-in-class-a',studentId:'student-other',classId:'class-a',status:'active',enrolledAt:stamp,createdAt:stamp,updatedAt:stamp});
+  await results.recordResults(principals.teacher,'assessment-a',[{studentId:'student-a',score:10,grade:'B',feedback:'Synthetic'},{studentId:'student-other',score:15,grade:'A',feedback:'Synthetic'}]);
+  await results.recordResults(principals.teacher,'assessment-a',[{studentId:'student-a',score:12,grade:'B',feedback:'Corrected'}]);
+  const rows=sqlite.prepare('SELECT student_id,score FROM assessment_results ORDER BY student_id').all();
+  assert.deepEqual(rows,[{student_id:'student-a',score:12},{student_id:'student-other',score:15}].map(r=>Object.assign(Object.create(null),r)));
+});
+test('Mixed-scope result batch rejected before writes',async()=>{
+  const before=sqlite.prepare('SELECT score FROM assessment_results WHERE student_id=?').get('student-a').score;
+  await assert.rejects(()=>results.recordResults(principals.teacher,'assessment-a',[{studentId:'student-a',score:20},{studentId:'student-b',score:20}]));
+  assert.equal(sqlite.prepare('SELECT score FROM assessment_results WHERE student_id=?').get('student-a').score,before);
+});
+test('Teacher cannot write another assigned class',async()=>{
+  await assert.rejects(()=>results.recordResults(principals.teacher,'assessment-b',[{studentId:'student-b',score:1}]));
+});
+test('Publish notice uses linked user ID and retry avoids duplicate notice',async()=>{
+  await reports.publishReportCard(principals.admin,'draft-a');
+  await reports.publishReportCard(principals.admin,'draft-a');
+  const notices=sqlite.prepare("SELECT user_id FROM notifications WHERE title='Report Card Published'").all();
+  assert.equal(notices.length,1);assert.equal(notices[0].user_id,'guardian-a');
+});
+// Real session persistence, not a mocked principal.
+async function tokenFor(userId) {
+  // Exported createSession issues the token; testing hook supports the documented session shape.
+  const cookie = await sessions.createSession(userId);
+  return cookie.split('=')[1].split(';')[0];
 }
-
-let sqlite = freshDb();
-installTestDb(sqlite);
-
-// Import after hooks are set up
-const auth = await import(pathToFileURL(join(root, 'lib/education/auth.ts')).href);
-const schools = await import(pathToFileURL(join(root, 'lib/education/schools.ts')).href);
-const students = await import(pathToFileURL(join(root, 'lib/education/students.ts')).href);
-const courses = await import(pathToFileURL(join(root, 'lib/education/courses.ts')).href);
-
-// Test 1: POST /api/session with valid admin role returns 200, principal and Set-Cookie
-test('POST /api/session with valid admin role', async () => {
-  const request = new Request('http://localhost/api/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: 'admin' })
-  });
-
-  const response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).POST(request);
-  const data = await response.json();
-  
-  assert.equal(response.status, 200, `Expected status 200, got ${response.status}`);
-  assert.ok(data.id, 'Response should have an id');
-  assert.ok(data.role, 'Response should have a role');
-  assert.ok(response.headers.get('Set-Cookie'), 'Response should have Set-Cookie header');
-  assert.equal(data.role, 'admin', `Expected role admin, got ${data.role}`);
+const request=(path,token,method='GET',body,origin='https://school.example.invalid')=>new Request('https://school.example.invalid'+path,{method,headers:{...(token?{Cookie:`${sessions.SESSION_COOKIE}=${token}`} :{}),...(method!=='GET'?{Origin:origin,'Content-Type':'application/json'}:{})},...(body!==undefined?{body:JSON.stringify(body)}:{})});
+test('Legacy role cookie never authenticates',async()=>{
+  const route=await load('app/api/students/route.ts');
+  const response=await route.GET(new Request('https://school.example.invalid/api/students',{headers:{Cookie:'saha_demo_role=admin'}}));
+  assert.equal(response.status,401);
 });
-
-// Test 2: POST /api/session with invalid role returns 400
-test('POST /api/session with invalid role', async () => {
-  const request = new Request('http://localhost/api/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: 'invalid-role' })
-  });
-
-  const response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).POST(request);
-  
-  assert.equal(response.status, 400, `Expected status 400, got ${response.status}`);
+test('Session-backed API read and family class roster are scoped',async()=>{
+  const session=await tokenFor('guardian-a');const token=typeof session==='string'?session:session.token;
+  const route=await load('app/api/classes/[id]/route.ts');
+  const response=await route.GET(request('/api/classes/class-a',token),{params:Promise.resolve({id:'class-a'})});
+  assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
+  assert.deepEqual((await response.json()).enrolledStudents.map(r=>r.id),['student-a']);
 });
-
-// Test 3: DELETE /api/session clears the cookie
-test('DELETE /api/session clears cookie', async () => {
-  const request = new Request('http://localhost/api/session', {
-    method: 'DELETE',
-  });
-
-  const response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).DELETE(request);
-  
-  const cookieHeader = response.headers.get('Set-Cookie');
-  assert.ok(cookieHeader, 'Response should have Set-Cookie header');
-  assert.ok(cookieHeader.includes('Max-Age=0'), 'Cookie should be cleared');
+test('Valid session cannot cross school on HTTP reads',async()=>{
+  const session=await tokenFor('admin-a');const token=typeof session==='string'?session:session.token;
+  const route=await load('app/api/students/[id]/route.ts');
+  assert.equal((await route.GET(request('/api/students/student-b',token),{params:Promise.resolve({id:'student-b'})})).status,404);
 });
-
-// Test 4: GET /api/session without a cookie returns 401
-test('GET /api/session without cookie returns 401', async () => {
-  const request = new Request('http://localhost/api/session', {
-    method: 'GET',
-  });
-
-  const response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).GET(request);
-  
-  assert.equal(response.status, 401, `Expected status 401, got ${response.status}`);
+test('Origin rejection occurs before persistent mutation',async()=>{
+  const session=await tokenFor('admin-a');const token=typeof session==='string'?session:session.token;
+  const route=await load('app/api/report-cards/[id]/route.ts');
+  assert.equal((await route.PATCH(request('/api/report-cards/published-a',token,'PATCH',{publish:true},'https://attacker.example.invalid'),{params:Promise.resolve({id:'published-a'})})).status,403);
 });
-
-// Test 5: GET /api/session with a valid cookie returns the principal
-test('GET /api/session with valid cookie', async () => {
-  // First set a session cookie
-  const postRequest = new Request('http://localhost/api/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: 'admin' })
-  });
-
-  let response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).POST(postRequest);
-  
-  const cookieHeader = response.headers.get('Set-Cookie');
-  assert.ok(cookieHeader, 'No Set-Cookie header found');
-
-  // Use the cookie to make a GET request
-  const getRequest = new Request('http://localhost/api/session', {
-    method: 'GET',
-    headers: { 
-      'Cookie': cookieHeader.split(';')[0] // Extract just the cookie value
-    }
-  });
-
-  response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).GET(getRequest);
-
-  assert.equal(response.status, 200, `Expected status 200, got ${response.status}`);
-  
-  const data = await response.json();
-  assert.equal(data.role, 'admin', `Expected role admin, got ${data.role}`);
+test('Disabled account loses authority on existing session',async()=>{
+  const session=await tokenFor('admin-b');const token=typeof session==='string'?session:session.token;
+  const auth=await load('lib/education/auth.ts');
+  assert.equal((await auth.getPrincipal(request('/',token))).id,'admin-b');
+  const {eq}=await import('drizzle-orm');
+  await db.update(schema.users).set({disabledAt:stamp}).where(eq(schema.users.id,'admin-b'));
+  assert.equal(await auth.getPrincipal(request('/',token)),null);
 });
-
-// Test 6: Protected routes return 401 without a cookie
-test('Protected routes return 401 without cookie', async () => {
-  const request = new Request('http://localhost/api/schools', {
-    method: 'GET'
-  });
-
-  const response = await (await import(pathToFileURL(join(root, 'app/api/schools/route.ts')).href)).GET(request);
-  
-  assert.equal(response.status, 401, `Expected status 401, got ${response.status}`);
+test('Guardian creation stores school ownership even without a client school field',async()=>{
+  const guardians=await load('lib/education/guardians.ts');
+  const record=await guardians.createGuardian(principals.admin,{name:'Synthetic new guardian',relationship:'parent'});
+  assert.equal(record.schoolId,'a');assert.equal((await guardians.getGuardian(principals.admin,record.id)).id,record.id);
 });
-
-// Test 7: With an admin cookie, creating a school and listing schools returns it
-test('Admin can create and list schools', async () => {
-  // First set a session cookie
-  const postRequest = new Request('http://localhost/api/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: 'admin' })
-  });
-
-  let response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).POST(postRequest);
-  
-  const cookieHeader = response.headers.get('Set-Cookie');
-  assert.ok(cookieHeader, 'No Set-Cookie header found');
-
-  // Create a school with the admin session
-  const createRequest = new Request('http://localhost/api/schools', {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Cookie': cookieHeader.split(';')[0]
-    },
-    body: JSON.stringify({
-      name: 'Test School',
-      address: '123 Test St'
-    })
-  });
-
-  response = await (await import(pathToFileURL(join(root, 'app/api/schools/route.ts')).href)).POST(createRequest);
-  
-  assert.equal(response.status, 201, `Expected status 201 for creating school, got ${response.status}`);
-
-  // List schools to check it was created
-  const listRequest = new Request('http://localhost/api/schools', {
-    method: 'GET',
-    headers: { 
-      'Cookie': cookieHeader.split(';')[0]
-    }
-  });
-
-  response = await (await import(pathToFileURL(join(root, 'app/api/schools/route.ts')).href)).GET(listRequest);
-  
-  assert.equal(response.status, 200, `Expected status 200 for listing schools, got ${response.status}`);
-
-  const data = await response.json();
-  assert.ok(Array.isArray(data), 'Response should be an array');
-  assert.ok(data.length > 0, 'Should have at least one school');
-  assert.equal(data[0].name, 'Test School', 'Created school not found in list');
+test('Normal student edits preserve identity and immutable system fields',async()=>{
+  const existing=await students.getStudent(principals.admin,'student-a');
+  await students.updateStudent(principals.admin,'student-a',{...existing,userId:undefined,id:'tampered-id',createdAt:'tampered-time',firstName:'Synthetic edited'});
+  const updated=await students.getStudent(principals.admin,'student-a');
+  assert.equal(updated.userId,'student-user-a');assert.equal(updated.id,'student-a');assert.equal(updated.createdAt,existing.createdAt);
 });
-
-// Test 8: Invalid bodies return 400
-test('Invalid bodies return 400', async () => {
-  // First set a session cookie
-  const postRequest = new Request('http://localhost/api/session', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: 'admin' })
-  });
-
-  let response = await (await import(pathToFileURL(join(root, 'app/api/session/route.ts')).href)).POST(postRequest);
-  
-  const cookieHeader = response.headers.get('Set-Cookie');
-  assert.ok(cookieHeader, 'No Set-Cookie header found');
-
-  // Try to create a school with invalid data
-  const createRequest = new Request('http://localhost/api/schools', {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Cookie': cookieHeader.split(';')[0]
-    },
-    body: JSON.stringify({
-      // Missing required fields
-    })
-  });
-
-  response = await (await import(pathToFileURL(join(root, 'app/api/schools/route.ts')).href)).POST(createRequest);
-  
-  assert.equal(response.status, 400, `Expected status 400 for invalid body, got ${response.status}`);
+test('Unpublished assessment results are not available to families',async()=>{
+  for(const role of ['guardian','student']) await assert.rejects(()=>results.listResults(principals[role],'assessment-a'),e=>e.status===403);
 });
-
-// Run tests
-let passed = 0;
-let failed = 0;
-
-for (const { name, fn } of tests) {
-  try {
-    await fn();
-    console.log(`ok - ${name}`);
-    passed++;
-  } catch (error) {
-    console.log(`not ok - ${name}: ${error.message}`);
-    failed++;
-  }
-}
-
-console.log(JSON.stringify({ passed, failed, skipped: 0 }));
-process.exitCode = failed ? 1 : 0;
+let passed=0,failed=0;
+for(const {name,run} of tests) {try {await run();passed++;console.log('ok - '+name);}catch(e){failed++;console.error('not ok - '+name+'\n'+e.stack);}}
+console.log(JSON.stringify({passed,failed,skipped:0}));
+sqlite.close();process.exitCode=failed?1:0;

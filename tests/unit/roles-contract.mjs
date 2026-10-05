@@ -75,7 +75,7 @@ const PERMISSION_TESTS = [
   // [role, canRead, canWrite, canDelete]
   ['admin', true, true, true],
   ['teacher', true, true, false],
-  ['guardian', true, true, false],
+  ['guardian', true, false, false],
   ['student', true, false, false],
 ];
 

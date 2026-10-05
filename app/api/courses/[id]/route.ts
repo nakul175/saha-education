@@ -1,38 +1,16 @@
-import { NextRequest } from 'next/server';
+import { authenticated, body, found } from '@/lib/education/http';
 import { getCourse, updateCourse } from '@/lib/education/courses';
-import { requirePrincipal, requireRole } from '@/lib/education/auth';
-import { parseRequestBodyWithErrorHandling } from '@/lib/education/request-body';
 import { courseSchema } from '@/lib/education/validation';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  
-  const course = await getCourse(id);
-  
-  if (!course) {
-    return Response.json({ error: 'Course not found' }, { status: 404 });
-  }
-  
-  return Response.json(course);
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return authenticated(request, false, async principal => {
+    const { id } = await params;
+    return Response.json(found(await getCourse(principal, id)));
+  });
 }
-
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const principal = requirePrincipal();
-  requireRole(principal, 'admin');
-  
-  const { id } = await params;
-  
-  const result = await parseRequestBodyWithErrorHandling(courseSchema, request);
-  
-  if (!result.success) {
-    return Response.json({ error: result.error }, { status: 400 });
-  }
-  
-  const updatedCourse = await updateCourse(id, result.data);
-  
-  if (!updatedCourse) {
-    return Response.json({ error: 'Course not found' }, { status: 404 });
-  }
-  
-  return Response.json(updatedCourse);
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return authenticated(request, true, async principal => {
+    const { id } = await params;
+    return Response.json(found(await updateCourse(principal, id, await body(request, courseSchema))));
+  });
 }

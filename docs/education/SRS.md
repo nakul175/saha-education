@@ -25,11 +25,11 @@ This is the proposed requirements baseline for the Next.js rebuild. â€œPartialâ€
 | EDU-F11 | P1 | Report publication | Create a private term draft, publish with approved authority and expose it only to authorized family/student accounts. | Partial | UAT-08 |
 | EDU-F12 | P1 | In-app notifications | Store publication notices against the guardian user account; recipients read and mark only their own notices; retry avoids duplicate notices. | Partial | UAT-08 |
 | EDU-F13 | P2 | Search and lists | Authorized filters/search return matching scoped records with bounded, deterministic pagination. | Gap | UAT-09 |
-| EDU-F14 | P2 | Role views | Admin, teacher, guardian and student views complete the approved journeys without dead links or inaccessible required functions. | Partial | UAT-09 |
+| EDU-F14 | P1 | Role views | Admin, teacher, guardian and student views complete the approved journeys without dead links or inaccessible required functions. | Partial | UAT-09 |
 | EDU-N01 | P0 | Privacy and audit | Log actor/action/time/object for sensitive changes without record bodies or secrets; implement approved retention and correction policy. | Gap | UAT-10 |
 | EDU-N02 | P0 | Recovery | Restore a synthetic backup in an isolated environment and demonstrate integrity plus approved recovery objectives. | Unverified | UAT-11 |
 | EDU-N03 | P2 | Accessibility | Complete primary journeys with keyboard and screen reader; evaluate WCAG 2.2 AA as the proposed acceptance standard. | Unverified | UAT-09 |
-| EDU-N04 | P1 | Reliability and errors | Use consistent 400/401/403/404/409/500 contracts; mutation retry/concurrency cannot silently corrupt records. | Gap | UAT-12 |
+| EDU-N04 | P0 | Reliability and errors | Use consistent 400/401/403/404/409/500 contracts; mutation retry/concurrency cannot silently corrupt records. | Gap | UAT-12 |
 | EDU-N05 | P2 | Performance | Demonstrate bounded list queries and an agreed response-time/concurrency target using realistic synthetic school volumes. | Unverified | UAT-12 |
 | EDU-N06 | P0 | Release control | Record revision, migration state, environment and evidence; deploy only after acceptance and rehearse rollback without losing confirmed data. | Unverified | UAT-11 |
 

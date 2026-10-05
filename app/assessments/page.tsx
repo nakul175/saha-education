@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import type { Assessment, Class } from '@/lib/education/types';
-import { listClasses } from '@/lib/education/classes';
-import { listAssessments } from '@/lib/education/assessments';
+import { listClasses } from '@/lib/education/client-api';
+import { listAssessments } from '@/lib/education/client-api';
 
 export default function AssessmentsPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);

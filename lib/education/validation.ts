@@ -22,6 +22,7 @@ export const userSchema = z.object({
 
 // Schema for Students
 export const studentSchema = z.object({
+  userId: z.string().min(1).optional(),
   id: z.string().optional(),
   schoolId: z.string().min(1, 'School ID is required'),
   firstName: z.string().min(1, 'First name is required'),
@@ -35,6 +36,7 @@ export const studentSchema = z.object({
 
 // Schema for Guardians
 export const guardianSchema = z.object({
+  schoolId: z.string().min(1).optional(),
   id: z.string().optional(),
   userId: z.string().optional(),
   name: z.string().min(1, 'Guardian name is required'),

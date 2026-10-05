@@ -1,21 +1,22 @@
+import { redirect } from 'next/navigation';
 import { AppShell } from "@/components/app-shell";
-import { getPrincipal, requireRole } from "@/lib/education/auth";
-import { listStudentsForGuardian } from "@/lib/education/students";
+import { getServerPrincipal, requireRole } from "@/lib/education/auth";
+import { listStudents } from "@/lib/education/students";
 import { listAttendance } from "@/lib/education/attendance";
 import { listReportCards } from "@/lib/education/report-cards";
 import { attendancePercentage } from "@/lib/education/attendance";
 
 export default async function GuardianDashboard() {
-  const principal = getPrincipal();
+  const principal = await getServerPrincipal();
   
   if (!principal) {
-    throw new Error("Authentication required");
+    redirect("/login");
   }
   
   requireRole(principal, "guardian");
   
   // Get the guardian's children
-  const students = await listStudentsForGuardian(principal.id);
+  const students = await listStudents(principal);
   
   return (
     <AppShell principal={principal}>
@@ -25,11 +26,11 @@ export default async function GuardianDashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {students.map(async (student) => {
             // Get attendance records for this student
-            const attendanceRecords = await listAttendance({ studentId: student.id });
+            const attendanceRecords = await listAttendance(principal, { studentId: student.id });
             const attendancePercent = attendancePercentage(attendanceRecords);
             
             // Get latest published report card
-            const reportCards = await listReportCards(student.id);
+            const reportCards = await listReportCards(principal, student.id);
             const latestReportCard = reportCards
               .filter(card => card.publishedAt)
               .sort((a, b) => new Date(b.publishedAt!).getTime() - new Date(a.publishedAt!).getTime())[0];

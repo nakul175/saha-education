@@ -1,4 +1,5 @@
-import { getPrincipal } from '@/lib/education/auth';
+import { redirect } from 'next/navigation';
+import { getServerPrincipal } from '@/lib/education/auth';
 import { AppShell } from '@/components/app-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { listSchools } from '@/lib/education/schools';
@@ -8,18 +9,18 @@ import { type Principal } from '@/lib/education/types';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  const principal = getPrincipal();
+  const principal = await getServerPrincipal();
   
   // Require admin role
   if (!principal || principal.role !== 'admin') {
     // Redirect to login page if not authenticated or not an admin
-    return <RedirectToLogin />;
+    redirect("/");
   }
   
   // Fetch counts
-  const schools = await listSchools();
-  const students = await listStudents();
-  const courses = await listCourses();
+  const schools = await listSchools(principal);
+  const students = await listStudents(principal);
+  const courses = await listCourses(principal);
   
   // Count teachers (users with teacher role)
   const teachersCount = 0; // We'll need to query this properly - for now we'll just leave it
@@ -83,7 +84,7 @@ export default async function AdminDashboard() {
               <li><Link href="/schools" className="text-blue-600 hover:underline">Manage Schools</Link></li>
               <li><Link href="/students" className="text-blue-600 hover:underline">Manage Students</Link></li>
               <li><Link href="/courses" className="text-blue-600 hover:underline">Manage Courses</Link></li>
-              <li><Link href="/teachers" className="text-blue-600 hover:underline">Manage Teachers</Link></li>
+              <li><Link href="/classes" className="text-blue-600 hover:underline">Manage Classes</Link></li>
             </ul>
           </CardContent>
         </Card>

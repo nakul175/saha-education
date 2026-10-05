@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AppShell } from '@/components/app-shell';
 import type { Class, Student, Enrolment, Principal } from '@/lib/education/types';
-import { getPrincipal } from '@/lib/education/auth';
+import { getPrincipal } from '@/lib/education/client-api';
 
 export default function ClassDetailPage({ params }: { 
   params: Promise<{ id: string }> 

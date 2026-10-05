@@ -16,14 +16,40 @@ export const users = sqliteTable('users', {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   role: text('role').notNull(), // admin|teacher|guardian|student
+  identityIssuer: text('identity_issuer'),
+  identitySubject: text('identity_subject'),
+  disabledAt: text('disabled_at'),
   schoolId: text('school_id').references(() => schools.id),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
+}, t => [uniqueIndex('users_identity_unique').on(t.identityIssuer, t.identitySubject)]);
+
+// OIDC identity pairs are deliberately preprovisioned, never matched by email.
+export const authSessions = sqliteTable('auth_sessions', {
+  tokenHash: text('token_hash').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id),
+  expiresAt: integer('expires_at').notNull(),
+  createdAt: integer('created_at').notNull(),
+}, t => [index('auth_sessions_user').on(t.userId)]);
+
+export const oidcTransactions = sqliteTable('oidc_transactions', {
+  stateHash: text('state_hash').primaryKey(),
+  browserHash: text('browser_hash').notNull(),
+  verifier: text('verifier').notNull(),
+  nonce: text('nonce').notNull(),
+  expiresAt: integer('expires_at').notNull(),
+});
+
+export const authRateLimits = sqliteTable('auth_rate_limits', {
+  bucket: text('bucket').primaryKey(),
+  count: integer('count').notNull(),
+  expiresAt: integer('expires_at').notNull(),
 });
 
 // Students table
 export const students = sqliteTable('students', {
   id: text('id').primaryKey(),
+  userId: text('user_id').unique().references(() => users.id),
   schoolId: text('school_id').notNull().references(() => schools.id),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
@@ -37,6 +63,7 @@ export const students = sqliteTable('students', {
 // Guardians table
 export const guardians = sqliteTable('guardians', {
   id: text('id').primaryKey(),
+  schoolId: text('school_id').references(() => schools.id),
   userId: text('user_id').references(() => users.id),
   name: text('name').notNull(),
   phone: text('phone'),

@@ -158,10 +158,10 @@ mkdirSync(`${REPORTS}/results`, { recursive: true });
 async function ensureBuild() {
   if (built !== null) return built;
   if (args.flags.has('fast') && existsSync('dist/server/wrangler.json')) { built = { ok: true, skipped: true }; console.log('build: skipped (--fast, dist/ exists)'); return built; }
-  console.log('build: npm run build ...');
-  const r = await runCommand({ cmd: 'npm', args: ['run', 'build'], timeoutMs: 15 * 60000, logId: 'build' });
+  console.log('build: framework production build ...');
+  const r = await runCommand({ cmd: process.execPath, args: ['scripts/run-framework.mjs', 'build'], timeoutMs: 15 * 60000, logId: 'build' });
   built = { ok: r.exitCode === 0, durationMs: r.durationMs };
-  records.push({ id: 'build', layer: 'build', kind: 'step', file: 'npm run build', status: built.ok ? 'passed' : 'failed', passed: null, failed: null, skipped: null, durationMs: r.durationMs, exitCode: r.exitCode, log: `${REPORTS}/logs/build.log` });
+  records.push({ id: 'build', layer: 'build', kind: 'step', file: 'node scripts/run-framework.mjs build', status: built.ok ? 'passed' : 'failed', passed: null, failed: null, skipped: null, durationMs: r.durationMs, exitCode: r.exitCode, log: `${REPORTS}/logs/build.log` });
   console.log(`build: ${built.ok ? 'ok' : 'FAILED'} (${fmtMs(r.durationMs)})`);
   if (!built.ok) console.log(r.output.split('\n').slice(-25).map(l => '    ' + l).join('\n'));
   return built;

@@ -11,7 +11,7 @@ The application provides a modern web interface for managing all aspects of educ
 Saha Education is a school management system with the following key features:
 
 - Student registration and profile management
-- Guardian/guardian relationship tracking  
+- Guardian/guardian relationship tracking
 - School information and management
 - Course catalog and class creation
 - Class attendance tracking
@@ -25,7 +25,7 @@ Saha Education is a school management system with the following key features:
 The application supports the following user roles:
 
 - **Admin**: Full access to all features and system management
-- **Teacher**: Access to classes they teach, student records, assessments, and attendance 
+- **Teacher**: Access to classes they teach, student records, assessments, and attendance
 - **Guardian**: Access to their child's information and grades
 - **Student**: Access to personal profile, classes, assessments, and report cards
 
@@ -33,7 +33,7 @@ The application supports the following user roles:
 
 This project uses:
 - Next.js 16 + TypeScript with React 19
-- Cloudflare Workers via vinext/vite/wrangler 
+- Cloudflare Workers via vinext/vite/wrangler
 - Drizzle ORM on Cloudflare D1 (sqlite)
 - shadcn components in components/ui
 - Tailwind 4 for styling
@@ -41,6 +41,8 @@ This project uses:
 - Node >= 22.13 for development
 
 The architecture was modelled on the Saha Health project while maintaining distinct educational domain terminology and functionality.
+
+See [current authentication/access setup](docs/current/AUTH-ACCESS.md) and [validation evidence](VALIDATION.md). Use synthetic data until provider/account lifecycle and remaining acceptance gates are verified.
 
 ## Setup
 
@@ -50,7 +52,7 @@ To get started with Saha Education:
 # Install dependencies
 pnpm install
 
-# Run development server 
+# Run development server
 pnpm dev
 
 # Build for production
@@ -88,7 +90,7 @@ pnpm db:generate
 .
 ├── app/                # Next.js app directory with routes and pages
 ├── components/         # UI components (shadcn)
-├── lib/education/      # Business logic and application layer 
+├── lib/education/      # Business logic and application layer
 ├── drizzle/            # Database migrations and schema
 ├── docs/               # Documentation files
 ├── scripts/            # Helper scripts for build, test etc.
@@ -102,7 +104,7 @@ pnpm db:generate
 The database schema is managed with Drizzle ORM and consists of the following tables:
 
 - **schools**: Stores school information including name, address, and timestamps
-- **users**: User accounts with roles (admin|teacher|guardian|student) and associated school references  
+- **users**: User accounts with roles (admin|teacher|guardian|student) and associated school references
 - **students**: Student records with personal details, admission numbers, and grade levels
 - **guardians**: Guardian information linked to user accounts with phone/email details
 - **student_guardians**: Relationship table linking students to their guardians with primary flag
@@ -124,7 +126,7 @@ Saha Education employs a layered testing approach to ensure reliability:
 ### Test layers:
 1. **Static**: Type checking, code analysis
 2. **Unit**: Business logic and function testing in isolation
-3. **Integration**: API endpoints, database operations, and data flows  
+3. **Integration**: API endpoints, database operations, and data flows
 4. **Resilience**: System robustness and error handling
 5. **Smoke**: Rapid validation of core system functionality
 6. **UI**: Component rendering and interaction behavior
@@ -132,7 +134,7 @@ Saha Education employs a layered testing approach to ensure reliability:
 8. **UAT**: User acceptance testing scenarios
 
 ### Test locations:
-- Unit tests: `tests/unit/` 
+- Unit tests: `tests/unit/`
 - Integration tests: `tests/integration/`
 - API tests: `tests/integration/api/`
 - UI tests: `tests/ui/`
@@ -144,6 +146,6 @@ Test results are aggregated and reported with counts for each layer, showing pas
 
 ## Known limitations
 
-- Demo sign-in is available via the `saha_demo_role` cookie for development purposes
-- Production authentication implementation is still under development  
+- Provider-based sign-in replaces role-selection demo login; provider configuration is pending
+- All records require verified school and relationship scopes; no role cookie grants access
 - Full user role management capabilities have been implemented but may be limited in the demo environment

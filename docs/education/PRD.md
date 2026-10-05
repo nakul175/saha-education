@@ -47,7 +47,7 @@ Show field-level errors and a clear save result; preserve user input after valid
 
 ## Priority and release boundary
 
-P0: real identity, object authorization, removal of public sensitive reads, valid user/teacher administration and reliable persistence. P1: end-to-end setup, enrolment, attendance, assessment and report publication with in-app notifications. P2: search, pagination, accessibility verification and approved family/student views. External messaging and additional education features require a later product decision.
+P0: real identity, object authorization, removal of public sensitive reads, valid user/teacher administration and reliable persistence. P1: end-to-end setup, enrolment, attendance, assessment and report publication with in-app notifications and approved family/student views. P2: search, pagination and accessibility verification. External messaging and additional education features require a later product decision.
 
 ## Product acceptance
 

@@ -1,5 +1,6 @@
+import { redirect } from 'next/navigation';
 import { AppShell } from "@/components/app-shell";
-import { requirePrincipal } from "@/lib/education/auth";
+import { getServerPrincipal } from "@/lib/education/auth";
 import type { Principal } from "@/lib/education/types";
 import { listClasses } from "@/lib/education/classes";
 import { listAssessments } from "@/lib/education/assessments";
@@ -8,17 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
 export default async function TeacherDashboardPage() {
-  const principal = requirePrincipal();
+  const principal = await getServerPrincipal();
+  if (!principal || principal.role !== "teacher") redirect("/");
   
   // Get teacher's classes
-  const classes = await listClasses(principal.schoolId);
+  const classes = await listClasses(principal, principal.schoolId);
 
   // Filter to only include the teacher's classes (the ones where the teacher is the teacherId)
   const teacherClasses = classes.filter(cls => cls.teacherId === principal.id);
 
   // Get assessments that still need results
   // For this, we need to filter based on which assessments have no results recorded yet
-  const allAssessments = await listAssessments();
+  const allAssessments = await listAssessments(principal);
   
   // Filter to only include assessments from the teacher's classes
   const classAssessments = allAssessments.filter(assessment => {
@@ -92,7 +94,7 @@ export default async function TeacherDashboardPage() {
                         Max Score: {assessment.maxScore}
                       </p>
                       <div className="mt-2 flex space-x-2">
-                        <Link href={`/assessments/${assessment.id}/results`} passHref>
+                        <Link href={`/assessments/${assessment.id}`} passHref>
                           <Button variant="default">Record Results</Button>
                         </Link>
                       </div>

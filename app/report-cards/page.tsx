@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { listStudents } from '@/lib/education/students';
-import { listReportCards, createReportCard, publishReportCard } from '@/lib/education/report-cards';
+import { listStudents } from '@/lib/education/client-api';
+import { listReportCards, createReportCard, publishReportCard } from '@/lib/education/client-api';
 import type { ReportCard } from '@/lib/education/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
