@@ -113,6 +113,11 @@
       "file": "tests/integration/reading-review-contract.mjs",
       "minPassed": 177
     },
+    "integration/registry-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/registry-ui-contract.mjs",
+      "minPassed": 315
+    },
     "integration/report-publication-contract": {
       "layer": "integration",
       "file": "tests/integration/report-publication-contract.mjs",

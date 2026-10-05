@@ -46,10 +46,10 @@ Use the manifest's Node/pnpm toolchain; current check environment and actual res
 | EDU-N04 | Partial, unapproved | Atomic batches and insert/change pair guards checked; legacy duplicates retained for reviewed repair, broader operational targets remain |
 | TCH-01–04 | Partial, unapproved | Structured drafts, immutable revisions, exact-version approval/assignment and learner-safe views; educator/UAT acceptance pending |
 | FR-04/21/22/24/26 | Partial, unapproved | Reviewed accounts, manual curriculum source/copy, text/formative attempts and reading corrections implemented; reviewed profile ownership and explicit submission windows are implemented; role remapping, scoring/norms, pilot rights, grades/publication and platform-wide audit/retention remain open |
-| BR-01–12; FR-01–26; NFR-01–09 | Draft, unapproved | Canonical v2.7 separates implemented, partial and planned behavior; 245 designed cases across 36 scenarios remain unrun for this specification |
+| BR-01–12; FR-01–26; NFR-01–09 | Draft, unapproved | Canonical v2.8 separates implemented, partial and planned behavior; 253 designed cases across 37 scenarios remain unrun for this specification |
 | FR-09 | Partial, unapproved | Reviewed exact attendance snapshots/saves/history and coherent family viewer implemented; school calendars, correction governance, legacy API bypass, retention and UAT remain open |
 | FR-10 | Partial, unapproved | Reviewed result snapshots/saves/history and exact conflicts/retries implemented; legacy replacement API, grade/date/correction/retention policy and family publication remain open |
-| Next delivery | Sixth recovery verified; final bounded registry client slice preparing | Student/guardian stale-load privacy and truthful creation recovery are the next diagnosed slice. Durable/cross-device recovery, wider role journeys and representative educator/UAT acceptance remain open; identity/ORF provider and pilot configuration still need the named provider and authorized settings |
+| Next delivery | Seventh registry verified; four-hour handover in progress | Student/guardian lists now clear obsolete/unknown-outcome scope, verify fresh sessions and use synchronous creation locks. Unknown creation requires original-account reload/manual comparison; the backend has no safe UUID retry. Durable/cross-device recovery, wider role journeys and representative educator/UAT acceptance remain open; identity/ORF provider and pilot configuration still need the named provider and authorized settings |
 
 ## Remaining product gaps
 

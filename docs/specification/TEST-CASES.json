@@ -1,9 +1,9 @@
 {
-  "version": "2.7-draft",
+  "version": "2.8-draft",
   "date": "2026-10-05",
-  "source_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
+  "source_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
   "approved": false,
-  "execution_notice": "All 245 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence and published v2.2 (133), v2.3 (157), v2.4 (181), v2.5 (205) and v2.6 (229) design/execution remain separate.",
+  "execution_notice": "All 253 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context, not intentional case execution or acceptance. Historical published v2.7 (245), v2.6 (229), v2.5 (205), v2.4 (181), v2.3 (157), v2.2 (133) and earlier design/execution remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -7614,6 +7614,285 @@
         "docs/specification/LEARNER-RECOVERY-DESIGN.md"
       ],
       "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-246",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01"
+      ],
+      "title": "Current registry loads reject changed actor and obsolete privileged replies",
+      "layer": "security",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Administrator list held while a newer guardian load completes; current account change between session/list/session.",
+      "steps": [
+        "Load a current administrator registry; hold its actual authorized list response.",
+        "Reload under a guardian session, then deliver the old privileged reply; separately change actor before final session read."
+      ],
+      "expected": [
+        "Only latest current scoped data is displayed; old unrelated pupils/guardian profiles never replace the family view.",
+        "Observed actor ID/role/school mismatch clears protected registry and stale create authority."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-247",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Registry failure clears private rows and successful reload clears sticky error",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Missing session, disabled mapped administrator or temporary list 503 after loaded rows.",
+      "steps": [
+        "Fail/revoke the current load and inspect cached rows/actions.",
+        "Restore authorized current scope and reload successfully."
+      ],
+      "expected": [
+        "Rows and Principal/create authority clear; every delivered response is drained.",
+        "Successful current load removes the previous error and restores only currently scoped rows."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-248",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-06",
+        "NFR-07"
+      ],
+      "title": "Student local search and bounded matches truthfully describe loaded scope",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "205 current authorized profiles,203 shared search matches and a unique admission value beyond first 200.",
+      "steps": [
+        "Search nonexistent name, exact loaded name/admission, broad shared matches and blank query.",
+        "Inspect loaded/matched/shown counts, programmatic query bound and rendered rows."
+      ],
+      "expected": [
+        "Search filters current loaded names/admissions locally; no unsupported server search or cross-school result is implied.",
+        "Query cap 200 and first 200 matching rows are explicit; exact loaded/match counts remain distinct, and search can find a later loaded row."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-249",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-06",
+        "NFR-03"
+      ],
+      "title": "Synchronous registry create lock preserves one actual request",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Two same-frame callbacks for one valid student or guardian form.",
+      "steps": [
+        "Submit the same valid native callback twice before repaint.",
+        "Compare POST requests and stored profiles."
+      ],
+      "expected": [
+        "One synchronous create lock sends one POST and persists one profile.",
+        "A failed duplicate request cannot hide the known first success; no new backend idempotency guarantee is introduced."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-250",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-03"
+      ],
+      "title": "Unknown non-idempotent create requires original actor comparison",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Actual committed 201 loses delivery or arrives malformed/wrong-shape/503; replace actor with different administrator.",
+      "steps": [
+        "Create then interrupt acknowledgement; reload current list.",
+        "Change the actual session after committed create and before an unknown acknowledgement; inspect both pages before any reload.",
+        "Switch to another administrator and inspect hidden pending values/forms/comparison.",
+        "Restore original current administrator, compare reloaded data, explicitly finish comparison and start a new blank draft."
+      ],
+      "expected": [
+        "Every uncertain sent POST clears old private rows/principal/create authority and invalidates pending reads, even without an HTTP access-denial status.",
+        "Original submitted values remain private in page memory; no automatic/blind retry sends another POST.",
+        "Different administrator cannot see or release old pending values; fresh original actor ID/role/school comparison is mandatory.",
+        "Finish comparison resets blank without any mutation; a deliberate later create can still duplicate an existing guardian."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-251",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01"
+      ],
+      "title": "Fresh create preflight denies stale administrator without POST",
+      "layer": "security",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Current actor changes after form load but before create preflight session.",
+      "steps": [
+        "Enter student/guardian values as administrator; switch session before submitting.",
+        "Inspect requests, private rows/forms and persisted profiles."
+      ],
+      "expected": [
+        "Fresh session scope mismatch sends no POST, clears old protected view and requires reload.",
+        "No caller-supplied reviewer/login binding, role/school transfer or implicit account/profile mapping is added."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-252",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-06",
+        "NFR-03",
+        "NFR-04"
+      ],
+      "title": "Acknowledged registry creation stays saved when list refresh fails",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Correlated actual201 profile acknowledgement then temporary/current unavailable list refresh.",
+      "steps": [
+        "Receive and validate created profile, then fail its subsequent list read.",
+        "Reload current authorized registry and compare stored rows."
+      ],
+      "expected": [
+        "Known profile creation remains saved; list failure is separately visible and another unchecked create stays blocked.",
+        "No automatic replay follows refresh failure; acknowledgement is not mislabeled failed or idempotent."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-253",
+      "scenario": "SC-37",
+      "requirements": [
+        "FR-06",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Registry mounted form search privacy and recovery acceptance review",
+      "layer": "accessibility",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "data": "Local built Worker with synthetic roles, real RHF/Radix student dialog, keyboard and 390px view.",
+      "steps": [
+        "Walk student local search, bounded list, same-frame create, unknown outcome, different-account privacy and blank-new-draft comparison.",
+        "Inspect guardian creation, labels/focus/status/mobile/native navigation and saved-versus-failed-read text."
+      ],
+      "expected": [
+        "Mounted browser/library behavior is separately recorded; substituted hooks do not establish RHF validation, dialog visibility or accessibility acceptance.",
+        "Named reviewers evaluate page-memory lifetime, manual comparison limits, existing birth-date/calendar behavior and duplicate policy; no business/provider acceptance is inferred."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "app/api/students/route.ts",
+        "app/api/guardians/route.ts",
+        "lib/education/students.ts",
+        "lib/education/guardians.ts",
+        "docs/specification/REGISTRY-DESIGN.md",
+        "docs/specification/UAT.md",
+        "docs/specification/WIREFRAMES.md",
+        "tests/worker-registry-ui-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
     }
   ],
   "delivery_metadata": {
@@ -7622,12 +7901,13 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented sixth learner-recovery batch, not its containing publication commit. Published v2.6 at 61f0751, v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
+    "note": "source_commit records the parent of this documented seventh registry-client batch, not its containing publication commit. Published v2.7 at e813af2, v2.6 at 61f0751, v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
-    "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf"
+    "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
+    "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125"
   }
 }

@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **245 cases in 36 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **253 cases in 37 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -480,3 +480,16 @@ Cases: TC-238, TC-239, TC-240, TC-241, TC-242, TC-243, TC-244, TC-245. All remai
 - TC-243 — Learner recovery keyboard mobile plain-text and focus review (accessibility, manual).
 - TC-244 — Page-memory recovery lifetime and refresh policy acceptance (uat, manual).
 - TC-245 — Representative recovery and history performance remains measured gate (performance, planned).
+
+## SC-37: Current registry privacy local search and non-idempotent create recovery
+
+Cases: TC-246, TC-247, TC-248, TC-249, TC-250, TC-251, TC-252, TC-253. All remain unrun. Actual callback evidence substitutes React/RHF/components; mounted browser and acceptance remain separate.
+
+- TC-246 — Current registry loads reject changed actor and obsolete privileged replies (security, existing).
+- TC-247 — Registry failure clears private rows and successful reload clears sticky error (integration, existing).
+- TC-248 — Student local search and bounded matches truthfully describe loaded scope (integration, existing).
+- TC-249 — Synchronous registry create lock preserves one actual request (integration, existing).
+- TC-250 — Unknown non-idempotent create requires original actor comparison (regression, existing).
+- TC-251 — Fresh create preflight denies stale administrator without POST (security, existing).
+- TC-252 — Acknowledged registry creation stays saved when list refresh fails (regression, existing).
+- TC-253 — Registry mounted form search privacy and recovery acceptance review (accessibility, manual).

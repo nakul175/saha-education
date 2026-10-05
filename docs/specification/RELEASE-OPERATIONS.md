@@ -2,7 +2,7 @@
 
 Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Environment boundaries
 
@@ -82,3 +82,7 @@ Populate disposable encrypted local recovery with original reviewed result and l
 ## Learner pending recovery support boundary
 
 An unresolved original UUID/body is held only in the current page. Keep the page open and sign in in another tab when required; reload under the original current authorized actor before exact retry. Do not advise retyping retained text as a new request merely because the latest attempt/policy changed. A valid original receipt stays saved even if current readback fails; respect hidden private evidence after denial. Browser close/navigation loses local state and requires scoped support investigation rather than a fabricated durable replay guarantee. No schema/deployment/provider/key/retention change accompanies this slice.
+
+## v2.8 registry operational boundary
+
+For an uncertain registry creation, do not repeat the original create. Reload with the original authorized administrator, compare submitted identifiers against saved list data, and explicitly start a blank draft only after comparison. Hard reload/navigation discards private reminders; the slice supplies no durable reconciliation or automatic deduplication. Keep synthetic callback/browser evidence and diagnostic failures separate from approval/live identity/hosted checks. No migration is introduced.

@@ -1,0 +1,260 @@
+{
+  "date": "2026-10-05",
+  "source_parent": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+  "branch": "feat/specification-delivery",
+  "source_boundary": "Seventh final registry source includes all unknown-outcome scope clearing, visible student400 rejection and native full-page profile link; source hashes match fresh rebuilt local Worker.",
+  "approved": false,
+  "hostedDeployment": false,
+  "mainMerge": false,
+  "externalProviderActivated": false,
+  "realRecordsOrRecipients": false,
+  "freshBuild": {
+    "passed": true,
+    "scope": "Final native profile link, visible student rejection and labelled keyboard-focusable guardian region; all current app hashes match tested fresh local build.39 migrated synthetic tables/all guards; no hosted release.",
+    "sourceHashes": {
+      "app/students/page.tsx": "4a7452bee76ef47753f18b9bab13a358bdce0ed897f327eb741d85a732f2552e",
+      "app/guardians/page.tsx": "6df2944d8c3acd9ffbf034e4dbd5212754880c37b15b94972e668f8e8b36248c"
+    }
+  },
+  "guardedRun": {
+    "generatedAt": "2026-10-05T11:17:14.834Z",
+    "startedAt": "2026-10-05T11:16:49.638Z",
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "node": "v24.19.0",
+    "layers": [
+      {
+        "layer": "static",
+        "status": "passed",
+        "suites": 3,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1798,
+        "failedSuites": 0
+      },
+      {
+        "layer": "unit",
+        "status": "passed",
+        "suites": 9,
+        "passed": 119,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 2184,
+        "failedSuites": 0
+      },
+      {
+        "layer": "integration",
+        "status": "passed",
+        "suites": 29,
+        "passed": 15221,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 20190,
+        "failedSuites": 0
+      },
+      {
+        "layer": "smoke",
+        "status": "passed",
+        "suites": 1,
+        "passed": 164,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 817,
+        "failedSuites": 0
+      }
+    ],
+    "totals": {
+      "suites": 39,
+      "passed": 15504,
+      "failed": 0,
+      "skipped": 0,
+      "failedSuites": 0,
+      "durationMs": 25196
+    },
+    "regressionGuard": {
+      "ok": true,
+      "findings": [],
+      "warnings": [],
+      "evaluated": 39,
+      "newSuites": []
+    }
+  },
+  "independentRegistry": {
+    "passed": 315,
+    "failed": 0,
+    "skipped": 0,
+    "scenarios": 30,
+    "requests": 238,
+    "externalRequests": 0,
+    "scope": "actual opaque sessions/routes/production D1 SQLite; unchanged source callbacks with substituted React/RHF hooks/elements; not mounted-browser evidence",
+    "includedInIntegrationTotal": true
+  },
+  "browserRegistry": {
+    "executedAt": "2026-10-05T11:17:36.925Z",
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "checks": [
+      "students: verified administrator sees labelled creation with unlinked-profile explanation",
+      "students: legitimate creation is confirmed and remains an unlinked same-school profile",
+      "students: same-frame native submissions emit one POST and one durable profile",
+      "guardians: verified administrator sees labelled creation with unlinked-profile explanation",
+      "guardians: legitimate creation is confirmed and remains an unlinked same-school profile",
+      "guardians: same-frame native submissions emit one POST and one durable profile",
+      "Student search filters the currently loaded authorised list with an explicit200-character bound",
+      "teacher: student registry shows only actual scoped rows and no administrator creation",
+      "student: student registry shows only actual scoped rows and no administrator creation",
+      "guardian: student registry shows only actual scoped rows and no administrator creation",
+      "Non-administrator guardian registry shows only actual scoped profiles and no creation controls",
+      "students: delayed former-administrator list is suppressed after actual guardian account change",
+      "students: known403/404 load denial clears rows and administrator form",
+      "students: availability failure clears stale list without inventing an empty registry",
+      "students: committed lost acknowledgement freezes original draft with no automatic retry",
+      "students: actual account switch before503acknowledgement hides oldadministrator records and pending creation and recovers through original-actor comparison",
+      "students: committed401 acknowledgement retains a private comparison request without navigating away",
+      "students: known201 followed by failed refresh retains the saved fact and hides unavailable rows",
+      "students: definitive400 retains entered values and allows deliberate correction",
+      "guardians: delayed former-administrator list is suppressed after actual guardian account change",
+      "guardians: known403/404 load denial clears rows and administrator form",
+      "guardians: availability failure clears stale list without inventing an empty registry",
+      "guardians: committed lost acknowledgement freezes original draft with no automatic retry",
+      "guardians: actual account switch before503acknowledgement hides oldadministrator records and pending creation and recovers through original-actor comparison",
+      "guardians: committed401 acknowledgement retains a private comparison request without navigating away",
+      "guardians: known201 followed by failed refresh retains the saved fact and hides unavailable rows",
+      "guardians: definitive400 retains entered values and allows deliberate correction",
+      "Desktop registry controls have native labels and valid profile-link destinations",
+      "390px student search and guardian form wrap and support keyboard focus",
+      "Observed registry requests remain local with no page errors or failed assets"
+    ],
+    "screenshots": [
+      "/private/tmp/saha-registry-ui-students-desktop.png",
+      "/private/tmp/saha-registry-ui-guardians-desktop.png",
+      "/private/tmp/saha-registry-ui-students-mobile.png",
+      "/private/tmp/saha-registry-ui-guardians-mobile.png"
+    ],
+    "limits": [
+      "Built localhost Worker and synthetic session cookies only.",
+      "Delivery failures are explicitly injected after real commits; original create APIs have no UUID replay guarantee.",
+      "Suffix-only profiles were added; base profiles, roles, identity mappings and relationships were not changed.",
+      "No provider activation, external messaging, deployment, UAT acceptance or accessibility certification was exercised.",
+      "This final run may overlap root local AXE validation; no idle-server claim is made."
+    ],
+    "captureReview": "Four final focused desktop/390px captures visually inspected; correct pages, labels and widths. Browser acknowledges overlap with automated accessibility sample without an idle-server claim."
+  },
+  "typeScript": {
+    "passed": true
+  },
+  "lint": {
+    "passed": true,
+    "affectedFiles": 5,
+    "errors": 0,
+    "warnings": 0
+  },
+  "canonicalInventory": {
+    "version": "2.8",
+    "tables": 39,
+    "fields": 325,
+    "routes": 56,
+    "handlers": 91,
+    "designedCases": 253,
+    "scenarios": 37,
+    "caseExecution": "not-run-for-this-specification",
+    "allRequirementApprovals": false
+  },
+  "baselineUpdate": {
+    "added": 1,
+    "raised": 0,
+    "lowered": 0,
+    "removed": 0,
+    "unchanged": 38,
+    "minimums": {
+      "registry": 315
+    }
+  },
+  "encryptedRecovery": {
+    "passed": 250,
+    "includedInIntegrationTotal": true,
+    "tables": 39,
+    "indexes": 84,
+    "triggers": 36,
+    "scope": "Existing populated encrypted local roundtrip rerun in integration; no new schema or hosted recovery guarantee."
+  },
+  "documentation": {
+    "markdownFiles": 60,
+    "historicalDraftRequirementsAudited": 20,
+    "checksPassed": true
+  },
+  "verificationObservations": [
+    "Initial independent registry diagnosis reproduced7 unsafe observations with48 actual isolated session/route/D1 SQLite requests. Substituted React/RHF callbacks; excluded from passing totals.",
+    "Additional26-request read-only diagnosis reproduced cached private rows under an account switch before an unknown committed-create acknowledgement. Final all-unknown clearing verified independently and in mounted browser; unsafe diagnostic excluded.",
+    "Private browser StudentView probe at11:11:06.156Z stayed on/students with pageerror e is not a function; diagnostic excluded. Final native link actually navigates to permitted StudentProfile with zero page errors.",
+    "Initial new browser attempt expected wrong synthetic school ID; another partial attempt stopped at15 procedures on modal-detachment action timeout. These attempts are retained separately and not added to the single final30 passing procedures. Named delivery injections use native form submission; normal click and same-frame submissions remain separately exercised.",
+    "Root source review placed student400 rejection outside the aria-hidden modal; final branch dismisses dialog while preserving inputs, verified visible without manual dismissal in browser. This source concern was not represented as an executed diagnostic failure.",
+    "Root stopped browser/Worker and rebuilt after each material source change. Final application hashes match tested build; no build ran during final browser procedures.",
+    "Initial final-source accessibility sample had99 passing/1 failing of100: mobile administrator guardian table scrollable-region-focusable. The actual local rule failure prompted a labelled focusable region; complete final browser/accessibility repeats follow, without counting the earlier99 as passing final-source evidence.",
+    "Current development served first attempt returned503 instead of403 for a foreign-origin mutation denial after17 checks. Unchanged isolated full172-check second attempt passed; specification146/domain104 pass. Initial failure excluded and no causal code fix/load guarantee claimed."
+  ],
+  "remainingLimits": [
+    "Profile creation remains non-idempotent in the existing backend; current-page lock does not promise duplicate prevention across tabs/devices. No automatic retry or profile merge.",
+    "Unknown in-page comparison state is private to original actor and lost on hard navigation/reload. No durable recovery contract.",
+    "Fresh session/list/session and generation guards protect explicit loads; no continuous cross-tab account monitor or session-only revocation after Principal resolution.",
+    "Student search filters complete loaded authorized rows and shows at most200 matches; no server pagination/search/load guarantee. Legacy date display/API validators preserved.",
+    "All253 designed cases remain unrun and requirements unapproved. Representative educator/UAT, formal accessibility/load and hosted operations remain pending.",
+    "Identity/ORF vendor configuration, paid AI, real learners/messages, main merge and deployment remain inactive."
+  ],
+  "accessibility": {
+    "executedAt": "2026-10-05T11:18:29.688Z",
+    "passed": 100,
+    "failed": 0,
+    "skipped": 0,
+    "sampledPages": 100,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "formalAccessibilityAcceptance": false,
+    "limits": "Automated visible resting-page WCAG-rule sample; incomplete checks, keyboard/screen-reader testing and all interactive states require separate review.",
+    "scope": "Selected automated rendered WCAG-rule100 page/viewport samples on final source, four roles/desktop/mobile. Incomplete rules, all interactive states and formal accessibility remain separate."
+  },
+  "servedRegression": {
+    "development": {
+      "passed": 172,
+      "failed": 0,
+      "skipped": 0,
+      "completedLogAt": "2026-10-05T11:19:41.203977+00:00"
+    },
+    "specification": {
+      "suite": "specification",
+      "executedAt": "2026-10-05T11:19:20.321473+00:00",
+      "exitCode": 0,
+      "summary": {
+        "passed": 146,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "domain": {
+      "suite": "domain",
+      "executedAt": "2026-10-05T11:19:20.588375+00:00",
+      "exitCode": 0,
+      "summary": {
+        "passed": 104,
+        "failed": 0,
+        "skipped": 0,
+        "syntheticLocalOnly": true,
+        "externalProvider": false
+      }
+    },
+    "scope": "Current final localhost Worker with synthetic sessions/migrated D1, zero provider activity."
+  },
+  "offlinePrototype": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "completedLogAt": "2026-10-05T11:19:30.039753+00:00",
+    "screens": 12,
+    "scope": "Fictional offline prototype; no application/UAT acceptance."
+  }
+}

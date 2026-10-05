@@ -1,8 +1,8 @@
 # Data dictionary
 
-Version 2.7 draft, 5 October 2026. Current working inventory: **39 implemented SQL tables and 325 columns**, obtained by applying migrations 0000–0014 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+Version 2.8 draft, 5 October 2026. Current working inventory: **39 implemented SQL tables and 325 columns**, obtained by applying migrations 0000–0014 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 Requirement references: FR-01–FR-03 identity/access; FR-05–FR-12 school/academic records; FR-13–FR-18 teacher resources; FR-20 reviewed reading; NFR-01/NFR-02 constraints and concurrency; NFR-03 retention. IDs and status are canonical in [requirements.json](requirements.json); business context is in [BRD](BRD.md).
 
@@ -633,7 +633,7 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_tru
 
 ## v2.4 derived dashboard views
 
-Dashboard DTOs are read projections, not persisted tables/columns; their published v2.4 slice used 35 tables/294 fields and added no route/schema. Published v2.5 had 37 tables/309 fields after attendance evidence; the current v2.7 dictionary/CSV has 39 tables/325 fields after reviewed assessment evidence. [Dashboard design](DASHBOARD-DESIGN.md) lists every derived role field, bound, count and null meaning.
+Dashboard DTOs are read projections, not persisted tables/columns; their published v2.4 slice used 35 tables/294 fields and added no route/schema. Published v2.5 had 37 tables/309 fields after attendance evidence; the current v2.8 dictionary/CSV has 39 tables/325 fields after reviewed assessment evidence. [Dashboard design](DASHBOARD-DESIGN.md) lists every derived role field, bound, count and null meaning.
 
 `asOf` is SQL UTC time. `DashboardList.total` is an exact uncapped authorized count; `items` is bounded; `truncated` means total exceeds limit. Administrator teachers count only current enabled accounts with nonempty trusted mapping. Teacher coverage counts distinct active same-school pupils, unique valid recorded pairs, absent pairs, duplicate whole enrolment/result pairs and invalid evidence; invalidMaximum has unavailable maxScore=null. Legitimate zero remains recorded. Family attendance counts observed rows/statuses and invalid dates with nullable real-date coverage; no percent/expected-day field exists. Report grades are stored text and published-only counts exclude drafts. These fields add no approved educational/retention meaning.
 
@@ -652,3 +652,7 @@ The current dictionary/CSV is 39 tables/325 fields; public editor/review/history
 ## v2.7 recovery-state boundary
 
 There is no schema change in the [learner recovery slice](LEARNER-RECOVERY-DESIGN.md):39 tables/325 migrated fields remain. Pending endpoint/actor/serialized body and UUID are private page-memory state, never a new persisted receipt/outbox table. Existing immutable attempt/feedback/window evidence supplies exact original server replay. Browser close/navigation can lose pending state; no durable automatic recovery is claimed.
+
+## v2.8 registry transient state
+
+No persisted dictionary change: 39 tables/325 fields. Private pending values, actorKey, currentScope, create lock, generation, comparison readiness and saved/unknown acknowledgement flags are client memory, not database fields or durable receipts. Hard reload loses pending reminders. No login binding, duplicate repair or date-policy field is added. See [registry design](REGISTRY-DESIGN.md).

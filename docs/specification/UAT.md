@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -90,3 +90,7 @@ TC-224–TC-226 and TC-229 remain manual/unrun; no reviewer, acceptance, learnin
 ## Learner recovery acceptance design
 
 TC-243–TC-244 remain manual/unrun. Named reviewers should inspect exact pending retry versus new save, original receipt versus latest history/window, known saved outcome with failed refresh, hidden protected evidence, separate-tab sign-in and explicit authorized reload. Confirm keyboard/status/mobile/locale wording and the page-memory lifetime limitation: full navigation/close is not a durable outbox. No educator, real-provider, live-record or operational acceptance is inferred from callback or local browser suites.
+
+## v2.8 registry acceptance decisions
+
+TC-253 remains unrun. Named administrators review actual RHF/Radix student dialog and guardian form, search count wording, keyboard/mobile navigation, current-account privacy, known saved versus uncertain delivery and manual comparison instructions. Review page-memory loss and deliberate guardian duplicate risk. Neither callback suites nor mounted synthetic browser checks establish this acceptance. Existing birthday/calendar, account-link/family verification and operational policy remain unresolved where previously partial.

@@ -1,8 +1,8 @@
 # Implemented API contracts
 
-Version 2.7 draft, 5 October 2026. Current working sources: [app/api](../../app/api), [HTTP wrapper](../../lib/education/http.ts), [validation](../../lib/education/validation.ts), and corresponding record services. This is the current contract, not a promise of deployment, school acceptance or future integrations. The inventory below covers all **56 route files and 91 exported method handlers**; historical v2.0 covered 31 routes/55 handlers and v2.1 covered 44/74. Only implemented methods are included.
+Version 2.8 draft, 5 October 2026. Current working sources: [app/api](../../app/api), [HTTP wrapper](../../lib/education/http.ts), [validation](../../lib/education/validation.ts), and corresponding record services. This is the current contract, not a promise of deployment, school acceptance or future integrations. The inventory below covers all **56 route files and 91 exported method handlers**; historical v2.0 covered 31 routes/55 handlers and v2.1 covered 44/74. Only implemented methods are included.
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 Traceability: FR-01–FR-12 identity/academic routes; FR-13–FR-18 resources; FR-19 external launch; FR-20–FR-21 manual reading/corrections/history; FR-22 manual curriculum; FR-24 submissions/feedback; FR-26 domain evidence; NFR-01/NFR-02 access, errors and concurrency. See [canonical requirements](requirements.json), [BRD](BRD.md), [data dictionary](DATA-DICTIONARY.md) and [integration contracts](INTEGRATION-CONTRACTS.md).
 
@@ -251,7 +251,7 @@ Class detail still returns class fields plus scoped enrolledStudents, now from o
 
 ## v2.4 server dashboard boundary
 
-No `/api/dashboard` endpoint is added. The four existing role server pages call `getRoleDashboard(principal)` directly once after real session resolution. Its [minimal DTO](DASHBOARD-DESIGN.md) is an internal read contract, not a new HTTP handler. Null/role mismatch redirects through `/`; invalid Principal is denied. The published v2.4 dashboard slice retained 51 route files/84 handlers; published v2.5 attendance inventory was 54/88; current v2.7 is 56/91 with identical CSV/Markdown route rows. No mutation/body, JSON import, provider API, new schema or external call is introduced.
+No `/api/dashboard` endpoint is added. The four existing role server pages call `getRoleDashboard(principal)` directly once after real session resolution. Its [minimal DTO](DASHBOARD-DESIGN.md) is an internal read contract, not a new HTTP handler. Null/role mismatch redirects through `/`; invalid Principal is denied. The published v2.4 dashboard slice retained 51 route files/84 handlers; published v2.5 attendance inventory was 54/88; current v2.8 is 56/91 with identical CSV/Markdown route rows. No mutation/body, JSON import, provider API, new schema or external call is introduced.
 
 ## Reviewed attendance and raw summary payloads
 
@@ -272,3 +272,7 @@ New result review is 201; original exact actor/payload UUID replay 200 never rea
 ## v2.7 client recovery without new endpoints
 
 [Recovery design](LEARNER-RECOVERY-DESIGN.md) uses the existing session, approved assignments, submissions, exact-attempt feedback and submission-window/current-history routes. Inventory remains 56 route files/91 handlers. Pending retry sends the original serialized UUID/CAS body; refresh cannot turn an original retry into a new sequence. Known 401/403/404 clears protected client state;400 and409 remain explicit rejected requests;5xx/network/invalid2xx remains uncertain. This adds no API method, server-side outbox or new historical entitlement.
+
+## v2.8 registry client use of existing APIs
+
+No API inventory change: 56 route files/91 handlers. The registry clients use existing GET /api/session, GET/POST /api/students and GET/POST /api/guardians. Only a correlated 201 create response is acknowledged; client locks/comparison provide no UUID idempotency contract. Unknown delivery must not be retried blindly. Existing role-before-body, origin, live scope and validation rules remain server-owned. [Registry design](REGISTRY-DESIGN.md) specifies client behavior.

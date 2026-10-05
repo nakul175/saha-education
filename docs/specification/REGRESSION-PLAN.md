@@ -1,8 +1,8 @@
 # Risk-based regression plan
 
-Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Historical reference, not acceptance baseline
 
@@ -46,7 +46,7 @@ Reading import changes require existing original reading semantics and correctio
 
 Submission-window changes require original default/past-due workflow, existing immutable attempts/feedback, current/latest policy, close/expire between validation and INSERT, exact committed replay after closure, later policy preservation, current-authority rechecks and history cap. Recover all new review/provenance states using the populated disposable local encrypted suite, preserving exact indexes/triggers and scope rather than claiming hosted readiness.
 
-Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 245 designed cases remain unrun until intentionally executed and recorded.
+Link applicable SC-19–SC-22 procedures and [batch evidence](../current/DEVELOPMENT-BATCH-1.md); all 253 designed cases remain unrun until intentionally executed and recorded.
 
 ## v2.3 original-domain preservation
 
@@ -73,3 +73,7 @@ Recheck same-school withdrawn original history versus whole-batch transfer denia
 ## Learner recovery regression boundary
 
 Preserve old submission/window/resource API and immutable evidence tests while adding [original pending recovery](../../tests/integration/learner-recovery-ui-contract.mjs). After lost committed acknowledgement, a later response or open-policy revision must not be overwritten/appended again by stale recovery text. Exact body/UUID/actor survives reload, malformed 2xx,5xx and repeated failure; known denial hides protected views and requires same-actor authorized reload. Known receipt plus failed refresh remains truthful. Mounted-browser/manual evidence is separate from substituted-hook callback tests; SC-35–SC-36 remain unrun.
+
+## v2.8 registry compatibility checks
+
+Retain original student/guardian API thresholds and current-school/private-profile guards. Verify no new create replay/UUID semantics, no binding/transfer/duplicate/date policy changes and no unknown-write repeat. Cover current-scope list/search, superseded replies, same-frame lock, all uncertain outcomes clearing records, original actor-only comparison and known-save/failed-read separation. See SC-37 and [registry design](REGISTRY-DESIGN.md).

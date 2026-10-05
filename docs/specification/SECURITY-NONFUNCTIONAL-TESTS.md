@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -106,3 +106,7 @@ Inject fault after result writes but before all immutable entries, assert entire
 ## Client recovery privacy and authority
 
 TC-234–TC-235/238–TC-242 exercise known 401/403/404 hiding, exact original actor binding, role/feed refresh, obsolete response cancellation and current200/history 403 partial-view invalidation. Pending body/UUID stays private in page memory and cannot be replayed by another account. Current SQL remains final; client checks do not retract previously delivered content or revalidate session digest after Principal resolution. Temporary history 5xx is distinguished from denial. No response body, private material or identity credential is logged by the focused suite. Mobile/screen-reader/provider/capacity acceptance remains separate.
+
+## v2.8 registry privacy adversaries
+
+Hold an old administrator list response while reloading as guardian; change actor between session/list/session and create preflight; switch cookie after actual POST commit but before 503/network/malformed acknowledgement. Every unavailable/uncertain boundary must clear old private rows/principal/create controls. Different administrators must not see pending identifiers or release comparison. Original actor recovery cannot send a blind POST. These finite synthetic checks do not establish continuous session monitoring, real identity acceptance or hosted performance. See TC-246–TC-253.

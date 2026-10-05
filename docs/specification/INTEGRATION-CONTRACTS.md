@@ -1,8 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.7 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.8 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Current boundary matrix
 
@@ -152,3 +152,7 @@ Test actual-session transport and production D1 prepared RETURNING/trigger behav
 ## v2.7 local learner recovery boundary
 
 The [client recovery contract](LEARNER-RECOVERY-DESIGN.md) connects unchanged local routes to immutable page-memory pending requests. Actual opaque-session/route/production-D1 SQLite checks with substituted React hooks establish callback-state evidence only; local mounted-browser procedures and provider callback/educator acceptance remain separate. Exact original UUID retry after newer attempts/reviews or closure does not invoke external services or synchronize classroom results. No provider/login activation or external data transfer is added.
+
+## v2.8 registry integration boundary
+
+SC-37 exercises unchanged session/student/guardian production routes with actual synthetic sessions and production D1 queries over SQLite, plus unchanged source callbacks with substituted React/RHF hooks/components. Current scope clearing, superseded reads, 201 correlation, same-frame mutation lock and manual original-actor comparison are covered separately from mounted browser/library behavior. No safe non-idempotent replay, automatic matching, provider calls or real acceptance is claimed. [Registry design](REGISTRY-DESIGN.md).

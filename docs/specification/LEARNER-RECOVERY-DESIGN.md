@@ -1,8 +1,8 @@
 # Learner and reviewed-policy recovery design
 
-Version 2.7 draft, 5 October 2026. Trace: BR-02, BR-05, BR-10–BR-12; FR-03, FR-17, FR-24, FR-26; NFR-01, NFR-03–NFR-07, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. SC-35–SC-36 add TC-230–TC-245. All approvals remain false and every designed procedure remains not-run-for-this-specification.
+Version 2.8 draft, 5 October 2026. Trace: BR-02, BR-05, BR-10–BR-12; FR-03, FR-17, FR-24, FR-26; NFR-01, NFR-03–NFR-07, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. SC-35–SC-36 add TC-230–TC-245. All approvals remain false and every designed procedure remains not-run-for-this-specification.
 
-The implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records parent `61f0751b5c38384783f56823a07964421a18c0bf`, rather than the commit containing this sixth learner-recovery batch. Published v2.6 reviewed assessment and earlier dated evidence remain historical. This client recovery slice adds no table, persisted field, route or handler: inventory remains 39 tables/325 fields and 56 route files/91 handlers.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`. This focused contract originated in an earlier published batch; its source behavior and dated execution remain separate.
 
 ## Problem and unchanged server guarantees
 

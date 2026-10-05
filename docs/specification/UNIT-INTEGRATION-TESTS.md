@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.7 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -118,3 +118,7 @@ SC-32–SC-34 covers actual opaque sessions/routes/migrated SQLite through produ
 ## Learner recovery callback and actual-route contracts
 
 [SC-35–SC-36](TEST-SCENARIOS.md) cover original request bytes through later attempts/feedback/policies, repeated delivery uncertainty, actual access loss/restoration and actor continuity, partial 200/denied-history privacy, valid receipts versus failed refresh, same-frame guards and stale learning responses. [The integration suite](../../tests/integration/learner-recovery-ui-contract.mjs) runs actual opaque sessions/routes through production Drizzle D1 over fresh SQLite; React hooks/elements are substituted. It is callback-state evidence, not a mounted renderer/browser/UAT suite. No isolated implementation-mirroring unit test is invented, no external call occurs and designed cases remain unrun.
+
+## v2.8 registry callback and route regression
+
+[Registry contracts](../../tests/integration/registry-ui-contract.mjs) cover real committed non-idempotent creation, all uncertain reply clearing, fresh-session create denial, superseded/mismatched reads, different-administrator private pending isolation, original-actor comparison, local search caps and saved-versus-refresh failure. Substituted React/RHF/components do not establish mounted rendering, validation, focus or acceptance; TC-253 and [browser procedures](../../tests/worker-registry-ui-check.mjs) remain separate.

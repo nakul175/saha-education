@@ -2,7 +2,7 @@
 
 Draft process, 5 October 2026. Purpose: keep business intent, functional behavior, design, data, screens and test evidence aligned as the platform changes. Repository AGENTS/HANDOVER instructions govern source publication and sponsor merge authority. This process does not add a new permission gate to already authorized drafting or development.
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Document sequence and responsibilities
 
@@ -50,10 +50,14 @@ For v2.5, source_commit is `85e85d054afe039d6c633aa215d900b5881eb911`, the publi
 
 ## v2.6 parent-based assessment review change control
 
-The published fifth design recorded fourth-batch parent f31288162e1f55ec28ad710ab990ec56ac37ce3c, not its containing publication commit 61f0751. It retained 39 tables/325 fields, 56 routes/91 handlers and 229 designed cases/34 scenarios, 144 existing/48 planned/37 manual mappings. Preserve its unrun design and dated actual execution alongside v2.5 and earlier history. The current sixth pack is identified separately below.
+The published fifth design recorded fourth-batch parent f31288162e1f55ec28ad710ab990ec56ac37ce3c, not its containing publication commit 61f0751. It retained 39 tables/325 fields, 56 routes/91 handlers and 229 designed cases/34 scenarios, 144 existing/48 planned/37 manual mappings. Preserve its unrun design and dated actual execution alongside v2.5 and earlier history. The historical sixth pack is identified separately below.
 
 Impact touches coherent staff result reads, separate atomic reviews/history and detail/list recovery/calendar rendering. Legacy accepted replacement200/omitted-text semantics, raw original tuples and educational/provider/publication policy remain unchanged. Record actual unsafe-number fail-first fix separately from earlier diagnostic outcomes; root owns final publication/build/Worker/browser/recovery counts. CSVs use LF and preserve exact source/case/API/schema parity.
 
 ## Sixth-batch client recovery change boundary
 
-Parent 61f0751 identifies the published fifth batch, not the commit containing this recovery candidate. No schema/route/handler change:39 tables/325 fields/56 route files/91 handlers. SC-35–SC-36 add 16 designed procedures;245 cases/36 scenarios remain unrun with all approvals false. Reproduced unsafe callbacks, actual route/session/D1 callback-state regression, mounted-browser/accessibility and real acceptance remain separate evidence. Publication/build/execution are root-maintained dated records.
+Parent 61f0751 identifies the published fifth batch, not the commit containing this recovery candidate. No schema/route/handler change: 39 tables/325 fields/56 route files/91 handlers. SC-35–SC-36 added 16 designed procedures; historical v2.7 245 cases/36 scenarios remain unrun with all approvals false. Reproduced unsafe callbacks, actual route/session/D1 callback-state regression, mounted-browser/accessibility and real acceptance remain separate evidence. Publication/build/execution are root-maintained dated records.
+
+## v2.8 seventh registry client change control
+
+Parent e813af2f43f6d7c707f084c4472e5a6da8e50125 identifies published v2.7, not the commit containing this seventh client slice. Inventory stays 39 tables/325 fields/56 routes/91 handlers; design is 253 cases/37 scenarios, 164 existing/49 planned/40 manual mappings. Keep historical v2.7 245 cases/36 scenarios and its dated evidence separate. Approvals false and all cases unrun; source publication and actual execution remain root-maintained. No backend/profile/date/idempotency policy is added.

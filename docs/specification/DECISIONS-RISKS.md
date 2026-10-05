@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.7 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `61f0751b5c38384783f56823a07964421a18c0bf`, the parent of this documented sixth learner-recovery batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881` and v2.6 at `61f0751` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -122,3 +122,7 @@ Residual risks: legacy API bypass and last-writer behavior; ambiguous/opaque/uns
 ## Learner recovery decisions and residual risks
 
 Original page-memory requests are frozen rather than rebased to later records, and known denied responses hide protected material/actions. This reduces reproduced client duplicate/reclosure/privacy risks under the [documented contract](LEARNER-RECOVERY-DESIGN.md). Residual boundaries include page close/navigation losing local UUID/body, authority changing after an accepted read, unpaginated/per-item attempt/feedback histories, live provider reauthentication, mounted browser/accessibility/capacity and named educator/retention policy. Another actor cannot recover a pending request simply because it can read the assignment. No automatic historical entitlement, grade or external-sync policy is added.
+
+## v2.8 registry manual recovery decision
+
+Keep non-idempotent profile creation unchanged. Any uncertain sent POST clears protected view and blocks repetition; the original current administrator must reload and manually compare before discarding the private reminder and starting blank. The tradeoff is page-memory loss and imperfect human reconciliation; guardian duplicates are still possible after deliberate new creation. No continuous authorization monitor, automatic record matching, durable receipt/outbox or date-policy remediation is claimed. [Registry design](REGISTRY-DESIGN.md).
