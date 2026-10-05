@@ -1,8 +1,8 @@
 // Server-only read service: the database binding must never enter client code.
 import { and, eq, sql, type SQL } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { attendance, users } from '@/db/schema';
-import { assertPrincipal, classReferenceScope, classScope, livePrincipalScope, studentScope } from './access';
+import { users } from '@/db/schema';
+import { assertPrincipal, classScope, livePrincipalScope, studentScope } from './access';
 import type { Principal } from './types';
 
 export const DASHBOARD_LIMITS = { classes: 100, assessments: 100, profiles: 50, reports: 20 } as const;
@@ -117,12 +117,14 @@ function familyPayload(principal: Principal): SQL {
     left join attendance_stats stats on stats.student_id = p.id`;
   return sql`(with scoped_profiles as (
       select students.id, students.first_name, students.last_name, students.admission_number from students where ${studentScope(principal)}
+    ), permitted_attendance_classes as materialized (
+      select classes.id from classes where ${classScope(principal)}
     ), visible_attendance as (
       select attendance.student_id, attendance.status, attendance.date,
         case when length(attendance.date) = 10 and attendance.date glob '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
           and date(attendance.date, '+0 days') = attendance.date then attendance.date else null end valid_date
       from attendance join scoped_profiles p on p.id = attendance.student_id
-      where ${classReferenceScope(principal, attendance.classId)}
+      where exists (select 1 from permitted_attendance_classes permitted where permitted.id = attendance.class_id)
     ), attendance_stats as (
       select student_id, count(*) recorded_rows,
         sum(status = 'present') present_rows, sum(status = 'absent') absent_rows,
@@ -138,8 +140,9 @@ function familyPayload(principal: Principal): SQL {
 }
 
 /** One current-authority SELECT snapshot; null is denied authority, never zero totals.
- * Relationships are evaluated at that statement's snapshot. Principal carries no
- * session hash, so this does not promise session-only revocation after resolution.
+ * Relationships and exact verified-session authority share this statement's
+ * snapshot. The materialized permitted-class CTE preserves those checks while
+ * keeping family expressions within the deployed SQLite depth limit.
  */
 export async function getRoleDashboard(principal: Principal): Promise<RoleDashboard | null> {
   assertPrincipal(principal);

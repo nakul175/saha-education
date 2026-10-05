@@ -1,7 +1,7 @@
 {
-  "version": "2.8-draft",
-  "date": "2026-10-05",
-  "source_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+  "version": "2.9-draft",
+  "date": "2026-10-06",
+  "source_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -33,7 +33,7 @@
       "title": "Session lifecycle",
       "implementation_status": "implemented",
       "source": "lib/education/session.ts",
-      "requirement": "Opaque hashed sessions, expiry, logout and live disabled/role/school checks.",
+      "requirement": "Opaque hashed sessions, expiry and logout; verified server Principal privately pins exact token and issuer/subject for SQL-time session/account authority. Separate default-off isolated synthetic demo uses the same opaque session enforcement.",
       "approved": false
     },
     {
@@ -42,7 +42,7 @@
       "title": "Record authorization",
       "implementation_status": "implemented",
       "source": "lib/education/access.ts",
-      "requirement": "Scope domain reads/writes to current school, enabled mapped actor role, class assignment and explicit profile links; assemble each role dashboard in one coherent current-scoped SQL snapshot.",
+      "requirement": "Scope domain reads/writes to current school, enabled mapped actor role, class assignment and explicit profile links; actual SQL revalidates the original verified request session and identity; assemble each role dashboard in one coherent current-scoped SQL snapshot.",
       "approved": false
     },
     {
@@ -69,7 +69,7 @@
       "title": "Student and guardian records",
       "implementation_status": "partial",
       "source": "lib/education/students.ts",
-      "requirement": "Maintain student and guardian links with explicit role-matched school identity ownership.",
+      "requirement": "Maintain student and guardian links with explicit role-matched school identity ownership; reviewed new creation uses actor-bound immutable UUID receipts and exact recovery without changing later profiles. Legacy creation remains compatible and non-idempotent.",
       "approved": false
     },
     {
@@ -87,7 +87,7 @@
       "title": "Enrolment lifecycle",
       "implementation_status": "partial",
       "source": "lib/education/enrolments.ts",
-      "requirement": "Record active/withdrawn/completed enrolment, guard new duplicate pairs without deleting legacy evidence, and preserve agreed history.",
+      "requirement": "Record active/withdrawn/completed enrolment and guard new duplicate pairs without deleting legacy evidence; current scoped class/roster UI rejects obsolete actor/selection replies and actions. Uncertain non-idempotent enrolment saves require original-account comparison, with agreed historical policy still pending.",
       "approved": false
     },
     {
@@ -114,7 +114,7 @@
       "title": "Published reports",
       "implementation_status": "partial",
       "source": "lib/education/report-cards.ts",
-      "requirement": "Keep drafts private and publish scoped term reports with one immutable winner receipt and atomic eligible-guardian notices; draft creation is not UUID-idempotent.",
+      "requirement": "Keep drafts private and publish scoped term reports with one immutable winner receipt and atomic eligible-guardian notices; current role/learner UI hides obsolete private data and recovers publication through exact original endpoint/body. Draft creation is not UUID-idempotent and needs original-account comparison after uncertain delivery.",
       "approved": false
     },
     {
@@ -258,7 +258,7 @@
       "title": "Security",
       "implementation_status": "partial",
       "source": "lib/education/http.ts",
-      "requirement": "Trusted identity, same-origin mutations, current scope, strict schemas and safe errors; clear protected client views on known access loss and require fresh same-actor authorization for pending recovery; broader review remains.",
+      "requirement": "Trusted identity, same-origin mutations, current token/account/record scope, strict schemas and safe errors; clear protected client views on known access loss and require fresh same-actor authorization for exact pending recovery. Isolated synthetic demo cannot confer authority in school environments; broader review remains.",
       "approved": false
     },
     {
@@ -267,7 +267,7 @@
       "title": "Atomicity and concurrency",
       "implementation_status": "partial",
       "source": "lib/education/resources.ts",
-      "requirement": "Preserve confirmed records through repeat-safe writes, atomic batches and conflict handling.",
+      "requirement": "Preserve confirmed records through repeat-safe writes, atomic batches and conflicts, including immutable reviewed registry creation plus profile in one statement; legacy non-idempotent APIs retain their accepted contracts.",
       "approved": false
     },
     {
@@ -339,14 +339,18 @@
     "documentation_base_commit": "d53adcf",
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
-    "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented seventh registry-client batch, not its containing publication commit. Published v2.7 at e813af2, v2.6 at 61f0751, v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "date": "2026-10-06",
+    "note": "source_commit records published parent 053ab13 of this documented v2.9 candidate, not its containing commit. Prior v2.0–v2.8 design/source/execution remain historical. Actual frozen source, checks, publication, final-hour merge and private deployment are dated separately; no approval or designed-case execution inferred.",
+    "candidate_parent_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
-    "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125"
+    "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "source_parent_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
+    "historical_v2_8_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "historical_v2_8_application_commit": "7ee7c963575916d35cb0dae388833b1345833471",
+    "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20"
   }
 }

@@ -1,8 +1,8 @@
 # Saha release operations and support plan
 
-Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
+Draft operational plan, updated 5 October 2026. A private synthetic demo Site is now registered, with the coordinator responsible for this timed release. Registration does not establish a deployed version, production pipeline, SLA, approved RPO/RTO or ongoing support owner. Earlier main-triggered staging/freeze statements remain unverified; use [the release readiness audit](../current/RELEASE-READINESS.md) and [hosted verification boundary](../current/HOSTED-STAGING.md).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The historical v2.8 implementation candidate was prepared on `feat/specification-delivery`. Its `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of the documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`. The [eight-hour release record](../current/EIGHT-HOUR-DEVELOPMENT.md) governs the subsequent candidate; historical version sections below retain their original scope and limitations.
 
 ## Environment boundaries
 
@@ -10,7 +10,7 @@ The v2.8 implementation candidate was prepared on `feat/specification-delivery`.
 |---|---|---|
 | Local contract testing | Isolated in-memory SQLite with synthetic users and actual route/service code | Tests distinguish D1 raw-row behavior, transactions and session guards |
 | Local built Worker | Isolated local workerd/D1 and synthetic session fixture | Migration initialization, served API/browser journey and clean shutdown |
-| Hosted synthetic pilot | Proposed authorized environment only | Actual binding/route/callback/provider configuration and hosted run report |
+| Hosted synthetic demo | Registered private Site; matching version/deployment pending | Actual binding/origin, explicit synthetic enablement, server sessions and hosted run report; real provider remains disabled |
 | Real school use | Deferred | Policy/content/identity/privacy/recovery/support and sponsor acceptance |
 
 Secrets/session fixtures never enter Git or documentation exports. Keep provider keys server-side. Empty environment templates do not activate services. School/first-administrator bootstrap and legacy remapping require explicit operator work; later reviewed provisioning/status is school-admin scoped. Migrations 0001/0004–0011 do not infer legacy ownership or invent historical review. New pair guards preserve legacy duplicates.
@@ -23,7 +23,7 @@ Execute applicable [smoke](SMOKE-TESTS.md), [unit/integration](UNIT-INTEGRATION-
 
 ## Deployment verification and rollback
 
-After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, all migrations 0000–0014 and actual journal state, configured external app state and monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
+After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, the frozen migration inventory and actual applied state, configured external app state and monitoring. The new working inventory is0000–0016, pending combined validation/publication; inspect the actual target rather than inferring its state from the source journal. Use synthetic test accounts and approved data only until real usage is authorized.
 
 Rollback must preserve confirmed records and additive schema compatibility. Do not blindly undo applied migrations or delete revisions/receipts. If persistence is uncertain, inspect the authoritative record before retrying. Define and rehearse the operator’s restore/rollback method for the actual environment before real records are stored.
 
@@ -36,6 +36,20 @@ An incident record should include run/source/environment, symptoms, impacted wor
 ## Release record template
 
 Record release ID; source/PR/migrations; authorized environment; configuration presence without secret values; test run IDs and results; unresolved decisions/defects; data/recovery evidence; deployment/rollback steps; reviewer and sponsor decision; post-release verification. Retain evidence links and actual limitations.
+
+## Current eight-hour release preparation
+
+The sponsor authorized the validated combined release to `main` during 6 October 02:18–03:18 UTC, with the final demo by03:18 UTC. Preserve preceding authentication, literacy, teacher-workspace and specification work through the combined PR; the [ancestry audit](../current/RELEASE-READINESS.md) identifies the documentation commit adapted on import. Recheck remote heads and record the actual merged revision. The repository currently defaults to `rebuild/nextjs`; neither a main merge nor a default-branch setting establishes a hosted Sites version.
+
+Use private Site `appgprj_6ac3f931d31881918ffa33404d3b43a6`, retained in the hosting manifest. The coordinator publishes a matching verified source/archive and records exact source identity, version and deployment identifiers, final successful status and returned URL. The registered origin alone is not a demo result. The legacy Cloudflare staging helper is not the current Education deployment procedure; its absent configuration, health-specific checks and scheduled-handler comments do not supply release evidence.
+
+Additive0015 creates immutable reviewed registry-creation receipts;0016 creates the isolated synthetic installation marker. At the 19:33 UTC audit, all17 SQL files and journal tags agree, and fresh local execution yields41 tables/338 fields, foreign-key check clear and integrity check ok. This packaging diagnostic is separate from guarded checks, browser evidence and remote application. Verify current authority/session, original actor/UUID/payload receipt recovery, current denial/privacy and legacy API compatibility in the frozen combined candidate before publishing.
+
+Snapshots at that audit covered only0000–0003; the coordinator subsequently appended a reconstructed current0016 snapshot without changing the earlier metadata. Coordinator verification confirmed41 tables/338 fields and semantic agreement with fresh migrated SQLite for columns/types/nullability/defaults/composite primary keys/foreign keys/named declared indexes, excluding column order changed by ALTER. Disposable cloned-history generation reported no schema changes and created no migration. Retain these results with dated release evidence and preserve SQL-only triggers/index guards independently. Such metadata does not reconstruct historical deployment proof. Also preserve the known0001–0003 timestamp mismatch: the installed standard Drizzle D1 migrator can skip0002/0003 when resumed after0001, so automatic timestamp-based resume is not verified. Inspect the actual target's applied state and use an explicit safe plan.
+
+The bundled Sites packager includes the complete source migration tree; that proves packaging behavior, not remote migration completion. Migration application precedes Worker upload and may survive a later publish failure. If a failed migration is confirmed unapplied, repair only that precise unapplied delta/metadata and create a new verified version. If the boundary is uncertain, inspect it before retrying or editing history. Never blindly remove confirmed receipts, source rows, applied schema or synthetic installation state to force a deployment.
+
+Keep this demonstration isolated and visibly synthetic, with explicit runtime enablement and actual server-issued sessions/current role and school authority. Missing real-provider configuration must remain closed. Do not use public identity headers or a browser-selected role as real account authority. Real records, recipients, provider activation, paid AI, and the external oral-reading destination require their separate settings and authorization. Record unknown outcomes and retained limitations; hosted deployment does not accept designed cases or education policy.
 
 ## v2.2 migration, review and recovery verification
 

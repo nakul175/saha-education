@@ -1,8 +1,8 @@
 # Reviewed attendance and raw summary design
 
-Version 2.8 draft, 5 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-09, FR-26; NFR-01–NFR-05, NFR-07–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false and [SC-29–SC-31 cases](TEST-CASES.json) remain not-run-for-this-specification.
+Version 2.9 draft, 6 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-09, FR-26; NFR-01–NFR-05, NFR-07–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false and [SC-29–SC-31 cases](TEST-CASES.json) remain not-run-for-this-specification.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`. This focused contract originated in an earlier published batch; its source behavior and dated execution remain separate.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Scope and persisted evidence
 
@@ -54,7 +54,7 @@ The native form preserves unchanged saved null/empty/long notes when another fie
 
 Summary orders firstName/lastName/ID ascending, displays 100, and reports exact uncapped authorized total and truncation. Every stored row contributes to present/absent/late/excused/other. Only exact real dates form first/last coverage; malformed/noncalendar rows remain counted and flagged. Zero rows means null endpoints/zero evidence. `currentActive=false` describes accessible saved records without a current active membership, not a new historical entitlement.
 
-`asOf` is canonical SQL UTC read time. A compact Principal has no session hash: actual actor enabled/role/school/nonempty trusted mapping and current relationships are rechecked, but session-only revocation after Principal resolution is outside the statement contract. Different nonempty identity remapping is not detected from this compact snapshot. Later changes require refresh and cannot retract delivered content.
+`asOf` is canonical SQL UTC read time. Public Principal remains compact; v2.9 private verified-object evidence additionally rechecks the exact original session/expiry/identity at execution. Original session-only revocation or identity replacement denies the verified request alongside live account/current relationships; unmarked trusted internal callers retain account-scoped compatibility. Later changes require refresh and cannot retract delivered content.
 
 ## Atomic save, full prior evidence and exact replay
 

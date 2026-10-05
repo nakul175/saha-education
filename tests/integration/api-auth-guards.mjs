@@ -50,7 +50,9 @@ function load(path) {
 function routes(path) {
   return readdirSync(path, { withFileTypes: true }).flatMap(entry => {
     const next = join(path, entry.name);
-    if (entry.isDirectory()) return ['auth', 'session'].includes(entry.name) ? [] : routes(next);
+    // Demo entry has a separate actual-D1 default-off/fixed-identity contract
+    // (synthetic-demo-contract.mjs); it is not a protected school-record API.
+    if (entry.isDirectory()) return ['auth', 'session', 'demo'].includes(entry.name) ? [] : routes(next);
     return entry.name === 'route.ts' ? [next] : [];
   });
 }

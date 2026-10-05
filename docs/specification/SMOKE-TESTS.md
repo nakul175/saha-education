@@ -1,19 +1,19 @@
 # Current candidate smoke plan
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Scope and entry
 
 Smoke has two distinct execution layers. Offline boot/access smoke imports actual handlers with migrated isolated SQLite and real synthetic sessions. Served smoke exercises a freshly built local Worker: authentication denial, scoped records/origins, report privacy, exact versions, learner-field stripping and manual reading. Neither establishes a live provider, external availability, AI or recovery. Served entry requires fresh build, disposable local D1/session fixtures, approved localhost origin and a running Worker.
 
-The historical v2.0 `tests/smoke/basic-smoke.mjs` was an uninvoked always-true placeholder and provided no acceptance evidence. The current file uses real-route/migration/session assertions: all 14 extension tables,20 extension route imports/anonymous 401, no-store, selected role/origin denials, bounded school profile inventory, empty import collection, denied family policy history, staff library response, pending-provider 503 and zero provider calls. Historical v2.1 covered its eight tables/thirteen routes; actual counts remain in dated evidence. This is meaningful offline boot/access coverage; it is not a served/browser smoke or an execution of the 253 designed cases. Actual run counts belong in dated execution evidence.
+The historical v2.0 `tests/smoke/basic-smoke.mjs` was an uninvoked always-true placeholder and provided no acceptance evidence. The current file uses real-route/migration/session assertions: all current extension tables/routes, including registry receipt/demo marker boot and reviewed-route anonymous 401, no-store, selected role/origin denials, bounded school profile inventory, empty import collection, denied family policy history, staff library response, pending-provider 503 and zero provider calls. Historical v2.1 covered its eight tables/thirteen routes; actual counts remain in dated evidence. This is meaningful offline boot/access coverage; it is not a served/browser smoke or an execution of the293 designed cases. Actual run counts belong in dated execution evidence.
 
 | Case | Mandatory check | Existing mapped tooling / limitation |
 |---|---|---|
 | TC-001 | Provider unset fails closed | `tests/unit/auth-contract.mjs`, `tests/worker-access-check.mjs` |
-| TC-016 | Demo cookies and public identity headers rejected | `tests/unit/auth-contract.mjs`, `tests/integration/api-auth-guards.mjs`, `tests/worker-access-check.mjs` |
+| TC-016 | Forged role cookies and public identity headers rejected | `tests/unit/auth-contract.mjs`, `tests/integration/api-auth-guards.mjs`, `tests/worker-access-check.mjs` |
 | TC-017 | Cross-school and unassigned-class matrix | `tests/integration/api-contract.mjs`, `tests/integration/api-auth-guards.mjs`, `tests/integration/resources-contract.mjs`, `tests/integration/reading-checks-contract.mjs` |
 | TC-019 | Mutation Origin and no-store contract | `tests/integration/api-auth-guards.mjs`, `tests/integration/resources-contract.mjs`, `tests/integration/external-apps-contract.mjs`, `tests/integration/reading-checks-contract.mjs` |
 | TC-033 | Report drafts private across all entry points | `tests/integration/api-contract.mjs`, `tests/worker-access-check.mjs` |
@@ -39,7 +39,7 @@ Existing tools in the table provide related current coverage. New identity/curri
 
 ## P 0 exit gate
 
-Anonymous/demo/foreign-origin access denied; school/class/family isolation maintained; no draft report or staff-note/key disclosure; confirmed writes survive retry; assignment remains pinned to its approved version; ORF validates counts and retains manual provenance; unsafe external destination disabled. Wrong actor/object authority, privacy leaks, wrong-version assignment or silent partial persistence block candidate smoke acceptance.
+Anonymous/forged-role/foreign-origin school access denied; isolated enabled demo follows its own guarded fixed-role contract; school/class/family isolation maintained; no draft report or staff-note/key disclosure; confirmed writes survive retry; assignment remains pinned to its approved version; ORF validates counts and retains manual provenance; unsafe external destination disabled. Wrong actor/object authority, privacy leaks, wrong-version assignment or silent partial persistence block candidate smoke acceptance.
 
 New manual-domain smoke additionally checks administrator-only reviewed accounts, unchanged profile ownership, declared-source approval/copy distinction, pinned active-learner text attempts, scoped formative feedback, preserved reading originals/correction history and protected latest-revision conflicts. Offline boot import tests cover only a subset; use the dedicated integration and served/browser procedures for persistence/journey evidence.
 
@@ -73,6 +73,18 @@ Use a fresh synthetic current staff session/active pupil and exact 0014. Read ed
 
 Use synthetic approved assignment and real local opaque learner/staff sessions. Load approved learner-only material, save a response, publish explicit reviewed feedback and inspect safe current window. Lose a committed reply, refresh and recover the original UUID while a newer record remains current; close/reopen policy without reapplying old closure. Withdraw/reassign/deny current actor and verify private evidence/actions disappear, then restore authorized original actor for exact recovery. These are designed procedures; actual callback/local-browser results are recorded separately.
 
-## v2.8 registry designed smoke extension
+## Historical v2.8 registry designed smoke extension
 
 With synthetic local actors, load current student/guardian registry, search authorized names/admission numbers locally, create one unlinked profile and distinguish correlated 201 from failed refresh. Interrupt a committed acknowledgement: old rows/forms clear, no automatic second create occurs, original authorized reload enables explicit comparison and blank draft reset only. Check another account cannot reveal pending values. Treat this as a designed procedure, separate from root observed smoke counts.
+
+## v2.9 minimal current session, creation and demo smoke
+
+Use current 41-table/338-field migrations and 60-route/96-handler imports with a matching fresh build. On default-off school environment, availability GET is no-store and false; demo POST rejects without seeding, OIDC unset503 remains expected and forged role/header/session selection confers no access. Actual opaque staff/family sessions retain current scope. Delete only the original token after resolution and verify no private result/commit; unrelated current controls stay usable.
+
+Create reviewed student/guardian with reason/confirmation/UUID and expect201 original unlinked receipt; same actor exact replay200 with no second profile. Later valid profile edit/link remains current after old receipt replay. Other actor/cross-school lookup reveals no receipt; role/origin/body/400409 reject safely and atomic failure preserves all records. Mounted recovery deliberately retries original body only after authorized original-actor reload; no automatic new UUID.
+
+In a separately enabled pristine synthetic database, acknowledge and enter each fixed demo role with normal secure opaque sessions; inspect fictional marker/records/class/family/publication boundaries and zero external calls. Toggle runtime/provider/marker/isolation after resolution and verify synthetic original SQL authority closes. Metadata availability alone does not prove installation health. Actual private hosted audience/D1/journey checks are separate from local smoke and remain recorded by the coordinator; all 293 cases remain unrun.
+
+## Current academic screen smoke intentions
+
+With matching fresh built synthetic roles, select one class/learner then another, confirm old rows/actions clear and late former replies cannot restore them. Nonadmin views stay read-only/scoped and family report drafts stay absent. Double-action callbacks send one mutation; late denied publication clears private summary/draft/choices/review. Unknown new enrolment/report draft requires explicit original-account comparison with no replay; unknown saved-report publication retries only original endpoint/body after fresh same-actor reload and preserves one winner/notice. These are designed intentions, not new executed counts or business approval.

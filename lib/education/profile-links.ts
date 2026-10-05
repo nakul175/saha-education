@@ -3,7 +3,7 @@ import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { students, guardians, users, authSessions } from '@/db/schema';
 import { profileLinkVersions, profileLinkEvents } from '@/db/profile-links-schema';
-import { assertAdmin, assertPrincipal, AccessError } from './access';
+import { assertAdmin, AccessError, livePrincipalScope } from './access';
 import { digest } from './identity';
 import type { Principal } from './types';
 
@@ -38,11 +38,7 @@ export class ProfileLinkReviewRequired extends AccessError {
 // Exported for legacy profile writes: they may edit ordinary fields, but cannot
 // bypass a reviewed link decision or persist with a revoked administrator.
 export function profileActorScope(principal: Principal) {
-  assertPrincipal(principal);
-  return sql`EXISTS (SELECT 1 FROM users profile_actor WHERE profile_actor.id = ${principal.id}
-    AND profile_actor.school_id = ${principal.schoolId!} AND profile_actor.role = ${principal.role} AND profile_actor.disabled_at IS NULL
-    AND profile_actor.identity_issuer IS NOT NULL AND profile_actor.identity_issuer <> ''
-    AND profile_actor.identity_subject IS NOT NULL AND profile_actor.identity_subject <> '')`;
+  return livePrincipalScope(principal);
 }
 export function profileAdminScope(principal: Principal) { assertAdmin(principal); return profileActorScope(principal); }
 async function liveAdmin(principal: Principal): Promise<void> {

@@ -1,8 +1,8 @@
 # Saha wireframes and navigation specification
 
-Draft, 5 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
+Version 2.9 draft, 6 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Screen inventory
 
@@ -13,9 +13,9 @@ The v2.8 implementation candidate was prepared on `feat/specification-delivery`.
 | WF-03 | Saved-version review and class assignment, staff | FR-14–16 | Current workflow illustrated | Draft/approved selection, unsaved edits, stale conflict, no authorized classes, matching/conflicting retry |
 | WF-04 | Assigned learning, student | FR-17 | Current workflow illustrated | No assignments, pinned approved content, disabled/withdrawn relationship |
 | WF-05 | External reading and reviewed entry, staff | FR-19–21 | Original prototype illustrates launch/entry; correction/history implemented separately | Unconfigured destination, separate sign-in, invalid counts, saved manual provenance |
-| WF-06 | School roster, administrator | FR-04–08 | Simplified profile view; reviewed account/status UI implemented separately | Active/withdrawn enrolment, missing explicit account/family links, scope denial |
+| WF-06 | School roster, administrator | FR-02–FR-08, FR-26 | Simplified profile view plus reviewed original-receipt recovery illustration; actual forms mapped below | Reason/review, lost reply, same-actor reload/exact retry, original versus current, scope denial |
 | WF-07 | Published family progress, guardian | FR-11–12 | Current publication rule illustrated | Published report, no published report, unrelated learner denied |
-| WF-08 | School sign-in | FR-01–03 | Current configuration boundary | Provider pending/unavailable, provisioned account, failed/expired callback |
+| WF-08 | School sign-in and separate synthetic demo | FR-01–FR-03 | Provider boundary plus explicitly fictional four-role illustration | Provider pending, default-off synthetic setup, fictional acknowledgement, role choice, no prototype authentication |
 | WF-09 | AI draft assistant, staff | FR-22–23 | Proposed only | Missing source/provider, provisional draft, schema/error/refusal, teacher review |
 
 ## Working implementation screen designs
@@ -113,6 +113,28 @@ The implemented `/learning` and `/assignments/{id}` keep existing screen roles. 
 
 The offline 12-screen prototype remains fictional and is not a sixth-batch mounted-app reproduction. [Focused recovery design](LEARNER-RECOVERY-DESIGN.md), TC-243–TC-244 and the local browser procedure specify those states; app/source links are not business or accessibility acceptance.
 
-## v2.8 registry interaction requirements
+## Historical v2.8 registry interaction requirements
 
 The implemented student screen has labelled local name/admission search, shown/matching/loaded counts, native full-page View links to existing student profiles, administrator-only create dialog, explicit Reload students and hidden uncertain form. Guardians use the existing administrator form and Reload guardians, with a keyboard-focusable scroll region labelled Guardian profiles. Both clear private records on failed/uncertain reads and expose original submitted comparison identifiers only to the freshly authorized original actor; comparison starts blank without a POST. The existing 12-screen offline prototype remains fictional and labelled; it is not a real Radix/RHF registry rendering. See [registry design](REGISTRY-DESIGN.md) and TC-253.
+
+## v2.9 current registry and isolated demo screen mapping
+
+| Existing screen | Current application structure | Important states |
+|---|---|---|
+| `/students` | Current session/list/session → local name/admission search and shown/matching/loaded counts → native View → administrator dialog with accepted profile fields, reason and confirmation → original receipt | Loading/denied clears stale rows; edits clear review; same-frame lock;201/200 correlation;400 correction;409 reload/review; uncertain exact pending action; receipt hidden under lost/different actor |
+| `/guardians` | Current scoped list in labelled keyboard scroll region → administrator accepted profile form/reason/review → original receipt and current list | Blank contacts normalized for reviewed form; unlinked original; exact pending retry; original receipt independent of later edit/link; no implicit family/entity verification |
+| Registry recovery | Frozen original UUID/body privately in mounted page; current authorized same-actor reload/preflight before explicit Retry pending creation | No automatic retry/new UUID; private values hidden from other actors; original receipt versus failed/current list; hard reload/navigation loses in-page request |
+| `/login` with demo off | School sign-in button and provisioned-school account explanation | Unconfigured provider fails closed; public role selection cannot grant school access |
+| `/login` with isolated demo enabled | Fictional-data explanation/acknowledgement → four labelled role buttons → opening status/error → native navigation after correlated result | Before acknowledgement disabled; loading disables; fixed role scope; rate/unavailable errors; shared fictional samples; separate provider/ORF/AI setup |
+
+The offline prototype still has12 screens and makes zero network or persistent-storage calls. Existing roster/login screens now illustrate reviewed creation/original exact retry/current-profile separation and synthetic-role acknowledgement; their simplified display-name field is not the complete production student/guardian validator. Simulated changed actor hides original private receipt/request details. Buttons change fictional browser memory only and cannot sign in, seed the application or prove SQL/hosted authority. Root records offline rendering and mounted current-app browser outcomes independently. TC-253/TC-276/TC-284 named acceptance remains unrun.
+
+## Current enrolment and report screen mapping
+
+| Existing route | Current structure | Key states |
+|---|---|---|
+| `/enrolments` | Current session/student/class/selected roster/session → current class selector and scoped rows → administrator new-pair/status controls → announced save/error and reload | Immediate selection clear; abort/generation/old-control guard; read-only nonadmin; same-frame lock; denied hide; unknown original-account comparison, no exact legacy replay |
+| `/report-cards` | Current session/students/exact selected reports/session → learner selector → administrator typed private draft/saved-review publication → scoped report cards/native links | Family published-only; same-admin draft restore; learner/actor changes blank; duplicate lock; denied private clearing; original-report exact publication retry separate from manual draft comparison |
+| Academic recovery | Private original page-memory reminder; original same-actor/selected-record reload before disclosure | Other account hides details; explicit comparison sends no mutation; publication retries same endpoint/body only; hard reload loses memory; no newUUID/CAS/grade/history policy |
+
+Existing12-screen offline roster/family illustrations remain simplified fictional review aids, not mounted academic forms or a simulation of every captured-control race. [Academic UI design](ACADEMIC-UI-DESIGN.md) and TC-293 specify actual source states and intentional mounted acceptance; no screenshot/callback aggregate implies business approval.

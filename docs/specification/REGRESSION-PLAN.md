@@ -1,8 +1,8 @@
 # Risk-based regression plan
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Historical reference, not acceptance baseline
 
@@ -74,6 +74,18 @@ Recheck same-school withdrawn original history versus whole-batch transfer denia
 
 Preserve old submission/window/resource API and immutable evidence tests while adding [original pending recovery](../../tests/integration/learner-recovery-ui-contract.mjs). After lost committed acknowledgement, a later response or open-policy revision must not be overwritten/appended again by stale recovery text. Exact body/UUID/actor survives reload, malformed 2xx,5xx and repeated failure; known denial hides protected views and requires same-actor authorized reload. Known receipt plus failed refresh remains truthful. Mounted-browser/manual evidence is separate from substituted-hook callback tests; SC-35–SC-36 remain unrun.
 
-## v2.8 registry compatibility checks
+## Historical v2.8 registry compatibility checks
 
 Retain original student/guardian API thresholds and current-school/private-profile guards. Verify no new create replay/UUID semantics, no binding/transfer/duplicate/date policy changes and no unknown-write repeat. Cover current-scope list/search, superseded replies, same-frame lock, all uncertain outcomes clearing records, original actor-only comparison and known-save/failed-read separation. See SC-37 and [registry design](REGISTRY-DESIGN.md).
+
+## v2.9 focused regression impact
+
+Preserve all prior meaningful suite thresholds and accepted legacy API response/replacement semantics. Include original session SQL execution tests whenever common access predicates or Principal propagation change; test actual token deletion/expiry/owner/exact mapping after earlier awaits with nonempty positive controls and unrelated/new-token controls. JSON/public role forgery remains denied and no sensitive evidence serializes.
+
+Keep reviewed registry and legacy profile cases together: atomic originals, exact/colliding concurrent UUIDs, global admission uniqueness, original current-actor privacy, later profile edits/login links, whole rollback and postcommit denial. Client regression retains all prior scope/search/same-frame/read-failure cases while adapting old manual comparison to current explicit exact retry; correlate receipt timestamps/replay flag, fresh retry preflight and400409/draft resets. Current mounted file differs from retained v2.8 history.
+
+Demo regression separately proves default-off/no-provider bypass, pristine seed claim, fixed roles, no reset/backfill, ordinary session switch, runtime/marker/foreign account closure and zero external calls. Preserve older academic/resource/reading/submission/report/notice scopes and synthetic fixtures. New design total 293 cases/42 scenarios is not a requested assertion-count reduction or execution claim. Broaden after actual failures/source changes and record exact run revision/environment; hosted load, restore and educator/accessibility acceptance remain distinct.
+
+## Academic client regression selection
+
+Keep existing enrolment/report/publication current-authority/legacy compatibility alongside [academic callback suite](../../tests/integration/academic-ui-contract.mjs). Exercise nonempty positive controls, late former selected replies, captured controls/unmount, session preflight/current mutation denial, same-frame action locks, exact rapid draft fields and success correlation. Compare retained record/publication/notice evidence under lost replies and restored original-account recovery. Current non-idempotent enrolment/draft comparison must not be confused with reviewed registry UUID replay or original report publication retry. Mounted browser/assistive and policies remain independently reviewed.

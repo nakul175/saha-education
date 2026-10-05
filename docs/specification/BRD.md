@@ -1,8 +1,8 @@
 # Saha business requirements document
 
-Version 2.8 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
+Version 2.9 draft, 6 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Business purpose
 
@@ -144,3 +144,19 @@ A known saved receipt stays saved when a follow-up read fails. Pending requests 
 ## v2.8 registry privacy and uncertain creation
 
 School administrators need current authorized registry records and a truthful distinction between a saved profile and an unknown acknowledgement. The seventh client slice clears old account records at every failed or uncertain boundary, requires fresh original-actor comparison before releasing a pending create, and prevents blind repetition. FR-06 remains partial: this is not family verification, durable profile reconciliation, duplicate policy, birth-date policy or provider activation. See [registry design](REGISTRY-DESIGN.md).
+
+## v2.9 current-session authority, reviewed registry and synthetic demonstration
+
+Trace: BR-01, BR-02, BR-10–BR-12; FR-01–FR-06, FR-26; NFR-01–NFR-09. These are implemented candidate controls, with educator/operator/business approval still pending.
+
+A verified request must lose protected database access when its original opaque session is revoked or expires, even if another session for the same account remains valid. Changing the resolved account's exact trusted issuer/subject, school, role or enabled state also removes that original authority. Already delivered content cannot be remotely retracted; refresh obtains current evidence.
+
+An administrator reviews a new unlinked student or guardian profile with a reason and explicit confirmation. One client UUID identifies the immutable creation receipt and its original profile snapshot. Creation commits profile and receipt together. Exact current-authorized original-actor replay returns the original result without duplicating or restoring a profile that was later edited or linked. A changed payload/reason, other actor or reused student/guardian UUID conflicts; this is not automatic family verification or profile deduplication. The legacy POST APIs remain available under their previous non-idempotent contracts.
+
+A separate private demonstration may offer four labelled fictional role accounts only in an explicitly enabled isolated database. It uses real opaque sessions and the same school/class/family controls; it grants no real-school identity or provider approval. Installation requires a pristine database, and later sign-ins retain sample edits rather than resetting evidence. All demonstration content is fictional and must not receive real learner details. Turning on school-provider configuration or introducing a foreign school/account closes synthetic authority.
+
+The sponsor authorized a combined candidate merge and final private demo during the eighth hour recorded in [the continuation log](../current/EIGHT-HOUR-DEVELOPMENT.md). That release authorization does not approve a real school pilot, external ORF destination, paid AI, curriculum/licensing, retention or provider activation. Those dependencies remain open. SC-38–SC-41 add 32 design procedures; every procedure remains unrun and all approvals remain false.
+
+## v2.9 academic selection and recovery business boundary
+
+Administrators must act on the class/learner they currently selected, with obsolete replies/control closures unable to target former records. A denied or uncertain academic write hides loaded private fields/choices and preserves only the original actor's in-page reminder. Enrolment/status and report-draft uncertainty require original-account saved-record comparison before a separately reviewed new change; saved report publication supports an explicit retry of its original report endpoint/body, preserving one publication receipt/time/eligible notice. This is current client safety within existing FR-08/FR-11 contracts, not new educational/history/grade/retention or UUID policy. See [academic UI design](ACADEMIC-UI-DESIGN.md); SC-42 adds 8 unrun design cases.

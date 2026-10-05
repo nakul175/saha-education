@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -90,7 +90,7 @@ The pre-v2.4 dashboard inspection reproduced cached actor/profile/class exposure
 
 ## v2.4 dashboard choices and residual risks
 
-- One SQL snapshot supplies each role view. A resolved Principal lacks a session hash; actor/relationship scope is checked at execution, while session-only revocation after resolution is outside this contract. Later changes require a new refresh and cannot retract delivered content.
+- One SQL snapshot supplies each role view. Public Principal remains compact; v2.9 privately pins exact original token/expiry/identity at statement execution, including original session-only revocation after resolution. Later changes require a new refresh and cannot retract delivered content.
 - Current roster recording is distinct from historical completeness or student learning. Duplicate enrolment/result evidence and invalid values remain review warnings, with no chosen score, repair or new educational policy.
 - Raw attendance counts avoid an unapproved denominator or excused weighting. Current family class eligibility is retained; broader historical entitlement, approved dates/calendar and correction policy remain open.
 - Caps 100 classes/100 assessments/50 profiles/20 published reports per profile constrain displayed output, not exact totals or representative SQL work. Related full lists remain subject to their existing pagination limits; no SLA/performance completion is inferred.
@@ -117,12 +117,33 @@ Choose a separate reviewed snapshot/save/history contract rather than changing a
 
 Raw unsafe INTEGER and nonfinite REAL use exact strings/type and block review; BLOB uses safe null/type. Safe serializable invalid single scores may be explicitly repaired without norms/grades. Date invalidity is a disclosed technical warning, not new school-day eligibility. Current original-class/same-school history retains withdrawal, hides transferred whole batches and does not approve a full temporal entitlement model.
 
-Residual risks: legacy API bypass and last-writer behavior; ambiguous/opaque/unsafe evidence repair governance; in-memory pending intent lost on navigation; compact Principal session-only/remap limitations; retained private full-text before/after; scoring/grade/family publication policies; representative accessibility/performance; unified export/retention and hosted recovery/provider setup. Owners must approve those boundaries before real records; FR-10/FR-26 remain partial and all approvals false.
+Residual risks: legacy API bypass and last-writer behavior; ambiguous/opaque/unsafe evidence repair governance; in-memory pending intent lost on navigation; trusted internal unmarked-Principal compatibility and no continuing delivered-content monitoring; retained private full-text before/after; scoring/grade/family publication policies; representative accessibility/performance; unified export/retention and hosted recovery/provider setup. Owners must approve those boundaries before real records; FR-10/FR-26 remain partial and all approvals false.
 
 ## Learner recovery decisions and residual risks
 
 Original page-memory requests are frozen rather than rebased to later records, and known denied responses hide protected material/actions. This reduces reproduced client duplicate/reclosure/privacy risks under the [documented contract](LEARNER-RECOVERY-DESIGN.md). Residual boundaries include page close/navigation losing local UUID/body, authority changing after an accepted read, unpaginated/per-item attempt/feedback histories, live provider reauthentication, mounted browser/accessibility/capacity and named educator/retention policy. Another actor cannot recover a pending request simply because it can read the assignment. No automatic historical entitlement, grade or external-sync policy is added.
 
-## v2.8 registry manual recovery decision
+## Historical v2.8 registry manual recovery decision
 
 Keep non-idempotent profile creation unchanged. Any uncertain sent POST clears protected view and blocks repetition; the original current administrator must reload and manually compare before discarding the private reminder and starting blank. The tradeoff is page-memory loss and imperfect human reconciliation; guardian duplicates are still possible after deliberate new creation. No continuous authorization monitor, automatic record matching, durable receipt/outbox or date-policy remediation is claimed. [Registry design](REGISTRY-DESIGN.md).
+
+## v2.9 current decisions and residual risks
+
+| ID | Current choice / open boundary | Required review |
+|---|---|---|
+| D-25 | Verified original token/expiry/exact identity checked at SQL execution using private frozen-Principal evidence; trusted internal legacy service fixtures remain account-scoped | Preserve original resolved object in every route/service chain; do not authorize serialized DTOs or infer continuous provider/browser revocation |
+| D-26 | Separate reviewed student/guardian UUID creation with immutable original snapshot and atomic unlinked profile; legacy POST remains compatible | Review broader creation governance/deprecation, family verification, date policy, duplicate entity handling and receipt retention/export |
+| D-27 | Explicit exact original-actor client retry in page memory; durable server receipt is independent from later current profile | Decide durable cross-device/client UUID discovery/cross-tab new-draft policy; no automatic matching/reset |
+| D-28 | Default-off private synthetic demo, valid installation UUID, pristine atomic bounded seed, fixed four accounts, normal scoped sessions and no reset | Verify actual isolated hosted database/audience/configuration, shared-account governance, rate/capacity and fictional-data-only practice |
+| D-29 | Sponsor authorized eight-hour continuation and validated main merge/private demo during final hour | Record actual merge/deploy revision/status separately; no real provider/ORF/AI/pilot/educator acceptance implied |
+
+| ID | Residual risk | Treatment / evidence needed |
+|---|---|---|
+| R-21 | Spreading/reconstructing verified public Principal loses private session evidence | Pass original server object; protect HTTP auth boundary; negative public-header/DTO tests and code review |
+| R-22 | Client loses pending UUID/body on navigation despite durable server receipt | Explicit page-memory wording; preserve mounted exact retry; separately decide persistent secure recovery and UUID discovery |
+| R-23 | Original receipt mistaken for current profile or deduplicated guardian | Separate original/current display, immutable snapshot, later-edit/link replay checks and deliberate duplicate policy review |
+| R-24 | Synthetic switch/configuration reused in real-school environment | Default-off/provider exclusion/pristine/isolation checks and separate hosted database; do not convert seed to real onboarding |
+| R-25 | Shared fictional admin edits affect other viewers or are mistaken for per-user sandbox | Label shared demo sample, no reset claim, scoped sessions and operator review; real records excluded |
+| R-26 | Full generated snapshot mistaken for applied migration/upgrade guarantee | Preserve historical metadata; actual lexical schema parity checks, journal timestamp risk, explicit hosted migration/restore evidence |
+
+Remaining provider/ORF/pilot/content/educational/retention/capacity/accessibility/operations decisions from prior versions stay open. Dated root release/execution evidence resolves only its stated environment/contract, not approval of all business requirements.

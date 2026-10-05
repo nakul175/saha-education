@@ -63,7 +63,7 @@ async function scenario(name, action, legacySetup) {
     atSnapshot = mutation; const before = snapshotStatements;
     const response = await route.GET(request(actor), { params: Promise.resolve({ id: classId }) });
     check(response.status, expected, name + ': actual route outcome'); check(response.headers.get('cache-control'), 'no-store', 'Sensitive snapshot is uncached');
-    check(snapshotStatements - before, actor ? 1 : 0, 'Exactly one prepared D1 SELECT supplies class names access and evidence');
+    check(snapshotStatements - before, actor && expected !== 401 ? 1 : 0, 'Authenticated current reads use one snapshot; rejected sessions never execute the protected class SELECT');
     if (mutation) check(atSnapshot, undefined, 'Late change reached the actual D1 statement');
     const result = await response.json();
     if (expected !== 200) check(result, { error: expected === 401 ? 'Authentication required' : 'Not found' }, 'Unavailable response releases no older record snapshot');
@@ -72,7 +72,7 @@ async function scenario(name, action, legacySetup) {
   const unlink = type => profileLinks.reviewProfileLink({ id: 'admin-a', role: 'admin', schoolId: 'a' }, {
     profileType: type, profileId: type === 'guardian' ? 'guardian-profile-a' : 'student-a', userId: null,
     expectedVersion: 0, clientRequestId: crypto.randomUUID(), reviewConfirmed: true, reason: 'Synthetic concurrent summary ownership unlink.' });
-  try { await action({ ...fixture, read, request, principals, unlink, counts: () => ({ snapshotStatements, allStatements }) }); scenarios++; }
+  try { await action({ ...fixture, read, request, principals, cookies, unlink, counts: () => ({ snapshotStatements, allStatements }) }); scenarios++; }
   finally { globalThis.__sahaTestDb = db; sqlite.close(); }
 }
 
@@ -115,12 +115,15 @@ try {
     check(result.pupils.items.map(pupil => pupil.id), ['student-other'], 'Removed child name admission and attendance are absent');
     check(result.pupils.items[0].attendance.counts, { present: 0, absent: 0, late: 0, excused: 1, other: 0 }, 'Remaining child count is from the same current scope');
   });
-  await scenario('Confirmed student ownership replacement uses the current profile', async ({ read, sqlite }) => {
-    const result = await read('student-user-a', async () => {
+  await scenario('Confirmed student ownership replacement uses the current profile', async ({ read, sqlite, cookies }) => {
+    await read('student-user-a', async () => {
       const actor = { id: 'admin-a', role: 'admin', schoolId: 'a' };
       await profileLinks.reviewProfileLink(actor, { profileType: 'student', profileId: 'student-a', userId: null, expectedVersion: 0, clientRequestId: crypto.randomUUID(), reviewConfirmed: true, reason: 'Synthetic explicitly reviewed former profile unlink.' });
       await profileLinks.reviewProfileLink(actor, { profileType: 'student', profileId: 'student-other', userId: 'student-user-a', expectedVersion: 0, clientRequestId: crypto.randomUUID(), reviewConfirmed: true, reason: 'Synthetic explicitly reviewed current profile link.' });
-    });
+    }, 404);
+    await read('student-user-a', undefined, 401);
+    cookies['student-user-a'] = (await sessions.createSession('student-user-a')).split(';')[0];
+    const result = await read('student-user-a');
     check(result.pupils.items.map(pupil => pupil.id), ['student-other'], 'Cached principal cannot retain former learner name or marks');
     check(result.pupils.items[0].attendance.counts.excused, 1, 'Current explicitly linked learner has its own saved evidence');
     check(sqlite.prepare('SELECT count(*) n FROM profile_link_events').get().n, 2, 'Both actual reviewed ownership decisions remain attributable');
@@ -168,5 +171,5 @@ try {
   });
   check(networkCalls, 0, 'No external calls');
   console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, networkCalls,
-    limits: ['Fresh SQLite and real synthetic sessions/routes through production D1 driver.', 'Compact principal has no session hash; actual snapshot rechecks live account and current relationships, not session-only revocation after resolution.', 'No browser rendering, provider activation, deployment or acceptance inferred.'] }));
+    limits: ['Fresh SQLite and real synthetic sessions/routes through production D1 driver.', 'Public principal omits session evidence; the actual snapshot rejects the session revoked during reviewed ownership replacement, while a fresh same-account session sees only its current profile.', 'No browser rendering, provider activation, deployment or acceptance inferred.'] }));
 } finally { globalThis.fetch = oldFetch; }

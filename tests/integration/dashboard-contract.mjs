@@ -241,7 +241,11 @@ try {
     VALUES (?,'assessment-a','student-a',?,'Legacy supplied',?,?)`).run('legacy-result-two', 20, stamp, stamp);
   const legacyRows = ['enrolments', 'assessment_results'].map(table => legacySqlite.prepare(`SELECT * FROM ${table} ORDER BY id`).all());
   for (const file of migrations.filter(file => Number(file.slice(0, 4)) >= 9)) apply(file);
-  view = await snapshot('teacher');
+  check(await snapshot('teacher'), null, 'A principal resolved in the original database cannot authorize a separate legacy fixture without its exact session');
+  const legacyCookie = (await sessions.createSession('teacher-a')).split(';')[0];
+  const legacyTeacher = await sessions.principalForToken(legacyCookie.slice(legacyCookie.indexOf('=') + 1));
+  check(legacyTeacher?.id, 'teacher-a', 'The separate migrated legacy fixture resolves its own real current teacher session');
+  view = await dashboard.getRoleDashboard(legacyTeacher);
   check(coverage(view).activeStudents, 1, 'Legacy enrolments never multiply distinct active pupils');
   check(coverage(view).ambiguousEnrolmentStudents, 1, 'Active+withdrawn duplicate pair remains review evidence');
   check(coverage(view).ambiguousResultStudents, 1, 'Duplicate result pair is explicitly ambiguous');

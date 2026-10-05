@@ -1,8 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.8 draft, 5 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.9 draft, 6 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Current boundary matrix
 
@@ -141,7 +141,7 @@ Exact totals versus capped displayed lists, actual current-roster coverage, raw 
 
 Three internal authenticated route files/four handlers extend the same application/Drizzle D1 boundary. Editor GET/POST and history GET are staff-only; raw summary GET intersects existing class/student scope for all roles. There is no third-party result exchange, external notification, vendor identity or new classroom policy.
 
-One receipt INSERT with trigger validation/commit atomically persists reviewed attendance and immutable before/after evidence; stale eligibility/full prior fields or audit failure rolls back the whole statement. Receipt replay returns the immutable original and does not replay later marks. Summary SELECT coherently reads current pupil names and raw observed status/date evidence. Exact DTO/body/cap/Unicode/whole-batch history boundaries are in [attendance design](ATTENDANCE-DESIGN.md) and [API contracts](API-CONTRACTS.md). Compact Principals still do not bind a session hash after resolution. Legacy attendance writes and unapproved calendar/correction/retention policy remain separate contracts.
+One receipt INSERT with trigger validation/commit atomically persists reviewed attendance and immutable before/after evidence; stale eligibility/full prior fields or audit failure rolls back the whole statement. Receipt replay returns the immutable original and does not replay later marks. Summary SELECT coherently reads current pupil names and raw observed status/date evidence. Exact DTO/body/cap/Unicode/whole-batch history boundaries are in [attendance design](ATTENDANCE-DESIGN.md) and [API contracts](API-CONTRACTS.md). v2.9 private verified-object evidence additionally binds original token/expiry/exact identity at actual SQL execution without exposing it in public DTOs. Legacy attendance writes and unapproved calendar/correction/retention policy remain separate contracts.
 
 ## v2.6 reviewed result integration boundary
 
@@ -153,6 +153,16 @@ Test actual-session transport and production D1 prepared RETURNING/trigger behav
 
 The [client recovery contract](LEARNER-RECOVERY-DESIGN.md) connects unchanged local routes to immutable page-memory pending requests. Actual opaque-session/route/production-D1 SQLite checks with substituted React hooks establish callback-state evidence only; local mounted-browser procedures and provider callback/educator acceptance remain separate. Exact original UUID retry after newer attempts/reviews or closure does not invoke external services or synchronize classroom results. No provider/login activation or external data transfer is added.
 
-## v2.8 registry integration boundary
+## Historical v2.8 registry integration boundary
 
 SC-37 exercises unchanged session/student/guardian production routes with actual synthetic sessions and production D1 queries over SQLite, plus unchanged source callbacks with substituted React/RHF hooks/components. Current scope clearing, superseded reads, 201 correlation, same-frame mutation lock and manual original-actor comparison are covered separately from mounted browser/library behavior. No safe non-idempotent replay, automatic matching, provider calls or real acceptance is claimed. [Registry design](REGISTRY-DESIGN.md).
+
+The preceding v2.8 comparison language records historical design; current reviewed creation and exact retry are specified below and in [registry design](REGISTRY-DESIGN.md).
+
+## v2.9 internal session, registry and isolated demo integration
+
+Three reviewed registry routes integrate existing list/profile/link services with a new immutable original-receipt module. They derive school/actor/profile ID/time on server, keep new login ownership null and atomically insert receipt/profile. Exact same-operation replay reads original evidence independent of current mutable profile; global UUID kind/actor/hash conflict is409. GET known UUID is original current same-school administrator only, with generic unavailable denial and no enumerate/hash export. Legacy POST remains non-idempotent and is not an external adapter.
+
+Verified request Principal stays the original frozen object through service calls, so private token/identity evidence survives into actual SQL. Reconstructing public ID/role/school DTO does not preserve it and must not become an HTTP authentication mechanism. Trusted internal compatibility remains separate. Browser reads/preflight/generation guards supplement this server enforcement; they are not a continuing authority transaction.
+
+The synthetic demo entry has no external provider/vendor/AI request: bounded source-defined fictional installation in a separate database, default-off runtime and no reset/backfill endpoint. Outer private hosting protects audience independently; app role/session/marker/isolation checks govern data. Fixed sample guardian/learner/class mapping does not establish real parenthood or pilot identity onboarding. Real OIDC, approved ORF URL and verified result/AI adapters remain pending. See [registry design](REGISTRY-DESIGN.md) and [session/demo design](SESSION-DEMO-DESIGN.md).

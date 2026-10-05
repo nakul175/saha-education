@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -83,7 +83,7 @@ Tests use actual isolated SQLite/sessions/routes, inspect persisted counts/value
 | TC-142–TC-149 publication | [report-publication contract](../../tests/integration/report-publication-contract.mjs), independent live-domain contract, migration 0012 | One receipt winner, report/notices atomic rollback, reviewed unlink before commit, DISTINCT guardian login IDs, no legacy backfill and no draft-create UUID guarantee |
 | TC-150–TC-157 notices | Independent live-domain contract and current notice/UI source | Final recipient/teacher relationship, acknowledgement live scope, personal historical retention, no external delivery; planned browser recovery/manual UAT separate |
 
-A fresh isolated DB and real session are required per adversarial scenario; injecting a cached Principal alone cannot replace route/session checks. The D1 prepared-driver adapter verifies actual conditional INSERT/RETURNING mapping, while localhost Worker checks exercise runtime behavior separately. Source/catalogue mapping remains related evidence only. No arbitrary nonempty issuer/subject replacement is claimed detectable from a Principal that lacks that snapshot; trusted remapping stays outside implemented writes.
+A fresh isolated DB and real session are required per adversarial scenario; injecting a cached Principal alone cannot replace route/session checks. The D1 prepared-driver adapter verifies actual conditional INSERT/RETURNING mapping, while localhost Worker checks exercise runtime behavior separately. Source/catalogue mapping remains related evidence only. v2.9 privately pins exact original issuer/subject and token for verified request Principals and tests their replacement/revocation at actual SQL; trusted remapping remains outside implemented APIs.
 
 ## v2.4 coherent dashboard mappings
 
@@ -119,6 +119,23 @@ SC-32–SC-34 covers actual opaque sessions/routes/migrated SQLite through produ
 
 [SC-35–SC-36](TEST-SCENARIOS.md) cover original request bytes through later attempts/feedback/policies, repeated delivery uncertainty, actual access loss/restoration and actor continuity, partial 200/denied-history privacy, valid receipts versus failed refresh, same-frame guards and stale learning responses. [The integration suite](../../tests/integration/learner-recovery-ui-contract.mjs) runs actual opaque sessions/routes through production Drizzle D1 over fresh SQLite; React hooks/elements are substituted. It is callback-state evidence, not a mounted renderer/browser/UAT suite. No isolated implementation-mirroring unit test is invented, no external call occurs and designed cases remain unrun.
 
-## v2.8 registry callback and route regression
+## Historical v2.8 registry callback and route regression
 
 [Registry contracts](../../tests/integration/registry-ui-contract.mjs) cover real committed non-idempotent creation, all uncertain reply clearing, fresh-session create denial, superseded/mismatched reads, different-administrator private pending isolation, original-actor comparison, local search caps and saved-versus-refresh failure. Substituted React/RHF/components do not establish mounted rendering, validation, focus or acceptance; TC-253 and [browser procedures](../../tests/worker-registry-ui-check.mjs) remain separate.
+
+The preceding v2.8 comparison language records historical design; current reviewed creation and exact retry are specified below and in [registry design](REGISTRY-DESIGN.md).
+
+## v2.9 session, reviewed registry and synthetic demo layers
+
+| Related suite | Current scope | Limit |
+|---|---|---|
+| [Session revocation](../../tests/integration/session-revocation-contract.mjs) | Actual token deletion/expiry/owner/exact-identity changes after trusted resolution, protected queries/commits/replay, frozen minimal public DTO and separate-session controls | Synthetic production-D1 SQLite, not actual provider/browser/hosted lifecycle |
+| [Reviewed registry](../../tests/integration/registry-create-contract.mjs) | Atomic profile/receipt, canonical UUID/payload/actor arbitration, later edits/links, privacy, Unicode/transport, current SQL authority/rollback and legacy compatibility | Related procedures remain unrun; no entity dedup/family/educational policy approval |
+| [Registry callbacks](../../tests/integration/registry-ui-contract.mjs) | Fresh scope, original pending body/UUID/review, uncertain reply hiding, timestamp/replay correlation, exact retry/400409/draft reset and saved-current distinction | Substituted React/RHF/components/native callbacks; not mounted form/dialog/focus evidence |
+| [Synthetic demo](../../tests/integration/synthetic-demo-contract.mjs) | Default-off strict entry, fixed scoped accounts, ordinary secure sessions, pristine marker/seed/no-reset and configuration/isolation closure at SQL | Actual hosted audience/D1/edge headers/multi-viewer capacity and full rate-failure matrix are separate |
+
+SC-38–SC-42 adds 40 design cases; current total 293/42, with 198 existing/50 planned/45 manual mappings. Use current [reviewed registry browser procedures](../../tests/worker-reviewed-registry-ui-check.mjs) for mounted behavior; old v2.8 manual-comparison browser procedures retain historical scope and are not new recovery evidence. Run root-approved matching fresh builds and disposable fixtures; no suite mapping or source count promotes a case outcome or approval.
+
+## Academic callback integration mapping
+
+[Academic UI contracts](../../tests/integration/academic-ui-contract.mjs) is related current automation for SC-42/TC-286–TC-293: actual sessions/routes/production-D1 SQLite combined with substituted React/component callbacks, delayed selected class/learner replies, current role/private hiding, locks, obsolete control/unmount, original-account non-idempotent comparison and exact report publication retry. Assert actual original persistence/receipt/notice bytes, not just UI status. It is not mounted React/focus or named acceptance. Current pack 293 cases/42 scenarios,198 existing/50 planned/45 manual mappings; all unrun/approvalfalse.

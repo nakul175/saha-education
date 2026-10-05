@@ -169,5 +169,16 @@
     "failed": 0,
     "networkCalls": 0
   },
-  "designed_case_execution": "All 101 new TC cases remain not-run-for-this-specification; suite runs do not imply case completion or business acceptance."
+  "designed_case_execution": "All 101 new TC cases remain not-run-for-this-specification; suite runs do not imply case completion or business acceptance.",
+  "later_evidence": [
+    {
+      "stage": "eight-hour-batch-1",
+      "record": "../current/EIGHT-HOUR-BATCH-1-EXECUTION.json",
+      "specification_version": "2.9",
+      "designed_cases": 293,
+      "designed_scenarios": 42,
+      "all_case_statuses": "not-run-for-this-specification",
+      "approved_requirements": 0
+    }
+  ]
 }

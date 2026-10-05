@@ -4,7 +4,7 @@ import { getDb } from '@/db/index';
 import { teachingResources, resourceVersions, resourceAssignments, classes } from '@/db/schema';
 import type { Principal } from './types';
 import type { ResourceContent, ResourceVersion, TeachingResource, ResourceAssignment, ResourceType } from './resource-types';
-import { AccessError, assertPrincipal, assertClassWrite, classReferenceScope, classScope } from './access';
+import { AccessError, assertPrincipal, assertClassWrite, classReferenceScope, classScope, livePrincipalScope } from './access';
 
 const identifier = z.string().min(1).max(120);
 const short = (max: number) => z.string().trim().min(1).max(max);
@@ -31,10 +31,7 @@ function staff(principal: Principal): void {
   if (principal.role !== 'admin' && principal.role !== 'teacher') throw new AccessError('Staff resource access required');
 }
 function liveActor(principal: Principal) {
-  assertPrincipal(principal);
-  return sql`exists (select 1 from users u where u.id = ${principal.id} and u.school_id = ${principal.schoolId}
-    and u.role = ${principal.role} and u.disabled_at is null
-    and u.identity_issuer is not null and u.identity_issuer <> '' and u.identity_subject is not null and u.identity_subject <> '')`;
+  return livePrincipalScope(principal);
 }
 function resourceScope(principal: Principal) {
   staff(principal);

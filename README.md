@@ -1,6 +1,6 @@
 # Saha Education
 
-Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md), [current registry batch](docs/current/DEVELOPMENT-BATCH-7.md), [timed development log](docs/current/FOUR-HOUR-DEVELOPMENT.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
+Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md), [current session/demo batch](docs/current/EIGHT-HOUR-BATCH-1.md), [eight-hour development log](docs/current/EIGHT-HOUR-DEVELOPMENT.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
 
 Saha Education is a comprehensive school management platform designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
 
@@ -11,7 +11,7 @@ The application provides a modern web interface for managing all aspects of educ
 Saha Education is a school management system with the following key features:
 
 - Student registration and profile management
-- Fresh authorized registry views, scoped student search and explicit comparison after an uncertain profile creation
+- Fresh authorized registry views, scoped student search and reviewed UUID creation with exact original-receipt recovery
 - Guardian/guardian relationship tracking
 - School information and management
 - Course catalog and class creation

@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **253 cases in 37 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **293 cases in 42 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -28,27 +28,30 @@ This draft contains **253 cases in 37 scenarios**, covers all **35 functional/no
 | SC-16 | Performance and accessibility | TC-086, TC-087, TC-088, TC-089, TC-090 | FR-13, FR-15, FR-16, FR-17, FR-18, NFR-02, NFR-04, NFR-05 |
 | SC-17 | Recovery, incidents and release environment | TC-091, TC-092, TC-093, TC-094, TC-095 | FR-03, FR-04, NFR-01, NFR-02, NFR-03, NFR-07, NFR-08, NFR-09 |
 | SC-18 | Business UAT and change traceability | TC-096, TC-097, TC-098, TC-099, TC-100, TC-101 | FR-03, FR-05, FR-06, FR-07, FR-08, FR-09, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, NFR-01, NFR-05, NFR-06, NFR-07, NFR-09 |
-
 | SC-19 | Reviewed profile login binding and legacy repair | TC-102, TC-103, TC-104, TC-105, TC-106, TC-107, TC-108, TC-109 | FR-02, FR-03, FR-04, FR-06, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
 | SC-20 | Academic actual-write integrity and legacy pair preservation | TC-110, TC-111, TC-112, TC-113, TC-114, TC-115, TC-116, TC-117 | FR-03, FR-08, FR-09, FR-10, FR-26, NFR-01, NFR-02, NFR-03, NFR-09 |
 | SC-21 | Normalized local reading draft review and consumed-result receipts | TC-118, TC-119, TC-120, TC-121, TC-122, TC-123, TC-124, TC-125 | FR-03, FR-20, FR-21, FR-25, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
 | SC-22 | Reviewed submission windows, retries and preserved attempts | TC-126, TC-127, TC-128, TC-129, TC-130, TC-131, TC-132, TC-133 | FR-03, FR-17, FR-24, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
-
 | SC-23 | Current actor and structure reference authority | TC-134, TC-135, TC-136, TC-137, TC-138, TC-139, TC-140, TC-141 | FR-03, FR-05, FR-06, FR-07, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
 | SC-24 | Atomic report publication winner and safe recovery | TC-142, TC-143, TC-144, TC-145, TC-146, TC-147, TC-148, TC-149 | FR-03, FR-06, FR-11, FR-12, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-09 |
 | SC-25 | Current notice relation, personal history and acknowledgement | TC-150, TC-151, TC-152, TC-153, TC-154, TC-155, TC-156, TC-157 | FR-03, FR-06, FR-11, FR-12, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
-
 | SC-26 | Current-authority coherent role dashboards | TC-158, TC-159, TC-160, TC-161, TC-162, TC-163, TC-164, TC-165 | FR-02, FR-03, FR-05, FR-06, FR-07, FR-08, FR-10, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05 |
 | SC-27 | Truthful current-roster result coverage and retained ambiguity | TC-166, TC-167, TC-168, TC-169, TC-170, TC-171, TC-172, TC-173 | FR-03, FR-07, FR-08, FR-10, FR-26, NFR-02, NFR-03, NFR-04 |
 | SC-28 | Family observed attendance, publication privacy and bounded display | TC-174, TC-175, TC-176, TC-177, TC-178, TC-179, TC-180, TC-181 | FR-03, FR-06, FR-08, FR-09, FR-10, FR-11, NFR-03, NFR-04, NFR-05, NFR-06, NFR-09 |
-
 | SC-29 | Current reviewed attendance snapshot and explicit evidence validation | TC-182, TC-183, TC-184, TC-185, TC-186, TC-187, TC-188, TC-189 | FR-02, FR-03, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04 |
 | SC-30 | Atomic full-evidence attendance review, exact retries and immutable history | TC-190, TC-191, TC-192, TC-193, TC-194, TC-195, TC-196, TC-197 | FR-03, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04 |
 | SC-31 | Coherent raw attendance summaries, accessible recovery and policy boundaries | TC-198, TC-199, TC-200, TC-201, TC-202, TC-203, TC-204, TC-205 | FR-03, FR-06, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-08, NFR-09 |
-
 | SC-32 | Current reviewed result snapshot, raw evidence and deliberate validation | TC-206, TC-207, TC-208, TC-209, TC-210, TC-211, TC-212, TC-213 | FR-01, FR-02, FR-03, FR-06, FR-08, FR-10, FR-26, NFR-01, NFR-02, NFR-05 |
 | SC-33 | Atomic full result/metadata review, concurrency and current authority | TC-214, TC-215, TC-216, TC-217, TC-218, TC-219, TC-220, TC-221 | FR-03, FR-08, FR-10, FR-26, NFR-01, NFR-02, NFR-05 |
 | SC-34 | Immutable result history, accessible recovery and policy boundaries | TC-222, TC-223, TC-224, TC-225, TC-226, TC-227, TC-228, TC-229 | FR-10, FR-26, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-08, NFR-09 |
+| SC-35 | Original learner response feedback and window recovery | TC-230, TC-231, TC-232, TC-233, TC-234, TC-235, TC-236, TC-237 | FR-03, FR-17, FR-24, FR-26, NFR-01, NFR-03, NFR-04 |
+| SC-36 | Current learner privacy and mounted recovery boundaries | TC-238, TC-239, TC-240, TC-241, TC-242, TC-243, TC-244, TC-245 | FR-03, FR-17, FR-24, NFR-01, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-37 | Current registry privacy local search and reviewed create recovery | TC-246, TC-247, TC-248, TC-249, TC-250, TC-251, TC-252, TC-253 | FR-03, FR-06, NFR-01, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-38 | Original verified session and identity authority at actual SQL | TC-254, TC-255, TC-256, TC-257, TC-258, TC-259, TC-260, TC-261 | FR-02, FR-03, FR-04, FR-06, FR-09, FR-10, FR-13, FR-24, FR-26, NFR-01, NFR-02, NFR-03, NFR-09 |
+| SC-39 | Reviewed registry atomic creation and exact original arbitration | TC-262, TC-263, TC-264, TC-265, TC-266, TC-267, TC-268, TC-269 | FR-02, FR-03, FR-06, FR-26, NFR-01, NFR-02 |
+| SC-40 | Immutable registry receipts current privacy and client recovery | TC-270, TC-271, TC-272, TC-273, TC-274, TC-275, TC-276, TC-277 | FR-03, FR-06, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-41 | Default-off isolated synthetic demo and release boundaries | TC-278, TC-279, TC-280, TC-281, TC-282, TC-283, TC-284, TC-285 | FR-01, FR-02, FR-03, FR-05, FR-06, FR-17, FR-19, FR-23, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-07, NFR-08, NFR-09 |
+| SC-42 | Current academic selections, mutation privacy and recovery | TC-286, TC-287, TC-288, TC-289, TC-290, TC-291, TC-292, TC-293 | FR-02, FR-03, FR-06, FR-07, FR-08, FR-11, FR-12, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
 
 ## Execution boundaries
 
@@ -85,7 +88,7 @@ Cases: TC-011, TC-012, TC-013, TC-014, TC-015. See the case register for each ex
 
 Cases: TC-016, TC-017, TC-018, TC-019, TC-020. See the case register for each explicit fixture, procedure and expected outcome.
 
-- TC-016 — Demo cookies and public identity headers rejected (smoke, existing).
+- TC-016 — Forged role cookies and public identity headers rejected (smoke, existing).
 - TC-017 — Cross-school and unassigned-class matrix (security, planned).
 - TC-018 — Guardian/student profile ownership (security, planned).
 - TC-019 — Mutation Origin and no-store contract (security, existing).
@@ -446,7 +449,7 @@ Cases: TC-214, TC-215, TC-216, TC-217, TC-218, TC-219, TC-220, TC-221. All remai
 
 Cases: TC-222, TC-223, TC-224, TC-225, TC-226, TC-227, TC-228, TC-229. All remain unrun for this specification.
 
-- TC-222 — Immutable latest 100 reviewed result history and exact totals (regression, existing).
+- TC-222 — Immutable latest100 reviewed result history and exact totals (regression, existing).
 - TC-223 — Legacy accepted replacements and omitted text semantics stay compatible (regression, existing).
 - TC-224 — Explicit dirty review preserves supplied grade and resets confirmation (accessibility, manual).
 - TC-225 — Conflict comparison uncertain original retry and truthful refresh failure (regression, manual).
@@ -481,15 +484,81 @@ Cases: TC-238, TC-239, TC-240, TC-241, TC-242, TC-243, TC-244, TC-245. All remai
 - TC-244 — Page-memory recovery lifetime and refresh policy acceptance (uat, manual).
 - TC-245 — Representative recovery and history performance remains measured gate (performance, planned).
 
-## SC-37: Current registry privacy local search and non-idempotent create recovery
+## SC-37: Current registry privacy local search and reviewed create recovery
 
-Cases: TC-246, TC-247, TC-248, TC-249, TC-250, TC-251, TC-252, TC-253. All remain unrun. Actual callback evidence substitutes React/RHF/components; mounted browser and acceptance remain separate.
+Cases: TC-246, TC-247, TC-248, TC-249, TC-250, TC-251, TC-252, TC-253. All remain unrun for this specification. SC-37 keeps original IDs while adapting current procedures from v2.8; old manual comparison is retained history, not the reviewed UI contract. Related synthetic suite/source evidence does not populate outcomes or approvals.
 
 - TC-246 — Current registry loads reject changed actor and obsolete privileged replies (security, existing).
 - TC-247 — Registry failure clears private rows and successful reload clears sticky error (integration, existing).
 - TC-248 — Student local search and bounded matches truthfully describe loaded scope (integration, existing).
 - TC-249 — Synchronous registry create lock preserves one actual request (integration, existing).
-- TC-250 — Unknown non-idempotent create requires original actor comparison (regression, existing).
+- TC-250 — Unknown reviewed creation retains exact original actor-bound retry (regression, existing).
 - TC-251 — Fresh create preflight denies stale administrator without POST (security, existing).
 - TC-252 — Acknowledged registry creation stays saved when list refresh fails (regression, existing).
 - TC-253 — Registry mounted form search privacy and recovery acceptance review (accessibility, manual).
+
+## SC-38: Original verified session and identity authority at actual SQL
+
+Cases: TC-254, TC-255, TC-256, TC-257, TC-258, TC-259, TC-260, TC-261. All remain unrun for this specification. Related synthetic suite/source evidence does not populate outcomes or approvals.
+
+- TC-254 — Original session revocation blocks late protected read (security, existing).
+- TC-255 — Database clock expires original session at execution (integration, existing).
+- TC-256 — Another same-account session cannot rescue revoked original (regression, existing).
+- TC-257 — Exact verified identity and session owner stay pinned (security, existing).
+- TC-258 — Late session revocation prevents profile and resource commits (integration, existing).
+- TC-259 — Revoked reviewed writes and receipt replay reveal no private evidence (security, existing).
+- TC-260 — Private session evidence never serializes from frozen Principal (integration, existing).
+- TC-261 — Current no-store safe response shapes survive session hardening (regression, existing).
+
+## SC-39: Reviewed registry atomic creation and exact original arbitration
+
+Cases: TC-262, TC-263, TC-264, TC-265, TC-266, TC-267, TC-268, TC-269. All remain unrun for this specification. Related synthetic suite/source evidence does not populate outcomes or approvals.
+
+- TC-262 — Reviewed student and guardian create atomic unlinked originals (smoke, existing).
+- TC-263 — Canonical exact reviewed UUID retry returns original (integration, existing).
+- TC-264 — Changed kind payload reason or actor cannot consume UUID (security, existing).
+- TC-265 — Concurrent reviewed creations retain one winner (integration, existing).
+- TC-266 — Authentication role origin and body bounds precede creation (security, existing).
+- TC-267 — Strict review shape Unicode and legacy field policy remain explicit (integration, existing).
+- TC-268 — Admission trigger or receipt failure rolls back whole creation (integration, existing).
+- TC-269 — Current authority at reviewed INSERT and final receipt read (security, existing).
+
+## SC-40: Immutable registry receipts current privacy and client recovery
+
+Cases: TC-270, TC-271, TC-272, TC-273, TC-274, TC-275, TC-276, TC-277. All remain unrun for this specification. Related synthetic suite/source evidence does not populate outcomes or approvals.
+
+- TC-270 — Original receipt survives current profile edit and account link (regression, existing).
+- TC-271 — Receipt lookup and immutability protect historical privacy (security, existing).
+- TC-272 — Uncertain client retries exact original bytes after same actor reload (regression, existing).
+- TC-273 — Changed actor obsolete responses and failed retry preflight cannot expose pending (security, existing).
+- TC-274 — Definitive validation conflict and changed drafts require deliberate review (regression, existing).
+- TC-275 — Confirmed original receipt remains separate from failed current read (regression, existing).
+- TC-276 — Mounted registry review retry and receipt mobile keyboard acceptance (accessibility, manual).
+- TC-277 — Page-memory recovery and legacy duplicate governance review (uat, manual).
+
+## SC-41: Default-off isolated synthetic demo and release boundaries
+
+Cases: TC-278, TC-279, TC-280, TC-281, TC-282, TC-283, TC-284, TC-285. All remain unrun for this specification. Related synthetic suite/source evidence does not populate outcomes or approvals.
+
+- TC-278 — Synthetic entry defaults off and rejects spoofed public role data (smoke, existing).
+- TC-279 — First demo install seeds bounded coherent fictional records (integration, existing).
+- TC-280 — Four demo views use real opaque scoped sessions (security, existing).
+- TC-281 — Demo role switch revokes current token without resetting edits (regression, existing).
+- TC-282 — Demo runtime marker and account isolation close original SQL authority (security, existing).
+- TC-283 — Demo rate and database failure boundaries are explicit (integration, planned).
+- TC-284 — Private hosted demo audience role and fictional journey review (uat, manual).
+- TC-285 — Synthetic demonstration policy cannot authorize real school activation (uat, manual).
+
+
+## SC-42: Current academic selections, mutation privacy and recovery
+
+Cases: TC-286, TC-287, TC-288, TC-289, TC-290, TC-291, TC-292, TC-293. All remain unrun. Actual callback suites use substituted hooks/components with real synthetic routes/session/D1; mounted review and acceptance remain distinct.
+
+- TC-286 — Academic selected scope rejects delayed former class or learner replies (security, existing).
+- TC-287 — Academic controls remain current-admin-only while scoped views work (integration, existing).
+- TC-288 — Late denied publication clears private reports fields choices and review (security, existing).
+- TC-289 — Synchronous academic locks preserve one enrolment draft or publication action (regression, existing).
+- TC-290 — Obsolete captured academic controls and unmounted reads do not act (security, existing).
+- TC-291 — Unknown non-idempotent academic saves require original-account comparison (regression, existing).
+- TC-292 — Original report publication retry preserves receipt time and guardian notice (integration, existing).
+- TC-293 — Restored current actor academic privacy and mounted recovery review (uat, manual).

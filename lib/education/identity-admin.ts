@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { users, authSessions } from '@/db/schema';
 import { identityAdminEvents, identityAdminUserVersions } from '@/db/identity-admin-schema';
-import { AccessError, assertAdmin } from './access';
+import { AccessError, assertAdmin, livePrincipalScope } from './access';
 import { digest } from './identity';
 import type { Principal, Role } from './types';
 
@@ -42,10 +42,8 @@ export class IdentityAdminConflict extends Error {
   constructor() { super('Identity administration conflict'); this.name = 'IdentityAdminConflict'; }
 }
 function liveActor(principal: Principal) {
-  return sql`EXISTS (SELECT 1 FROM users identity_actor WHERE identity_actor.id = ${principal.id}
-    AND identity_actor.school_id = ${principal.schoolId!} AND identity_actor.role = 'admin'
-    AND identity_actor.disabled_at IS NULL AND identity_actor.identity_issuer IS NOT NULL
-    AND identity_actor.identity_issuer <> '' AND identity_actor.identity_subject IS NOT NULL AND identity_actor.identity_subject <> '')`;
+  assertAdmin(principal);
+  return livePrincipalScope(principal);
 }
 async function liveAdmin(principal: Principal): Promise<void> {
   assertAdmin(principal);

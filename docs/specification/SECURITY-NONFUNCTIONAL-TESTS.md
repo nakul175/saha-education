@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -101,12 +101,26 @@ Reason validation counts Unicode code points matching SQL length, including shor
 
 Cover role denial before malformed body, real opaque session/current mapping, matching origin, strict explicit evidence/128 KiB bounds, raw numeric truth and SQL-time actor/reference/pupil loss on read/write/replay/history. Unsafe INTEGER/nonfinite REAL/BLOB cannot become rounded CAS/default zero/false null. Original receipt lookup checks current staff/original class/all original pupil schools; remaining-pupil filter never leaks transferred batch, private hash/envelope/account identity never serialize.
 
-Inject fault after result writes but before all immutable entries, assert entire receipt/new/existing result rollback, verify UPDATE/DELETE triggers and current postcommit readback denial with durable rows. Compact Principal does not revalidate session digest after resolution or different nonempty issuer/subject remapping. Local prepared D1/Worker/synthetic checks do not approve representative latency, assistive access, retention, hosted recovery/key custody or educator policy. TC-228/TC-229 remain planned/manual unrun gates.
+Inject fault after result writes but before all immutable entries, assert entire receipt/new/existing result rollback, verify UPDATE/DELETE triggers and current postcommit readback denial with durable rows. v2.9 private verified-object evidence revalidates original token/expiry/exact issuer-subject at actual SQL without public sensitive fields. Trusted unmarked internal callers retain account-scoped compatibility. Local prepared D1/Worker/synthetic checks do not approve representative latency, assistive access, retention, hosted recovery/key custody or educator policy. TC-228/TC-229 remain planned/manual unrun gates.
 
 ## Client recovery privacy and authority
 
 TC-234–TC-235/238–TC-242 exercise known 401/403/404 hiding, exact original actor binding, role/feed refresh, obsolete response cancellation and current200/history 403 partial-view invalidation. Pending body/UUID stays private in page memory and cannot be replayed by another account. Current SQL remains final; client checks do not retract previously delivered content or revalidate session digest after Principal resolution. Temporary history 5xx is distinguished from denial. No response body, private material or identity credential is logged by the focused suite. Mobile/screen-reader/provider/capacity acceptance remains separate.
 
-## v2.8 registry privacy adversaries
+## Historical v2.8 registry privacy adversaries
 
 Hold an old administrator list response while reloading as guardian; change actor between session/list/session and create preflight; switch cookie after actual POST commit but before 503/network/malformed acknowledgement. Every unavailable/uncertain boundary must clear old private rows/principal/create controls. Different administrators must not see pending identifiers or release comparison. Original actor recovery cannot send a blind POST. These finite synthetic checks do not establish continuous session monitoring, real identity acceptance or hosted performance. See TC-246–TC-253.
+
+## v2.9 token execution, receipt privacy and demo isolation
+
+SC-38–SC-41 requires actual original-session deletion/expiry/owner/exact-identity changes at SQL execution, not only before the API call. Assert nonempty valid controls, no leaked protected marker, no unauthorized persisted parent/child/receipt, no rescue by another same-account session and minimal frozen Principal JSON. Public headers/cookies/body cannot authorize; trusted unmarked internal compatibility must not become a route bypass.
+
+Registry privacy includes immutable original complete snapshot/reason with current original-admin/school scope, no hash/session/identity export, strict role-before-body/origin/128KiB enforcement, known constraint409 versus uncertain unrelated failure and late final-read denial. Original profile changes/links survive replay; page-memory pending values/receipt details hide under other/denied actors. Cross-tab different UUIDs do not constitute entity deduplication. Review plaintext reason/profile retention and export policies separately.
+
+Synthetic runtime must fail closed on invalid/default-off flag/ID, any school-provider setting, nonpristine install, absent/changed marker and foreign school/account issuer/school. Fixed synthetic sign-in follows strict fictional acknowledgement and normal opaque cookie/session checks; outer private-hosting audience remains independent. Source seed has no real recipients/external calls/reset. Test configured threshold/rate failures intentionally; do not infer representative edge/IP integrity, capacity or certification from local contract checks.
+
+Formal accessibility/assistive and educator review, supported-language content, approved scale/latency, hosted key custody/restore/RPO/RTO, incident ownership and real provider/ORF configuration remain separate gates. Current automation and 293 designed cases are traceability context, not business approval.
+
+## Academic actor, selection and pending privacy
+
+SC-42 tests that current class/learner and actor refs constrain captured obsolete controls and late response generations; unmount ignores private inventory. Admin-only mutation controls supplement server role scope, with family draft exclusion and fresh preflight. Actual401/403 publication hides private report/draft/choices/review and old mutation authority. Pending original names/draft/report identity remain hidden from other accounts; only freshly restored original account can reload/compare or explicitly retry original saved-report publication. In-memory lifetime, broader educator/accessibility/retention/history/load/recovery policies remain open.

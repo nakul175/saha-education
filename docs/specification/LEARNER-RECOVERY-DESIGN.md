@@ -1,8 +1,8 @@
 # Learner and reviewed-policy recovery design
 
-Version 2.8 draft, 5 October 2026. Trace: BR-02, BR-05, BR-10–BR-12; FR-03, FR-17, FR-24, FR-26; NFR-01, NFR-03–NFR-07, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. SC-35–SC-36 add TC-230–TC-245. All approvals remain false and every designed procedure remains not-run-for-this-specification.
+Version 2.9 draft, 6 October 2026. Trace: BR-02, BR-05, BR-10–BR-12; FR-03, FR-17, FR-24, FR-26; NFR-01, NFR-03–NFR-07, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. SC-35–SC-36 add TC-230–TC-245. All approvals remain false and every designed procedure remains not-run-for-this-specification.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`. This focused contract originated in an earlier published batch; its source behavior and dated execution remain separate.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Problem and unchanged server guarantees
 
@@ -32,7 +32,7 @@ The [window component](../../components/assignment-submission-window.tsx) accept
 
 The [learning list](../../app/learning/page.tsx) re-resolves the session on every initial/reload flow, then reads the current approved assignment feed. It clears old role/cards/class labels when beginning a new load and on a failed/unavailable feed. Guardian access does not show learner actions. Generation and AbortController guards prevent older approved responses from restoring material after a newer denied/current load. A temporary optional class-label failure may leave the accepted feed visible with fallback labels; a known class-label access denial clears the protected feed. All navigation uses native full-page anchors.
 
-These safeguards react to observed responses. Previously delivered content cannot be remotely retracted; authorization can change after a successful read. The compact Principal/live SQL scope does not revalidate a session digest after Principal resolution or distinguish arbitrary different nonempty identity remapping. This client slice adds no new historical entitlement and makes no production-ready, provider or business-acceptance claim.
+These safeguards react to observed responses. Previously delivered content cannot be remotely retracted; authorization can change after a successful read. v2.9 private verified-object evidence now revalidates the original token/expiry/exact identity at actual SQL execution; the public Principal remains compact. Trusted internal service compatibility and already-delivered-content limits remain explicit. This client slice adds no new historical entitlement and makes no production-ready, provider or business-acceptance claim.
 
 ## Evidence layers and designed procedures
 

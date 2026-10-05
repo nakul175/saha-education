@@ -1,6 +1,6 @@
 # Saha development workflow
 
-Every coding agent (Claude, GPT/Codex, Cursor) and every person continuing this repository starts with [HANDOVER.md](HANDOVER.md): current state, how to verify a change, open defects and the next work. [CLAUDE.md](CLAUDE.md) holds the same project rules for Claude.
+Every coding agent (Claude, GPT/Codex, Cursor) and every person continuing this repository starts with [HANDOVER.md](HANDOVER.md): current state, how to verify a change, open defects and the next work. The shared project rules below apply to every coding agent.
 
 The user has requested that all ongoing code changes be committed and pushed to GitHub.
 
@@ -16,7 +16,7 @@ The initial GitHub source import is the complete Release 3 working tree. Earlier
 
 ## Project rules for every agent
 
-- Branch from GitHub `main`, open a pull request into `main`, and merge only when the sponsor says so. Every merge into `main` deploys the hosted synthetic staging Worker unless the repository variable `SAHA_DEPLOY_FREEZE` is `true` ([hosted synthetic staging](docs/current/HOSTED-STAGING.md)).
+- Branch from GitHub `main`, open a pull request into `main`, and merge only when the sponsor says so. The sponsor authorized the combined eight-hour candidate's merge during 6 October 2026, 02:18–03:18 UTC. Verify the exact final source and current remote before merging. GitHub publication/merge does not deploy Sites: no repository workflow currently proves automatic Education staging or `SAHA_DEPLOY_FREEZE` behavior. Use the explicit private Sites release workflow and record deployment status ([hosted synthetic staging](docs/current/HOSTED-STAGING.md)).
 - Keep application authorisation on the server. Owner authority does not override student scope. Identity comes only from the trusted provider in `lib/education/identity.ts`; never trust public identity headers directly.
 - Preserve confirmed records, revisions, audit, receipts, applied migrations and legacy source. Corrections append evidence; uncertainty never authorises a blind external retry.
 - Synthetic data only. Do not turn on providers or message real recipients.

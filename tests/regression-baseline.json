@@ -8,10 +8,15 @@
       "file": "tests/integration/academic-integrity-contract.mjs",
       "minPassed": 218
     },
+    "integration/academic-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/academic-ui-contract.mjs",
+      "minPassed": 256
+    },
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 131
+      "minPassed": 136
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -41,7 +46,7 @@
     "integration/attendance-summary-access-contract": {
       "layer": "integration",
       "file": "tests/integration/attendance-summary-access-contract.mjs",
-      "minPassed": 271
+      "minPassed": 279
     },
     "integration/attendance-summary-contract": {
       "layer": "integration",
@@ -53,20 +58,30 @@
       "file": "tests/integration/curriculum-contract.mjs",
       "minPassed": 131
     },
+    "integration/d1-dashboard-portability-contract": {
+      "layer": "integration",
+      "file": "tests/integration/d1-dashboard-portability-contract.mjs",
+      "minPassed": 51
+    },
     "integration/dashboard-access-contract": {
       "layer": "integration",
       "file": "tests/integration/dashboard-access-contract.mjs",
-      "minPassed": 414
+      "minPassed": 422
     },
     "integration/dashboard-contract": {
       "layer": "integration",
       "file": "tests/integration/dashboard-contract.mjs",
-      "minPassed": 135
+      "minPassed": 137
+    },
+    "integration/demo-login-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/demo-login-ui-contract.mjs",
+      "minPassed": 205
     },
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 250
+      "minPassed": 252
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -93,6 +108,11 @@
       "file": "tests/integration/live-domain-authority-contract.mjs",
       "minPassed": 783
     },
+    "integration/principal-authority-contract": {
+      "layer": "integration",
+      "file": "tests/integration/principal-authority-contract.mjs",
+      "minPassed": 80
+    },
     "integration/profile-links-contract": {
       "layer": "integration",
       "file": "tests/integration/profile-links-contract.mjs",
@@ -113,10 +133,15 @@
       "file": "tests/integration/reading-review-contract.mjs",
       "minPassed": 177
     },
+    "integration/registry-create-contract": {
+      "layer": "integration",
+      "file": "tests/integration/registry-create-contract.mjs",
+      "minPassed": 876
+    },
     "integration/registry-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/registry-ui-contract.mjs",
-      "minPassed": 315
+      "minPassed": 463
     },
     "integration/report-publication-contract": {
       "layer": "integration",
@@ -138,6 +163,11 @@
       "file": "tests/integration/school-structure-authority-contract.mjs",
       "minPassed": 275
     },
+    "integration/session-revocation-contract": {
+      "layer": "integration",
+      "file": "tests/integration/session-revocation-contract.mjs",
+      "minPassed": 411
+    },
     "integration/submission-windows-contract": {
       "layer": "integration",
       "file": "tests/integration/submission-windows-contract.mjs",
@@ -148,10 +178,15 @@
       "file": "tests/integration/submissions-contract.mjs",
       "minPassed": 137
     },
+    "integration/synthetic-demo-contract": {
+      "layer": "integration",
+      "file": "tests/integration/synthetic-demo-contract.mjs",
+      "minPassed": 214
+    },
     "smoke/basic-smoke": {
       "layer": "smoke",
       "file": "tests/smoke/basic-smoke.mjs",
-      "minPassed": 164
+      "minPassed": 177
     },
     "unit/auth-contract": {
       "layer": "unit",

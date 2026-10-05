@@ -31,3 +31,7 @@ The preserved results above describe v2.0. The first tested four-hour continuati
 ## Later v2.3 implementation evidence
 
 The second continuation batch has separate [dated validation](../../VALIDATION.md) and [actual execution evidence](../current/DEVELOPMENT-BATCH-2-EXECUTION.json): 3,619 guarded executable checks, 104 new served checks, 36 report/notice and 26 structure browser checks, and 54 automated resting-page accessibility samples. Prior journeys and the offline prototype were rerun separately. The populated encrypted local recovery contains actual publication receipt/notice evidence and is included in integration. All 157 designed procedures across 25 scenarios remain unrun for this specification; no business approval, formal accessibility certification, provider callback or hosted deployment follows from these results. Earlier execution records above remain historical.
+
+## Eight-hour first-batch evidence
+
+The preserved sections above remain historical. Canonical v2.9 has293 designed cases/42 scenarios, all unrun as TC procedures and all approvalsfalse. The separate [eight-hour execution](../current/EIGHT-HOUR-BATCH-1-EXECUTION.json) records the actual fresh local build,17,783 executable assertions/46 suites, retained prior regression thresholds,30 reviewed-registry browser procedures and37 offline prototype checks. Actual demo26/report38/development59 mounted procedures pass separately; hosted verification remains pending; no acceptance case is promoted by mapped-suite success.

@@ -1,8 +1,8 @@
 # Saha high-level design
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
+Version 2.9 draft, 6 October 2026. Historical v2.0 baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## 1. System context and responsibility
 
@@ -248,7 +248,7 @@ Academic pair guards preserve existing duplicates without a destructive migratio
 
 Trace: BR-01, BR-02, BR-10; FR-03, FR-05–FR-07, FR-11, FR-12, FR-26; NFR-01–NFR-03.
 
-`livePrincipalScope` composes into actual common student/class/guardian SQL predicates and remaining school/course/users/notice statements. It compares current user ID, role and school with the principal and requires enabled nonempty trusted mapping. The current Principal does not carry an issuer/subject snapshot: this guards absent mappings, not arbitrary replacement of one nonempty identity pair with another. Identity remapping remains unavailable through application APIs. Mutation-time references complement early validation; neither browser controls nor an earlier session lookup supplies lasting authority.
+`livePrincipalScope` composes into actual common student/class/guardian SQL predicates and remaining school/course/users/notice statements. It compares current user ID, role and school with the principal and requires enabled nonempty trusted mapping. The public Principal has no issuer/subject fields; v2.9 private verified-object evidence pins the original exact pair and token for actual SQL. Trusted internal unmarked Principals retain account-scoped compatibility. Identity remapping remains unavailable through application APIs. Mutation-time references complement early validation; neither browser controls nor an earlier session lookup supplies lasting authority.
 
 Class detail is one scoped class/enrolment/student join, avoiding a cached class response assembled after dependent roster lookups. Class persistence checks course and teacher eligibility in the same INSERT/UPDATE. These changes preserve current entitlement rules, historical records, private account fields and existing response shapes.
 
@@ -275,13 +275,13 @@ Trace: FR-03, FR-08–FR-11; NFR-01–NFR-04, NFR-09. The four server pages use 
 
 The read projects minimal displayed fields; it adds no API route, table, migration or provider call. Teacher/family list caps bound response size while exact uncapped counts and truncation stay visible. Counts describe stored observations/current-roster recording, not an educational model. No confirmed evidence is modified, merged or backfilled. Existing family attendance class eligibility and published-only reports remain independent.
 
-`asOf` is database UTC time at the snapshot; it does not retract previously delivered content when a later write changes authority. Principal lacks a session digest, so the current-actor predicate cannot establish session-only revocation after resolution. Bound output and one statement do not prove capacity; representative D1 workloads and approved targets remain pending. See [the exact service design](DASHBOARD-DESIGN.md) and [SC-26–SC-28](TEST-SCENARIOS.md).
+`asOf` is database UTC time at the snapshot; it does not retract previously delivered content when a later write changes authority. Since v2.9, private verified-object evidence checks the exact original token/expiry/identity at SQL execution, including session-only revocation after resolution. Bound output and one statement do not prove capacity; representative D1 workloads and approved targets remain pending. See [the exact service design](DASHBOARD-DESIGN.md) and [SC-26–SC-28](TEST-SCENARIOS.md).
 
 ## v2.5 attendance statement and transaction boundaries
 
 Trace: FR-03, FR-08, FR-09, FR-26; NFR-01–NFR-04, NFR-07–NFR-09. Migration 0013 adds two tables/15 fields: `attendance_reviews` and `attendance_review_entries`. Current inventory is 37 tables/309 fields and 54 API route files/88 handlers. No external integration, credential or educational policy is introduced.
 
-The reviewed recorder and summary viewer call separate internal services. `getAttendanceEditor` and `getAttendanceSummary` each use one current-scoped class-anchored SELECT for coherent identity/marks or raw evidence. Family summary scope follows the existing class/student intersections; staff editor/review/history remains staff-only. Compact Principals lack a session hash, so statement-time actor/mapping/reference checks do not promise session-only revocation after resolution or retraction of already delivered content.
+The reviewed recorder and summary viewer call separate internal services. `getAttendanceEditor` and `getAttendanceSummary` each use one current-scoped class-anchored SELECT for coherent identity/marks or raw evidence. Family summary scope follows the existing class/student intersections; staff editor/review/history remains staff-only. Since v2.9, actual SQL additionally checks the original verified token/expiry/exact identity. It cannot retract already delivered content; trusted internal unmarked service callers retain account-scoped compatibility.
 
 Reviewed recording uses a single `attendance_reviews` INSERT SELECT guarded by actual live academic authority. BEFORE INSERT validates whole-roster bounds/ambiguity, changed member eligibility and exact full saved-record compare-and-swap. AFTER INSERT atomically upserts changed attendance tuples and derives immutable before/after entries from actual persisted rows. Any trigger/audit fault aborts the complete statement. UUID collision/retry reads current receipt scope and original canonical payload; replay never executes a new mark replacement.
 
@@ -295,7 +295,7 @@ One guarded assessment SELECT supplies current class/metadata/active distinct ro
 
 A single receipt INSERT runs BEFORE current-authority/metadata/full-result CAS guards and AFTER existing update/new insert/immutable-event commit. SQLite statement atomicity and exact row-count checks prevent partial batches even after an evidence fault. Canonical digest binds actor/school/assessment/original metadata/reason/sorted entries; exact UUID replay reads original receipt and never replays later marks. Both new tables block UPDATE/DELETE through immutable-row triggers.
 
-Downstream receipt/history reads repeat current original class, assessment reference and every original pupil school. This preserves permitted same-school withdrawal history but hides whole transferred batches without deleting them. Compact Principal retains its session-only revocation/remapped-identity limitations after resolution; no full temporal entitlement model is added. Root-maintained actual built/D1/recovery/browser evidence and [assessment design](ASSESSMENT-DESIGN.md) define practical limits; approval remains false.
+Downstream receipt/history reads repeat current original class, assessment reference and every original pupil school. This preserves permitted same-school withdrawal history but hides whole transferred batches without deleting them. v2.9 checks original verified token/expiry/exact identity after resolution; no full temporal entitlement model or retraction of delivered content is added. Root-maintained actual built/D1/recovery/browser evidence and [assessment design](ASSESSMENT-DESIGN.md) define practical limits; approval remains false.
 
 ## Sixth-batch client recovery boundary
 
@@ -303,6 +303,34 @@ The [recovery design](LEARNER-RECOVERY-DESIGN.md) adds client state/lifetime con
 
 Assignment access-loss handling clears protected material/attempts/labels while the previously mounted window component remains alive with available=false to retain an unresolved UUID privately. Scope/generation/abort guards prevent obsolete list/history/timer replies from restoring private views. The learning feed always resolves fresh session first. Backend current authority and exact UUID/CAS remain final; delivered content/current scopes can change after reads. Callback-state integration, mounted browser and educator acceptance evidence are separate.
 
-## v2.8 client read and mutation trust boundary
+## Historical v2.8 client read and mutation trust boundary
 
-The two registry clients coordinate separate current session/list/session reads; they do not claim database snapshot coherence or continued authorization after the final response. Abort/generation/mounted guards reject obsolete responses. An immutable private actor/value reminder plus synchronous lock spans uncertain non-idempotent creation; all protected rendered data is cleared on uncertainty. Server authorization remains authoritative. No schema/API, outbox, vendor, automatic matching or idempotency layer is added. See [registry design](REGISTRY-DESIGN.md).
+The two registry clients coordinate separate current session/list/session reads; they do not claim database snapshot coherence or continued authorization after the final response. Abort/generation/mounted guards reject obsolete responses. An immutable private actor/value reminder plus synchronous lock spans uncertain non-idempotent creation; all protected rendered data is cleared on uncertainty. Server authorization remains authoritative. No schema/API, outbox, vendor, automatic matching or idempotency layer is added. This paragraph records the historical client slice; current [registry design](REGISTRY-DESIGN.md) replaces manual comparison with reviewed immutable original receipts.
+
+## v2.9 execution authority, durable creation evidence and isolated demo
+
+Trace: FR-01–FR-06, FR-26; NFR-01–NFR-09. Current migrated inventory is 41 tables/338 fields and 60 API route files/96 exported handlers. Additive 0015 contributes one nine-field registry receipt table; 0016 contributes one four-field synthetic installation marker. Historical metadata remains preserved; [data dictionary](DATA-DICTIONARY.md) distinguishes actual lexical migration shape from generation metadata.
+
+Verified session resolution returns a frozen public Principal, with private WeakMap evidence in `principal-authority.ts`. Common `livePrincipalScope` composes original-token expiry/owner and exact identity checks into the actual protected SQL. There is no token/digest in public Principal JSON, client props or database response DTOs. Legacy trusted internal service callers retain account-scoped execution; HTTP/server-page callers must obtain the original verified object from trusted session resolution. Copying/serializing the public DTO discards private evidence and is not an alternate authentication route.
+
+Reviewed registry services insert a receipt using a current-authority `INSERT SELECT`. Its database trigger creates the unlinked student/guardian in the same statement. Immutable original snapshots are not a join to the current mutable profile. Global UUID uniqueness arbitrates kind/actor/payload collisions; exact authorized replay reads original receipt, and foreign/currently denied reads expose no private evidence. Existing legacy profile APIs remain compatible.
+
+Synthetic demonstration uses a separate default-off runtime gate and database installation marker, not public role cookies or an OIDC impersonation hook. One pristine claim/seed D1 batch installs fixed source-defined records; a nonce ties all rows to the winning batch. Subsequent sign-ins never reset, repair or backfill missing rows. Session resolution and actual protected statements reject synthetic identity if configuration, marker or school/account isolation changes. Private Sites audience authentication remains an outer hosting boundary; it does not replace in-app role/session checks or authorize real data.
+
+```mermaid
+flowchart LR
+  R[Request with opaque cookie] --> S[Trusted session resolution]
+  S --> P[Frozen public Principal + private token/identity evidence]
+  P --> Q[Actual SQL: current original session/account/record scope]
+  Q --> C[Reviewed receipt INSERT]
+  C --> T[Atomic receipt + unlinked profile trigger]
+  Q --> O[Scoped minimal read DTO]
+  D[Default-off isolated demo entry] --> I[Pristine claim + fixed synthetic seed]
+  I --> S
+```
+
+The new controls do not add continuous browser access monitoring, durable client queues, a full historical entitlement model, school enrollment/provider remapping or unified retention/audit. Representative hosted capacity/recovery, educator/accessibility review and real provider/ORF policies remain separate gates. See [registry design](REGISTRY-DESIGN.md) and [session/demo design](SESSION-DEMO-DESIGN.md).
+
+## Current academic UI read/action boundary
+
+Existing enrolment/report pages use generation/abort/mounted and current actor/selection refs around separate authenticated reads. Their read coordination is not one coherent SQL snapshot or continuing authorization proof; actual original-token/account/record scope remains server-owned. Mutations carry immutable original page-memory actions with fresh current-session preflight and synchronous locks. Non-idempotent new enrolment/report draft recovers through human comparison; existing saved-report publication can retry its exact original endpoint/body under current authority without duplicate winner notices. No schema/API inventory or external integration is added. See [academic UI design](ACADEMIC-UI-DESIGN.md).

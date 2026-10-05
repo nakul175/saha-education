@@ -22,6 +22,8 @@ const paths = [
   ['app/api/classes/[id]/attendance-summary/route.ts', 'GET'], ['app/api/classes/[id]/attendance-editor/route.ts', 'GET'],
   ['app/api/classes/[id]/attendance-editor/history/route.ts', 'GET'],
   ['app/api/assessments/[id]/result-editor/route.ts', 'GET'], ['app/api/assessments/[id]/result-editor/history/route.ts', 'GET'],
+  ['app/api/registry/students/route.ts', 'POST'], ['app/api/registry/guardians/route.ts', 'POST'],
+  ['app/api/registry/creations/[requestId]/route.ts', 'GET'],
 ];
 const originalFetch = globalThis.fetch;
 let externalCalls = 0;
@@ -33,6 +35,11 @@ try {
   check(tables.has('report_publication_receipts'), true, 'Publication evidence migration boots');
   for (const name of ['attendance_reviews', 'attendance_review_entries']) check(tables.has(name), true, 'Reviewed attendance migration boots ' + name);
   for (const name of ['assessment_reviews', 'assessment_review_entries']) check(tables.has(name), true, 'Reviewed assessment migration boots ' + name);
+  for (const name of ['registry_creation_receipts', 'demo_installations']) check(tables.has(name), true, 'Current registry/demo migration boots ' + name);
+  const demo = await load('app/api/demo/route.ts');
+  const demoStatus = await demo.GET();
+  check(await demoStatus.json(), { available: false, synthetic: true }, 'Synthetic demo entry is disabled by default');
+  check(demoStatus.headers.get('cache-control'), 'no-store', 'Demo availability response is uncached');
   const { createSession } = await load('lib/education/session.ts');
   const sessions = {};
   for (const user of ['admin-a', 'teacher-a', 'student-user-a', 'guardian-a']) sessions[user] = (await createSession(user)).split(';')[0];

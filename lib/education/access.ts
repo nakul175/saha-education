@@ -2,6 +2,7 @@ import { and, eq, isNull, sql, type SQL, type AnyColumn } from 'drizzle-orm';
 import { getDb } from '@/db/index';
 import { classes, students, guardians, users, enrolments } from '@/db/schema';
 import type { Principal } from './types';
+import { sessionExecutionScope } from './principal-authority';
 
 export class AccessError extends Error {
   readonly status: 400 | 403 | 404 | 409;
@@ -27,14 +28,15 @@ export function assertSchool(principal: Principal, schoolId?: string | null): vo
 }
 
 // A session lookup is only an earlier snapshot. Every protected database
-// operation also checks that the account still holds that school and role.
+// operation also checks that the account still holds that school and role and,
+// for verified request principals, that its exact session and mapping are live.
 export function livePrincipalScope(principal: Principal): SQL {
   assertPrincipal(principal);
-  return sql`exists (select 1 from users live_actor where live_actor.id = ${principal.id}
+  return and(sessionExecutionScope(principal), sql`exists (select 1 from users live_actor where live_actor.id = ${principal.id}
     and live_actor.school_id = ${principal.schoolId} and live_actor.role = ${principal.role}
     and live_actor.disabled_at is null
     and live_actor.identity_issuer is not null and live_actor.identity_issuer <> ''
-    and live_actor.identity_subject is not null and live_actor.identity_subject <> '')`;
+    and live_actor.identity_subject is not null and live_actor.identity_subject <> '')`)!;
 }
 
 // Correlated EXISTS clauses scope records before they leave the database. Identity

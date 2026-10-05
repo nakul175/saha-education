@@ -3,7 +3,7 @@ import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db/index';
 import { readingChecks, type SelectReadingCheck } from '@/db/schema';
 import { readingCorrections, type SelectReadingCorrection } from '@/db/reading-correction-schema';
-import { AccessError, assertPrincipal } from './access';
+import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import { readingCheckInputSchema, type ReadingCheck } from './reading-checks';
 import type { Principal } from './types';
 
@@ -47,8 +47,7 @@ export function assertReadingReviewStaff(principal: Principal): void {
 }
 function liveStaff(principal: Principal) {
   assertReadingReviewStaff(principal);
-  return sql`exists (select 1 from users u where u.id = ${principal.id} and u.school_id = ${principal.schoolId}
-    and u.role = ${principal.role} and u.disabled_at is null)`;
+  return livePrincipalScope(principal);
 }
 // Historical evidence belongs to the original class. Withdrawal does not erase
 // it: current assigned staff retain access while the student remains in school.

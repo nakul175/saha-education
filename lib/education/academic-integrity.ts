@@ -1,5 +1,5 @@
 import { sql, type SQL } from 'drizzle-orm';
-import { AccessError, assertPrincipal } from './access';
+import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import type { Principal } from './types';
 
 export class AcademicConflict extends AccessError {
@@ -14,11 +14,7 @@ export function assertAcademicStaff(principal: Principal): void {
 // All predicates are evaluated by the actual SELECT/INSERT/UPDATE, rather than
 // treating an earlier session or validation lookup as continuing authority.
 export function liveAcademicPrincipal(principal: Principal): SQL {
-  assertPrincipal(principal);
-  return sql`exists (select 1 from users actor where actor.id = ${principal.id}
-    and actor.school_id = ${principal.schoolId} and actor.role = ${principal.role}
-    and actor.disabled_at is null and actor.identity_issuer is not null and actor.identity_issuer <> ''
-    and actor.identity_subject is not null and actor.identity_subject <> '')`;
+  return livePrincipalScope(principal);
 }
 
 export function academicClassWrite(principal: Principal, classId: string | SQL): SQL {

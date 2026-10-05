@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.8 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.9 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -91,6 +91,20 @@ TC-224–TC-226 and TC-229 remain manual/unrun; no reviewer, acceptance, learnin
 
 TC-243–TC-244 remain manual/unrun. Named reviewers should inspect exact pending retry versus new save, original receipt versus latest history/window, known saved outcome with failed refresh, hidden protected evidence, separate-tab sign-in and explicit authorized reload. Confirm keyboard/status/mobile/locale wording and the page-memory lifetime limitation: full navigation/close is not a durable outbox. No educator, real-provider, live-record or operational acceptance is inferred from callback or local browser suites.
 
-## v2.8 registry acceptance decisions
+## Historical v2.8 registry acceptance design decisions
 
 TC-253 remains unrun. Named administrators review actual RHF/Radix student dialog and guardian form, search count wording, keyboard/mobile navigation, current-account privacy, known saved versus uncertain delivery and manual comparison instructions. Review page-memory loss and deliberate guardian duplicate risk. Neither callback suites nor mounted synthetic browser checks establish this acceptance. Existing birthday/calendar, account-link/family verification and operational policy remain unresolved where previously partial.
+
+The preceding v2.8 comparison language records historical design; current reviewed creation and exact retry are specified below and in [registry design](REGISTRY-DESIGN.md).
+
+## v2.9 current registry and private synthetic demonstration review
+
+TC-253 adapts its retained ID to current reviewed forms, original receipts and explicit exact retry rather than historical manual comparison. TC-276/TC-277 requires named administrator/educator/operator review of real RHF/Radix form behavior, fresh-scope privacy, uncertain recovery,400409 retained-field review, original-versus-current evidence, keyboard/mobile/focus/status and in-page lifetime. Deliberate different UUID/legacy guardian duplicates are possible; receipt idempotency is not entity or family verification. Birth-date/calendar/retention/deprecation policies remain open.
+
+TC-284/TC-285 requires a genuinely successful private deployment matching frozen source/migrations/settings/isolated database, independently verified outer audience and normal in-app role sessions. Review fictional acknowledgement, all four role journeys, role switching/logout, disabled/unavailable behavior, stored sample edit persistence and zero real-provider/ORF/AI/message activation. Aggregate local/hosted automation never supplies a named UAT decision. Shared sample identities are demonstration accounts, not real viewer or family verification.
+
+Sponsor's final-hour merge/demo authority is recorded in the [eight-hour log](../current/EIGHT-HOUR-DEVELOPMENT.md); it does not approve a real school pilot or populate business/educator acceptance. Require exact version, actual steps/results, named reviewer/date, defects/disposition and explicit open policy decisions before any broader activation. All 293 design procedures stay unrun here.
+
+## Academic selected-scope and restored-account acceptance design
+
+TC-293 requires intentional mounted named review of class/learner changes with late replies, read-only role controls, focusable denied/save messages, private draft/choices/review clearing, rapid entry/duplicate action and old control safety. Interrupt actual enrolment/report-draft save and compare under original current account without blind retry; separately recover original saved-report publication after denied/lost reply and ensure one established receipt/notice. Another actor must never see or release pending private details. Record keyboard/mobile/assistive observations and in-page lifetime/legacy/educational-policy limits; related substituted callback suites cannot approve this unrun procedure.

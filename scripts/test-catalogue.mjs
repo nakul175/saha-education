@@ -34,6 +34,8 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-demo-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER'], note: 'local real-browser fictional demo role sign-in, native header focus and explicit lost sign-out recovery; separate pristine demo-enabled D1 only' },
+  'tests/worker-reviewed-registry-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser reviewed registry exact original UUID recovery and current privacy; synthetic only' },
   'tests/worker-registry-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser registry current-account privacy, scoped search and truthful non-idempotent creation recovery; synthetic only' },
   'tests/worker-learner-recovery-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser learner/feedback/window pending recovery and current privacy; synthetic only' },
   'tests/worker-attendance-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'], note: 'local built reviewed attendance snapshot/save/replay/history and legacy boundaries; synthetic records only' },

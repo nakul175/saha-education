@@ -161,8 +161,12 @@ try {
 
   for (const [actor, type] of [['guardian-a', 'guardian'], ['student-user-a', 'student']]) await scenario('Reviewed late ' + type + ' unlink', async ({ read, unlink, cookies }) => {
     const result = await read(actor, () => unlink(type));
-    check(result.profiles, { items: [], total: 0, limit: 50, truncated: false }, 'Reviewed unlink removes profile and all nested history at the same snapshot');
+    check(result, null, 'Reviewed unlink revokes the exact resolved session before the snapshot and releases no private summary');
     check(await auth.getPrincipal(new Request(origin, { headers: { cookie: cookies[actor] } })), null, 'Reviewed ownership change also revokes that actual session');
+    cookies[actor] = (await sessions.createSession(actor)).split(';')[0];
+    const current = await read(actor);
+    check(current.role, type, 'A fresh same-account session resolves the original family role');
+    check(current.profiles, { items: [], total: 0, limit: 50, truncated: false }, 'Fresh authorized session preserves the current empty-profile behavior after reviewed unlink');
   });
 
   for (const [label, sql] of [
@@ -305,5 +309,5 @@ try {
 
   check(networkCalls, 0, 'Dashboard service never contacts an external provider');
   console.log(JSON.stringify({ suite: 'dashboard-access-contract', passed: checks, failed: 0, skipped: 0, scenarios, networkCalls,
-    limits: ['Real SQLite/Drizzle and synthetic session service; no browser render or Cloudflare deployment.', 'Principal carries no session hash; late tests cover live account/mapping/relationship authority, not session-only revocation after principal resolution.', 'Legacy duplicates are inserted before migration0009; all final guards remain enabled during assertions.'] }));
+    limits: ['Real SQLite/Drizzle and synthetic session service; no browser render or Cloudflare deployment.', 'Public principal omits session evidence; actual snapshot also rejects the exact session revoked by a reviewed ownership change and a fresh same-account session sees only current profiles.', 'Legacy duplicates are inserted before migration0009; all final guards remain enabled during assertions.'] }));
 } finally { globalThis.fetch = originalFetch; }

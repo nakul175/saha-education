@@ -1,9 +1,9 @@
 {
-  "version": "2.8-draft",
-  "date": "2026-10-05",
-  "source_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+  "version": "2.9-draft",
+  "date": "2026-10-06",
+  "source_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
   "approved": false,
-  "execution_notice": "All 253 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context, not intentional case execution or acceptance. Historical published v2.7 (245), v2.6 (229), v2.5 (205), v2.4 (181), v2.3 (157), v2.2 (133) and earlier design/execution remain separate.",
+  "execution_notice": "All 293 designed cases across 42 scenarios remain not-run-for-this-specification. Current v2.9 procedures preserve prior IDs and adapt historical SC37 manual comparison to reviewed registry exact recovery; SC42 retains non-idempotent academic comparison and distinct exact original report publication retry. Related source/suites never imply intentional case execution or business approval. Dated actual source/runs/release and v2.0–v2.8 history remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -430,7 +430,7 @@
         "FR-03",
         "NFR-01"
       ],
-      "title": "Demo cookies and public identity headers rejected",
+      "title": "Forged role cookies and public identity headers rejected",
       "layer": "smoke",
       "priority": "P0",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
@@ -440,8 +440,8 @@
         "Attempt legacy POST /api/session role selection."
       ],
       "expected": [
-        "Forged headers/role cookie never grant authority.",
-        "API denied; protected page redirects; role selection cannot mint session."
+        "Forged headers/role cookie never grant authority; role-selection POST /api/session cannot mint a session.",
+        "API denies and protected page redirects without a real opaque session. The separately enabled isolated synthetic demo uses its own guarded /api/demo contract, covered in SC-41."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -6124,7 +6124,7 @@
       ],
       "expected": [
         "No stale name with later unauthorized count/feed; scope and aggregate evidence share one SQL snapshot.",
-        "Session-only revocation after Principal resolution remains a documented compact-Principal limit; actual account/reference authority is rechecked."
+        "The actual protected SQL checks the original verified session token/expiry/exact identity as well as account/reference authority; session-only late revocation cannot disclose the old summary. Already delivered snapshots cannot be retracted."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -6132,7 +6132,9 @@
         "tests/integration/attendance-summary-contract.mjs",
         "lib/education/access.ts",
         "lib/education/profile-links.ts",
-        "tests/integration/attendance-summary-access-contract.mjs"
+        "tests/integration/attendance-summary-access-contract.mjs",
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/principal-authority.ts"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7626,7 +7628,7 @@
       "title": "Current registry loads reject changed actor and obsolete privileged replies",
       "layer": "security",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
       "data": "Administrator list held while a newer guardian load completes; current account change between session/list/session.",
       "steps": [
         "Load a current administrator registry; hold its actual authorized list response.",
@@ -7645,7 +7647,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7661,7 +7665,7 @@
       "title": "Registry failure clears private rows and successful reload clears sticky error",
       "layer": "integration",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
       "data": "Missing session, disabled mapped administrator or temporary list 503 after loaded rows.",
       "steps": [
         "Fail/revoke the current load and inspect cached rows/actions.",
@@ -7680,7 +7684,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7694,7 +7700,7 @@
       "title": "Student local search and bounded matches truthfully describe loaded scope",
       "layer": "integration",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
       "data": "205 current authorized profiles,203 shared search matches and a unique admission value beyond first 200.",
       "steps": [
         "Search nonexistent name, exact loaded name/admission, broad shared matches and blank query.",
@@ -7713,7 +7719,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7727,15 +7735,15 @@
       "title": "Synchronous registry create lock preserves one actual request",
       "layer": "integration",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
       "data": "Two same-frame callbacks for one valid student or guardian form.",
       "steps": [
-        "Submit the same valid native callback twice before repaint.",
-        "Compare POST requests and stored profiles."
+        "Enter valid profile, reviewed reason and confirmation; trigger two same-frame callbacks before repaint.",
+        "Compare actual reviewed POSTs, UUID/serialized envelope and stored profile/receipt."
       ],
       "expected": [
-        "One synchronous create lock sends one POST and persists one profile.",
-        "A failed duplicate request cannot hide the known first success; no new backend idempotency guarantee is introduced."
+        "One synchronous lock sends one reviewed POST and one UUID; one profile plus original receipt persists.",
+        "A second same-frame callback cannot hide known success or create another UUID; server-side exact replay is independently covered."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -7746,7 +7754,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7758,22 +7768,21 @@
         "FR-06",
         "NFR-03"
       ],
-      "title": "Unknown non-idempotent create requires original actor comparison",
+      "title": "Unknown reviewed creation retains exact original actor-bound retry",
       "layer": "regression",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
-      "data": "Actual committed 201 loses delivery or arrives malformed/wrong-shape/503; replace actor with different administrator.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
+      "data": "Actual committed reviewed201 loses delivery or arrives malformed/mismatched/503; another administrator later signs in.",
       "steps": [
-        "Create then interrupt acknowledgement; reload current list.",
-        "Change the actual session after committed create and before an unknown acknowledgement; inspect both pages before any reload.",
-        "Switch to another administrator and inspect hidden pending values/forms/comparison.",
-        "Restore original current administrator, compare reloaded data, explicitly finish comparison and start a new blank draft."
+        "Review and create an actual profile, then interrupt acknowledgement; inspect hidden private view and retained pending request.",
+        "Reload using another administrator and inspect pending identifiers/forms/receipt.",
+        "Restore original current administrator and reload; explicitly Retry pending creation; compare original request bytes/UUID with sent replay."
       ],
       "expected": [
-        "Every uncertain sent POST clears old private rows/principal/create authority and invalidates pending reads, even without an HTTP access-denial status.",
-        "Original submitted values remain private in page memory; no automatic/blind retry sends another POST.",
-        "Different administrator cannot see or release old pending values; fresh original actor ID/role/school comparison is mandatory.",
-        "Finish comparison resets blank without any mutation; a deliberate later create can still duplicate an existing guardian."
+        "Every uncertain sent POST clears old rows/principal/create/receipt detail authority and invalidates old loads without changing original pending bytes.",
+        "A different administrator/family cannot see or retry old private identifiers; no automatic new UUID or POST occurs.",
+        "Only freshly authorized original actor can send exact bytes;200 replay returns original receipt and no second profile.",
+        "Hard reload/navigation loses in-page intent; durable receipt does not imply a persistent cross-device client queue."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -7784,7 +7793,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7799,7 +7810,7 @@
       "title": "Fresh create preflight denies stale administrator without POST",
       "layer": "security",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
       "data": "Current actor changes after form load but before create preflight session.",
       "steps": [
         "Enter student/guardian values as administrator; switch session before submitting.",
@@ -7818,7 +7829,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7833,15 +7846,15 @@
       "title": "Acknowledged registry creation stays saved when list refresh fails",
       "layer": "regression",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
-      "data": "Correlated actual201 profile acknowledgement then temporary/current unavailable list refresh.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
+      "data": "Correlated actual201/200 receipt then unavailable current list refresh.",
       "steps": [
-        "Receive and validate created profile, then fail its subsequent list read.",
-        "Reload current authorized registry and compare stored rows."
+        "Receive/validate original actor/kind/UUID/profile/time and replay flag, then fail the subsequent registry refresh.",
+        "Restore original current authority and reload; inspect known acknowledgement, original receipt and current rows."
       ],
       "expected": [
-        "Known profile creation remains saved; list failure is separately visible and another unchecked create stays blocked.",
-        "No automatic replay follows refresh failure; acknowledgement is not mislabeled failed or idempotent."
+        "Known creation remains saved, while current list refresh failure is separately visible and protected stale details clear.",
+        "No automatic replay follows refresh failure; a current authorized reload shows immutable original receipt separately from latest mutable profile."
       ],
       "automation": "existing",
       "evidenceFiles": [
@@ -7852,7 +7865,9 @@
         "app/api/guardians/route.ts",
         "lib/education/students.ts",
         "lib/education/guardians.ts",
-        "docs/specification/REGISTRY-DESIGN.md"
+        "docs/specification/REGISTRY-DESIGN.md",
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -7868,15 +7883,15 @@
       "title": "Registry mounted form search privacy and recovery acceptance review",
       "layer": "accessibility",
       "priority": "P1",
-      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0014 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls.",
+      "preconditions": "Fresh disposable synthetic schools A/B, current mapped actors, real opaque sessions and all migrations through 0016 with foreign keys enabled. Execute actual routes using production Drizzle D1 over SQLite; transpile unchanged source callbacks with substituted React/RHF hooks/component wrappers/native events. This is callback-state evidence, not mounted browser/RHF validation. Interruption follows an actual committed route; no real records or external calls. Current v2.9 adapts the retained case ID from v2.8; reviewed POST/receipt recovery replaces historical manual comparison. Legacy creation compatibility is tested separately.",
       "data": "Local built Worker with synthetic roles, real RHF/Radix student dialog, keyboard and 390px view.",
       "steps": [
-        "Walk student local search, bounded list, same-frame create, unknown outcome, different-account privacy and blank-new-draft comparison.",
-        "Inspect guardian creation, labels/focus/status/mobile/native navigation and saved-versus-failed-read text."
+        "Walk current reviewed reason/confirmation, student search/cap, same-frame create, uncertain delivery, different-account hiding and explicit exact pending retry.",
+        "Inspect guardian form, labels/focus/status, keyboard/mobile/native links and original-receipt-versus-current-list wording."
       ],
       "expected": [
-        "Mounted browser/library behavior is separately recorded; substituted hooks do not establish RHF validation, dialog visibility or accessibility acceptance.",
-        "Named reviewers evaluate page-memory lifetime, manual comparison limits, existing birth-date/calendar behavior and duplicate policy; no business/provider acceptance is inferred."
+        "Record mounted real RHF/Radix/browser behavior separately from substituted callbacks; automated samples cannot establish named accessibility acceptance.",
+        "Named reviewers evaluate page-memory lifetime, original receipt privacy/retry, legacy creation compatibility, birth-date/calendar and guardian duplicate policy; no provider/business acceptance inferred."
       ],
       "automation": "manual",
       "evidenceFiles": [
@@ -7890,7 +7905,1418 @@
         "docs/specification/REGISTRY-DESIGN.md",
         "docs/specification/UAT.md",
         "docs/specification/WIREFRAMES.md",
-        "tests/worker-registry-ui-check.mjs"
+        "lib/education/registry-create.ts",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-254",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "NFR-01"
+      ],
+      "title": "Original session revocation blocks late protected read",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Each of four roles has authorized private student rows; hook deletes original token immediately before student SELECT.",
+      "steps": [
+        "Resolve real session, establish nonempty authorized control and hold the original Principal.",
+        "Delete only its session at actual protected SELECT after authentication; inspect returned rows and subsequent request."
+      ],
+      "expected": [
+        "Original held request returns existing scoped empty/denied result without private marker; next HTTP request401.",
+        "Account remains enabled and rows retained; authority is checked at actual statement, not merely before the call."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-255",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "NFR-01"
+      ],
+      "title": "Database clock expires original session at execution",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Original token expiry is moved into past after successful session resolution; each role control has real rows.",
+      "steps": [
+        "Resolve valid original, then expire its token immediately before actual domain SELECT.",
+        "Perform late student/guardian/class/notice read and compare stored evidence."
+      ],
+      "expected": [
+        "No protected marker leaves the late statement; collection/object keeps documented safe status/shape.",
+        "Database UTC expiry check governs actual SQL; an earlier Date.now success cannot extend it."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-256",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "NFR-01"
+      ],
+      "title": "Another same-account session cannot rescue revoked original",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "One guardian has original and separate newer tokens; administrator control remains active.",
+      "steps": [
+        "Resolve original token, create newer valid token, then logout original.",
+        "Read dashboard with held old Principal, fresh newer Principal and unrelated admin."
+      ],
+      "expected": [
+        "Held original dashboard is null/denied despite newer same-account session.",
+        "Fresh same-account resolution and unrelated administrator retain authorized role data; logout deletes only original token."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-257",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-04",
+        "NFR-01"
+      ],
+      "title": "Exact verified identity and session owner stay pinned",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Independently mutate disabled state, role, school, issuer, subject and auth_sessions.user_id after resolution.",
+      "steps": [
+        "Create fresh original fixtures for each mutation and resolve a valid Principal.",
+        "Change one authority field then execute actual protected dashboard/query."
+      ],
+      "expected": [
+        "Every changed original mapping/owner/account denies protected original data, including different nonempty issuer/subject.",
+        "Restore/resign-in uses new evidence; no public profile/email/role field remaps session authority."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-258",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-06",
+        "FR-13",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Late session revocation prevents profile and resource commits",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Valid reviewed/legacy profile, resource, assignment and curriculum-copy payloads; revoke token at actual INSERT.",
+      "steps": [
+        "Capture all affected table counts and control authorization.",
+        "Revoke resolved original token at actual persistence after validation awaits; execute the mutation and inspect parent/child tables."
+      ],
+      "expected": [
+        "Existing safe denial/conflict status rather than alleged success; no unauthorized parent/profile/version/provenance row.",
+        "All previously confirmed fields remain unchanged and no new audit/receipt claims a failed operation."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md",
+        "tests/integration/registry-create-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-259",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-09",
+        "FR-10",
+        "FR-24",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Revoked reviewed writes and receipt replay reveal no private evidence",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Dirty valid attendance/result review and saved formative-feedback UUID; delete original staff token at receipt INSERT/downstream SELECT.",
+      "steps": [
+        "Capture existing marks/results/review counts and original feedback control.",
+        "Revoke token immediately at actual reviewed write or original replay selection."
+      ],
+      "expected": [
+        "No partial new receipt/entries/marks/results survive; previously confirmed data remains exact.",
+        "Original feedback text is not returned to revoked held request and no extra feedback is appended."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-260",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Private session evidence never serializes from frozen Principal",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Real verified Principal plus its known synthetic token hash; same DTO parsed/copied only inside trusted test context.",
+      "steps": [
+        "Inspect Object.keys, JSON and dashboard/session DTOs; try to mutate verified role/school.",
+        "Exercise trusted direct service fixture separately and anonymous/public-header HTTP request."
+      ],
+      "expected": [
+        "Public shape remains id/role/schoolId with no token/hash/identity snapshot; verified original is frozen.",
+        "Trusted internal legacy fixture retains account-scoped compatibility; public JSON/header/cookie forgery cannot authenticate HTTP. Implementer must preserve original verified object across services."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-261",
+      "scenario": "SC-38",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "NFR-01",
+        "NFR-09"
+      ],
+      "title": "Current no-store safe response shapes survive session hardening",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Authenticated lists/objects and generic denied mutations; response bodies drained.",
+      "steps": [
+        "Run positive current-scope controls, then late revocation and next-request failures.",
+        "Inspect cache headers/error bodies/private markers and unrelated valid control."
+      ],
+      "expected": [
+        "Successful/denied education responses remain no-store and existing role/object/collection status conventions remain.",
+        "No secret/exception/provider detail is surfaced; current valid controls still work without broad role/service policy changes."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-262",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Reviewed student and guardian create atomic unlinked originals",
+      "layer": "smoke",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Strict valid student and guardian envelopes with separate UUID/reason/review; no supplied ownership.",
+      "steps": [
+        "POST each reviewed endpoint as current administrator and inspect201 receipt/replayed flag.",
+        "Compare profile and receipt tables, complete original snapshots, creator/time/school and login ownership."
+      ],
+      "expected": [
+        "Exactly one corresponding profile and immutable receipt commit together per request,201/replayed:false.",
+        "Profile ID/time/school are server-owned;userId:null; no identity/family relationship or historical receipt is invented."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-263",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-02"
+      ],
+      "title": "Canonical exact reviewed UUID retry returns original",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Upper/lower same UUID; trimmed reason; guardian omitted optional fields normalize null.",
+      "steps": [
+        "Create then repeat equivalent parsed request with same actor/kind/UUID; read known UUID receipt.",
+        "Compare complete original receipt and counts."
+      ],
+      "expected": [
+        "Replay200/replayed:true and GET200 return exact original profile/id/time/reason; counts unchanged.",
+        "Canonical UUID/reason/optional rules apply; explicit empty phone differs from omitted null and invalid empty email remains400."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-264",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-02"
+      ],
+      "title": "Changed kind payload reason or actor cannot consume UUID",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Original committed UUID; changed student field/reason, guardian kind, second same-school admin and foreign admin.",
+      "steps": [
+        "Commit original, then submit each changed collision separately.",
+        "Try receipt GET with second/foreign administrator and inspect counts/errors."
+      ],
+      "expected": [
+        "Changed request/kind/actor collides409 without creating another profile or rewriting original.",
+        "Other actor/school lookup 404 with generic unavailable response; no original private snapshot/hash revealed."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-265",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-06",
+        "NFR-02"
+      ],
+      "title": "Concurrent reviewed creations retain one winner",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Two exact same UUID envelopes; separately same UUID different reviewed reasons.",
+      "steps": [
+        "Submit exact pair concurrently and compare201/200 response originals.",
+        "On fresh UUID submit conflicting payloads concurrently and compare201/409 plus table counts."
+      ],
+      "expected": [
+        "Exact pair stores one profile/receipt and both identify same original result.",
+        "Different pair stores only winner; loser409; no partial profile or overwritten receipt."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-266",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01"
+      ],
+      "title": "Authentication role origin and body bounds precede creation",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Anonymous/teacher/guardian/learner malformed or oversized body; admin foreign origin/invalidUTF8/invalidJSON/over128KiB.",
+      "steps": [
+        "Send denied-role bodies and compare auth/role status before parsing.",
+        "Use current admin to test origin and transport bounds; inspect storage."
+      ],
+      "expected": [
+        "Anonymous 401,nonadmin 403 before body; admin foreign/missing origin403 and malformed/bounded transport400.",
+        "No profile/receipt/session/identity side effect or leaked foreign evidence."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-267",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-06",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Strict review shape Unicode and legacy field policy remain explicit",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "False/missing review,unknown actor/school/system/profile fields,NUL/9/501-code-point reason; valid10/500 emoji; legacy nonempty date.",
+      "steps": [
+        "Try invalid strict envelope/nested fields/review/reason; then valid lower/upper Unicode bounds.",
+        "Read stored accepted legacy date/phone/email values and ensure no automatic normalization/link."
+      ],
+      "expected": [
+        "Invalid input400 with no partial profile/receipt; reason uses trimmed Unicode code points not UTF16 units.",
+        "Valid boundaries persist exact accepted profile fields; legacy date min-length is preserved rather than approved calendar policy."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-268",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Admission trigger or receipt failure rolls back whole creation",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Existing globally unique admission in other school; forced synthetic profile-trigger failure.",
+      "steps": [
+        "Create reviewed student with colliding admission and inspect generic409/no receipt.",
+        "Force child insert failure for each kind after receipt insert; inspect both tables and preserved originals."
+      ],
+      "expected": [
+        "Admission conflict reveals no other-school record and commits neither profile nor receipt.",
+        "Unrelated trigger/database failure preserves whole-statement atomicity, remains controlled unexpected/uncertain failure rather than invented safe409."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-269",
+      "scenario": "SC-39",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-06",
+        "NFR-02"
+      ],
+      "title": "Current authority at reviewed INSERT and final receipt read",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Revoke/expire/disable/demote/move/remap original admin at actual INSERT or after commit before final SELECT.",
+      "steps": [
+        "Capture counts; alter authority at insertion and inspect response/storage.",
+        "On fresh request let atomic commit complete, revoke before final receipt read, then restore fresh original authority and exact replay."
+      ],
+      "expected": [
+        "Lost authority before actual insertion cannot persist profile/receipt.",
+        "Lost final read reveals no receipt details or fabricated non-commit; authorized original replay returns established receipt without second profile."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md",
+        "tests/integration/session-revocation-contract.mjs",
+        "lib/education/session.ts",
+        "lib/education/principal-authority.ts",
+        "lib/education/access.ts",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-270",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-26",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Original receipt survives current profile edit and account link",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Reviewed profile then legitimate name/contact update and reviewed login link.",
+      "steps": [
+        "Create original, edit/link current profile with existing authorized workflows.",
+        "Replay original UUID and GET receipt; compare current profile and original snapshot."
+      ],
+      "expected": [
+        "Original receipt remains unchanged with original fields/userId:null/id/time/reason.",
+        "Current later name/link remains untouched; original replay neither reapplies old fields nor revokes later account links."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-271",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-26",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Receipt lookup and immutability protect historical privacy",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Known and unknown UUID; original/other administrator/family/foreign/disabled/revoked actors; attempted SQL UPDATE/DELETE.",
+      "steps": [
+        "Request receipts under each role/current scope and malformed UUID.",
+        "Try receipt UPDATE/DELETE in isolated DB and inspect preserved original."
+      ],
+      "expected": [
+        "Only current same-school original admin sees known receipt; nonadmin 403, unavailable/foreign/other admin404, invalid UUID400 after auth.",
+        "Response omits hash/identity/session; immutable triggers reject changes and no enumerate/export/delete API is implied."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-272",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Uncertain client retries exact original bytes after same actor reload",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Commit201 then network loss/5xx/malformed receipt/timestamp mismatch/replayflag mismatch; pending captured request.",
+      "steps": [
+        "Interrupt actual reviewed acknowledgement and inspect hidden rows/forms/pending private request.",
+        "Load fresh original admin scope, explicitly retry and compare endpoint/bytes/UUID/reason/profile and persistence."
+      ],
+      "expected": [
+        "No automatic retry/new UUID; every uncertain result hides old private view and locks another creation.",
+        "Same original authorized actor retries original bytes after fresh preflight;200 original receipt and no duplicate."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-273",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Changed actor obsolete responses and failed retry preflight cannot expose pending",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Another same-school admin/family replaces original; held older list/session reply; original retry preflight403.",
+      "steps": [
+        "Hold old authorized response, reload changed actor and later deliver old reply.",
+        "Attempt recovery under other actor; restore original list then fail fresh retry preflight."
+      ],
+      "expected": [
+        "Generation/abort/mount guards reject stale private restoration; other actor cannot view identifiers/receipt/new form or recover original.",
+        "No POST after failed/mismatched retry preflight; original pending bytes remain private without rebasing/discarding as alleged failed commit."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-274",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-06",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Definitive validation conflict and changed drafts require deliberate review",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Reviewed400 and409 responses; draft actor change; existing retained form fields/reason.",
+      "steps": [
+        "Return definitive400 and inspect correction form/checkbox; separately409 then authorized reload/review.",
+        "Change actor on draft reload and inspect blank/reset fields and reason."
+      ],
+      "expected": [
+        "400 releases pending, preserves fields for correction and clears review;409 hides private view/locks until reload and deliberate fresh review.",
+        "No automatic new UUID/POST after conflict; changed-actor draft resets rather than showing another account retained fields."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-275",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-06",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Confirmed original receipt remains separate from failed current read",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "201 then edited current profile; failed subsequent list; later current authorized reload.",
+      "steps": [
+        "Correlate original receipt and fail refresh; inspect saved status versus hidden stale details.",
+        "Reload original actor then read edited current profile alongside original receipt."
+      ],
+      "expected": [
+        "Known commit stays acknowledged and no automatic duplicate request follows read failure.",
+        "Only current permitted original actor sees original receipt; latest list can differ without rewriting evidence or claiming original data is current."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "docs/specification/REGISTRY-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-276",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-06",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Mounted registry review retry and receipt mobile keyboard acceptance",
+      "layer": "accessibility",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Fresh local built Worker/real opaque sessions; actual RHF/Radix student dialog and guardian form;390px and keyboard/assistive matrix.",
+      "steps": [
+        "Intentionally run reviewed reason/checkbox/reset/sameframe/400409/uncertain retry/account privacy/current receipt sequences.",
+        "Review labels/focus/error/status/dialog/native View/search caps/table scroll and reflow with named reviewers."
+      ],
+      "expected": [
+        "Record real mounted browser evidence and differences; substituted callbacks are not dialog/RHF/focus acceptance.",
+        "Named accessibility/educator decision and residual defects are recorded separately; no case pass or approval inherited from aggregate automation."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/registry-ui-contract.mjs",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "docs/specification/REGISTRY-DESIGN.md",
+        "docs/specification/UAT.md",
+        "docs/specification/WIREFRAMES.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-277",
+      "scenario": "SC-40",
+      "requirements": [
+        "FR-06",
+        "FR-26",
+        "NFR-03",
+        "NFR-07",
+        "NFR-09"
+      ],
+      "title": "Page-memory recovery and legacy duplicate governance review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Disposable synthetic schools A/B, mapped enabled admin/teacher/family/learner accounts and actual opaque sessions; all numbered migrations through 0016 with foreign keys enabled. Actual routes/services execute production Drizzle D1 queries over isolated SQLite. Default demo off and OIDC unset unless explicitly stated; no real records/providers/external calls.",
+      "data": "Original pending UUID known versus lost after navigation; two deliberate new guardian UUIDs; legacyPOST remains available.",
+      "steps": [
+        "Review hard reload/navigation and known UUID lookup capability without client persistence.",
+        "Exercise separate deliberate new UUID/legacy creations and reconcile actual policy with named school/operator."
+      ],
+      "expected": [
+        "Durable server receipt does not promise persisted client queue/UUID discovery/cross-device or cross-tab entity dedup.",
+        "No automatic guardian merge/identity/family verification; legacy compatibility and review/deprecation/retention policies remain explicit open decisions."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/registry-create-contract.mjs",
+        "lib/education/registry-create.ts",
+        "drizzle/0015_registry_creation.sql",
+        "app/api/registry/students/route.ts",
+        "app/api/registry/guardians/route.ts",
+        "app/api/registry/creations/[requestId]/route.ts",
+        "docs/specification/REGISTRY-DESIGN.md",
+        "tests/integration/registry-ui-contract.mjs",
+        "tests/integration/registry-create-contract.mjs",
+        "tests/worker-reviewed-registry-ui-check.mjs",
+        "app/students/page.tsx",
+        "app/guardians/page.tsx",
+        "docs/specification/REGISTRY-DESIGN.md",
+        "docs/specification/UAT.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-278",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-01",
+        "FR-02",
+        "NFR-01"
+      ],
+      "title": "Synthetic entry defaults off and rejects spoofed public role data",
+      "layer": "smoke",
+      "priority": "P0",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Demo disabled/invalid installation ID; public role headers; enabled strict unknown school/user/role/acknowledgement data.",
+      "steps": [
+        "GET availability and POST with default/invalid configuration, then foreign origin.",
+        "Enable isolated config and submit invalid role/missingfalse acknowledgement/unknown authority fields."
+      ],
+      "expected": [
+        "Metadata no-store availabilityfalse and no seed/cookie; disabled404,wrong origin 403,invalid strict body 400.",
+        "Public headers/rolecookie do not authenticate school APIs; fixed synthetic roles cannot choose arbitrary user/school."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-279",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "FR-06",
+        "NFR-02"
+      ],
+      "title": "First demo install seeds bounded coherent fictional records",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Pristine migrated empty DB; separate same-time first use requests; forced seed child failure.",
+      "steps": [
+        "Sign in as a fixed role and inspect exact marker/nonce/school/users/profiles/resources/domain/FK fixture.",
+        "On new isolated DB race first use and separately force batch failure."
+      ],
+      "expected": [
+        "One coherent source-defined fictional installation, four accounts, three learners and expected relationships/resources; no external provider/message.",
+        "Winning marker nonce owns whole batch; no duplicate/partial losing seed, no fabricated historical review receipts, rollback on child failure."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-280",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-17",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Four demo views use real opaque scoped sessions",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Installed sample; each admin/teacher/guardian/student role with fake publicx-role header.",
+      "steps": [
+        "Acknowledge and POST each fixed role; inspect cookie/session JSON and authorized records.",
+        "Check3admin/teacher,2guardian,1learner scoped profiles and learner staff field/draft report exclusion."
+      ],
+      "expected": [
+        "Ordinary digest-stored secure HttpOnly/SameSite=Lax __Host cookie and minimal destination/synthetic DTO; no token/issuer/hash in body.",
+        "Server role/class/profile/publication controls govern fixed accounts; headers cannot widen current scope or expose staff private fields."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md",
+        "tests/integration/resources-contract.mjs",
+        "tests/integration/api-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-281",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-06",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Demo role switch revokes current token without resetting edits",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Installed editable sample; old admin cookie and unrelated same account/viewer token.; inject late selected-account role/issuer/subject/school/enabled/runtime change immediately at session INSERT and final cookie confirmation.",
+      "steps": [
+        "Edit fictional pupil through authorized flow then sign into guardian with old admin cookie.",
+        "Read old/new/unrelated sessions and repeat roleentry; disable/delete selected sample account separately.",
+        "Keep a valid original cookie, mutate selected fixed account/configuration at actual candidate INSERT/confirmation and inspect response/session table/old-cookie validity."
+      ],
+      "expected": [
+        "Old request token revoked; new role uses proper scoped session; unrelated token not automatically globally revoked.",
+        "No reseed/reset/duplicate/backfill overwrites edit; unavailable/disabled sample account fails instead of silently repairing.",
+        "No wrong-role or changed-mapping cookie is delivered; failed candidate is absent/deleted and prior token is not revoked before a valid new session is confirmed."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-282",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "NFR-01"
+      ],
+      "title": "Demo runtime marker and account isolation close original SQL authority",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Previously resolved synthetic Principal; toggle flag/ID, each OIDCsetting, marker deletion/foreign issuer orschool/account; nonpristine DB.",
+      "steps": [
+        "Change each gate separately after valid resolution and execute sessionGET plus actual protected SELECT.",
+        "Try entry into nonpristine/missing-marker database and inspect unchanged real-shaped synthetic controls."
+      ],
+      "expected": [
+        "Nextsession401 and held protected query no private rows; entry404/403/503 according to runtime/isolation failure.",
+        "Any provider setting or foreign account/school closes synthetic authority; no adoption/reseed/reset of existing records. Metadata availability alone does not prove healthy install."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-283",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-02",
+        "NFR-01",
+        "NFR-04",
+        "NFR-08"
+      ],
+      "title": "Demo rate and database failure boundaries are explicit",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Installed isolated DB; same restrictive IPbucket40/41 requests, independent next window and failure injection.",
+      "steps": [
+        "Exercise threshold and controlled response/no new cookie; advance/reset only disposable rate fixture.",
+        "Inject session/seed/storage failure and inspect safe response/logs plus retained records/current cookie validity."
+      ],
+      "expected": [
+        "Above40 sign-ins per ten-minute hashed IPbucket429; later validwindow can sign in; no claimed representative throughput/SLA.",
+        "Generic errors contain no learner/credential detail; seed atomicity and non-atomic revoke/create boundary stay explicit, no automatic reset or authority bypass."
+      ],
+      "automation": "planned",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md",
+        "docs/specification/DECISIONS-RISKS.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-284",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "NFR-01",
+        "NFR-05",
+        "NFR-09"
+      ],
+      "title": "Private hosted demo audience role and fictional journey review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Actually successful private deployment matching frozen commit/migrations, separate DB and labelled login; named operator/reviewer; no real provider.",
+      "steps": [
+        "Verify deployed ID/version/source/settings/isolation and outer audience access independently.",
+        "Intentionally explore all fixed role journeys, login acknowledgement/switch/logout and current-origin cookies in browser."
+      ],
+      "expected": [
+        "Record real hosted outcomes, deployment URL/state and exact revision; localSQLite/Worker/sourcepush does not stand in for them.",
+        "Fictional banner/role privacy and keyboard/mobile observations reviewed; no OIDC/provider/ORF/pilot/compliance acceptance is inferred."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md",
+        "docs/specification/UAT.md",
+        "docs/specification/RELEASE-OPERATIONS.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-285",
+      "scenario": "SC-41",
+      "requirements": [
+        "FR-06",
+        "FR-19",
+        "FR-23",
+        "NFR-03",
+        "NFR-07",
+        "NFR-09"
+      ],
+      "title": "Synthetic demonstration policy cannot authorize real school activation",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Separate disposable fully migrated database, no real/provider records or recipients; one valid UUIDv4 installation ID, allowed synthetic HTTPS origin. Capture source-defined fixed rows and actual opaque session behavior. Default demo disabled and OIDC settings empty; enable only this isolated fixture for positive steps. No paid AI/external calls.",
+      "data": "Fixed shared demo accounts/sample edits and pending real provider/ORF/pilot/AI/retention setup; sponsor/operator/educator reviewers.",
+      "steps": [
+        "Review fictitious content/manual provenance/sharedaccount/page-memory/retention/recovery boundaries with named owners.",
+        "Attempt proposed transition plan on paper: separate schoolenvironment/provider mappings/curriculum/ORF/keys/backup gates."
+      ],
+      "expected": [
+        "No real learner entry/provider/paidAI/message or demo-school conversion is authorized by browsing demo.",
+        "Explicit separate approvals/configuration/evidence remain required; demo release authority does not fabricate school business approval, external integration or educator scoring norms."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/synthetic-demo-contract.mjs",
+        "lib/education/demo.ts",
+        "lib/education/demo-policy.ts",
+        "lib/education/principal-authority.ts",
+        "app/api/demo/route.ts",
+        "app/login/page.tsx",
+        "drizzle/0016_synthetic_demo.sql",
+        "docs/specification/SESSION-DEMO-DESIGN.md",
+        "docs/specification/BRD.md",
+        "docs/specification/DECISIONS-RISKS.md",
+        "docs/specification/UAT.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-286",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "FR-08",
+        "FR-11",
+        "NFR-01"
+      ],
+      "title": "Academic selected scope rejects delayed former class or learner replies",
+      "layer": "security",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Class A roster or learner A report response held while a newer selection B is verified; former action callback retained.",
+      "steps": [
+        "Load current class/learner A; hold its actual scoped roster/report response.",
+        "Select B and verify old rows/actions clear synchronously; deliver A reply and invoke a captured old action."
+      ],
+      "expected": [
+        "Latest generation/abort/current selection retains B only, with no old learner name/private report restored.",
+        "No wrong-class withdrawal or wrong-learner report action; original A records remain unchanged."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-287",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-08",
+        "FR-11",
+        "NFR-01"
+      ],
+      "title": "Academic controls remain current-admin-only while scoped views work",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Admin, assigned teacher, linked guardian and student controls; own/foreign/unrelated profiles/classes/reports.",
+      "steps": [
+        "Reload enrolments and reports under each actual role, then select permitted records.",
+        "Inspect create/enrol/status/publish controls and family report contents; try server-denied mutation."
+      ],
+      "expected": [
+        "Only current administrator receives mutation controls; teacher/family permitted read views do not depend on admin lookup.",
+        "Existing staff draft access and linked family published-only scope remain; unrelated choices/private drafts absent and server role denial final."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-288",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-11",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Late denied publication clears private reports fields choices and review",
+      "layer": "security",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Reviewed saved draft plus typed administrator form; revoke session or demote actor immediately before actual PATCH route.",
+      "steps": [
+        "Load private report/choices/draft/review, then force actual401/403 publication denial.",
+        "Inspect rendered fields/list/selector/control state and saved publication/notice evidence."
+      ],
+      "expected": [
+        "Private report summary, draft fields, learner choices, review checkbox and stale authority clear; failure announced separately.",
+        "No denied publication/notice commit; exact original publication action remains private in page memory without automatic retry or false success."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-289",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-08",
+        "FR-11",
+        "NFR-02"
+      ],
+      "title": "Synchronous academic locks preserve one enrolment draft or publication action",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Two same-frame enrol/status, draft form or saved-report publish callbacks; rapidly entered term/grade/summary values.",
+      "steps": [
+        "Enter exact fields with rapid synchronous native callbacks and invoke each duplicate action before repaint.",
+        "Count actual mutation requests and compare stored pair/draft/publication/notice and values."
+      ],
+      "expected": [
+        "One synchronous in-flight lock sends one action; rapid draft callbacks preserve all original fields.",
+        "Confirmed record remains acknowledged, no duplicate pair/draft/notice or hidden first success; server legacy contract is not upgraded to client UUID idempotency."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-290",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-11",
+        "NFR-01"
+      ],
+      "title": "Obsolete captured academic controls and unmounted reads do not act",
+      "layer": "security",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Captured former class Withdraw and former learner draft submit; held inventory reply after unmount; mismatched current actor.",
+      "steps": [
+        "Change selected class/learner or current actor, then invoke obsolete captured control/form.",
+        "Dispose mounted callback driver while actual inventory response is pending, then release it."
+      ],
+      "expected": [
+        "Live refs/current actor/selection/ready state block obsolete mutation instead of relying on stale render closures.",
+        "Unmounted obsolete response applies no private state and sends no mutation; fresh-session preflight still blocks actor mismatch before any write."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-291",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-08",
+        "FR-11",
+        "NFR-02",
+        "NFR-03",
+        "NFR-07"
+      ],
+      "title": "Unknown non-idempotent academic saves require original-account comparison",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Committed enrolment create/status or report-draft201 loses reply or returns mismatched success; other administrator signs in.",
+      "steps": [
+        "Interrupt actual save acknowledgement and inspect hidden old roster/reports/form/choices.",
+        "Reload another actor, then restore original current administrator and selected original class/learner; compare stored records explicitly.",
+        "Finish comparison and inspect reset/new action behavior and write count."
+      ],
+      "expected": [
+        "Unknown sent action retains exact private original reminder but no automatic repeat; other actor cannot see or release it.",
+        "Only fresh original scope reveals submitted change/draft for human comparison; finish sends no mutation and report draft resets blank.",
+        "No UUID/CAS/exact-replay capability is invented for enrolment/status/report draft; hard reload/navigation discards in-page reminder and deliberate new record can duplicate where legacy permits."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-292",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-11",
+        "FR-12",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Original report publication retry preserves receipt time and guardian notice",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B, mapped enabled current roles, actual opaque sessions and migrations through 0016 with foreign keys enabled. Actual academic routes and production Drizzle D1 over SQLite; unchanged transpiled academic callbacks with substituted hooks/components/native event values. This establishes callback and persistence behavior, not mounted React/focus/accessibility acceptance. No real records or external calls.",
+      "data": "Actual saved report PATCH {publish:true} commits then reply lost; known prior receipt/publication time/current eligible notice.",
+      "steps": [
+        "Record original endpoint/body and interrupt committed publication acknowledgement.",
+        "Reload original current administrator/learner; explicitly retry the captured original report action and compare persistence."
+      ],
+      "expected": [
+        "Retry sends same report endpoint and exact body, never another selected report or new creation.",
+        "One original receipt/publication time and same original eligible notice remain; no duplicate/re-backfilled notices and no automatic retry.",
+        "Current server authority remains required even for replay; saved report and notice history preserve their separate current access rules."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md",
+        "tests/integration/report-publication-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-293",
+      "scenario": "SC-42",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-08",
+        "FR-11",
+        "NFR-01",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Restored current actor academic privacy and mounted recovery review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Matching freshly built local Worker and synthetic migrated fixtures/real opaque sessions for intentional mounted browser review, supported keyboard/mobile/assistive matrix and named educator/operator reviewers. No real records/provider/external calls. Callback suite is related narrower evidence only.",
+      "data": "Original administrator publication denied; another administrator/family then fresh same-actor session; keyboard/mobile selected scopes and pending in-page state.",
+      "steps": [
+        "Intentionally run denied publication/account change/reload and restore original current administrator with fresh valid session.",
+        "Inspect original-action disclosure and deliberately retry exact publication; review class/learner switches, comparison/privacy, labels/focus/status/reflow with named reviewer."
+      ],
+      "expected": [
+        "Other account cannot view/retry original pending details; restored original actor must reload current scope and explicitly act, creating/preserving one publication/notice.",
+        "Real mounted browser evidence and named accessibility/educator UAT are separately recorded; substituted callback aggregate cannot mark this case or business approval passed.",
+        "Current API/policy/page-memory/legacy boundaries remain explicit and no new historical entitlement, grading or calendar policy is implied."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/academic-ui-contract.mjs",
+        "app/enrolments/page.tsx",
+        "app/report-cards/page.tsx",
+        "app/api/enrolments/route.ts",
+        "app/api/report-cards/route.ts",
+        "app/api/report-cards/[id]/route.ts",
+        "lib/education/enrolments.ts",
+        "lib/education/report-cards.ts",
+        "docs/specification/ACADEMIC-UI-DESIGN.md",
+        "docs/specification/UAT.md",
+        "docs/specification/WIREFRAMES.md"
       ],
       "execution_status": "not-run-for-this-specification"
     }
@@ -7900,14 +9326,18 @@
     "documentation_base_commit": "d53adcf",
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
-    "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented seventh registry-client batch, not its containing publication commit. Published v2.7 at e813af2, v2.6 at 61f0751, v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "date": "2026-10-06",
+    "note": "source_commit records published parent 053ab13 of this documented v2.9 candidate, not its containing commit. Prior v2.0–v2.8 design/source/execution remain historical. Actual frozen source, checks, publication, final-hour merge and private deployment are dated separately; no approval or designed-case execution inferred.",
+    "candidate_parent_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
-    "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125"
+    "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "source_parent_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
+    "historical_v2_8_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "historical_v2_8_application_commit": "7ee7c963575916d35cb0dae388833b1345833471",
+    "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20"
   }
 }

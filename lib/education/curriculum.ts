@@ -3,7 +3,7 @@ import { and, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { getDb } from '@/db/index';
 import { teachingResources, resourceVersions } from '@/db/schema';
 import { curriculumReferences, curriculumReferenceVersions, resourceReferenceBindings } from '@/db/curriculum-schema';
-import { AccessError, assertPrincipal } from './access';
+import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import type { Principal } from './types';
 import type { ResourceContent, ResourceType, TeachingResource } from './resource-types';
 
@@ -41,8 +41,7 @@ function staff(principal: Principal): void {
 // session resolved before an administrator's change cannot finish a stale write.
 function liveStaff(principal: Principal) {
   staff(principal);
-  return sql`exists (select 1 from users u where u.id = ${principal.id} and u.school_id = ${principal.schoolId}
-    and u.role = ${principal.role} and u.disabled_at is null)`;
+  return livePrincipalScope(principal);
 }
 function schoolScope(principal: Principal) {
   return and(eq(curriculumReferences.schoolId, principal.schoolId!), liveStaff(principal));

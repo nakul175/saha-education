@@ -3,7 +3,7 @@ import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { readingImportDrafts, readingImportItems, readingImportReceipts } from '@/db/reading-import-schema';
 import { readingCheckInputSchema } from './reading-checks';
-import { AccessError, assertPrincipal } from './access';
+import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import { digest } from './identity';
 import type { Principal } from './types';
 
@@ -32,8 +32,7 @@ export function assertImportStaff(principal: Principal) {
 }
 function live(principal: Principal) {
   assertImportStaff(principal);
-  return sql`exists (select 1 from users u where u.id=${principal.id} and u.school_id=${principal.schoolId} and u.role=${principal.role} and u.disabled_at is null
-    and u.identity_issuer is not null and u.identity_issuer<>'' and u.identity_subject is not null and u.identity_subject<>'')`;
+  return livePrincipalScope(principal);
 }
 function scope(principal: Principal) {
   return and(eq(readingImportDrafts.schoolId, principal.schoolId!), live(principal),

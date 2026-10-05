@@ -3,7 +3,7 @@ import { and, desc, eq, sql, type SQL } from 'drizzle-orm';
 import { getDb } from '@/db/index';
 import { classes, resourceAssignments, resourceVersions, teachingResources, students } from '@/db/schema';
 import { submissionAttempts, submissionFeedback, type SubmissionAttempt, type SubmissionFeedback } from '@/db/submission-schema';
-import { AccessError, assertPrincipal, classScope } from './access';
+import { AccessError, assertPrincipal, classScope, livePrincipalScope } from './access';
 import type { Principal } from './types';
 import { getSubmissionWindow, submissionWindowAllows, SubmissionWindowClosed } from './submission-windows';
 
@@ -26,10 +26,7 @@ function allowed(principal: Principal): void {
   if (principal.role === 'guardian') throw new AccessError('Guardian submission access is not available');
 }
 function liveUser(principal: Principal): SQL {
-  // Authentication is rechecked in the actual statement. A revoked account or
-  // changed role/school between authentication and persistence grants no write.
-  return sql`exists (select 1 from users u where u.id = ${principal.id} and u.school_id = ${principal.schoolId!}
-    and u.role = ${principal.role} and u.disabled_at is null and coalesce(u.identity_issuer, '') <> '' and coalesce(u.identity_subject, '') <> '')`;
+  return livePrincipalScope(principal);
 }
 function assignmentScope(principal: Principal): SQL {
   allowed(principal);

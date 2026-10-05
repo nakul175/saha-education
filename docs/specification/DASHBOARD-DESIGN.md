@@ -1,8 +1,8 @@
 # Current role dashboard design
 
-Version 2.8 draft, 5 October 2026. Trace: BR-01, BR-02, BR-11, BR-12; FR-03, FR-08–FR-11; NFR-01–NFR-05, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) for the canonical sequence. All approvals remain false; [SC-26–SC-28 cases](TEST-CASES.json) remain not-run-for-this-specification.
+Version 2.9 draft, 6 October 2026. Trace: BR-01, BR-02, BR-11, BR-12; FR-03, FR-08–FR-11; NFR-01–NFR-05, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) for the canonical sequence. All approvals remain false; [SC-26–SC-28 cases](TEST-CASES.json) remain not-run-for-this-specification.
 
-The v2.8 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `e813af2f43f6d7c707f084c4472e5a6da8e50125`, the parent of this documented seventh registry-client batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0`, v2.5 at `f312881`, v2.6 at `61f0751` and v2.7 at `e813af2` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`. This focused contract originated in an earlier published batch; its source behavior and dated execution remain separate.
+The v2.9 candidate is prepared on `feat/specification-delivery` from published parent `053ab13af9dcd6fbb81e436769aefa6e29f00a20`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Read and authorization contract
 
@@ -10,7 +10,7 @@ The existing four role server pages resolve `getServerPrincipal()`, verify their
 
 The scalar SQL JSON payload uses role-specific independently aggregated CTEs/subqueries under that same statement snapshot. One canonical database UTC `asOf` accompanies all displayed records. JSON is parsed once without additional reads. Denied actor authority produces no outer row and returns `null`; an authorized actor without records receives explicit zero totals/empty arrays. The pages redirect through `/` for null/wrong-role data, rather than showing a denied actor zero-valued cards.
 
-Principal contains ID, role and school, without its session digest. Current account/relationship checks do not establish session-only revocation after Principal resolution. Current identity means nonempty stored issuer/subject, not detecting arbitrary replacement by another nonempty pair. A later write can make a delivered snapshot old; Refresh dashboard resolves and reads again. These are limits of the stated snapshot contract, not new session or historical policies.
+Public Principal contains only ID, role and school. Current v2.9 private verified-object evidence carries the original token digest/exact issuer-subject snapshot into actual SQL, so original token revocation/expiry or identity replacement after resolution denies the read. Trusted unmarked internal callers retain live account-scoped compatibility. A later write can make a delivered snapshot old; Refresh dashboard resolves and reads again. These are limits of the stated snapshot contract, not new session or historical policies.
 
 ## Exact minimal derived fields
 

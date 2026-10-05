@@ -11,21 +11,21 @@ const base = new URL(origin);
 if (!['127.0.0.1', 'localhost'].includes(base.hostname) || !['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.pathname !== '/' || base.search || base.hash) throw new Error('Browser checks only run against an exact localhost origin.');
 const sessions = JSON.parse(readFileSync(fixture, 'utf8'));
 const browser = await chromium.launch({ executablePath, headless: true, args: ['--disable-background-networking'] });
-const contexts = [], pageErrors = [], externalRequests = [], failedResources = [], checks = [], screenshots = [];
+const contexts = [], pageErrors = [], externalRequests = [], failedResources = [], checks = [], screenshots = [], deliveryErrors = [];
 const mobileFailures = [];
 const suffix = crypto.randomUUID().slice(0, 8);
-let passed = 0;
-const check = async (name, action) => { await action(); passed++; checks.push(name); console.log('ok - ' + name); };
+let passed = 0, activeProcedure = 'Synthetic profiles and accounts setup';
+const check = async (name, action) => { activeProcedure = name; await action(); assert.deepEqual(deliveryErrors, [], 'Local delivery setup completed'); passed++; checks.push(name); console.log('ok - ' + name); };
 async function context(user) {
   if (typeof sessions[user] !== 'string') throw new Error('Missing a required synthetic session.');
   const value = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Kolkata', serviceWorkers: 'block', extraHTTPHeaders: { cookie: sessions[user] } });
   contexts.push(value);
   value.on('page', page => {
-    page.on('pageerror', error => pageErrors.push(error.message));
+    page.on('pageerror', () => pageErrors.push('Unhandled application error occurred'));
     page.on('response', response => {
       if (response.status() >= 400) failedResources.push({ path: new URL(response.url()).pathname, status: response.status(), type: response.request().resourceType() });
     });
-    page.on('requestfailed', request => failedResources.push({ path: new URL(request.url()).pathname, failure: request.failure()?.errorText, type: request.resourceType() }));
+    page.on('requestfailed', request => failedResources.push({ path: new URL(request.url()).pathname, failure: 'Local request delivery failed', type: request.resourceType() }));
   });
   await value.route('**/*', route => {
     const url = new URL(route.request().url());
@@ -54,6 +54,22 @@ async function screenshot(page, name) {
   const path = '/private/tmp/saha-development-ui-' + name + '.png';
   await page.screenshot({ path, fullPage: true }); screenshots.push(path);
 }
+const enrolmentResponse = (response, classId) => new URL(response.url()).pathname === '/api/enrolments' && new URL(response.url()).searchParams.get('classId') === classId && response.request().method() === 'GET';
+async function enrolmentsReady(page, classId) {
+  await expect(page.getByRole('combobox', { name: 'Select Class', exact: true })).toHaveValue(classId);
+  await expect(page.getByRole('status').filter({ hasText: /^Loading current enrolments…$/ })).toHaveCount(0);
+  await expect(page.getByRole('combobox', { name: 'Select Student', exact: true })).toBeEnabled();
+}
+async function selectClass(page, classId) {
+  activeProcedure = 'Select class and await verified current enrolments';
+  const selector = page.getByRole('combobox', { name: 'Select Class', exact: true });
+  await expect(selector).toBeEnabled();
+  if (await selector.inputValue() !== classId) {
+    const delivery = page.waitForResponse(response => enrolmentResponse(response, classId));
+    await selector.selectOption(classId); const saved = await delivery; assert.equal(saved.status(), 200); await saved.body();
+  }
+  await enrolmentsReady(page, classId);
+}
 // Drain a committed response before dropping its delivery. The next request recovers the same UUID.
 async function loseResponse(page, pattern, expected) {
   const payloads = []; let dropped = false;
@@ -61,11 +77,11 @@ async function loseResponse(page, pattern, expected) {
     if (route.request().method() !== 'POST') return route.continue();
     payloads.push(route.request().postDataJSON());
     if (dropped) return route.continue();
-    let committed;
-    try { committed = await route.fetch({ timeout: 15000, maxRedirects: 0, headers: await route.request().allHeaders() }); }
-    catch { throw new Error('Local response-loss setup transport failed: ' + new URL(route.request().url()).pathname); }
-    assert.equal(committed.status(), expected, 'Response-loss injection only follows a committed save');
-    await committed.body(); dropped = true; return route.abort('failed');
+    try {
+      const committed = await route.fetch({ timeout: 15000, maxRedirects: 0, headers: await route.request().allHeaders() });
+      assert.equal(committed.status(), expected, 'Response-loss injection only follows a committed save');
+      await committed.body(); dropped = true; return route.abort('failed');
+    } catch { deliveryErrors.push('Actual response-loss setup could not confirm the expected save'); return route.abort(); }
   };
   await page.route(pattern, handler);
   return { payloads, remove: () => page.unroute(pattern, handler) };
@@ -89,17 +105,38 @@ try {
   const classSelector = adminPage.getByRole('combobox', { name: 'Select Class', exact: true });
   const studentSelector = adminPage.getByRole('combobox', { name: 'Select Student', exact: true });
   await expect(classSelector).toBeVisible();
-  await expect(classSelector).not.toContainText('Choose a class');
-  await classSelector.click(); await adminPage.getByRole('option', { name: targetClass.name, exact: true }).click();
-  await studentSelector.click(); await adminPage.getByRole('option', { name: firstName + ' ' + lastName, exact: true }).click();
+  await selectClass(adminPage, targetClass.id);
+  await studentSelector.selectOption(ownStudent.id);
   await check('Selecting a learner enables the enrolment action', async () => expect(adminPage.getByRole('button', { name: 'Enrol Student', exact: true })).toBeEnabled());
-  await classSelector.click(); await adminPage.getByRole('option', { name: alternateClass.name, exact: true }).click();
-  await check('Changing class clears the controlled learner selection', async () => { await expect(studentSelector).toContainText('Choose a student'); await expect(adminPage.getByRole('button', { name: 'Enrol Student', exact: true })).toBeDisabled(); });
-  await classSelector.click(); await adminPage.getByRole('option', { name: targetClass.name, exact: true }).click();
-  await studentSelector.click(); await adminPage.getByRole('option', { name: firstName + ' ' + lastName, exact: true }).click();
+  await selectClass(adminPage, alternateClass.id);
+  await check('Changing class clears the controlled learner selection', async () => { await expect(studentSelector).toHaveValue(''); await expect(adminPage.getByRole('button', { name: 'Enrol Student', exact: true })).toBeDisabled(); });
+  await selectClass(adminPage, targetClass.id);
+  await studentSelector.selectOption(ownStudent.id);
   await adminPage.getByRole('button', { name: 'Enrol Student', exact: true }).click();
-  await check('Confirmed enrolment clears selection and retains an active record', async () => { await expect(studentSelector).toContainText('Choose a student'); await expect(adminPage.getByRole('heading', { name: firstName + ' ' + lastName, exact: true })).toBeVisible(); assert.equal((await api(admin, '/api/enrolments?classId=class-a')).find(item => item.studentId === ownStudent.id)?.status, 'active'); });
+  await check('Confirmed enrolment clears selection and retains an active record', async () => { await enrolmentsReady(adminPage, targetClass.id); await expect(studentSelector).toHaveValue(''); await expect(adminPage.getByRole('heading', { name: firstName + ' ' + lastName, exact: true })).toBeVisible(); assert.equal((await api(admin, '/api/enrolments?classId=class-a')).find(item => item.studentId === ownStudent.id)?.status, 'active'); });
   await check('Enrolment selector can receive keyboard focus', async () => { await studentSelector.focus(); await expect(studentSelector).toBeFocused(); await adminPage.keyboard.press('Tab'); await expect(adminPage.getByRole('button', { name: 'Enrol Student', exact: true })).not.toBeFocused(); });
+  // Delay an actual saved class response, then explicitly supersede that load.
+  // The current UI hides selectors while loading, so another class can only be
+  // selected after an authorized reload restores the choices.
+  let releaseClass, classArrived, classSettled, classDelayed = false;
+  const classGate = new Promise(resolve => { releaseClass = resolve; }), classArrival = new Promise(resolve => { classArrived = resolve; }), obsoleteClassSettled = new Promise(resolve => { classSettled = resolve; });
+  const classDelay = async route => {
+    const url = new URL(route.request().url());
+    if (route.request().method() !== 'GET' || url.searchParams.get('classId') !== alternateClass.id || classDelayed) return route.continue();
+    classDelayed = true;
+    try { const response = await route.fetch({ timeout: 15000, maxRedirects: 0 }); assert.equal(response.status(), 200); await response.body(); classArrived(); await classGate; try { await route.fulfill({ response }); } catch { /* An explicit newer reload intentionally aborts this read. */ } }
+    catch { deliveryErrors.push('Actual delayed enrolment list could not be captured'); classArrived(); }
+    finally { classSettled(); }
+  };
+  await adminPage.route('**/api/enrolments?*', classDelay);
+  try {
+    await classSelector.selectOption(alternateClass.id); await classArrival;
+    await check('Pending class selection hides the former roster and learner actions', async () => { await expect(classSelector).toHaveCount(0); await expect(studentSelector).toHaveCount(0); await expect(adminPage.getByRole('heading', { name: firstName + ' ' + lastName, exact: true })).toHaveCount(0); await expect(adminPage.getByRole('button', { name: 'Enrol Student', exact: true })).toHaveCount(0); await expect(adminPage.getByRole('status')).toContainText('Loading current enrolments'); });
+    const refreshed = adminPage.waitForResponse(response => enrolmentResponse(response, alternateClass.id));
+    await adminPage.getByRole('button', { name: 'Reload current enrolments', exact: true }).click(); const response = await refreshed; assert.equal(response.status(), 200); await response.body(); await enrolmentsReady(adminPage, alternateClass.id);
+    await selectClass(adminPage, targetClass.id); releaseClass(); await obsoleteClassSettled;
+    await check('Superseded class delivery cannot replace the current saved roster', async () => { await expect(classSelector).toHaveValue(targetClass.id); await expect(studentSelector).toHaveValue(''); await expect(adminPage.getByRole('heading', { name: firstName + ' ' + lastName, exact: true })).toBeVisible(); assert.equal((await api(admin, '/api/enrolments?' + new URLSearchParams({ classId: targetClass.id }))).find(item => item.studentId === ownStudent.id)?.status, 'active'); });
+  } finally { releaseClass(); await adminPage.unroute('**/api/enrolments?*', classDelay); }
   await check('Desktop enrolment labels and width', async () => labelsAndOverflow(adminPage));
 
   // Profile ownership review: no fixture account ever participates in a mutation.
@@ -282,11 +319,11 @@ try {
       await target.getByRole('button', { name: sourceLabel + ' · ' + envelope.sourceReference + ' · confirmed', exact: true }).click();
       await expect(target.getByRole('heading', { name: 'Saved import preview · confirmed', exact: true })).toBeVisible();
     }
-    if (name === 'enrolment-mobile') { await expect(ready()).not.toContainText('Choose a class'); await expect(target.getByRole('heading', { name: ownName, exact: true })).toBeVisible(); }
+    if (name === 'enrolment-mobile') { await selectClass(target, targetClass.id); await expect(ready()).toHaveValue(targetClass.id); await expect(target.getByRole('heading', { name: ownName, exact: true })).toBeVisible(); }
     await screenshot(target, name);
     // Inspect every mobile screen; report all failures together without counting failed checks as passes.
     try { await check('Mobile accessible labels and viewport: ' + name, async () => labelsAndOverflow(target)); }
-    catch (error) { mobileFailures.push({ screen: name, message: error.message }); console.error('Mobile layout failure: ' + JSON.stringify(mobileFailures.at(-1))); }
+    catch (error) { mobileFailures.push({ screen: name, errorName: error.name }); console.error('Mobile layout failure: ' + JSON.stringify(mobileFailures.at(-1))); }
   }
   await check('Profile filters support native keyboard navigation', async () => { await adminPage.goto(base.origin + '/admin/profile-links'); const type = adminPage.getByLabel(/^Profile type/); await expect(type).toBeVisible(); await type.focus(); await expect(type).toBeFocused(); await adminPage.keyboard.press('Tab'); await expect(adminPage.getByLabel(/^Account link/)).toBeFocused(); });
   await check('Import editor supports native keyboard navigation', async () => { await page.goto(base.origin + '/reading-imports'); const text = page.getByLabel(/^Local JSON/); await expect(text).toBeVisible(); await expect(text).toBeEnabled(); await text.focus(); await expect(text).toBeFocused(); await page.keyboard.press('Tab'); await expect(page.getByRole('button', { name: 'Validate and stage preview', exact: true })).toBeFocused(); });
@@ -297,11 +334,9 @@ try {
   writeFileSync('/private/tmp/saha-development-ui-results.json', JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length }));
 } catch (error) {
-  // Only visible page text and paths are logged; never session fixture values.
-  for (const value of contexts) for (const page of value.pages()) if (page.url().startsWith(base.origin)) console.error('Local screen: ' + new URL(page.url()).pathname + '\n' + (await page.locator('body').innerText()).slice(0, 2200));
-  console.error('Local resource diagnostics: ' + JSON.stringify(failedResources));
-  console.log(JSON.stringify({ passed, failed: 1, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length }));
-  throw error;
+  const result = { executedAt: new Date().toISOString(), passed, failed: 1, skipped: 0, stopped: true, failure: { procedure: activeProcedure, errorName: error.name }, externalRequests: externalRequests.length, pageErrors: pageErrors.length, checks, screenshots, limits: ['Stopped local synthetic browser run; remaining procedures were not executed.', 'Error messages, transport causes, headers and session values are deliberately excluded.'] };
+  writeFileSync('/private/tmp/saha-development-ui-results.json', JSON.stringify(result, null, 2) + '\n');
+  console.log(JSON.stringify({ passed, failed: 1, failure: result.failure, externalRequests: externalRequests.length, pageErrors: pageErrors.length })); process.exitCode = 1;
 } finally {
   for (const value of contexts) await value.close();
   await browser.close();

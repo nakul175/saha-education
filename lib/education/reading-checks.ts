@@ -3,7 +3,7 @@ import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db/index';
 import { readingChecks, classes, students, type SelectReadingCheck } from '@/db/schema';
 import type { Principal } from './types';
-import { AccessError, assertPrincipal, assertClassWrite, assertStudentInClass, studentReferenceScope, classReferenceScope, classScope } from './access';
+import { AccessError, assertPrincipal, assertClassWrite, assertStudentInClass, studentReferenceScope, classReferenceScope, classScope, livePrincipalScope } from './access';
 
 const SOURCE_APP = 'oral-reading-fluency';
 const PROVENANCE = 'manual-reviewed-external';
@@ -36,10 +36,7 @@ function staff(principal: Principal): void {
   if (principal.role !== 'admin' && principal.role !== 'teacher') throw new AccessError('Reviewed readings are available to staff only');
 }
 function liveRecorder(principal: Principal) {
-  return sql`exists (select 1 from users reading_actor where reading_actor.id = ${principal.id}
-    and reading_actor.school_id = ${principal.schoolId} and reading_actor.role = ${principal.role} and reading_actor.disabled_at is null
-    and reading_actor.identity_issuer is not null and reading_actor.identity_issuer <> ''
-    and reading_actor.identity_subject is not null and reading_actor.identity_subject <> '')`;
+  return livePrincipalScope(principal);
 }
 function scope(principal: Principal) {
   assertPrincipal(principal);

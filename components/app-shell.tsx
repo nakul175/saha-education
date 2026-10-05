@@ -22,18 +22,59 @@ export function AppShell({
 }) {
   const [loadedPrincipal, setPrincipal] = React.useState<Principal | null>(null);
   const principal = initialPrincipal ?? loadedPrincipal;
+  const [syntheticDemo, setSyntheticDemo] = React.useState(false);
+  const [signingOut, setSigningOut] = React.useState(false);
+  const [signOutStarted, setSignOutStarted] = React.useState(false);
+  const [signOutError, setSignOutError] = React.useState('');
+  const signOutInFlight = React.useRef(false);
+  React.useEffect(() => {
+    let active = true;
+    fetch('/api/demo', {cache: 'no-store'}).then(async response => {
+      if (!response.ok) { await response.text(); return; }
+      const result = await response.json() as { available?: unknown };
+      if (active) setSyntheticDemo(result.available === true);
+    }).catch(() => { /* This label grants no authority; server sessions scope all records. */ });
+    return () => { active = false; };
+  }, []);
   React.useEffect(() => {
     if (initialPrincipal) return;
     let active = true;
     fetch('/api/session', {cache: 'no-store'}).then(async response => {
-      if (response.ok && active) setPrincipal(await response.json() as Principal);
+      if (!response.ok) { await response.text(); return; }
+      const result = await response.json() as Principal;
+      if (active) setPrincipal(result);
     }).catch(() => { /* The protected layout and APIs enforce authentication. */ });
     return () => { active = false; };
   }, [initialPrincipal]);
   const handleSignOut = async () => {
-    await fetch("/api/session", { method: "DELETE" });
-    window.location.assign(new URL('/login', window.location.origin).href);
+    if (signOutInFlight.current) return;
+    signOutInFlight.current = true;
+    setSignOutStarted(true);
+    setSigningOut(true); setSignOutError('');
+    try {
+      const response = await fetch("/api/session", { method: "DELETE" });
+      await response.text();
+      if (!response.ok) throw new Error('Sign out could not be confirmed. Please try again.');
+      window.location.assign(new URL('/login', window.location.origin).href);
+    } catch {
+      setSignOutError('Sign out could not be confirmed. Please try again.');
+      setSigningOut(false); signOutInFlight.current = false;
+    }
   };
+
+  if (signOutStarted) return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b"><div className="container px-4 py-4"><h1 className="text-xl font-bold">Saha Education</h1></div></header>
+      <main aria-labelledby="sign-out-title" className="container max-w-xl space-y-4 px-4 py-8">
+        <h2 id="sign-out-title">Confirming sign out</h2>
+        <p>This page is hidden while sign-out is being confirmed.</p>
+        {signingOut && <p role="status">Signing out…</p>}
+        {signOutError && <p role="alert">{signOutError}</p>}
+        {signOutError && <Button variant="outline" onClick={handleSignOut} disabled={signingOut}>Retry sign out</Button>}
+        <p><a className="font-medium underline underline-offset-4" href="/login">Continue to sign-in</a></p>
+      </main>
+    </div>
+  );
 
   // Navigation items for different roles
   const navigationItems = [
@@ -132,23 +173,28 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-background">
+      <a href="#main-content" className="absolute left-4 top-4 z-50 -translate-y-24 rounded-md bg-background px-4 py-2 font-medium text-foreground shadow focus:translate-y-0">Skip to main content</a>
+      {syntheticDemo && <aside className="flex flex-wrap items-center justify-between gap-2 border-b bg-amber-50 px-4 py-2 text-sm text-amber-950" aria-label="Synthetic demo">
+        <p><strong>Synthetic demo.</strong> Fictional records only; please don’t enter real learner details.</p>
+        <a className="font-medium underline underline-offset-4" href="/login">Switch demo role</a>
+      </aside>}
       {/* Header */}
       <header className="border-b">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center space-x-2">
+        <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <div className="min-w-0">
             <h1 className="text-xl font-bold">Saha Education</h1>
           </div>
           
           {principal ? (
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Avatar className="size-8">
+            <div className="flex w-full min-w-0 items-center justify-between gap-3 sm:w-auto">
+              <div className="flex min-w-0 items-center gap-2">
+                <Avatar className="size-8 shrink-0" aria-hidden="true">
                   <AvatarFallback>
                     {principal.id.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="text-sm">
-                  <p className="font-medium">{principal.id}</p>
+                <div className="min-w-0 text-sm">
+                  <p className="break-all font-medium">{principal.id}</p>
                   <p className="text-xs text-muted-foreground capitalize">
                     {principal.role}
                   </p>
@@ -158,24 +204,26 @@ export function AppShell({
                 variant="outline" 
                 size="sm"
                 onClick={handleSignOut}
+                disabled={signingOut}
               >
-                Sign out
+                {signingOut ? 'Signing out…' : 'Sign out'}
               </Button>
             </div>
           ) : (
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" asChild>
               <a href="/login">Login</a>
             </Button>
           )}
         </div>
+        {signOutError && <p className="container px-4 pb-3 text-sm text-destructive" role="alert">{signOutError}</p>}
       </header>
 
       {/* Navigation */}
       {principal && (
         <div className="border-b bg-muted/50">
           <div className="container px-4 py-2">
-            <NavigationMenu>
-              <NavigationMenuList className="flex flex-wrap gap-x-1">
+            <NavigationMenu aria-label="School navigation" className="max-w-full">
+              <NavigationMenuList className="flex flex-wrap justify-start gap-x-1">
                 <NavigationMenuItem>
                   <NavigationMenuLink asChild>
                     <a
@@ -212,7 +260,7 @@ export function AppShell({
       )}
 
       {/* Main Content */}
-      <main className="container py-6">
+      <main id="main-content" tabIndex={-1} className="container py-6">
         {children}
       </main>
     </div>
