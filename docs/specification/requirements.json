@@ -1,7 +1,7 @@
 {
-  "version": "2.5-draft",
+  "version": "2.6-draft",
   "date": "2026-10-05",
-  "source_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+  "source_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -105,7 +105,7 @@
       "title": "Assessments and results",
       "implementation_status": "partial",
       "source": "lib/education/assessments.ts",
-      "requirement": "Manage assigned-class assessments/results with current score/membership and duplicate-pair guards; family result publication remains deferred.",
+      "requirement": "Manage current assigned-class assessments/results; use coherent active-roster snapshots and reviewed dirty-only full result/metadata CAS with immutable before/after receipts and exact original retries, preserving legacy replacement semantics; grades, correction governance and family result publication remain unapproved.",
       "approved": false
     },
     {
@@ -248,8 +248,8 @@
       "business": "BR-10",
       "title": "Audit and corrections",
       "implementation_status": "partial",
-      "source": "lib/education/attendance-reviews.ts",
-      "requirement": "Preserve attributable domain correction/review evidence including reviewed attendance; complete unified audit, assessment corrections and agreed retention before real records.",
+      "source": "lib/education/assessment-reviews.ts",
+      "requirement": "Preserve attributable domain correction/review evidence including reviewed attendance and assessment results; complete unified audit, legacy-write governance and agreed retention before real records.",
       "approved": false
     },
     {
@@ -340,10 +340,11 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented fourth attendance batch, not its containing publication commit. Published v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+    "note": "source_commit records the parent of this documented fifth assessment-review batch, not its containing publication commit. Published v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
-    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911"
+    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+    "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c"
   }
 }

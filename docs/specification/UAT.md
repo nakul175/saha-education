@@ -1,8 +1,8 @@
 # Business user acceptance plan
 
-Version 2.5 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.6 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Purpose and entry
 
@@ -73,10 +73,16 @@ The report publication checkbox is a local UI confirmation, not an invented reas
 
 TC-180 and TC-181 require nominated reviewers and approved browser/language/assistive targets. Walk all four synthetic roles using native links and Refresh dashboard. Explain absent profile versus absent observation/publication; verify excused-only and unknown attendance status wording, invalid-date flags, partial/no-roster/zero/duplicate/invalid result states and exact totals versus cap. Ask educators whether current-roster recording and school-supplied grades are understandable without implying learning progress or historical completeness.
 
-Record actual judgments, remaining absence/calendar/grade/history policies and defects separately. Current FR-03 implementation status is not educator approval; all 205 TC procedures remain unrun for this specification. Related browser automation or local suite outcomes cannot satisfy this intentional review.
+Record actual judgments, remaining absence/calendar/grade/history policies and defects separately. Current FR-03 implementation status is not educator approval; all 229 TC procedures remain unrun for this specification. Related browser automation or local suite outcomes cannot satisfy this intentional review.
 
 ## v2.5 intentional attendance review
 
 TC-203 and TC-205 require nominated staff/family/academic owners and the selected browser/language/assistive matrix. Walk blank unrecorded marks, deliberate status/note changes, exact before/after/actor/reason evidence, no-op and stale conflicts, current roster ambiguity/cap, uncertain original UUID recovery, withdrawal/transfer history limits and saved-with-refresh-failure states. Explain mutable legacy replacements versus immutable reviewed receipts; no old review history is invented.
 
 Review named summary cards, actual saved status counts, no-data/invalid-date/excused/other evidence, currentActive and visible truncation. Ask whether wording avoids a false percentage, expected school-day denominator or learning claim. Record unresolved calendar/date-governance/absence/history/correction/retention and usability decisions explicitly. All 205 designed cases remain unrun until intentionally performed and recorded; no synthetic provider/browser/local execution substitutes for business approval.
+
+## v2.6 educator reviewed-result acceptance
+
+Named educators/sponsor must intentionally walk missing/zero/invalid/duplicate/current-active/withdrawn evidence, supplied grade/feedback, complete before/after, current-authority loss, metadata/result conflict and original retry after later change. Confirm users distinguish original immutable review from current saved result and understand that a blocked/legacy record is not automatically repaired or graded. Record proposed scoring/grade, historical/correction governance, family publication, legacy bypass and retention decisions with scope/date/owner.
+
+TC-224–TC-226 and TC-229 remain manual/unrun; no reviewer, acceptance, learning effect or accessibility certification is invented. Source/browser/SQLite evidence is engineering context only. Providers, hosted deployment and real learner use require separate approved setup.

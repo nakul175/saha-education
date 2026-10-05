@@ -21,6 +21,7 @@ const paths = [
   ['app/api/users/route.ts', 'GET'], ['app/api/report-cards/route.ts', 'GET'], ['app/api/notifications/route.ts', 'GET'],
   ['app/api/classes/[id]/attendance-summary/route.ts', 'GET'], ['app/api/classes/[id]/attendance-editor/route.ts', 'GET'],
   ['app/api/classes/[id]/attendance-editor/history/route.ts', 'GET'],
+  ['app/api/assessments/[id]/result-editor/route.ts', 'GET'], ['app/api/assessments/[id]/result-editor/history/route.ts', 'GET'],
 ];
 const originalFetch = globalThis.fetch;
 let externalCalls = 0;
@@ -31,6 +32,7 @@ try {
   await seedSecurityData(db, schema);
   check(tables.has('report_publication_receipts'), true, 'Publication evidence migration boots');
   for (const name of ['attendance_reviews', 'attendance_review_entries']) check(tables.has(name), true, 'Reviewed attendance migration boots ' + name);
+  for (const name of ['assessment_reviews', 'assessment_review_entries']) check(tables.has(name), true, 'Reviewed assessment migration boots ' + name);
   const { createSession } = await load('lib/education/session.ts');
   const sessions = {};
   for (const user of ['admin-a', 'teacher-a', 'student-user-a', 'guardian-a']) sessions[user] = (await createSession(user)).split(';')[0];
@@ -98,6 +100,31 @@ try {
     attendanceRequest('/api/classes/class-a/attendance-editor/history?date=2026-10-05'), editorContext);
   check(history.status, 200, 'Reviewed attendance history boots');
   check((await history.json()).total, 1, 'Retry creates no second review');
+  const resultEditor = routes.get('app/api/assessments/[id]/result-editor/route.ts');
+  for (const user of ['guardian-a', 'student-user-a']) {
+    check((await resultEditor.GET(request('GET', user), context)).status, 403, 'Family cannot read private reviewed result editor');
+    check((await resultEditor.POST(request('POST', user), context)).status, 403, 'Family reviewed result write denied before body validation');
+  }
+  const resultContext = { params: Promise.resolve({ id: 'assessment-a' }) };
+  const resultSnapshot = await resultEditor.GET(attendanceRequest('/api/assessments/assessment-a/result-editor'), resultContext);
+  check(resultSnapshot.status, 200, 'Current staff result snapshot boots');
+  const resultBody = await resultSnapshot.json();
+  check(resultBody.roster.items[0].record, null, 'Unrecorded score remains blank');
+  const resultInput = { clientRequestId: crypto.randomUUID(), reviewConfirmed: true, reason: 'Reviewed synthetic zero-score boot check.',
+    expectedAssessment: resultBody.assessment, entries: [{ studentId: 'student-a', score: 0, grade: null, feedback: '', expectedRecord: null }] };
+  const resultSaved = await resultEditor.POST(attendanceRequest('/api/assessments/assessment-a/result-editor', 'POST', resultInput), resultContext);
+  check(resultSaved.status, 201, 'Reviewed zero result commits through actual route');
+  const resultReceipt = await resultSaved.json();
+  check(resultReceipt.review.changes[0].afterRecord.score, 0, 'A saved zero is an explicit result');
+  check(resultReceipt.review.changes[0].afterRecord.grade, null, 'Reviewed null grade stays null');
+  check(resultReceipt.review.changes[0].afterRecord.feedback, '', 'Reviewed empty feedback stays distinct from null');
+  const resultRetry = await resultEditor.POST(attendanceRequest('/api/assessments/assessment-a/result-editor', 'POST', resultInput), resultContext);
+  check(resultRetry.status, 200, 'Committed reviewed result UUID retry boots');
+  check((await resultRetry.json()).review, resultReceipt.review, 'Result retry returns original evidence');
+  const resultHistory = await routes.get('app/api/assessments/[id]/result-editor/history/route.ts').GET(
+    attendanceRequest('/api/assessments/assessment-a/result-editor/history'), resultContext);
+  check(resultHistory.status, 200, 'Staff reviewed result history boots');
+  check((await resultHistory.json()).total, 1, 'Result retry appends no duplicate review');
   const report = await load('app/api/report-cards/[id]/route.ts');
   const publication = await report.PATCH(new Request(origin + '/api/report-cards/draft-a', {
     method: 'PATCH', headers: { origin, cookie: sessions['admin-a'], 'content-type': 'application/json' }, body: JSON.stringify({ publish: true }),

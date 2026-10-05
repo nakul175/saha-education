@@ -9,10 +9,10 @@ const base = new URL(origin);
 if (!['127.0.0.1', 'localhost'].includes(base.hostname) || !['http:', 'https:'].includes(base.protocol) || base.pathname !== '/' || base.search || base.hash || base.username || base.password) throw new Error('Accessibility sampling requires an exact localhost origin.');
 const sessions = JSON.parse(readFileSync(fixture, 'utf8'));
 const journeys = {
-  'admin-a': ['/dashboard/admin', '/admin/users', '/admin/profile-links', '/schools', '/courses', '/classes', '/enrolments', '/students', '/guardians', '/report-cards', '/notifications', '/attendance', '/classes/class-a/attendance'],
-  'teacher-a': ['/dashboard/teacher', '/resources', '/curriculum', '/external-apps', '/reading-imports', '/reading-review', '/learning', '/classes', '/assessments', '/notifications', '/attendance', '/classes/class-a/attendance'],
-  'student-user-a': ['/dashboard/student', '/learning', '/report-cards', '/classes', '/notifications', '/attendance', '/classes/class-a/attendance'],
-  'guardian-a': ['/dashboard/guardian', '/students', '/report-cards', '/classes', '/notifications', '/attendance', '/classes/class-a/attendance'],
+  'admin-a': ['/dashboard/admin', '/admin/users', '/admin/profile-links', '/schools', '/courses', '/classes', '/enrolments', '/students', '/guardians', '/report-cards', '/notifications', '/attendance', '/classes/class-a/attendance', '/assessments', '/assessments/assessment-a'],
+  'teacher-a': ['/dashboard/teacher', '/resources', '/curriculum', '/external-apps', '/reading-imports', '/reading-review', '/learning', '/classes', '/assessments', '/notifications', '/attendance', '/classes/class-a/attendance', '/assessments/assessment-a'],
+  'student-user-a': ['/dashboard/student', '/learning', '/report-cards', '/classes', '/notifications', '/attendance', '/classes/class-a/attendance', '/assessments', '/assessments/assessment-a'],
+  'guardian-a': ['/dashboard/guardian', '/students', '/report-cards', '/classes', '/notifications', '/attendance', '/classes/class-a/attendance', '/assessments', '/assessments/assessment-a'],
 };
 const browser = await chromium.launch({ executablePath, headless: true, args: ['--disable-background-networking'] });
 const results = [], externalRequests = [], pageErrors = [];

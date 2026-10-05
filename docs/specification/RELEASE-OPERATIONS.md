@@ -2,7 +2,7 @@
 
 Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
 
-The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Environment boundaries
 
@@ -72,3 +72,9 @@ Verify additive 0013, new receipt/entry schema/indexes/real-date CHECK, actual c
 Reconcile a successful reviewed batch to exact before/after snapshots, current mark identities/creation time, authenticated reviewer/reason and one durable UUID. Inject stale actor/class/active member/prior-field/cap/ambiguity and mid-audit failures; verify no partial state. Retry original after legacy replacement/withdrawal without reapplication. Loss of scope after commit must hide acknowledgement while retaining durable evidence. A populated recovery should preserve marks/receipts/entries/immutable guards, full-batch current-school history privacy and original UUID replay; local encrypted roundtrip is separate from hosted export/cutover/key custody/schedule/RPO/RTO proof.
 
 Root owns actual dated build/suite/Worker/browser/recovery records and current batch scope. Catalogue/source links do not accept designed cases. Operator/academic owners must separately agree capacity, correction/calendar/absence, historical scope, retention and support responsibilities before real records. No live provider, ORF, deployment or external delivery is activated.
+
+## v2.6 reviewed-result release and recovery boundary
+
+Verify additive 0014 against39 tables/325 fields and 56 route files/91 handlers,10-field receipts/six-field entries, indexes, full current-authority/CAS/commit triggers and immutable UPDATE/DELETE blocks. Preserve applied migrations/old results/duplicates; no destructive cleanup or fabricated legacy audit. Build current service/detail/list/raw date helper together and verify production D1 RETURNING/trigger behavior plus prior compatibility.
+
+Populate disposable encrypted local recovery with original reviewed result and later legacy edit; restore exact inventory/indexes/triggers/evidence and test original UUID replay/current privacy/immutability without reapplying old values. Local restore does not prove hosted export/cutover, key custody, schedules, support SLA or approved RTO/RPO. Root owns dated actual evidence. Real provider/ORF, grade/publication/correction/retention policy and intentional acceptance remain release gates.

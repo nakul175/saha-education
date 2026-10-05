@@ -2,7 +2,7 @@
 
 Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -110,3 +110,11 @@ The pre-v2.4 dashboard inspection reproduced cached actor/profile/class exposure
 | Remaining audit/operations | Assessment correction, legacy replacement history, unified export/retention, hosted recovery, representative performance and intentional educator/accessibility acceptance remain pending. |
 
 The short-emoji reason reproduction formerly reached a SQL CHECK and returned 500. Current validation aligns code-point bounds with SQL length and rejects invalid input as 400; diagnostic reproduction is not passing execution evidence. Scope fixes or new domain receipts do not certify every source, production readiness or compliance.
+
+## v2.6 reviewed result decisions and residual risks
+
+Choose a separate reviewed snapshot/save/history contract rather than changing accepted legacy replacement semantics. Preserve original rows/duplicates and no history backfill. Current editable active roster is bounded100, per-pupil original records 10 and history 100 with exact totals. Full metadata/result CAS and one receipt-trigger statement arbitrate conflict and rollback; original UUID receipt recovers lost replies without undoing later legacy work.
+
+Raw unsafe INTEGER and nonfinite REAL use exact strings/type and block review; BLOB uses safe null/type. Safe serializable invalid single scores may be explicitly repaired without norms/grades. Date invalidity is a disclosed technical warning, not new school-day eligibility. Current original-class/same-school history retains withdrawal, hides transferred whole batches and does not approve a full temporal entitlement model.
+
+Residual risks: legacy API bypass and last-writer behavior; ambiguous/opaque/unsafe evidence repair governance; in-memory pending intent lost on navigation; compact Principal session-only/remap limitations; retained private full-text before/after; scoring/grade/family publication policies; representative accessibility/performance; unified export/retention and hosted recovery/provider setup. Owners must approve those boundaries before real records; FR-10/FR-26 remain partial and all approvals false.

@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.5 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.6 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **205 cases in 31 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **229 cases in 34 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -45,6 +45,10 @@ This draft contains **205 cases in 31 scenarios**, covers all **35 functional/no
 | SC-29 | Current reviewed attendance snapshot and explicit evidence validation | TC-182, TC-183, TC-184, TC-185, TC-186, TC-187, TC-188, TC-189 | FR-02, FR-03, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04 |
 | SC-30 | Atomic full-evidence attendance review, exact retries and immutable history | TC-190, TC-191, TC-192, TC-193, TC-194, TC-195, TC-196, TC-197 | FR-03, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04 |
 | SC-31 | Coherent raw attendance summaries, accessible recovery and policy boundaries | TC-198, TC-199, TC-200, TC-201, TC-202, TC-203, TC-204, TC-205 | FR-03, FR-06, FR-08, FR-09, FR-26, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-08, NFR-09 |
+
+| SC-32 | Current reviewed result snapshot, raw evidence and deliberate validation | TC-206, TC-207, TC-208, TC-209, TC-210, TC-211, TC-212, TC-213 | FR-01, FR-02, FR-03, FR-06, FR-08, FR-10, FR-26, NFR-01, NFR-02, NFR-05 |
+| SC-33 | Atomic full result/metadata review, concurrency and current authority | TC-214, TC-215, TC-216, TC-217, TC-218, TC-219, TC-220, TC-221 | FR-03, FR-08, FR-10, FR-26, NFR-01, NFR-02, NFR-05 |
+| SC-34 | Immutable result history, accessible recovery and policy boundaries | TC-222, TC-223, TC-224, TC-225, TC-226, TC-227, TC-228, TC-229 | FR-10, FR-26, NFR-01, NFR-02, NFR-03, NFR-04, NFR-05, NFR-06, NFR-07, NFR-08, NFR-09 |
 
 ## Execution boundaries
 
@@ -411,3 +415,42 @@ Cases: TC-198, TC-199, TC-200, TC-201, TC-202, TC-203, TC-204, TC-205. All remai
 - TC-203 — Reviewed recorder uncertainty conflict and accessible evidence (accessibility, manual).
 - TC-204 — Reviewed attendance capacity recovery and support gates (performance, planned).
 - TC-205 — Educator attendance meaning and correction governance acceptance (uat, manual).
+
+## SC-32: Current reviewed result snapshot, raw evidence and deliberate validation
+
+Cases: TC-206, TC-207, TC-208, TC-209, TC-210, TC-211, TC-212, TC-213. All remain unrun for this specification.
+
+- TC-206 — Reviewed result authentication role origin and body bounds (security, existing).
+- TC-207 — One coherent minimal result editor snapshot (integration, existing).
+- TC-208 — Saved zero null empty and unrecorded results stay distinct (regression, existing).
+- TC-209 — Literal assessment calendar disclosure avoids shifts and crashes (regression, existing).
+- TC-210 — Strict full metadata and saved result evidence contract (integration, existing).
+- TC-211 — Unicode limits and unchanged long saved grade feedback (regression, existing).
+- TC-212 — Current roster cap and ambiguity preserve historical duplicates (regression, existing).
+- TC-213 — Raw numeric evidence repair and unrepresentable read-only gates (regression, existing).
+
+## SC-33: Atomic full result/metadata review, concurrency and current authority
+
+Cases: TC-214, TC-215, TC-216, TC-217, TC-218, TC-219, TC-220, TC-221. All remain unrun for this specification.
+
+- TC-214 — Actual query actor class assessment and pupil cutoff (security, existing).
+- TC-215 — Full metadata and original result CAS rejects every stale field (integration, existing).
+- TC-216 — Reviewed feedback edit cannot repeat legacy stale overwrite (regression, existing).
+- TC-217 — Mixed new existing results and forced audit fault roll back atomically (integration, existing).
+- TC-218 — Concurrent distinct reviewed UUIDs have one CAS winner (integration, existing).
+- TC-219 — Concurrent exact and reordered UUID replay arbitrates once (integration, existing).
+- TC-220 — Original result replay survives later legacy metadata edits and withdrawal (regression, existing).
+- TC-221 — Whole-batch history transfer privacy and denied committed readback (security, existing).
+
+## SC-34: Immutable result history, accessible recovery and policy boundaries
+
+Cases: TC-222, TC-223, TC-224, TC-225, TC-226, TC-227, TC-228, TC-229. All remain unrun for this specification.
+
+- TC-222 — Immutable latest 100 reviewed result history and exact totals (regression, existing).
+- TC-223 — Legacy accepted replacements and omitted text semantics stay compatible (regression, existing).
+- TC-224 — Explicit dirty review preserves supplied grade and resets confirmation (accessibility, manual).
+- TC-225 — Conflict comparison uncertain original retry and truthful refresh failure (regression, manual).
+- TC-226 — Result editor keyboard mobile plain text and literal date review (accessibility, manual).
+- TC-227 — Encrypted local recovery retains reviewed result receipt and exact replay (recovery, existing).
+- TC-228 — Representative result capacity recovery and support gates (performance, planned).
+- TC-229 — Educator result correction meaning grade and publication acceptance (uat, manual).

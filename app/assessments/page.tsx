@@ -1,14 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { isExactCalendarDate } from '@/lib/education/calendar-date';
 import type { Assessment, Class } from '@/lib/education/types';
 import { listClasses } from '@/lib/education/client-api';
 import { listAssessments } from '@/lib/education/client-api';
@@ -85,19 +82,11 @@ export default function AssessmentsPage() {
           {/* Class filter dropdown */}
           <div className="mb-4">
             <Label htmlFor="class-filter">Filter by Class</Label>
-            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-              <SelectTrigger id="class-filter" className="w-full sm:w-64">
-                <SelectValue placeholder="Select a class" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Classes</SelectItem>
-                {classes.map((cls) => (
-                  <SelectItem key={cls.id} value={cls.id}>
-                    {cls.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select id="class-filter" value={selectedClassId} onChange={event => setSelectedClassId(event.target.value)}
+              className="min-w-0 w-full rounded-md border bg-background px-3 py-2 sm:w-64">
+              <option value="">All Classes</option>
+              {classes.map(cls => <option key={cls.id} value={cls.id}>{cls.name}</option>)}
+            </select>
           </div>
 
           {/* Assessment table */}
@@ -123,7 +112,7 @@ export default function AssessmentsPage() {
                   filteredAssessments.map((assessment) => {
                     const className = classes.find(c => c.id === assessment.classId)?.name || 'Unknown Class';
                     return (
-                      <TableRow key={assessment.id} className="hover:bg-muted/50">
+                      <TableRow key={assessment.id} data-assessment-list-item={assessment.id} className="hover:bg-muted/50">
                         <TableCell>
                           <a 
                             href={`/assessments/${assessment.id}`} 
@@ -138,8 +127,12 @@ export default function AssessmentsPage() {
                             {assessment.kind}
                           </Badge>
                         </TableCell>
-                        <TableCell>{assessment.maxScore}</TableCell>
-                        <TableCell>{format(new Date(assessment.date), 'MMM dd, yyyy')}</TableCell>
+                        <TableCell className="max-w-64 whitespace-normal break-words">{typeof assessment.maxScore === 'number' && Number.isSafeInteger(assessment.maxScore) && assessment.maxScore >= 0
+                          ? assessment.maxScore
+                          : <span role="status">Stored maximum requires review.</span>}</TableCell>
+                        <TableCell className="max-w-64 whitespace-normal break-words">{isExactCalendarDate(assessment.date)
+                          ? <time dateTime={assessment.date}>{assessment.date}</time>
+                          : <span role="status">Stored date requires review: {String(assessment.date ?? '')}</span>}</TableCell>
                       </TableRow>
                     );
                   })

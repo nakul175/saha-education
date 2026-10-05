@@ -1,9 +1,9 @@
 {
-  "version": "2.5-draft",
+  "version": "2.6-draft",
   "date": "2026-10-05",
-  "source_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+  "source_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
   "approved": false,
-  "execution_notice": "All 205 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context only, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence and published v2.2 (133 cases), v2.3 (157 cases), v2.4 (181 cases) design/execution remain separate.",
+  "execution_notice": "All 229 designed cases remain not-run-for-this-specification. Evidence links are related runnable/source context, not intentional case execution or acceptance. Historical v2.0/v2.1 evidence and published v2.2 (133), v2.3 (157), v2.4 (181) and v2.5 (205) design/execution remain separate.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -6280,6 +6280,795 @@
         "tests/integration/attendance-summary-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-206",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "FR-10",
+        "NFR-01"
+      ],
+      "title": "Reviewed result authentication role origin and body bounds",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Anonymous/public-hint/guardian/student/unassigned/foreign actors; malformed/unknown and >128 KiB JSON.",
+      "steps": [
+        "Call editor/history GET and reviewed POST with each actor.",
+        "Submit malformed body under family role and wrong Origin under staff role."
+      ],
+      "expected": [
+        "401 missing session; family 403 before body parsing; unavailable class/assessment 404; matching origin required.",
+        "Strict malformed/unknown/over-limit body 400 with safe no-store errors and no persisted result/receipt/event."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-207",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-03",
+        "FR-06",
+        "FR-08",
+        "FR-10",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "One coherent minimal result editor snapshot",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Current two-pupil active roster, names/admission and unrelated private records.",
+      "steps": [
+        "Capture the actual prepared SELECT.",
+        "Change eligible pupil/class relationships immediately before execution."
+      ],
+      "expected": [
+        "One guarded SELECT provides current metadata/class/roster/saved evidence/asOf together.",
+        "Minimal pupil fields exclude birth/contact/account mapping; unavailable pupil is removed coherently from items and exact total."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-208",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-10",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Saved zero null empty and unrecorded results stay distinct",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Original score 0/null text, another score 7/empty text and one absent pair.",
+      "steps": [
+        "Load snapshot then change only one pupil.",
+        "Inspect full before/after and untouched pair."
+      ],
+      "expected": [
+        "Unrecorded result is null; no invented zero or grade.",
+        "Legitimate zero, nullable versus empty text and untouched confirmed tuples remain exact."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-209",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-10",
+        "NFR-05"
+      ],
+      "title": "Literal assessment calendar disclosure avoids shifts and crashes",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Real leap-century/future YYYY-MM-DD; malformed stored date; negative timezone.",
+      "steps": [
+        "Read result editor and assessment list/detail.",
+        "Display literal dates without parsing midnight UTC for local formatting."
+      ],
+      "expected": [
+        "Stored exact calendar string remains literal; malformed dates show explicit date-review text without renderer crash.",
+        "invalidDate discloses technical calendar validity only; no school-day/future/term eligibility policy invented."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "app/assessments/[id]/page.tsx",
+        "app/assessments/page.tsx",
+        "docs/specification/ASSESSMENT-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-210",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Strict full metadata and saved result evidence contract",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Missing metadata/time/type, unknown actor fields, null score, duplicates/no-op, omitted grade/feedback/expectedRecord.",
+      "steps": [
+        "Submit each invalid envelope.",
+        "Submit complete dirty envelope with explicit grade/feedback nulls."
+      ],
+      "expected": [
+        "Invalid/unknown/missing/no-op/duplicate input is 400 and creates no evidence.",
+        "Expected absence is explicit null; existing expected record includes ID, assessment/pupil IDs, raw score/type, text and both timestamps."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-211",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Unicode limits and unchanged long saved grade feedback",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Reasons 5/10/500/501 emoji; new text 2000/2001 code points; unchanged oversized legacy text.",
+      "steps": [
+        "Change only score while retaining oversized confirmed text.",
+        "Replace text at/beyond limit and compare Unicode reason boundaries."
+      ],
+      "expected": [
+        "Trimmed control-free reason uses 10\u2013500 code points; changed text uses at most 2000.",
+        "Exactly unchanged longer saved text may survive full CAS subject to 100000-unit schema and 128 KiB body bounds; changed long text cannot use exception."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-212",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-08",
+        "FR-10",
+        "NFR-02"
+      ],
+      "title": "Current roster cap and ambiguity preserve historical duplicates",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "0/100/101 active pupils, whole inactive duplicate enrolment, 12 saved current duplicate results and out-of-roster historical duplicates.",
+      "steps": [
+        "Inspect exact totals, capped rows and raw duplicate records.",
+        "Attempt dirty subset inside and outside permitted whole-roster bound."
+      ],
+      "expected": [
+        "Current roster previews 100, raw per-pupil evidence previews 10 with exact counts/truncation; empty/cap/current ambiguity blocks review.",
+        "Historical duplicates outside active editable roster remain unchanged and do not block valid current review; no arbitrary winner or automatic repair."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-213",
+      "scenario": "SC-32",
+      "requirements": [
+        "FR-10",
+        "NFR-01",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Raw numeric evidence repair and unrepresentable read-only gates",
+      "layer": "regression",
+      "priority": "P0",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Single negative/REAL/TEXT score, opaque BLOB, INTEGER \u00b19007199254740993, \u00b1nonfinite REAL and malformed/unsafe maximum.",
+      "steps": [
+        "Load original value plus SQLite storage type.",
+        "Review explicit bounded repair of a unique serializable score; try opaque/unsafe evidence."
+      ],
+      "expected": [
+        "Safe serializable invalid single score can be deliberately corrected preserving raw before-evidence.",
+        "Opaque BLOB, unsafe INTEGER and nonfinite REAL block whole-roster review; unsafe/nonfinite numbers display exact strings with original type, never rounded CAS or false HTTP null."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-214",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-03",
+        "FR-08",
+        "FR-10",
+        "NFR-01"
+      ],
+      "title": "Actual query actor class assessment and pupil cutoff",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Late disable/demotion/school move/missing mapping, class reassignment/transfer, assessment move and pupil withdrawal/transfer.",
+      "steps": [
+        "Mutate immediately before snapshot/history/retry SELECT or reviewed receipt INSERT.",
+        "Inspect responses and all persisted tables."
+      ],
+      "expected": [
+        "Actual SQL rechecks current trusted actor and current staff class/reference scope.",
+        "Initial unavailable reads 404; post-preflight denied new mutation/retry 409; no new unauthorized tuple/evidence or foreign metadata disclosure."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-215",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Full metadata and original result CAS rejects every stale field",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Changed title/kind/max/date/class/createdAt/updatedAt; changed result ID/score/grade/feedback/timestamps/type.",
+      "steps": [
+        "Load original exact snapshots.",
+        "Change one original field immediately before the actual receipt INSERT."
+      ],
+      "expected": [
+        "Any full metadata or result change rejects whole reviewed write as 409.",
+        "No stale feedback-only edit can restore old score/grade; winning saved tuple and metadata remain intact."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-216",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-10",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Reviewed feedback edit cannot repeat legacy stale overwrite",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Teacher loaded score10; peer saves18 and newer supplied grade.",
+      "steps": [
+        "Submit feedback-only reviewed edit using original full before-evidence.",
+        "Reload/compare and deliberately review new payload."
+      ],
+      "expected": [
+        "First reviewed request conflicts409 and does not overwrite newer score/grade.",
+        "Only newly reviewed current evidence may commit; legacy replacement API keeps compatibility semantics."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "lib/education/assessments.ts",
+        "tests/integration/academic-integrity-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-217",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Mixed new existing results and forced audit fault roll back atomically",
+      "layer": "integration",
+      "priority": "P0",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Existing result, absent pair, another stale pair and synthetic BEFORE evidence failure.",
+      "steps": [
+        "Attempt full changed batch with one stale member.",
+        "Force evidence INSERT fault after result changes."
+      ],
+      "expected": [
+        "Any CAS/evidence/count fault aborts the complete statement; existing originals restored and new result absent.",
+        "No receipt or partial before/after entries survive; unrelated internal failure returns controlled500."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-218",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Concurrent distinct reviewed UUIDs have one CAS winner",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Two staff reviews from exact same initial records/metadata.",
+      "steps": [
+        "Submit both distinct UUID requests concurrently.",
+        "Compare saved tuple and immutable receipt/event count."
+      ],
+      "expected": [
+        "One201 and one409; exactly one changed tuple/receipt/evidence set.",
+        "Losing review cannot partially update another pupil."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-219",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Concurrent exact and reordered UUID replay arbitrates once",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Same actor/request UUID; equivalent reordered two-row envelope; cross-school UUID collision.",
+      "steps": [
+        "Submit identical requests concurrently then reordered retry.",
+        "Try changed actor/payload and reused UUID in another school."
+      ],
+      "expected": [
+        "One201 plus200 original replay; reordered canonical entries return same immutable review.",
+        "Changed/cross-school collision is safe409, creates no duplicate outcome and reveals no source receipt metadata."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-220",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-08",
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Original result replay survives later legacy metadata edits and withdrawal",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Committed reviewed batch followed by legacy result replacement, metadata change and withdrawal.",
+      "steps": [
+        "Retry original exact UUID/payload.",
+        "Inspect current result and original review/history."
+      ],
+      "expected": [
+        "Original same-school/current-class review remains returned without reapplying old values or requiring current active roster.",
+        "Later saved tuple/metadata and original before/after evidence remain intact; new withdrawn write remains denied."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-221",
+      "scenario": "SC-33",
+      "requirements": [
+        "FR-03",
+        "FR-10",
+        "FR-26",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Whole-batch history transfer privacy and denied committed readback",
+      "layer": "security",
+      "priority": "P0",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "One transferred original pupil; late actor/class/pupil change after receipt commit.",
+      "steps": [
+        "Read history including remaining-pupil filter and replay old UUID.",
+        "Revoke scope immediately before postcommit readback."
+      ],
+      "expected": [
+        "Any foreign original pupil hides whole review from payload and exact count/replay; filtering cannot expose partial batch.",
+        "Postcommit readback404 reveals no evidence while committed result/receipt/event remain recoverable under restored current authority."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-222",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-01",
+        "NFR-03"
+      ],
+      "title": "Immutable latest100 reviewed result history and exact totals",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "102 real reviewed changes, same-time IDs and exact optional pupil filter.",
+      "steps": [
+        "Read bounded newest-first history.",
+        "Attempt receipt/event UPDATE and DELETE."
+      ],
+      "expected": [
+        "History reports exact visible total, deterministic latest100 and truthful truncation; filter preserves whole-batch current scope.",
+        "Immutable-row triggers block rewriting/deleting original review/change evidence; legacy rows have no fabricated history."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-223",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02"
+      ],
+      "title": "Legacy accepted replacements and omitted text semantics stay compatible",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Concurrent legacy score/grade/feedback replacements and final score0 with omitted text.",
+      "steps": [
+        "Run existing legacy POST behavior alongside reviewed history.",
+        "Compare accepted statuses, pair count and omitted fields."
+      ],
+      "expected": [
+        "Concurrent legacy200 responses remain accepted; pair uniqueness stays guarded and omitted grade/feedback clear.",
+        "No invented UUID guarantee, audit backfill or claim that legacy replacement governance has been solved."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "lib/education/assessments.ts",
+        "tests/integration/academic-integrity-contract.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-224",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-05",
+        "NFR-06"
+      ],
+      "title": "Explicit dirty review preserves supplied grade and resets confirmation",
+      "layer": "accessibility",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Loaded zero/null/empty/long grade feedback, unrecorded score and fictional explicit staff edits.",
+      "steps": [
+        "Edit score/feedback/grade where provided and review reason/checkbox.",
+        "Change any intended field or loaded metadata/evidence after checking review."
+      ],
+      "expected": [
+        "No unrecorded default score; unchanged supplied text retained exactly and only dirty entries submitted.",
+        "Any changed input/evidence clears review confirmation; no automatic grade or educator approval assumed."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "app/assessments/[id]/page.tsx",
+        "app/assessments/page.tsx",
+        "docs/specification/ASSESSMENT-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-225",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02",
+        "NFR-05"
+      ],
+      "title": "Conflict comparison uncertain original retry and truthful refresh failure",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "409 CAS, dropped successful acknowledgement, later peer edit, 401/403/404 and failed post-save refresh.",
+      "steps": [
+        "Exercise retained intended edits and current comparison reload.",
+        "Keep original request UUID/payload through uncertainty; reverify access and retry exactly."
+      ],
+      "expected": [
+        "409 requires current comparison/review; uncertain request locks edits and preserves original UUID.",
+        "Confirmed review stays distinguishable from stale/current refresh; access loss clears private displayed evidence and retry waits for current verification."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "app/assessments/[id]/page.tsx",
+        "app/assessments/page.tsx",
+        "docs/specification/ASSESSMENT-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-226",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "NFR-05",
+        "NFR-06"
+      ],
+      "title": "Result editor keyboard mobile plain text and literal date review",
+      "layer": "accessibility",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "390px desktop/mobile, stored markup, real/invalid calendar values, bounds/empty/duplicate states.",
+      "steps": [
+        "Navigate native labelled fields/buttons/anchors and announced status/errors.",
+        "Review long supplied text and accessible before/after history."
+      ],
+      "expected": [
+        "No overflow or HTML execution; dates literal and invalid evidence visibly read-only where required.",
+        "Recorded procedure names environment/language/assistive limits; automation is not accessibility certification."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "app/assessments/[id]/page.tsx",
+        "app/assessments/page.tsx",
+        "docs/specification/ASSESSMENT-DESIGN.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-227",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-02",
+        "NFR-03",
+        "NFR-08"
+      ],
+      "title": "Encrypted local recovery retains reviewed result receipt and exact replay",
+      "layer": "recovery",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Populated disposable encrypted export/restore with reviewed result and later legacy change.",
+      "steps": [
+        "Restore exact migration inventory/indexes/triggers and saved evidence.",
+        "Retry original UUID and attempt immutable-evidence edit under restored scope."
+      ],
+      "expected": [
+        "Original evidence/current later result and current privacy guards survive restore; replay does not reapply old values.",
+        "Local encrypted roundtrip does not prove hosted cutover, custody, schedule, retention or RTO/RPO."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "tests/integration/development-recovery-contract.mjs",
+        "scripts/recovery.mjs"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-228",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "NFR-04",
+        "NFR-07",
+        "NFR-08"
+      ],
+      "title": "Representative result capacity recovery and support gates",
+      "layer": "performance",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "School-approved workload/device/network/language, 100-row/128KiB boundaries and durable recovery rehearsal.",
+      "steps": [
+        "Measure current snapshot and atomic save under approved representative workload.",
+        "Record operational environment and unresolved support/recovery limits."
+      ],
+      "expected": [
+        "Measured evidence meets approved target or blocks release; bounds alone do not prove an SLA.",
+        "No production readiness, hosted restore/key custody or retention acceptance inferred."
+      ],
+      "automation": "planned",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "tests/integration/development-recovery-contract.mjs",
+        "scripts/recovery.mjs",
+        "docs/specification/RELEASE-OPERATIONS.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-229",
+      "scenario": "SC-34",
+      "requirements": [
+        "FR-10",
+        "FR-26",
+        "NFR-05",
+        "NFR-06",
+        "NFR-09"
+      ],
+      "title": "Educator result correction meaning grade and publication acceptance",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Fresh disposable synthetic schools A/B with real opaque sessions and exact migrations 0000\u20130014, foreign keys enabled and current trusted mapped staff. Active/withdrawn/foreign pupils, current reassignment, raw legacy results and metadata. Create duplicate pairs before 0009 then apply final guards without disabling them. Inject changes at actual awaited SQL; compare all saved results, receipts and evidence. No real records or external calls.",
+      "data": "Named reviewers with proposed scoring, supplied grade, historical/correction/retention and publication policy.",
+      "steps": [
+        "Walk zero/missing/invalid/duplicate/stale/replayed results and immutable before/after.",
+        "Record educator/sponsor decisions separately from synthetic suites."
+      ],
+      "expected": [
+        "Reviewer records clarity and unresolved grade/correction/history/family publication/legacy governance.",
+        "No grading/norm/learning efficacy, real-provider or business approval inferred; designed cases remain unrun."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "lib/education/assessment-reviews.ts",
+        "db/assessment-reviews-schema.ts",
+        "drizzle/0014_assessment_reviews.sql",
+        "tests/integration/assessment-review-contract.mjs",
+        "tests/integration/assessment-review-access-contract.mjs",
+        "app/assessments/[id]/page.tsx",
+        "app/assessments/page.tsx",
+        "docs/specification/ASSESSMENT-DESIGN.md",
+        "docs/specification/UAT.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
     }
   ],
   "delivery_metadata": {
@@ -6288,10 +7077,11 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-05",
-    "note": "source_commit records the parent of this documented fourth attendance batch, not its containing publication commit. Published v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original application baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
-    "candidate_parent_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+    "note": "source_commit records the parent of this documented fifth assessment-review batch, not its containing publication commit. Published v2.5 at f312881, v2.4 at 85e85d0, v2.3 at 88205cd, v2.2 at 82f20ce, v2.1 evidence and the original baseline remain historical. Actual runs/publication are dated separately; no deployment, approval or designed-case execution inferred.",
+    "candidate_parent_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
-    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911"
+    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+    "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c"
   }
 }

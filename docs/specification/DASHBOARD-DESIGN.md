@@ -1,12 +1,12 @@
 # Current role dashboard design
 
-Version 2.5 draft, 5 October 2026. Trace: BR-01, BR-02, BR-11, BR-12; FR-03, FR-08–FR-11; NFR-01–NFR-05, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) for the canonical sequence. All approvals remain false; [SC-26–SC-28 cases](TEST-CASES.json) remain not-run-for-this-specification.
+Version 2.6 draft, 5 October 2026. Trace: BR-01, BR-02, BR-11, BR-12; FR-03, FR-08–FR-11; NFR-01–NFR-05, NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) for the canonical sequence. All approvals remain false; [SC-26–SC-28 cases](TEST-CASES.json) remain not-run-for-this-specification.
 
-The implementation candidate was prepared on `feat/specification-delivery`; `source_commit` records parent `85e85d054afe039d6c633aa215d900b5881eb911` for the current fourth attendance batch, rather than its containing commit. The dashboard implementation was published in the historical v2.4 third batch; prior dated evidence remains separate. No browser, hosted, educator or provider acceptance is inferred by this design.
+The current v2.6 specification records parent `f31288162e1f55ec28ad710ab990ec56ac37ce3c` of this fifth assessment-review batch, not its containing commit. The dashboard slice was published in v2.4 and adds no new route/schema in this fifth batch. Earlier dated execution remains separate; no educator/provider/operational acceptance is inferred.
 
 ## Read and authorization contract
 
-The existing four role server pages resolve `getServerPrincipal()`, verify their role and call [getRoleDashboard](../../lib/education/dashboard.ts) exactly once. The service accepts the verified server `Principal`, checks its shape and runs one SELECT FROM users with exact current actor ID plus `livePrincipalScope` and current school existence. There is no `/api/dashboard`, mutation or schema/migration. The dashboard slice added no schema/route; its published v2.4 inventory was 35 tables/294 fields and 51 API route files/84 handlers. Current v2.5 attendance inventory is 37/309 and 54/88.
+The existing four role server pages resolve `getServerPrincipal()`, verify their role and call [getRoleDashboard](../../lib/education/dashboard.ts) exactly once. The service accepts the verified server `Principal`, checks its shape and runs one SELECT FROM users with exact current actor ID plus `livePrincipalScope` and current school existence. There is no `/api/dashboard`, mutation or schema/migration. The dashboard slice added no schema/route; its published v2.4 inventory was 35 tables/294 fields and 51 API route files/84 handlers. Current v2.6 inventory is 39/325 and 56/91 after assessment evidence.
 
 The scalar SQL JSON payload uses role-specific independently aggregated CTEs/subqueries under that same statement snapshot. One canonical database UTC `asOf` accompanies all displayed records. JSON is parsed once without additional reads. Denied actor authority produces no outer row and returns `null`; an authorized actor without records receives explicit zero totals/empty arrays. The pages redirect through `/` for null/wrong-role data, rather than showing a denied actor zero-valued cards.
 

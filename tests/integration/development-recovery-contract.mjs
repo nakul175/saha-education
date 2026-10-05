@@ -38,6 +38,8 @@ const routes = {
   notices: await load('app/api/notifications/route.ts'),
   attendanceEditor: await load('app/api/classes/[id]/attendance-editor/route.ts'),
   attendanceHistory: await load('app/api/classes/[id]/attendance-editor/history/route.ts'),
+  resultEditor: await load('app/api/assessments/[id]/result-editor/route.ts'),
+  resultHistory: await load('app/api/assessments/[id]/result-editor/history/route.ts'),
 };
 const curriculum = await load('lib/education/curriculum.ts');
 const resources = await load('lib/education/resources.ts');
@@ -167,6 +169,18 @@ try {
   check(attendanceReview.review.changes[0].afterRecord.status, 'absent', 'Source review saves the explicitly chosen absence');
   check(count(sqlite, 'attendance_reviews'), 1, 'Source has one immutable attendance review');
   check(count(sqlite, 'attendance_review_entries'), 1, 'Source has one attributable attendance change');
+  const resultSnapshot = await json(await routes.resultEditor.GET(request('teacher-a'), params('assessment-a')), 200,
+    'Saved result snapshot loads before encrypted recovery');
+  const priorResult = resultSnapshot.roster.items.find(row => row.student.id === 'student-a').record;
+  const resultReviewInput = { clientRequestId: crypto.randomUUID(), reviewConfirmed: true,
+    reason: 'Educator reviewed synthetic zero score before encrypted recovery.', expectedAssessment: resultSnapshot.assessment,
+    entries: [{ studentId: 'student-a', score: 0, grade: null, feedback: '', expectedRecord: priorResult }] };
+  const resultReview = await json(await routes.resultEditor.POST(request('teacher-a', 'POST', resultReviewInput), params('assessment-a')),
+    201, 'Reviewed saved result and before/after evidence commit before encrypted snapshot');
+  check(resultReview.review.changes[0].beforeRecord, priorResult, 'Source result review binds exact original evidence');
+  check(resultReview.review.changes[0].afterRecord.score, 0, 'Source review preserves explicit zero score');
+  check(count(sqlite, 'assessment_reviews'), 1, 'Source has one immutable result review');
+  check(count(sqlite, 'assessment_review_entries'), 1, 'Source has one attributable result change');
 
   const before = databaseSnapshot(sqlite);
   check(sqlite.prepare('PRAGMA foreign_key_check').all(), [], 'Populated source has no foreign-key violations');
@@ -191,7 +205,7 @@ try {
   check(restored.prepare('PRAGMA integrity_check').get().integrity_check, 'ok', 'Restored populated database passes SQLite integrity check');
   globalThis.__sahaTestDb = proxyFor(restored);
 
-  const preservedCounts = Object.fromEntries(['attendance_reviews', 'attendance_review_entries', 'attendance', 'report_publication_receipts', 'report_cards', 'notifications', 'identity_admin_events', 'profile_link_events', 'profile_link_versions', 'reading_import_drafts', 'reading_import_items',
+  const preservedCounts = Object.fromEntries(['assessment_reviews', 'assessment_review_entries', 'assessment_results', 'attendance_reviews', 'attendance_review_entries', 'attendance', 'report_publication_receipts', 'report_cards', 'notifications', 'identity_admin_events', 'profile_link_events', 'profile_link_versions', 'reading_import_drafts', 'reading_import_items',
     'reading_import_receipts', 'reading_checks', 'reading_corrections', 'assignment_submission_windows', 'submission_attempts', 'submission_feedback',
     'curriculum_references', 'curriculum_reference_versions', 'resource_reference_bindings', 'teaching_resources', 'resource_versions'].map(table => [table, count(restored, table)]));
   for (let index = 0; index < profileInputs.length; index++) {
@@ -234,9 +248,24 @@ try {
     '/api/classes/class-a/attendance-editor?date=' + today), params('class-a')), 200, 'Restored current saved attendance can be checked separately from a receipt');
   check(restoredMarks.roster.items.find(row => row.student.id === 'student-a').record,
     attendanceReview.review.changes[0].afterRecord, 'Exact retry did not alter the restored saved mark');
+  const resultReplay = await json(await routes.resultEditor.POST(request('teacher-a', 'POST', resultReviewInput), params('assessment-a')),
+    200, 'Exact result review UUID replays after actual encrypted restore');
+  check(resultReplay.replayed, true, 'Restored result retry is the original committed review');
+  check(resultReplay.review, resultReview.review, 'Restored result receipt retains exact original metadata and before/after values');
+  const resultHistory = await json(await routes.resultHistory.GET(request('teacher-a'), params('assessment-a')), 200,
+    'Restored staff can read result review history');
+  check(resultHistory.items, [resultReview.review], 'Restored result history contains the original decision');
+  const restoredResults = await json(await routes.resultEditor.GET(request('teacher-a'), params('assessment-a')), 200,
+    'Restored current result snapshot is separate from original receipt');
+  check(restoredResults.roster.items.find(row => row.student.id === 'student-a').record, resultReview.review.changes[0].afterRecord,
+    'Exact result retry preserves the restored saved score/grade/feedback');
   check(Object.fromEntries(Object.keys(preservedCounts).map(table => [table, count(restored, table)])), preservedCounts, 'All exact UUID retries append no duplicate evidence after restore');
 
   const guards = [
+    ["UPDATE assessment_reviews SET reason='Changed reviewed result' WHERE id=?", resultReview.review.id],
+    ['DELETE FROM assessment_reviews WHERE id=?', resultReview.review.id],
+    ["UPDATE assessment_review_entries SET after_record='{}' WHERE review_id=?", resultReview.review.id],
+    ['DELETE FROM assessment_review_entries WHERE review_id=?', resultReview.review.id],
     ["UPDATE attendance_reviews SET reason='Changed reviewed reason' WHERE id=?", attendanceReview.review.id],
     ['DELETE FROM attendance_reviews WHERE id=?', attendanceReview.review.id],
     ["UPDATE attendance_review_entries SET after_record='{}' WHERE review_id=?", attendanceReview.review.id],

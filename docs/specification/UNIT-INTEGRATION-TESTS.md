@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.5 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.6 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.5 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `85e85d054afe039d6c633aa215d900b5881eb911`, the parent of this documented fourth attendance batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd` and v2.4 at `85e85d0` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
+The v2.6 implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records `f31288162e1f55ec28ad710ab990ec56ac37ce3c`, the parent of this documented fifth assessment-review batch, rather than the commit containing its changes. Dated publication and execution records are maintained separately. The v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`; v2.1 evidence and published v2.2 at `82f20ce`, v2.3 at `88205cd`, v2.4 at `85e85d0` and v2.5 at `f312881` remain historical. Every requirement is unapproved and every designed case is `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -108,3 +108,9 @@ The new service has no writes, migration or API. Focused/independent runnable su
 New test links do not populate designed-case outcomes. Actual built Worker/D1 execution differs from Node SQLite/prepared-driver evidence; source count/privacy and a cap do not imply capacity, accessibility or educator acceptance.
 
 Independent summary [access contract](../../tests/integration/attendance-summary-access-contract.mjs) supplies related actual-session/SQLite/prepared-driver scope/coherence/minimal-field/legacy/cap evidence. This source mapping does not populate any TC outcome or business acceptance.
+
+## v2.6 reviewed result unit/integration design
+
+SC-32–SC-34 covers actual opaque sessions/routes/migrated SQLite through production Drizzle D1 prepared/batch mapping. Assert one coherent snapshot; exact minimal projections/total/caps; safe serializable legacy repair versus unsafe/blob/nonfinite read-only evidence; zero/null/empty/unchanged long text and Unicode reason parity; all metadata/result fields CAS; current SQL actor/class/roster/pupil/reference cutoff; forced mid-event rollback; immutable evidence; exact/reordered/distinct concurrent UUIDs and current whole-batch history.
+
+[Independent access contract](../../tests/integration/assessment-review-access-contract.mjs), [primary contract](../../tests/integration/assessment-review-contract.mjs) and [academic compatibility](../../tests/integration/academic-integrity-contract.mjs) are related executable evidence. Do not fabricate grades, delete legacy rows, disable final guards or rewrite existing accepted concurrent 200/omitted-text assertions. Recovery/served/browser environment runs and all intentional designed TC procedures stay separate.

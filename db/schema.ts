@@ -307,3 +307,4 @@ export { readingImportDrafts, readingImportItems, readingImportReceipts } from '
 export { assignmentSubmissionWindows } from './submission-window-schema';
 export { reportPublicationReceipts } from './report-publication-schema';
 export { attendanceReviews, attendanceReviewEntries } from './attendance-reviews-schema';
+export { assessmentReviews, assessmentReviewEntries } from './assessment-reviews-schema';

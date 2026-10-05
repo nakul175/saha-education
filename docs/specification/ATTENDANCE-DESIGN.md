@@ -1,14 +1,14 @@
 # Reviewed attendance and raw summary design
 
-Version 2.5 draft, 5 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-09, FR-26; NFR-01–NFR-05, NFR-07–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false and [SC-29–SC-31 cases](TEST-CASES.json) remain not-run-for-this-specification.
+Version 2.6 draft, 5 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-09, FR-26; NFR-01–NFR-05, NFR-07–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false and [SC-29–SC-31 cases](TEST-CASES.json) remain not-run-for-this-specification.
 
-The implementation candidate was prepared on `feat/specification-delivery`. `source_commit` records parent `85e85d054afe039d6c633aa215d900b5881eb911`, rather than the commit containing this fourth attendance batch. Published v2.4 dashboards and prior dated design/execution remain historical. No educator, provider, real-record, operational or accessibility acceptance is inferred.
+The current v2.6 specification records parent `f31288162e1f55ec28ad710ab990ec56ac37ce3c` of this fifth assessment-review batch, not its containing commit. The attendance slice was published in v2.5 and its functionality is unchanged by this fifth assessment batch. Earlier dated execution remains separate; no educator/provider/operational acceptance is inferred.
 
 ## Scope and persisted evidence
 
 The [review service](../../lib/education/attendance-reviews.ts) adds a staff-only current editor, reviewed dirty-only save and immutable history. The [summary service](../../lib/education/attendance-summary.ts) gives all currently scoped roles a compact named-pupil raw evidence view. The existing [legacy attendance service](../../lib/education/attendance.ts) stays mutable replacement behavior, including concurrent accepted 200 responses and clearing a note when it is omitted. Historical records are not backfilled with invented reviews.
 
-Migration [0013](../../drizzle/0013_attendance_reviews.sql) adds `attendance_reviews` (9 fields) and `attendance_review_entries` (6 fields), with current-authority/CAS/commit and immutable-row triggers. Existing attendance retains its unique class/student/date tuple. Current inventory is 37 tables/309 fields, 54 API route files/88 handlers. No new external provider, school-calendar, grading, absence-rate or temporal entitlement policy is added. FR-09 and FR-26 remain partial and unapproved.
+Migration [0013](../../drizzle/0013_attendance_reviews.sql) adds `attendance_reviews` (9 fields) and `attendance_review_entries` (6 fields), with current-authority/CAS/commit and immutable-row triggers. Existing attendance retains its unique class/student/date tuple. The original published v2.5 inventory was 37 tables/309 fields and 54 API route files/88 handlers; current v2.6 is 39/325 and 56/91. No new external provider, school-calendar, grading, absence-rate or temporal entitlement policy is added. FR-09 and FR-26 remain partial and unapproved.
 
 ## Exact service and HTTP DTOs
 
