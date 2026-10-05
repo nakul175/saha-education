@@ -1,7 +1,7 @@
 {
-  "version": "2.10-draft",
+  "version": "2.11",
   "date": "2026-10-06",
-  "source_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
+  "source_commit": "8088b5f88213401ff900506362c227a55120f3c1",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -69,7 +69,7 @@
       "title": "Student and guardian records",
       "implementation_status": "partial",
       "source": "lib/education/students.ts",
-      "requirement": "Maintain student and guardian links with explicit role-matched school identity ownership; reviewed new creation uses actor-bound immutable UUID receipts and exact recovery without changing later profiles. Legacy creation remains compatible and non-idempotent.",
+      "requirement": "Maintain student and guardian links with explicit role-matched school identity ownership; reviewed new creation uses actor-bound immutable UUID receipts and exact recovery without changing later profiles. Current scoped student profiles separate exact-pair guardian association acknowledgement from current relationship reload and retain only mounted original-pair recovery under fresh original administrator access. Association is distinct from reviewed login ownership and adds no immutable receipt. Legacy creation remains compatible and non-idempotent.",
       "approved": false
     },
     {
@@ -105,7 +105,7 @@
       "title": "Assessments and results",
       "implementation_status": "partial",
       "source": "lib/education/assessments.ts",
-      "requirement": "Manage current assigned-class assessments/results; use coherent active-roster snapshots and reviewed dirty-only full result/metadata CAS with immutable before/after receipts and exact original retries, preserving legacy replacement semantics; grades, correction governance and family result publication remain unapproved.",
+      "requirement": "Manage current assigned-class assessments/results; the current verified index gives staff native result-editor links and family metadata plus published-report navigation without inviting private result access. Use coherent active-roster snapshots and reviewed dirty-only full result/metadata CAS with immutable before/after receipts and exact original retries, preserving legacy replacement semantics; grades, correction governance and family result publication remain unapproved.",
       "approved": false
     },
     {
@@ -340,17 +340,19 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-06",
-    "note": "source_commit records the published parent of this documented v2.10 candidate, not its containing commit. The published first-batch revision is the intended parent of this next candidate; its publication does not imply a main merge. Prior v2.0\u2013v2.9 design/source/execution remain historical. Actual frozen source, checks, publication, final-hour merge and private deployment are dated separately; no approval or designed-case execution is inferred.",
-    "candidate_parent_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
+    "note": "source_commit records the recorded second-batch parent of this documented v2.11 candidate, not its containing commit. Commit publication, private deployment and main merge are separately dated root-owned facts. Prior v2.0–v2.10 design/source/execution remain historical. No combined build, mounted-browser pass, requirement approval or designed-case execution is inferred from focused source observations.",
+    "candidate_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
     "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
-    "source_parent_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
+    "source_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
     "historical_v2_8_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
     "historical_v2_8_application_commit": "7ee7c963575916d35cb0dae388833b1345833471",
-    "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20"
+    "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
+    "historical_v2_10_source_parent_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
+    "historical_v2_10_containing_commit": "8088b5f88213401ff900506362c227a55120f3c1"
   }
 }

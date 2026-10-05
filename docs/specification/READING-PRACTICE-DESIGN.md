@@ -1,6 +1,6 @@
 # Manual reading-practice planner
 
-Version 2.10 draft, 6 October 2026. This is the source contract for `/reading-practice`, not a validated intervention, source-rights certification or business acceptance. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace: BR-03–BR-08, BR-10–BR-12; FR-02, FR-03, FR-13–FR-18, FR-20–FR-22, FR-26; NFR-01–NFR-03, NFR-05–NFR-09. SC-45–SC-46 add TC-314–TC-329. All designed cases remain `not-run-for-this-specification` and all approvals remain false.
+Version 2.11 draft, 6 October 2026. This is the source contract for `/reading-practice`, not a validated intervention, source-rights certification or business acceptance. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace: BR-03–BR-08, BR-10–BR-12; FR-02, FR-03, FR-13–FR-18, FR-20–FR-22, FR-26; NFR-01–NFR-03, NFR-05–NFR-09. SC-45–SC-46 add TC-314–TC-329. All designed cases remain `not-run-for-this-specification` and all approvals remain false.
 
 ## Business and interface boundary
 

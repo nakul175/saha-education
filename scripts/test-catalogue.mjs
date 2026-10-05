@@ -34,6 +34,7 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-profile-assessment-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser four-role profile and assessment metadata, native navigation and exact existing guardian-pair recovery; suffix-only fictional profiles and no real recipients' },
   'tests/worker-reading-practice-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser staff reading practice and approved-source original-draft recovery; fictional sessions and prior manual reading required' },
   'tests/worker-family-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser family class snapshot and owned inbox exact-read recovery; fictional accounts/in-app notices only' },
   'tests/worker-demo-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER'], note: 'local real-browser fictional demo role sign-in, native header focus and explicit lost sign-out recovery; separate pristine demo-enabled D1 only' },

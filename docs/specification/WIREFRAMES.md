@@ -1,8 +1,8 @@
 # Saha wireframes and navigation specification
 
-Version 2.10 draft, 6 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
+Version 2.11 draft, 6 October 2026. Open the [interactive wireframes](wireframes/index.html) locally. They use fictional data and browser-memory interactions only: no application API, identity, school record or external service is called. Refresh resets the prototype. These are review artifacts, not generated screenshots of an implemented product.
 
-The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Screen inventory
 
@@ -165,3 +165,15 @@ WF-20 `/reading-practice` is a current source-screen specification; the local of
 Native labels/focus/status/wrapping support review; TC-321 and TC-329 intentionally inspect mounted keyboard/assistive/mobile/language and named educator/operator understanding. Callback contracts remain narrower evidence, and all designed cases/approvals retain their unrun/false states.
 
 Current family inbox/class source layouts can be inspected through the frozen [mounted family procedure](../../tests/worker-family-ui-check.mjs). Its sampled native focus/labels, actual class shell privacy and 390px screenshots require a matching localhost/private fictional fixture and remain separate from the unchanged 12-screen offline prototype, assistive certification and named acceptance. Its named malformed/legacy projections do not rewrite saved records. Designed cases remain unrun.
+
+## Current student profile and family assessment index mapping
+
+The offline prototype remains12 fictional screens; WF-21/WF-22 below are source-screen mappings, not additional prototype screens or mounted screenshots. [Focused design](PROFILE-ASSESSMENT-UI-DESIGN.md) defines current contracts.
+
+| Source screen | Current structure | Required states |
+|---|---|---|
+| WF-21 `/students/{id}` | Verified shell → dashboard/Students/report anchors → Reload student profile → literal student details → current scoped linked guardian cards → admin native Guardian to link chooser | Loading/denied hides old shell/private values; current verified empty differs from failure; exact DOB/raw warning; separate reviewed-login link; linked options excluded |
+| Same profile association | Link Guardian → exact acknowledged pair versus current list → private original pending reminder/Retry pending guardian link | Synchronous lock; known-save/failed-refresh distinct; different actor hides names/retry; fresh original-admin reload before exact bytes;400/409 rejects; no auto retry/durable receipt; hard reload loses memory |
+| WF-22 `/assessments` | Verified shell → role-specific explanatory copy → dashboard/report anchors → Reload assessments → native Filter by Class → shown/loaded status → metadata cards | Staff title native editor link; family text titles/Published report cards only; no result fetch; exact date/raw warning/safe maximum; honest empty/filter totals; malformed/final-actor mismatch hides whole view |
+
+[Standalone mounted 36 procedure](../../tests/worker-profile-assessment-ui-check.mjs) remains UNRUN at this design freeze. Sample native labels/focus at 390px and real report destination do not prove screen-reader/language/business acceptance, report content/publication or public primary evidence. TC-335/TC-349 require intentional review and retain unrun/false states.

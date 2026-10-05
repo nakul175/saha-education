@@ -1,8 +1,8 @@
 # Reviewed assessment result design
 
-Version 2.10 draft, 6 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-10, FR-26; NFR-01–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false; [SC-32–SC-34 cases](TEST-CASES.json) remain not-run-for-this-specification.
+Version 2.11 draft, 6 October 2026. Trace: BR-01, BR-02, BR-10–BR-12; FR-03, FR-08, FR-10, FR-26; NFR-01–NFR-09. Read [BRD](BRD.md), [FSD](FSD.md), [HLD](HLD.md) and [LLD](LLD.md) in sequence. All approvals remain false; [SC-32–SC-34 cases](TEST-CASES.json) remain not-run-for-this-specification.
 
-The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Scope and preserved compatibility
 
@@ -89,3 +89,7 @@ Native labelled controls, fieldsets/review checkbox, announced errors/status, fu
 Related files: [primary contract](../../tests/integration/assessment-review-contract.mjs), [independent D1/session/authority contract](../../tests/integration/assessment-review-access-contract.mjs), [legacy academic regression](../../tests/integration/academic-integrity-contract.mjs), [local served procedure](../../tests/worker-assessment-review-check.mjs), [browser procedure](../../tests/worker-assessment-review-ui-check.mjs) and [populated local recovery contract](../../tests/integration/development-recovery-contract.mjs). Root records actual run source/time/environment/counts separately; links do not execute designed TC cases.
 
 Grade/scoring meaning, family result publication, correction governance, historical entitlement, reviewed repair of ambiguous/opaque/unsafe legacy evidence, legacy write bypass, unified audit/export/retention, representative performance/accessibility, hosted recovery/key custody/scheduling, operator support, selected identity/ORF providers and intentional educator UAT remain open. No production readiness, learning efficacy or real-provider activation is inferred.
+
+## Current family index invitation boundary
+
+[Current assessment index](PROFILE-ASSESSMENT-UI-DESIGN.md) gives staff native detail/editor links and family current metadata/text titles plus existing Published report cards navigation. It does not fetch family private results, change this staff detail/editor, publish results or approve grade/feedback policy. Literal calendar/max metadata warnings preserve source evidence. SC-49 adds intentional index privacy/navigation cases independently of unchanged SC-32–SC-34 result contracts.

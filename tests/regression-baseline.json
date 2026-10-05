@@ -123,6 +123,11 @@
       "file": "tests/integration/principal-authority-contract.mjs",
       "minPassed": 80
     },
+    "integration/profile-assessment-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/profile-assessment-ui-contract.mjs",
+      "minPassed": 422
+    },
     "integration/profile-links-contract": {
       "layer": "integration",
       "file": "tests/integration/profile-links-contract.mjs",

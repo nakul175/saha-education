@@ -1,6 +1,6 @@
 # Reviewed registry creation, original receipts and client privacy
 
-Version 2.10 draft, 6 October 2026. Candidate parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`; actual frozen source, execution/publication/release are recorded separately by the coordinator. All approvals remain false and all cases remain `not-run-for-this-specification`. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md).
+Version 2.11 draft, 6 October 2026. Candidate parent `8088b5f88213401ff900506362c227a55120f3c1`; actual frozen source, execution/publication/release are recorded separately by the coordinator. All approvals remain false and all cases remain `not-run-for-this-specification`. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md).
 
 Trace: BR-01, BR-02, BR-10–BR-12; FR-02–FR-06, FR-26; NFR-01–NFR-09. SC-37 retains TC-246–TC-253 with current v2.9 procedures; SC-39–SC-40 add TC-262–TC-277. Historical v2.8 manual comparison recovery and seventh-batch outcomes remain dated history, not current reviewed-screen requirements.
 
@@ -61,3 +61,7 @@ Pending endpoint/bytes/UUID are **in-page memory only**. Hard reload/navigation/
 [Independent backend contracts](../../tests/integration/registry-create-contract.mjs) exercise actual synthetic sessions/routes and production Drizzle D1 over migrated SQLite, including original replay, constraints, current authority, race arbitration and rollback. [Client contract](../../tests/integration/registry-ui-contract.mjs) uses unchanged transpiled callbacks with substituted React/RHF/components and native event values; it is not mounted form/dialog/focus evidence. [Current reviewed browser procedures](../../tests/worker-reviewed-registry-ui-check.mjs) cover mounted behavior independently. The older [v2.8 browser file](../../tests/worker-registry-ui-check.mjs) retains historical comparison procedures and is not current recovery proof.
 
 Actual execution counts/time/source/environment are coordinator-maintained. All design cases remain unrun; educator/operator approvals, provider/ORF activation, family relationship verification, birth-date/calendar policy, retention, representative accessibility/load and hosted recovery are separate gates.
+
+## Current profile association boundary
+
+Reviewed new registry creation and its immutable original UUID receipt are unchanged. [Current student profile association](PROFILE-ASSESSMENT-UI-DESIGN.md) is an existing composite student/guardian pair with generic acknowledgement and private mounted original retry, not a registry receipt or reviewed login-ownership event. Public linked-guardian projection omits primary; readback cannot certify it. Follow separate `/admin/profile-links` for reviewed sign-in ownership.

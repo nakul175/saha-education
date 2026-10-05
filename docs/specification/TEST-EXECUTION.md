@@ -39,3 +39,7 @@ The preserved sections above remain historical. Canonical v2.9 has293 designed c
 ## Eight-hour second-batch evidence
 
 The[separate actual v2.10 execution](../current/EIGHT-HOUR-BATCH-2-EXECUTION.json) records fresh isolated build,18,765 assertions49 suites and26 demo/36 family/32 planner/38 prerequisite/39 report-inbox mounted procedures. Historical records and failed-attempt boundaries remain. All329 TC cases/46 scenarios remain unrun and all approvalsfalse; mapped suite/browser success is not acceptance. The final corrected native return-link/four-role review passes20 checks/51 menus/two staff backlinks; hosting and final-hour merge are pending.
+
+## Eight-hour third-batch evidence
+
+The[separate actual v2.11 execution](../current/EIGHT-HOUR-BATCH-3-EXECUTION.json) records fresh isolated build,19,187 assertions50 suites and36 mounted profile/index procedures. Previous49 minima and329 case objects remain; all349 TC cases/49 scenarios are unrun and approvalsfalse. Original failed manual attempts are excluded and their transport-only repair documented. Public association readback omits primary status; actual SQLite contract provides that evidence. Private hosted version1 failed with incomplete SQL input and no URL; source publication/local evidence do not establish a hosted release.

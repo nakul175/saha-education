@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.10 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.11 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.10 candidate is prepared on `feat/specification-delivery` from published parent `a418ee4132bfc05d24748ad1d25c5fa5b91b7d69`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **329 cases in 46 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **349 cases in 49 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -56,6 +56,9 @@ This draft contains **329 cases in 46 scenarios**, covers all **35 functional/no
 | SC-44 | Current family class snapshot navigation and honest availability | TC-306, TC-307, TC-308, TC-309, TC-310, TC-311, TC-312, TC-313 | FR-02, FR-03, FR-07, FR-08, FR-09, FR-12, FR-26, NFR-01, NFR-03, NFR-05, NFR-06, NFR-09 |
 | SC-45 | Manual reading evidence source selection and suitability | TC-314, TC-315, TC-316, TC-317, TC-318, TC-319, TC-320, TC-321 | FR-02, FR-03, FR-13, FR-15, FR-16, FR-17, FR-20, FR-21, FR-22, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-09 |
 | SC-46 | Original copied draft recovery privacy and editor handoff | TC-322, TC-323, TC-324, TC-325, TC-326, TC-327, TC-328, TC-329 | FR-02, FR-03, FR-13, FR-14, FR-15, FR-16, FR-18, FR-20, FR-21, FR-22, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-47 | Current student profile shell scoped relationships and date evidence | TC-330, TC-331, TC-332, TC-333, TC-334, TC-335 | FR-02, FR-03, FR-06, FR-11, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-48 | Exact original guardian association acknowledgement and recovery | TC-336, TC-337, TC-338, TC-339, TC-340, TC-341, TC-342, TC-343 | FR-02, FR-03, FR-06, NFR-01, NFR-02, NFR-03 |
+| SC-49 | Family assessment metadata and native published report navigation | TC-344, TC-345, TC-346, TC-347, TC-348, TC-349 | FR-02, FR-03, FR-10, FR-11, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
 
 ## Execution boundaries
 
@@ -625,3 +628,38 @@ Cases: TC-322, TC-323, TC-324, TC-325, TC-326, TC-327, TC-328, TC-329. All remai
 - TC-327 — Rejected original recovery keeps uncertainty and blocks duplicate creation (recovery, existing).
 - TC-328 — Delayed and unmounted planner callbacks cannot mutate newer context (integration, existing).
 - TC-329 — Educator original-copy recovery and editor handoff acceptance (uat, manual).
+
+## SC-47: Current student profile shell scoped relationships and date evidence
+
+Cases: TC-330, TC-331, TC-332, TC-333, TC-334, TC-335. All remain unrun for this specification. Related callback contracts use substituted hooks/elements with actual fictional sessions/routes/production D1 over isolated SQLite; mounted procedures, assistive review and named acceptance remain separate.
+
+- TC-330 — Student profile shows only current scoped profile and linked guardian rows (smoke, existing).
+- TC-331 — Profile read account mismatch and current failures hide protected shell and rows (security, existing).
+- TC-332 — Obsolete profile parameters reads and controls cannot select a former learner (regression, existing).
+- TC-333 — Birth date preserves exact stored calendar or malformed evidence (integration, existing).
+- TC-334 — Ambiguous profile and guardian inventory fail without partial successful view (integration, existing).
+- TC-335 — Mounted student profile navigation privacy and accessibility review (accessibility, manual).
+
+## SC-48: Exact original guardian association acknowledgement and recovery
+
+Cases: TC-336, TC-337, TC-338, TC-339, TC-340, TC-341, TC-342, TC-343. All remain unrun for this specification. Related callback contracts use substituted hooks/elements with actual fictional sessions/routes/production D1 over isolated SQLite; mounted procedures, assistive review and named acceptance remain separate.
+
+- TC-336 — Guardian association requires fresh current administrator and an unlinked choice (security, existing).
+- TC-337 — Same-frame guardian association actions produce one exact pair request (integration, existing).
+- TC-338 — Lost committed guardian association recovers exact original pair explicitly (recovery, existing).
+- TC-339 — Known association remains acknowledged when current relationship reload fails (recovery, existing).
+- TC-340 — Different account cannot disclose or recover original guardian association (security, existing).
+- TC-341 — Rejected guardian association is distinct from unknown acknowledgement (regression, existing).
+- TC-342 — Exact association replay preserves existing pair and stored primary evidence (integration, existing).
+- TC-343 — Association stale and unmounted callbacks cannot act on changed profile (regression, existing).
+
+## SC-49: Family assessment metadata and native published report navigation
+
+Cases: TC-344, TC-345, TC-346, TC-347, TC-348, TC-349. All remain unrun for this specification. Related callback contracts use substituted hooks/elements with actual fictional sessions/routes/production D1 over isolated SQLite; mounted procedures, assistive review and named acceptance remain separate.
+
+- TC-344 — Family assessment index offers metadata and published reports without staff editor invitation (smoke, existing).
+- TC-345 — Assessment index current actor and generation reject obsolete staff delivery (security, existing).
+- TC-346 — Assessment metadata keeps literal date and safe stored maximum (integration, existing).
+- TC-347 — Assessment class filtering distinguishes verified empty selection and empty inventory (integration, existing).
+- TC-348 — Duplicated or incomplete assessment inventory rejects partial index (integration, existing).
+- TC-349 — Mounted family assessment report navigation and unchanged staff handoff review (uat, manual).

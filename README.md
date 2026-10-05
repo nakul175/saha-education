@@ -4,6 +4,8 @@ Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/REA
 
 The[second isolated candidate](docs/current/EIGHT-HOUR-BATCH-2.md) improves family class/inbox recovery and teacher reading-practice preparation, with the actual family attendance portability fix. Initial fresh build/18,765 assertions49 suites and26 demo/36 family/32 planner/38 prerequisite/39 report-inbox browser procedures pass;329 designed cases remain unrun and approvalsfalse. The reading-app return link is corrected; final49-suite regression and actual four-role native navigation recheck pass. Private hosting and final-hour merge remain pending.
 
+The[third candidate](docs/current/EIGHT-HOUR-BATCH-3.md) improves current student-profile and assessment navigation with exact-pair recovery. Fresh build/19,187 assertions50 suites and36 mounted procedures pass. All349 designed cases remain unrun and approvalsfalse. Private hosted version1 failed with incomplete SQL input;[the failure record](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) identifies the required migration boundary. No hosted demo URL or early main merge is claimed.
+
 Saha Education is a comprehensive school management platform designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
 
 The application provides a modern web interface for managing all aspects of education administration while maintaining data integrity and user privacy. The platform is built with a focus on accessibility, scalability, and maintainability, following best practices in modern software development.
