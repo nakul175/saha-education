@@ -1,6 +1,8 @@
 # Saha business requirements document
 
-Version 2.0 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. Source evidence is the implementation candidate at commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`, not a deployed or accepted production system.
+Version 2.1 draft, 5 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. Source evidence is the implementation candidate at commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`, not a deployed or accepted production system.
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 ## Business purpose
 
@@ -43,11 +45,11 @@ These are role responsibilities, not assignments to named individuals.
 
 ## Scope and release slices
 
-**Current implementation candidate:** provider-neutral authentication/session foundation, server-enforced school/class/student scope, school/academic APIs, published report handling, manual teaching-resource drafts/revisions/review/assignment/printing, and disabled external ORF launch plus manual reviewed numeric checks. Code presence does not establish deployment, operational readiness, educator acceptance or complete administration journeys.
+**Current implementation candidate:** provider-neutral authentication/session foundation, server-enforced school/class/student scope, school/academic APIs, published report handling, manual teaching-resource drafts/revisions/review/assignment/printing, and disabled external ORF launch plus manual reviewed numeric checks. The v2.1 working extension adds reviewed account provisioning/status administration, manual versioned curriculum references and unapproved copies, plain-text learner attempts/reviewed formative feedback, and attributable reading corrections with exact-task history. Code presence does not establish deployment, operational readiness, educator acceptance or complete administration journeys.
 
 **Next business slice:** agree pilot school context, curriculum/grades/languages and reviewer policies; validate the manual workspace; configure and test the chosen identity provider with synthetic users; confirm the ORF destination.
 
-**Later proposed scope:** approved curriculum library, AI draft assistance, attributable corrections/audit, comparable reading history, student submission/feedback, verified external adapters and document-file exports. Each requires the corresponding functional/design/test revision.
+**Later proposed scope:** pilot-approved curricula/licensing, AI draft assistance, role/identity/profile remapping, complete academic correction/audit and retention, enforceable submission-window/grade/guardian-publication policy, verified external adapters and document-file exports. The new manual library, reading corrections and text/formative workflows are partial deliveries; they do not resolve these wider policies. Each extension requires the corresponding functional/design/test revision.
 
 **Outside present scope:** fees/payments, payroll, transport, admissions campaigns, examination proctoring, native mobile apps, offline synchronization, medical diagnosis, automatic learner risk classification, automatic paid provider activation, and licensed AmplifiU integration. Email/SMS and collection of audio/transcripts remain deferred.
 
@@ -61,6 +63,9 @@ These are role responsibilities, not assignments to named individuals.
 6. ORF rate/accuracy alone does not establish comprehension, diagnostic risk or grade-level norms. Teacher interpretation and comparable-task policy are required.
 7. Real provider activation, notifications, deployment and data migration require their own verified environment/policy decisions.
 8. Withdrawals and corrections must preserve appropriate history; current historical-access/correction gaps must be resolved before real records are used.
+9. A school administrator explicitly reviews provisioning/status changes with an attributable reason. This slice fixes school to the actor, keeps existing role/issuer/subject immutable and protects self/final-administrator access. Disablement revokes current sessions; restoration requires a new sign-in.
+10. Curriculum permissions are manually declared, not verified automatically. Source approval never approves its copied teaching draft; that draft keeps the exact source-version provenance and requires its own review.
+11. Learner attempts remain plain text against the assigned approved version; staff feedback remains formative. Due dates are informational pending an agreed deadline policy. Reading history uses exact task/language/duration keys and descriptive metrics, with no scoring norms or diagnoses.
 
 ## Outcomes and measurement plan
 

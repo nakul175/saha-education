@@ -1,6 +1,8 @@
 # Saha low-level design
 
-Version 2.0 draft, 5 October 2026. Written after [BRD](BRD.md), [FSD](FSD.md) and [HLD](HLD.md). Source baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. [requirements.json](requirements.json) is the canonical register. Sections 1–9 describe current candidate code; section 10 contains explicitly proposed future designs. No provider, queue, classroom adapter or AI runtime is inferred from a proposed model. This document is an implementer/QA reference, not deployment or acceptance evidence.
+Version 2.1 draft, 5 October 2026. Written after [BRD](BRD.md), [FSD](FSD.md) and [HLD](HLD.md). Historical source baseline: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. [requirements.json](requirements.json) is canonical. Sections 1–9 retain the foundation with relevant current corrections; section 10 defines the working manual extensions; section 11 identifies remaining proposals. No provider, queue, classroom adapter or AI runtime is inferred from a proposed model. This is an implementer/QA reference, not deployment or acceptance evidence.
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 ## 1. Modules, contracts and execution adapters
 
@@ -19,6 +21,10 @@ Trace: FR-01–FR-20; NFR-01, NFR-02, NFR-09.
 | `resource-types.ts` | Shared `ResourceContent`, `ResourceVersion`, `TeachingResource`, `ResourceAssignment` |
 | `external-apps.ts` | Staff registry and launch-only destination validation; no outbound app request |
 | `reading-checks.ts` | Strict numeric input, scoped reads, repeat-safe create and derived rate/accuracy |
+| `identity-admin.ts` | Reviewed explicit provisioning and status changes; account revisions/events, atomic session revocation, conflict-safe retries |
+| `curriculum.ts` | Manual source versions, strict declared-rights/source text, exact review and durable unapproved resource copies |
+| `submissions.ts` | Scoped immutable text attempts and explicitly reviewed formative feedback; guarded expected numbers |
+| `reading-review.ts` | Preserved originals, append-only correction chains and exact-task descriptive history |
 | `client-api.ts` | Browser fetch helpers; uncached requests and sign-in redirect on 401 |
 | `db/index.ts`, `db/schema.ts` | `cloudflare:workers` DB binding, Drizzle D1 adapter and relational definitions |
 
@@ -47,6 +53,8 @@ Successful and failing education responses use `Cache-Control: no-store`. `Acces
 | 503 | Required trusted app/provider configuration unavailable |
 
 New resource/reading request schemas are strict and reject unknown authority-bearing fields. Core `validation.ts` schemas generally strip unknown fields and have optional legacy system fields; update services omit `id`, `createdAt`, `updatedAt` before writing and derive system values. Do not describe the entire legacy schema set as strict, date-normalized or audit-complete.
+
+The current common `body(request,schema)` helper validates a declared decimal Content-Length when present, reads chunks up to 128 KiB, cancels an oversized stream, releases the reader and decodes UTF-8 in fatal mode before JSON/schema parsing. Missing body, invalid length, malformed encoding/JSON and unknown strict-schema fields are 400. New domain handlers map their conflicts to 409 locally; the common wrapper does not infer a 409 from an arbitrary error's status property.
 
 `found(null)` returns a controlled unavailable-record failure. Query identifiers refine or select permitted data; they never expand a principal's scope. Response-field omission must happen before serialization: hiding a staff field in React is insufficient.
 
@@ -100,7 +108,7 @@ Callback validates a single correctly shaped state, one browser cookie and no du
 
 A session token is 32 random bytes encoded as 43 base64url characters. Only its SHA-256 digest is persisted with user ID, creation epoch milliseconds and eight-hour expiry. `__Host-saha_session` is Secure, HttpOnly, SameSite=Lax, Path=/ and Max-Age 28,800 seconds. Duplicate or malformed session cookies yield no principal.
 
-Every principal lookup joins the session to the current user and checks expiry, disabled state, school, role and identity issuer/subject presence. Role/school changes therefore take effect on subsequent requests. Provider account state is not continuously polled. `DELETE /api/session` deletes the current token digest and expires cookies. `revokeUserSessions(userId)` is available for future account administration; that UI/process remains FR-04 planned. Expired session/transaction/rate rows are cleaned during relevant operations, not by an implemented scheduler.
+Every principal lookup joins the session to the current user and checks expiry, disabled state, school, role and identity issuer/subject presence. Role/school changes therefore take effect on subsequent requests. Provider account state is not continuously polled. `DELETE /api/session` deletes the current token digest and expires cookies. `revokeUserSessions(userId)` remains a helper; the new administration service deletes all target sessions inside its own atomic decision/status/version batch. Existing role/school/identity remapping remains outside this screen. Expired session/transaction/rate rows are cleaned opportunistically, not by an implemented scheduler.
 
 ## 4. Scope predicates and core academic contracts
 
@@ -167,14 +175,16 @@ createResource(principal, input):
   id := clientResourceId or random UUID
   if resource ID exists: return originalRetry(principal, id, canonical content)
   prepare stable resource row and unapproved version 1
-  D1 batch(insert resource, insert version 1)
-  if success: return resource with version 1
-  if uniqueness collision: run originalRetry after rollback
+  D1 batch(guarded INSERT SELECT resource, guarded INSERT SELECT version 1)
+  both statements require live actor; version insert also requires current parent scope
+  if both returned actual rows: return those rows with version 1
+  if either returned no row: run scoped originalRetry; never fabricate success
+  if uniqueness collision: run scoped originalRetry after rollback
   otherwise: propagate generic failure through API boundary
 
 originalRetry:
-  require matching original author AND school for that stable ID
-  retrieve version 1
+  require matching original author AND school and current live actor for that stable ID
+  retrieve version 1 with repeated current parent/actor scope
   require exact equality of every validated content field
   return preserved original resource/version; otherwise conflict 409
 ```
@@ -190,7 +200,9 @@ reviseResource(principal, resourceId, {expectedVersion, content}):
   if latest.number != expectedVersion: conflict 409
   prepare immutable version expectedVersion + 1, new ID/time/creator
   approvedBy := null; approvedAt := null
-  INSERT ON CONFLICT DO NOTHING RETURNING
+  INSERT SELECT from current authorized parent
+    WHERE live actor/parent scope AND current maximum version = expectedVersion
+    ON CONFLICT DO NOTHING RETURNING
   if no row returned: conflict 409
   return resource with the new draft
 
@@ -198,7 +210,8 @@ approveResource(principal, resourceId, versionId):
   require scoped resource and exact version belonging to it
   if already approved: return original evidence
   UPDATE approver/time WHERE exact IDs AND both approval fields are null
-  return updated row or reread the winner's established evidence
+    AND current live actor/parent scope
+  return updated row or scoped reread of the winner's established evidence
 ```
 
 Two edits using the same expected version produce one new version and one 409, enforced by the unique version pair. The API does not automatically merge content or silently retry using the latest version. A lost-success revision response requires rereading/version comparison; it is not an overwrite permission. Approval is explicit exact-version confirmation and currently allows author self-review. Concurrent author/admin confirmation retains the first successful approver/time; subsequent content needs new review.
@@ -219,7 +232,9 @@ assignResource(principal, resourceId, {versionId,classId,dueDate?}):
   if matching: return established assignment; else conflict 409
 ```
 
-The insert rechecks authority in the statement, so a teacher cannot persist an assignment after losing the class between preliminary validation and insertion. A no-longer-authorized insert or different retry actor/date yields a conflict, not an implicit reassignment. Changing an established due date needs a future explicit operation; sending a changed retry is not an update contract.
+Resource scope requires the current enabled account in the same role/school with nonempty trusted issuer/subject mapping. Latest/exact/history/original-retry SELECTs repeat parent authority; stale authorship, administrator demotion or disablement cannot disclose a private version. Resource creation/revision/approval statements repeat that authority, and a no-row creation batch returns only an exact scoped original retry. The dedicated `tests/integration/resource-access-contract.mjs` injects these changes at statement boundaries and inspects persisted rows and safe responses.
+
+The assignment insert also rechecks live actor, resource and class authority in the statement, so a teacher cannot persist an assignment after losing the class between preliminary validation and insertion. Assignment replays recheck parent access, class scope and exact version approval; assigned feeds recheck live staff/learner authority while preserving class/enrolment scope and removing private fields. A no-longer-authorized insert or different retry actor/date yields a conflict, not an implicit reassignment. Changing an established due date needs a future explicit operation; sending a changed retry is not an update contract.
 
 ```mermaid
 sequenceDiagram
@@ -271,9 +286,9 @@ Strict `readingCheckInputSchema` accepts optional UUID `clientCheckId`, class/st
 | wordsAttempted | Integer from 1 through 500 |
 | wordsCorrect | Integer from 0 through 500 and not exceeding attempted |
 
-After staff/class/active-student checks, persisted duration is `Math.round(durationSeconds * 1000)` milliseconds. School/recorder derive from the principal; fixed source is `oral-reading-fluency`, fixed provenance is `manual-reviewed-external`. A primary-key conflict rereads under matching recorder and school/class/student scope and compares the normalized payload. Same normalized payload returns the original row; changed payload/actor or foreign retry ID yields 409. Server creation time is preserved; no correction/update endpoint exists.
+After initial staff/class/active-student validation, original entry now rechecks that authority and the live actor in its INSERT SELECT. Persisted duration is `Math.round(durationSeconds * 1000)` milliseconds. School/recorder derive from the principal; fixed source is `oral-reading-fluency`, fixed provenance is `manual-reviewed-external`. A conflict rereads under matching recorder/current live school/class/student scope and compares the normalized payload. Same normalized payload returns the original row; changed actor/payload/foreign retry ID is 409. Creation time/source remain preserved; correction uses a separate append-only endpoint described in section 10.4.
 
-Views calculate `durationSeconds = durationMs / 1000`, `wcpm = Math.round(wordsCorrect * 60000 / durationMs)` and `accuracy = Math.round(wordsCorrect * 100 / wordsAttempted)`. Metrics use stored rounded duration, not a second client calculation. Date policy is UTC in this baseline, not an approved school-local academic calendar. Input bounds do not define language/grade norms, comprehension or diagnostic risk. FR-21 must define comparable tasks, interpretation and attributable corrections separately.
+Views calculate `durationSeconds = durationMs / 1000`, `wcpm = Math.round(wordsCorrect * 60000 / durationMs)` and `accuracy = Math.round(wordsCorrect * 100 / wordsAttempted)`. Metrics use stored rounded duration, not a second client calculation. Date policy is UTC, not an approved school-local academic calendar. Input bounds and exact-key history do not define validated task comparability, language/grade norms, comprehension or diagnosis. Educator interpretation remains FR-21 partial.
 
 ## 7. UI retry and failure behavior
 
@@ -300,7 +315,11 @@ Trace: NFR-02, FR-08–FR-16, FR-20, FR-26.
 | Revision | Unique resource/version number arbitrates writers | Reload/review required after conflict or lost response |
 | Review | First conditional approval update; reread winner | Self-review allowed; no unapproval endpoint |
 | Assignment | Live-authority `INSERT SELECT`, unique version/class and exact retry equality | No due-date-update or withdrawal operation |
-| Reading create | UUID/recorder/scoped normalized-payload equality | No attributable correction/version chain |
+| Reading create | Live guarded INSERT SELECT, UUID/recorder/scoped normalized-payload equality | Original active-enrolment rule; correction separate |
+| Account decision | Atomic event/status/session/revision batch, expected revision and private attempt gate | Existing role/pair/profile remapping and audit-reader/retention policy pending |
+| Curriculum copy | Exact approved source; atomic resource/version/provenance, stable retry | Declared rights unverified; copied resource needs its own review |
+| Attempt/feedback | Exact assigned version; unique sequence and live guarded INSERT SELECT | Deadline/grade/guardian-publication policy pending |
+| Reading correction | Preserved original, unique correction revision, immutable-row triggers and live INSERT SELECT | Educator interpretation/retention and general academic correction remain pending |
 
 D1 batch atomicity is used through the Drizzle D1 adapter; isolated SQLite tests emulate its transaction behavior. Do not replace batches with sequential writes or handle uncertain remote outcomes by generating a fresh key. Preserve existing migrations, source/history and confirmed rows. There is no generalized exactly-once delivery system or implemented queue.
 
@@ -312,23 +331,71 @@ QA should exercise actual sessions and migrations, foreign/peer IDs, active/inac
 
 Sources include `tests/integration/api-auth-guards.mjs`, `api-contract.mjs`, `external-apps-contract.mjs`, `reading-checks-contract.mjs`, `resources-contract.mjs`, `tests/unit/auth-contract.mjs` and `tests/worker-access-check.mjs`. The latter needs an isolated served Worker and fixture environment. Test coverage, execution and acceptance are distinct; consult [TEST-STRATEGY](TEST-STRATEGY.md) and [VALIDATION](../../VALIDATION.md) for real recorded evidence rather than inferring it from this design.
 
-The baseline has no numerical performance/availability target, deployed-provider validation, production recovery evidence, comprehensive audit/correction model, confirmed retention policy, accepted accessibility result or approved pilot-language matrix. `listResources` performs latest-version queries per resource and lists generally lack pagination. Proposed performance changes require representative workload and measurement. NFR-09 requires requirement/design/API/case/evidence links to move together; historical `docs/education` documents remain source context, not a newer implemented boundary.
+There is no numerical performance/availability target, deployed-provider validation, production recovery evidence, comprehensive audit/correction model, confirmed retention policy, accepted accessibility result or approved pilot-language matrix. `listResources` now uses one scoped latest-version join; the dashboard enabled-teacher count is a real scoped aggregate. Administration lists cap 500 users/200 latest events; other lists generally lack pagination and curriculum/submission feedback retain some per-item queries. No measured capacity improvement is claimed. NFR-09 keeps requirement/design/API/case/evidence links together; historical `docs/education` remains source context.
 
-## 10. Proposed future design contracts — not implemented
+The NFR-09 catalogue report reads `requirements.json` and case `evidenceFiles`, deduplicates existing runnable paths and reports linked requirement IDs. `tests/unit/catalogue-contract.mjs` checks canonical totals, distinct links, missing-file handling and unchanged case/approval states. Evidence-link totals do not populate per-case results or acceptance.
+
+## 10. Working manual extension algorithms
+
+Trace: FR-04, FR-21, FR-22, FR-24, FR-26; NFR-01, NFR-02, NFR-09. These source paths describe the working candidate, not new behavior at the historical baseline SHA.
+
+### 10.1 Reviewed identities and administration evidence
+
+`identity-admin.ts` exports `listAdminUsers`, `listIdentityAdminEvents`, `provisionIdentity`, `changeIdentityStatus`, their strict schemas and `AdminUser`/`IdentityAdminEvent`/`IdentityAdminResult` types. The administration schema/migration 0004 adds `identity_admin_user_versions` and `identity_admin_events`; no identity/profile backfill occurs. A missing revision row reads as 0; provisioning creates revision 1. Existing role, school, issuer and subject cannot be edited by these endpoints.
+
+Every service checks an enabled database administrator in the actor's school; final mutation, list/event, target-user and retry SELECT predicates repeat live account/role/school/identity authority. A saved review does not grant a revoked actor access to its replay evidence. Provisioning validates the exact HTTPS issuer/subject, reviewed role/name/email and confirmation/reason. Existing email/issuer-subject unique keys reject duplicates without auto-linking. Mandatory clientRequestId identifies the review; a digest of canonical operation fields detects changed actor/payload collisions. Events omit the private hash/attempt marker in responses.
+
+Provisioning batches a guarded new user insert, attributable event and revision insert. Status changes batch a guarded event INSERT SELECT against the same-school target, expected current revision and protected-administrator predicates, then target status update, all-target-session deletion for disablement and revision upsert. A fresh server attempt marker gates the follow-on statements. Because the batch commits together, failure leaves neither a status change without evidence nor an event/session deletion without the decision. An old request replay cannot reapply its old decision: it preserves the original event and returns today's account state. Stale revisions/different retry payloads are 409; hidden targets 404; revoked administrators 403/401 as applicable.
+
+Self-disable is denied. Disablement of an administrator additionally requires more than one enabled mapped administrator in the school in the insertion predicate. Mutual-disable races leave one enabled administrator. Enablement never restores revoked sessions. GET lists cap 500 accounts/200 latest events and are not totals/full archive. `/admin/users` uses explicit review forms and stable request references for uncertain same-payload retries. Role/profile remapping, verified guardian relationships and broader audit-reader/retention policy remain FR-04/FR-26 partial.
+
+### 10.2 Manual curriculum version, review and copy
+
+`curriculum.ts` exports creation/revision/approval/list/snapshot/copy schemas and operations. Migration 0005 adds headers, immutable source versions and resource-reference bindings. Managers are the original teacher or current-school administrator; other same-school staff may read/copy approved versions only. Their latest view chooses the latest approved source, never a newer private draft. Family roles are denied.
+
+Content bounds are title 160/context 120/grade 40/subject 80/language 35/objectives 4000/body 20000, declared rights 1–2000, optional source label 0–300 and nullable HTTPS URL up to 2000. The URL is retained as text and not fetched. Rights/suitability are manually declared; the code cannot verify licensing or pilot framework alignment.
+
+Creation batches a guarded header and first version; optional clientReferenceId matches original actor/canonical content for retry. Revision requires expectedVersion 1–999999 and atomically inserts only if it is still latest; unique reference/version arbitrates successors. Revision begins unapproved. Approval requires `confirmReview:true` and exact version ownership, updates paired null approval fields once and preserves first reviewer/time on concurrent retries. Self-review is currently allowed.
+
+Snapshot GET accepts exactly one bounded versionId and only an approved same-school source. Copy POST chooses a resource type and optional clientResourceId; an atomic three-insert batch creates the author-owned resource, first unapproved copied version and exact source-version binding. Each statement checks source approval/current scope. The copy uses source text/context with blank private staff fields. A provenance failure rolls back the resource/version; retry collisions are 409. Source approval never approves the copy, and later source revisions never overwrite/rebind prior copied content. `/curriculum` and `/curriculum/{id}` keep manual author/review/copy journeys distinct from optional future AI.
+
+Version/history/snapshot and copy/retry evidence SELECTs retain current role/school/author or approved-peer visibility. A prior manager check does not disclose a private version after demotion, disablement or changed authorship. Resource-copy retries also recheck current resource authority and source-binding visibility.
+
+### 10.3 Text attempts and formative feedback
+
+`submissions.ts` and migration 0006 define immutable attempt and feedback tables. POST attempts take response 1–20000, expectedAttempt 0–1000000 and mandatory clientSubmissionId UUID. The server resolves the student's explicit profile and inserts the next sequence only when live account, active enrolment, class/resource school, exact pinned approved version and current maximum attempt still match. Teacher/admin can read their scoped classes; guardians cannot. The attempt references the approved assignment version, never a later draft. There is no attachment/upload or automatic grade.
+
+Feedback POST takes text 1–8000, `reviewed:true`, expectedRevision 0–1000000 and mandatory clientFeedbackId UUID. Current assigned staff append the next reviewed revision after resolving the exact scoped attempt; actor/time come from the server. Text rejects unsupported controls and renders escaped. Students read only own active-class attempts and their reviewed feedback; current assigned staff retain permitted historical attempts while the learner remains in school. Student withdrawal/teacher reassignment/school-transfer boundaries follow those current scopes.
+
+Feedback/attempt reads, list assembly and exact retry SELECTs also recheck current live account/class/student-enrolment scope. Revocation between the initial check and the downstream feedback query must omit private evidence or return a controlled denial.
+
+Both writes use INSERT SELECT with expected maximum number, current authority and unique sequence keys; exact actor/content/expected-number retries preserve original records while changed/stale requests are 409. Lists return attempts newest-first and feedback revisions newest-first. Due dates are explicitly informational; deadline, score, guardian-publication and late/resubmission policies remain unapproved. The `/assignments/{id}` UI uses exact saved attempt selection, explicit feedback confirmation and separate stable retry IDs for attempt/feedback operations.
+
+### 10.4 Reading originals, correction chain and history
+
+Original entry in `reading-checks.ts` now uses a guarded INSERT SELECT after initial validation: current class teacher/school, active enrolment, student school and live actor role/school/enabled/identity pair must still match. Read/retry scope also requires the live actor. A withdrawn learner cannot receive a new original through a stale earlier validation.
+
+`reading-review.ts` and migration 0007 add corrections without modifying original checks. A correction contains the replacement language/task/date/rounded duration/counts plus mandatory UUID, expectedRevision 0–999999, `confirmReviewed:true` and plain reason 1–1000. Bounds reuse original numeric/date/language rules. INSERT SELECT checks the original-class current staff authority, same-school learner and maximum correction revision; unique check/revision arbitrates a next writer. Exact actor/normalized payload retries preserve one correction; stale/colliding requests 409. Database no-update/no-delete triggers preserve correction rows.
+
+The review read obtains scoped originals and corrections, orders each chain oldest-first, and selects the latest correction as effective metrics or the original at revision 0. It returns original/effective/revision/corrections. Series keys are exactly `[studentId,classId,language,passageReference,durationMs]`; points sort by effective date then checkId. Metrics use stored normalized duration/counts. No cross-student/class/language/task/duration pooling, norms, diagnosis or automatic external verification is added.
+
+Current assigned original-class staff retain historical observation/correction access after withdrawal while the student remains in school. Teacher reassignment/student transfer removes authority. `/reading-review` preserves original/correction evidence, clears review confirmation on edits and retains IDs after uncertainty; confirmed saves remain visible if refresh fails. This policy is specific to review/history and does not loosen original active-enrolment entry rules.
+
+## 11. Remaining proposed design contracts — not implemented
 
 Trace: FR-04, FR-21–FR-26; NFR-03–NFR-09. The following names are conceptual model roles, not exported TypeScript types, migration tables, routes or configured services.
 
 | Proposed capability | Minimum design contract before implementation | Decisions / QA prerequisites |
 |---|---|---|
-| Identity administration (FR-04) | Reviewed school/role/issuer/subject changes; explicit profile links; disablement calls session revocation; append attributable administrative evidence | Operator/approver roles, guardian verification and reversible relinking rules |
-| Comparable reading review (FR-21) | Corrections reference the original observation and retain actor/reason/time; task/language/duration comparability precedes trend interpretation | Educator scoring, passage rights, supported languages and family publication |
-| Curriculum library (FR-22) | Versioned original/licensed source references, curriculum/grade/language metadata and permission/suitability review | Pilot curriculum, rights, reference identifiers and educator owners |
+| Wider identity administration (FR-04) | Reviewed existing school/role/issuer/subject remapping and reversible profile ownership changes beyond current provisioning/status UI | Operator/approver roles, guardian verification and relinking history |
+| Validated reading interpretation (FR-21) | Educator-approved scoring, task equivalence and any normative interpretation beyond current exact-task descriptive correction/history | Passage rights, supported languages, scoring/comparability and family publication |
+| Pilot/licensing curriculum controls (FR-22) | Verified permission lifecycle and educator suitability beyond current manual declared sources/versions/copies | Pilot curriculum, actual rights, languages and educator owners |
 | AI draft assistance (FR-23) | Provider chosen and authorized; structured provisional `ResourceContent` validated on server; referenced source versions, prompt/model provenance, review, failures, budget and replay controls | Credential setup, student-data exclusion, grounding/evaluation rubric and cost owner; no automatic approval/assignment |
-| Submissions/feedback (FR-24) | Student submission references exact assignment/version and authorized enrolment; revisions and reviewed feedback append evidence without changing assigned content | Submission windows, late/retry rules, guardian visibility, grading policy and retention |
+| Submission policy extensions (FR-24) | Agreed deadlines, grades, attachments or guardian publication beyond current text attempts/formative feedback | Submission windows, late/resubmission rules, guardian visibility and retention |
 | ORF/class adapters (FR-25) | Verified external identity/record mapping, scoped importer/exporter, source provenance and repeat key; uncertain response reconciliation before retry | Actual provider/API/schema/rights, synthetic sandbox, transport/auth and error contracts; no shared Saha session assumption |
 | General audit/corrections (FR-26) | Append actor/time/reason and prior/new reference; agreed access to history; preserve confirmed source records | Administrative versus academic corrections, retention/deletion conflicts and audit-reader role |
 | Retention/privacy (NFR-03) | Data inventory, approved retention/deletion/export rules and access review before real data | Named controller/operator and applicable policy review; no certification claim |
 | Scale/accessibility/language (NFR-04–06) | Measured representative workload; agreed pagination/index changes; keyboard/focus/error/print checks; educator-reviewed language tasks | User/concurrency/latency/availability and target browser/accessibility/language matrix remain open |
 | Recovery/support/change (NFR-07–09) | Authorized backup/restore verification; privacy-preserving error correlation; maintained requirement/design/case/evidence impact links | RPO/RTO, restore/incident owners and release decision process |
 
-Future model/API/schema decisions must update the FSD, these designs, [API-CONTRACTS](API-CONTRACTS.md), [DATA-DICTIONARY](DATA-DICTIONARY.md), risks and tests before claiming runtime availability. Existing generic curriculum labels, a saved manual resource or a launch link do not establish an AI system, licensed library, result adapter or learner classroom service.
+Future model/API/schema decisions must update FSD/designs, [API contracts](API-CONTRACTS.md), [data dictionary](DATA-DICTIONARY.md), risks and tests before claiming runtime availability. Current manual source statements/copies and text attempts do not establish an AI system, verified licensed curriculum, result adapter or complete classroom product.

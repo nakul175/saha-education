@@ -1,0 +1,368 @@
+{
+  "date": "2026-10-05",
+  "candidate_branch": "feat/specification-delivery",
+  "documentation_parent_commit": "d53adcf684a818b9236de91fa64221c7041fa335",
+  "historical_application_source": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+  "scope": "Current implementation working tree before publication; synthetic data only, isolated local SQLite/D1, no live provider or deployment",
+  "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+  "node": "v24.19.0",
+  "generatedAt": "2026-10-05T07:15:16.087Z",
+  "production_build": {
+    "status": "passed",
+    "command": "node scripts/run-framework.mjs build",
+    "note": "Fresh final-source Worker build; fast suites reuse it"
+  },
+  "layers": [
+    {
+      "layer": "static",
+      "status": "passed",
+      "suites": 3,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 1661,
+      "failedSuites": 0
+    },
+    {
+      "layer": "unit",
+      "status": "passed",
+      "suites": 8,
+      "passed": 94,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 1914,
+      "failedSuites": 0
+    },
+    {
+      "layer": "integration",
+      "status": "passed",
+      "suites": 11,
+      "passed": 1182,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 5191,
+      "failedSuites": 0
+    },
+    {
+      "layer": "smoke",
+      "status": "passed",
+      "suites": 1,
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 605,
+      "failedSuites": 0
+    }
+  ],
+  "totals": {
+    "suites": 20,
+    "passed": 1332,
+    "failed": 0,
+    "skipped": 0,
+    "failedSuites": 0,
+    "durationMs": 9617
+  },
+  "suites": [
+    {
+      "id": "static/catalogue",
+      "layer": "static",
+      "file": "node scripts/test.mjs --check-catalogue",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "static/typecheck",
+      "layer": "static",
+      "file": "tsc --noEmit",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "static/specification",
+      "layer": "static",
+      "file": "node scripts/check-specification.mjs",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/auth-contract",
+      "layer": "unit",
+      "file": "tests/unit/auth-contract.mjs",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/catalogue-contract",
+      "layer": "unit",
+      "file": "tests/unit/catalogue-contract.mjs",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/http-body-contract",
+      "layer": "unit",
+      "file": "tests/unit/http-body-contract.mjs",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/i18n-contract",
+      "layer": "unit",
+      "file": "tests/unit/i18n-contract.mjs",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/request-body-contract",
+      "layer": "unit",
+      "file": "tests/unit/request-body-contract.mjs",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/roles-contract",
+      "layer": "unit",
+      "file": "tests/unit/roles-contract.mjs",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/schools-courses-contract",
+      "layer": "unit",
+      "file": "tests/unit/schools-courses-contract.mjs",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/validation-contract",
+      "layer": "unit",
+      "file": "tests/unit/validation-contract.mjs",
+      "status": "passed",
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/api-auth-guards",
+      "layer": "integration",
+      "file": "tests/integration/api-auth-guards.mjs",
+      "status": "passed",
+      "passed": 108,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/api-contract",
+      "layer": "integration",
+      "file": "tests/integration/api-contract.mjs",
+      "status": "passed",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/curriculum-contract",
+      "layer": "integration",
+      "file": "tests/integration/curriculum-contract.mjs",
+      "status": "passed",
+      "passed": 131,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/evidence-access-contract",
+      "layer": "integration",
+      "file": "tests/integration/evidence-access-contract.mjs",
+      "status": "passed",
+      "passed": 58,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/external-apps-contract",
+      "layer": "integration",
+      "file": "tests/integration/external-apps-contract.mjs",
+      "status": "passed",
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/identity-admin-contract",
+      "layer": "integration",
+      "file": "tests/integration/identity-admin-contract.mjs",
+      "status": "passed",
+      "passed": 153,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/reading-checks-contract",
+      "layer": "integration",
+      "file": "tests/integration/reading-checks-contract.mjs",
+      "status": "passed",
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/reading-review-contract",
+      "layer": "integration",
+      "file": "tests/integration/reading-review-contract.mjs",
+      "status": "passed",
+      "passed": 177,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/resource-access-contract",
+      "layer": "integration",
+      "file": "tests/integration/resource-access-contract.mjs",
+      "status": "passed",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/resources-contract",
+      "layer": "integration",
+      "file": "tests/integration/resources-contract.mjs",
+      "status": "passed",
+      "passed": 147,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/submissions-contract",
+      "layer": "integration",
+      "file": "tests/integration/submissions-contract.mjs",
+      "status": "passed",
+      "passed": 137,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "smoke/basic-smoke",
+      "layer": "smoke",
+      "file": "tests/smoke/basic-smoke.mjs",
+      "status": "passed",
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    }
+  ],
+  "regression_guard": {
+    "ok": true,
+    "findings": [],
+    "warnings": [],
+    "evaluated": 20,
+    "newSuites": []
+  },
+  "baseline_change": {
+    "added": 9,
+    "raised": 2,
+    "lowered": 0,
+    "removed": 0,
+    "note": "Generated from actual run; prior thresholds retained"
+  },
+  "affected_lint": {
+    "files": 53,
+    "errors": 0,
+    "warnings": 1,
+    "note": "Pre-existing unused interrupted variable in scripts/test.mjs"
+  },
+  "documentation": {
+    "markdown_files": 44,
+    "business_requirements": 12,
+    "functional_nonfunctional_requirements": 35,
+    "designed_cases": 101,
+    "tables": 28,
+    "fields": 225,
+    "route_files": 44,
+    "route_handlers": 74,
+    "status": "passed"
+  },
+  "designed_case_execution": "All 101 designed TC cases remain not-run-for-this-specification; related suite checks do not execute those procedures or grant business acceptance.",
+  "served_worker": {
+    "checkedAtUtc": "2026-10-05T07:14:03Z",
+    "script": "tests/worker-specification-check.mjs",
+    "passed": 146,
+    "failed": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "requestTimeoutMs": 10000,
+    "responseBodiesDrained": true,
+    "fixtureEnrolmentRestored": true,
+    "scope": "Reviewed account provision/status history, curriculum exact-version source copy/provenance, immutable learner attempts/reviewed feedback, reviewed reading corrections and historical withdrawal scope"
+  },
+  "browser": {
+    "checkedAtUtc": "2026-10-05T07:14:03Z",
+    "script": "tests/worker-specification-ui-check.mjs",
+    "passed": 38,
+    "failed": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "blockedExternalRequests": 0,
+    "unhandledPageErrors": 0,
+    "desktopViewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "mobileViewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fixtureEnrolmentRestored": true,
+    "scope": "Native provision/status/review gates, source HTML escaping and safe links, curriculum review/copy, approved-version learner view, lost POST response with same-UUID retry, confirmed-save/failed-refresh messaging, exact prior-attempt feedback revisions, invalid reading counts/review reset/history, historical learner selector, four mobile page-width/native-label checks, basic keyboard focus and role-denied editors",
+    "visualInspection": "Desktop/mobile captures inspected by integrating agent"
+  },
+  "manual_checker_lint": {
+    "errors": 0,
+    "warnings": 0,
+    "exitCode": 0
+  },
+  "local_worker_stopped": true
+}

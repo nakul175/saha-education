@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages -- full-page navigation follows the tested vinext workspace behavior. */
 import { redirect } from 'next/navigation';
 import { getServerPrincipal } from '@/lib/education/auth';
 import { AppShell } from '@/components/app-shell';
@@ -5,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { listSchools } from '@/lib/education/schools';
 import { listStudents } from '@/lib/education/students';
 import { listCourses } from '@/lib/education/courses';
-import { type Principal } from '@/lib/education/types';
-import Link from 'next/link';
+import { getDb } from '@/db';
+import { users } from '@/db/schema';
+import { and, eq, isNull, count } from 'drizzle-orm';
 
 export default async function AdminDashboard() {
   const principal = await getServerPrincipal();
@@ -23,7 +25,10 @@ export default async function AdminDashboard() {
   const courses = await listCourses(principal);
   
   // Count teachers (users with teacher role)
-  const teachersCount = 0; // We'll need to query this properly - for now we'll just leave it
+  const [teacherCount] = await getDb().select({ total: count() }).from(users).where(and(
+    eq(users.schoolId, principal.schoolId!), eq(users.role, 'teacher'), isNull(users.disabledAt)
+  ));
+  const teachersCount = teacherCount.total;
   
   return (
     <AppShell principal={principal}>
@@ -81,23 +86,17 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              <li><Link href="/schools" className="text-blue-600 hover:underline">Manage Schools</Link></li>
-              <li><Link href="/students" className="text-blue-600 hover:underline">Manage Students</Link></li>
-              <li><Link href="/courses" className="text-blue-600 hover:underline">Manage Courses</Link></li>
-              <li><Link href="/classes" className="text-blue-600 hover:underline">Manage Classes</Link></li>
+              <li><a href="/admin/users" className="text-blue-600 hover:underline">Manage Accounts</a></li>
+              <li><a href="/curriculum" className="text-blue-600 hover:underline">Curriculum Library</a></li>
+              <li><a href="/reading-review" className="text-blue-600 hover:underline">Review Reading History</a></li>
+              <li><a href="/schools" className="text-blue-600 hover:underline">Manage Schools</a></li>
+              <li><a href="/students" className="text-blue-600 hover:underline">Manage Students</a></li>
+              <li><a href="/courses" className="text-blue-600 hover:underline">Manage Courses</a></li>
+              <li><a href="/classes" className="text-blue-600 hover:underline">Manage Classes</a></li>
             </ul>
           </CardContent>
         </Card>
       </div>
     </AppShell>
-  );
-}
-
-function RedirectToLogin() {
-  // This is a placeholder - in practice, you'd redirect to the login page
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <p>Redirecting to login...</p>
-    </div>
   );
 }

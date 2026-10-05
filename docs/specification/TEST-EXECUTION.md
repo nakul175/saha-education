@@ -2,6 +2,8 @@
 
 5 October 2026. Scope: specification consistency and existing executable unit/integration suites in the working tree of `docs/platform-specification`, based on application candidate `5488bc0`. Newly designed TC cases remain unrun; no business acceptance or live-provider/deployment evidence is inferred.
 
+This is the preserved v2.0 execution record. The later v2.1 implementation on `feat/specification-delivery` has separate [dated validation](../../VALIDATION.md), [delivery notes](../current/SPECIFICATION-DELIVERY.md) and [sanitized execution evidence](../current/SPECIFICATION-EXECUTION.json). Its new counts and meaningful executed smoke suite do not replace the historical results below or promote the 101 designed case procedures.
+
 ## Evidence categories
 
 Specification checks validate IDs, JSON/CSV exports, traceability, migrated schema parity and route/source inventory. Existing executable suites test current application behaviors with synthetic data. Newly designed cases are future execution procedures, even when mapped to an existing suite. Historical served/browser evidence remains in [root validation](../../VALIDATION.md); it is not a new run of this specification’s 101 cases.

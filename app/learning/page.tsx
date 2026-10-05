@@ -55,6 +55,7 @@ export default function LearningPage() {
           <p>Curriculum: {assignment.resource.curriculum}</p>
           <h2 className="font-semibold">Learning objectives</h2><p className="whitespace-pre-wrap break-words">{assignment.resource.objectives}</p>
           <h2 className="font-semibold">Student material</h2><p className="whitespace-pre-wrap break-words">{assignment.resource.body}</p>
+          <a className="underline" href={`/assignments/${encodeURIComponent(assignment.id)}`}>{role === 'student' ? 'Submit a response and view reviewed feedback' : 'Review student responses and formative feedback'}</a>
         </article>
       </details>)}</div>
     </>}

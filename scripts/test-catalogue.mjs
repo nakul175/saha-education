@@ -34,6 +34,8 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
+  'tests/worker-specification-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served specification delivery lifecycle and access checks; synthetic sessions only' },
+  'tests/worker-specification-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser specification journeys with synthetic sessions; no live provider callback' },
   'tests/worker-resources-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser journey with synthetic sessions; live provider callback is not exercised' },
   'tests/worker-resources-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served teacher resource lifecycle and learner-safe assigned content; synthetic sessions only' },
   'tests/worker-literacy-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served reading checks and disabled external app launch; synthetic sessions only' },
@@ -121,6 +123,23 @@ export function importedModules(root = process.cwd()) {
  */
 export function buildCatalogue(root = process.cwd()) {
   const files = listTestFiles(root), errors = [], entries = [];
+  const evidence = new Map();
+  let requirementCount = 0;
+  const registerPath = join(root, 'docs/specification/requirements.json');
+  const casesPath = join(root, 'docs/specification/TEST-CASES.json');
+  if (existsSync(registerPath) && existsSync(casesPath)) {
+    try {
+      const ids = new Set(JSON.parse(readFileSync(registerPath, 'utf8')).requirements.map(row => row.id));
+      requirementCount = ids.size;
+      for (const row of JSON.parse(readFileSync(casesPath, 'utf8')).cases) {
+        for (const file of row.evidenceFiles) {
+          const links = evidence.get(file) ?? new Set();
+          for (const id of row.requirements) if (ids.has(id)) links.add(id);
+          evidence.set(file, links);
+        }
+      }
+    } catch { errors.push('Cannot read the canonical specification requirement/case evidence mapping.'); }
+  }
   const imported = importedModules(root);
   const components = [];
   for (const file of files) {
@@ -152,17 +171,17 @@ export function buildCatalogue(root = process.cwd()) {
       let from = [e.file];
       if (e.file === 'tests/run-api-smoke.mjs') from = [e.file, 'tests/api-smoke.mjs', ...components.map(c => c.file)];
       if (e.runner === 'playwright') from = [e.file, ...specs.map(c => c.file)];
-      e.requirements = [];
+      e.requirements = [...new Set(from.flatMap(file => [...(evidence.get(file) ?? [])]))].sort();
       e.results = SUITE_RESULTS[e.file] ?? [];
       if (e.layer === 'manual') Object.assign(e, MANUAL[e.file]);
       // Suites that start the built Worker need dist/; unit suites, UAT generators, the in-process benchmark and the accessibility audit (which talks to a Worker you started) do not.
       e.needs = ['unit', 'uat'].includes(e.layer) || ['tests/adapter-overhead-bench.mjs', 'tests/a11y-audit.mjs'].includes(e.file) ? [] : ['build'];
-    } else if (e.role === 'component') e.requirements = [];
+    } else if (e.role === 'component') e.requirements = [...(evidence.get(e.file) ?? [])].sort();
   }
   const suites = entries.filter(e => e.role === 'suite');
   const ids = new Set();
   for (const s of suites) { if (ids.has(s.id)) errors.push(`Two suites share the id ${s.id}.`); ids.add(s.id); }
-  return { entries, suites, components, support: entries.filter(e => e.role === 'support'), imported, errors };
+  return { entries, suites, components, support: entries.filter(e => e.role === 'support'), imported, errors, requirementCount };
 }
 
 /** Counts for the catalogue report: suites and components per layer, support files, requirement coverage. */
@@ -176,9 +195,10 @@ export function summariseCatalogue(cat) {
   }
   return {
     layers: Object.fromEntries(Object.entries(perLayer).map(([k, v]) => [k, { suites: v.suites, components: v.components, suitesCitingNoRequirement: v.citingNoRequirement, requirementsCited: v.requirementIds.size }])),
-    supportFiles: cat.support.length, suites: cat.suites.length, components: cat.components.length, requirementsCitedBySomeSuite: 0,
+    supportFiles: cat.support.length, suites: cat.suites.length, components: cat.components.length, requirementCount: cat.requirementCount,
+    requirementsCitedBySomeSuite: new Set(cat.suites.flatMap(s => s.requirements)).size,
     suitesCitingNoRequirement: cat.suites.filter(s => !s.requirements.length).length,
     componentsCitingNoRequirement: cat.components.filter(c => !c.requirements.length).length,
-    requirementsCitedBySomeTest: 0,
+    requirementsCitedBySomeTest: new Set([...cat.suites, ...cat.components].flatMap(s => s.requirements)).size,
   };
 }

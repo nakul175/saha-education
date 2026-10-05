@@ -2,6 +2,8 @@
 
 Draft operational plan, 5 October 2026. No release environment, production pipeline, SLA, RPO/RTO or operational owner is established by this documentation. Existing source instructions mention main-triggered synthetic staging, but actual wiring must be verified before relying on it.
 
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
+
 ## Environment boundaries
 
 | Environment | Data / use | Evidence required |
@@ -11,7 +13,7 @@ Draft operational plan, 5 October 2026. No release environment, production pipel
 | Hosted synthetic pilot | Proposed authorized environment only | Actual binding/route/callback/provider configuration and hosted run report |
 | Real school use | Deferred | Policy/content/identity/privacy/recovery/support and sponsor acceptance |
 
-Secrets and session fixtures never enter Git or documentation exports. Keep provider keys server-side. Empty environment templates do not activate services. School/bootstrap/account mapping requires explicit authorized operator work; no legacy ownership links are inferred by migration.
+Secrets/session fixtures never enter Git or documentation exports. Keep provider keys server-side. Empty environment templates do not activate services. School/first-administrator bootstrap and legacy remapping require explicit operator work; later reviewed provisioning/status is school-admin scoped. No legacy ownership links are inferred by migrations 0001or0004–0007.
 
 ## Release preparation
 
@@ -21,7 +23,7 @@ Execute applicable [smoke](SMOKE-TESTS.md), [unit/integration](UNIT-INTEGRATION-
 
 ## Deployment verification and rollback
 
-After an authorized deployment, verify served version/build identity, session behavior, scope-negative reads/writes, resource publication/assignment privacy, current database migration state, configured external app state and operator monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
+After an authorized deployment, verify served version/build identity, session/scope negatives, account status/session/evidence atomicity, exact curriculum-copy provenance, pinned text/feedback privacy, preserved reading corrections, publication/assignment privacy, all eight migration states, configured external app state and monitoring. Use synthetic test accounts and approved data only until real usage is authorized.
 
 Rollback must preserve confirmed records and additive schema compatibility. Do not blindly undo applied migrations or delete revisions/receipts. If persistence is uncertain, inspect the authoritative record before retrying. Define and rehearse the operator’s restore/rollback method for the actual environment before real records are stored.
 

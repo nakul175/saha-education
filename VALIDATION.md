@@ -69,3 +69,30 @@ Final built application verification passed 23/23 served resource scenarios and 
 | Affected-script lint | Zero errors, one pre-existing unused-variable warning | Limited to specification checker and test runner |
 
 See the [execution record](docs/specification/TEST-EXECUTION.md) and [sanitized machine-readable evidence](docs/specification/EXECUTION-SUMMARY.json). All 101 designed cases remain `not-run-for-this-specification`; existing-suite success does not execute those procedures. The vacuous smoke placeholder is excluded from the baseline and meaningful evidence. No live identity/ORF/AI provider, real learner record, external message, database migration, acceptance approval or hosted deployment occurred in this stage.
+
+## Specification implementation candidate
+
+5 October 2026, `feat/specification-delivery`, based on documentation parent `d53adcf` and historical application source `5488bc0`. This slice implements reviewed account administration, immutable manual curriculum references/source-bound draft copies, learner text attempts/reviewed formative feedback, and append-only reading corrections/comparable history. Ten workstreams were delivered in groups within the four-concurrent-agent session limit. New additive migrations were exercised only against disposable synthetic local databases.
+
+| Check | Observed result | Limits |
+|---|---|---|
+| Fresh final-source production Worker build | Passed | `node scripts/run-framework.mjs build`; no hosted deployment |
+| Static checks | Three steps passed | Catalogue, TypeScript and specification consistency |
+| Unit checks | 94 passed, zero failed/skipped | Eight suites, including streamed JSON limits and catalogue context |
+| Integration checks | 1,182 passed, zero failed/skipped | Eleven suites; actual synthetic sessions, route handlers and SQLite/D1-compatible adapter |
+| Executed smoke checks | 56 passed, zero failed/skipped | Real route/migration/session/origin checks replace the vacuous placeholder |
+| Final combined guarded run | 1,332 checks passed across 20 suites | `node scripts/test.mjs static unit integration smoke --fast --guard`; reused the separately verified fresh build |
+| Regression baseline | Twenty suites checked, zero quarantine exemptions | Nine suites added and two thresholds raised from actual counts; zero thresholds lowered or removed |
+| Affected-file lint | 53 files; zero errors, one pre-existing warning | Unused `interrupted` variable in the inherited test runner |
+| Documentation, historical audit and whitespace | Passed | 44 Markdown files, 20 historical requirements; 28 tables/225 fields, 44 API routes/74 handlers, 12 BR/35 FR+NFR and 101 designed cases |
+| Built local Worker checks | 146 passed, zero failed/skipped | Isolated local workerd/D1 and injected synthetic sessions; account/source/attempt/review/correction workflows and scope denial |
+| Real-browser workflows | 38 passed, zero failed/skipped | Native forms, same-UUID lost-response recovery, exact feedback history, review resets, staff/family denial and mobile labels/width; zero external requests or unhandled page errors |
+| Visual review | Desktop/mobile captures inspected | Synthetic application screens; no formal usability/accessibility acceptance |
+
+Security review first reproduced stale-authority defects in original resource creation and account-event retries. The fixes recheck enabled actor, trusted identity, role, school and parent record authority in the actual mutation/evidence SQL. Targeted tests cover authority changes between earlier validation and later reads/writes, atomic status/session/event decisions, concurrent requests, reviewed immutable history and rollback. Original resource checks still pass. The resource library now uses one scoped latest-version query; this does not establish representative latency/capacity targets.
+
+Browser preparation found review confirmation surviving changed account or reading inputs; confirmation now clears when those reviewed values change. The previous request-body suite contained commented assertions; it now actually exercises native FormData and invalid parsing. The synthetic fixture writer emits tables before dependent indexes/views/triggers. All observed fixes are recorded as findings, rather than successful first runs.
+
+The first served run timed out before its first authenticated request; isolated session probes and the complete rerun succeeded without an application change. The helper now drains denial/redirect response bodies to release connections, while retaining its ten-second request cap. Initial browser runs exposed test locator/readiness assumptions: native wrapped selects include option text, fields must be enabled after loading, and repeated labelled regions/numeric evidence need scoped locators. These selectors were corrected without weakening the workflow assertions; the final browser run passed. Temporary synthetic withdrawal was restored after each procedure.
+
+See [sanitized implementation evidence](docs/current/SPECIFICATION-EXECUTION.json) and [delivery boundary](docs/current/SPECIFICATION-DELIVERY.md). The earlier specification execution record remains historical. All 101 designed TC procedures remain unrun and every requirement remains unapproved. Live provider callback, ORF destination/result adapters, AI drafting, pilot content rights/accuracy, grades/deadlines/family publication, formal accessibility/load, retention/recovery and hosted deployment remain outside this evidence.

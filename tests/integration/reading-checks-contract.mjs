@@ -111,6 +111,29 @@ try {
     const candidate = { ...stored, id: crypto.randomUUID(), ...invalidStored };
     assert.throws(() => insertion.run(...columns.map(column => candidate[column])), /CHECK constraint/, 'Database constraints reject invalid numeric/provenance storage'); checks++;
   }
+  const races = [
+    ['class reassignment', "UPDATE classes SET teacher_id='teacher-other' WHERE id='class-a'", "UPDATE classes SET teacher_id='teacher-a' WHERE id='class-a'"],
+    ['enrolment withdrawal', "UPDATE enrolments SET status='withdrawn' WHERE student_id='student-a'", "UPDATE enrolments SET status='active' WHERE student_id='student-a'"],
+    ['student school transfer', "UPDATE students SET school_id='b' WHERE id='student-a'", "UPDATE students SET school_id='a' WHERE id='student-a'"],
+    ['account disablement', "UPDATE users SET disabled_at='2026-10-05' WHERE id='teacher-a'", "UPDATE users SET disabled_at=NULL WHERE id='teacher-a'"],
+    ['role revocation', "UPDATE users SET role='guardian' WHERE id='teacher-a'", "UPDATE users SET role='teacher' WHERE id='teacher-a'"],
+    ['identity removal', "UPDATE users SET identity_subject=NULL WHERE id='teacher-a'", "UPDATE users SET identity_subject='sub-teacher-a' WHERE id='teacher-a'"],
+  ];
+  for (const [name, mutate, restore] of races) {
+    const count = sqlite.prepare('SELECT count(*) AS n FROM reading_checks').get().n;
+    globalThis.__sahaTestDb = new Proxy(db, {get(target, key) {
+      if (key === 'insert') return table => {
+        if (table === schema.readingChecks) { globalThis.__sahaTestDb = db; sqlite.exec(mutate); }
+        return target.insert(table);
+      };
+      const member = target[key]; return typeof member === 'function' ? member.bind(target) : member;
+    }});
+    try {
+      check((await route.POST(request('teacher-a', 'POST', {...input, clientCheckId:crypto.randomUUID()}))).status, 409, name + ' between validation and INSERT rejects the write');
+      check(sqlite.prepare('SELECT count(*) AS n FROM reading_checks').get().n, count, name + ' leaves no unauthorized observation');
+      check(await service.listReadingChecks(principals['teacher-a']), [], name + ' cannot reuse a stale principal to read old observations');
+    } finally { globalThis.__sahaTestDb = db; sqlite.exec(restore); }
+  }
   sqlite.prepare('UPDATE enrolments SET status=? WHERE student_id=?').run('withdrawn', 'student-a');
   check(await service.listReadingChecks(principals['teacher-a']), [], 'Historical teacher visibility follows current active relationships');
   check((await route.POST(request('teacher-a', 'POST', { ...input, clientCheckId: undefined }))).status, 404, 'Withdrawn student cannot receive a new reading check');

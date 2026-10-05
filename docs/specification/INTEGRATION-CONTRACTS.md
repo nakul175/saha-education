@@ -1,6 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.0 draft, 5 October 2026. Current Saha evidence is commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.1 draft, 5 October 2026. Current Saha evidence is commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 ## Current boundary matrix
 
@@ -8,11 +10,13 @@ Version 2.0 draft, 5 October 2026. Current Saha evidence is commit `5488bc0d2041
 |---|---|---|---|
 | School OIDC provider → Saha | Provider-neutral authorization-code/PKCE sign-in, verified ID token, preprovisioned identity mapping and opaque local session | Chosen provider/tenant, registered client/callback, trusted origins, synthetic live browser journey and operator approval | FR-01–FR-04, NFR-01 |
 | Saha → external ORF app | Staff-authorized **launch-only** trusted HTTPS link; separate sign-in; no context forwarding or result sync | Sponsor-confirmed actual app and exact destination; config currently blank by design | FR-19, BR-06 |
-| Teacher → Saha reviewed ORF record | Manual numeric entry, derived metrics, attribution and safe retries | Educator scoring/comparability/publication/correction/retention policy | FR-20/FR-21, BR-07 |
+| Teacher → Saha reviewed ORF evidence | Manual numeric entry, reviewed append-only corrections, effective/original metrics and exact-task descriptive history | Educator scoring/comparability/publication/retention policy | FR-20/FR-21, BR-07 |
 | Language Studio → Saha | No supported adapter implemented; repository is a candidate reference | Sponsor confirmation plus documented provider-owned launch/result/identity contract | FR-25; currently deferred |
 | AmplifiU → Saha | Product reference for original teacher workflows, not a connected service | No direct integration agreed; no verified public API/SSO contract assumed | FR-13–FR-18; optional future FR-23 |
-| AI provider → resource workspace | None; current drafts are original/manual text | Provider, authorized configuration, grounded sources, budgets, failure/privacy/review policy | FR-22/FR-23; planned |
-| Classroom/export/submissions | Browser printing of exact reviewed versions only; no Classroom or document-file adapter | Actual target/API/auth scopes, export/submission requirements and validation | FR-18 current print; FR-24/FR-25 planned |
+| Manual curriculum → resource workspace | School-local manually declared source versions, exact review and unapproved source-bound draft copies | Actual pilot source permissions/suitability and languages; no vendor import | FR-22 partial |
+| AI provider → resource workspace | None; current drafts/references remain manual text | Provider, authorized configuration, grounding, budgets, failure/privacy/review policy | FR-23 planned |
+| Learner → Saha text/formative workflow | School-local immutable attempts/reviewed feedback against exact approved assignment | Deadline/grade/guardian policy; no external Classroom or file-upload adapter | FR-24 partial |
+| Classroom/document-file export | Browser printing of exact reviewed versions only; no external adapter | Actual target/API/auth scopes, export requirements and validation | FR-18 current print; FR-25 planned |
 | Email/SMS | Database notice records and disabled provider boundary | Actual provider/recipient/consent/delivery/error contract | FR-12 partial; not activated |
 
 ## Provider-neutral OIDC contract — implemented foundation
@@ -41,7 +45,7 @@ Login rate limiting uses ten-minute edge-IP-digest buckets (a shared restrictive
 
 ### Session lifecycle and non-contracts
 
-`__Host-saha_session` is a random opaque token with only its digest in D1. Cookie flags are Secure/HttpOnly/SameSite=Lax/Path=/. Current account/school/role/disabled and identity mapping are reread on each lookup; local DELETE `/api/session` revokes it and clears cookies. Duplicate cookie values confer no authority. Provider access/refresh tokens are not persisted as an integration credential, and there is no background refresh/userinfo contract, automatic provisioning, provider single logout or identity-administration UI in this release.
+`__Host-saha_session` is a random opaque token with only its digest in D1. Cookie flags are Secure/HttpOnly/SameSite=Lax/Path=/. Current account/school/role/disabled and identity mapping are reread on each lookup; local DELETE `/api/session` revokes it and clears cookies. Duplicate cookie values confer no authority. Reviewed current-school provisioning/status now has an administration UI, with atomic all-session revocation on disablement. This local workflow does not activate/configure the provider or remap existing roles/profile ownership. Provider access/refresh tokens are not persisted as an integration credential; background refresh/userinfo, automatic registration and provider single logout remain absent.
 
 Real provider account linkage, callback/network configuration and browser journey remain pending. Synthetic tests establish local contract behavior; they do not establish provider activation or production sign-in readiness.
 
@@ -75,9 +79,11 @@ This is source-inspection evidence, not a guarantee about the currently deployed
 
 Teacher/admin selects an authorized class and active student **inside Saha** and enters reviewed counts/duration. The strict POST `/api/reading-checks` takes `clientCheckId?`, class/student IDs, language, passage reference, reading date, duration seconds, attempted words and correct words. API details and a synthetic example are in [API contracts](API-CONTRACTS.md).
 
-School, recorder/time, `sourceAppId:"oral-reading-fluency"` and `provenance:"manual-reviewed-external"` are fixed server-side. Derived rate/accuracy are recomputed from normalized milliseconds/counts. The record asserts **manual teacher review**, not that any external app cryptographically authenticated the observation. Optional UUID retries must retain actor and normalized immutable payload; conflicting reuse is 409. No edit/delete/import/correction API exists.
+School, recorder/time, `sourceAppId:"oral-reading-fluency"` and `provenance:"manual-reviewed-external"` are fixed server-side. Derived rate/accuracy are recomputed from normalized milliseconds/counts. The record asserts **manual teacher review**, not cryptographically authenticated external evidence. Original entry rechecks current class/active enrolment/school/live actor in the insertion statement. Optional UUID retries retain actor/normalized immutable payload; conflicting reuse is 409. There is no original edit/delete or external import API; corrections use a separate reviewed append-only contract.
 
-Current scope deliberately stores no audio, transcripts, full passage text, external learner identifiers or imported provider response. Family access is 403 because reading publication has not been designed. Teacher historical visibility follows current class assignment/active enrolment, not a completed-course access policy.
+Current scope deliberately stores no audio, transcripts, full passage text, external learner identifiers or imported provider response. Family access is 403 because reading publication has not been designed. Original-entry rules remain active-enrolment based. New correction/history reads preserve evidence for current original-class staff while the learner remains in school, including after withdrawal; reassignment/transfer removes that authority. This is a specific local policy choice, not a complete historical-entitlement model.
+
+The new review endpoint groups effective points only by exact learner/class/language/passage/duration, while retaining original and every correction actor/time/reason. A correction remains manual external-session evidence with local review; neither the correction nor grouping establishes automatic external verification, standardized passage equivalence, scoring norms or diagnosis.
 
 Educator decisions remain necessary for attempted/skipped/error administration, comparable passages/language/difficulty, recording duration, UTC-versus-school-date handling, corrections and interpretation. ORF rate/accuracy does not establish comprehension, subject mastery, diagnostic risk or grade-level norms. No automatic risk label or medical/standardized assessment claim is supplied (FR-21).
 
@@ -93,11 +99,11 @@ These define questions/acceptance boundaries for later design, not existing HTTP
 
 | Proposed boundary | Minimum contract to agree | Acceptance evidence before activation | Requirement |
 |---|---|---|---|
-| Approved curriculum library | Original/licensed source versions, curriculum/grade/subject/language mapping, reviewer and rights/provenance | Educator-approved sources, bounded references and version/rights validation | FR-22 |
+| Verified curriculum permission/suitability | Actual permission lifecycle and pilot framework beyond the current manual declared source-version library | Educator/legal source review, selected languages/framework and permission/withdrawal validation | FR-22 remaining scope |
 | Optional AI drafting | Authorized staff request, selected source versions, structured provisional response, provider/model/template provenance, budget, timeout/error and review gate | Synthetic-only output/schema/failure/redaction checks; no student PII needed for generic resource draft; explicit credentials/provider approval | FR-23 |
 | External ORF result adapter | Confirmed provider auth/tenant, pseudonymous learner mapping, external event ID, raw count/duration semantics, review status, corrections and replay/conflict contract | Supported provider docs/owner authority, test tenant, cross-school negatives, payload integrity and educator interpretation | FR-25/FR-21 |
 | Classroom adapter | Confirmed platform/application registration, least required scopes, roster/course ownership mapping, assignment/version pinning and synchronization conflicts | Synthetic class test, revoked-scope/member checks, replay/conflict and controlled export evidence | FR-25 |
-| Learner submission/feedback | Assignment-version/student binding, accepted formats, deadline/correction history, reviewer/publication and guardian policy | Student/family isolation, immutable assigned content, attributable corrections and educator UAT | FR-24 |
+| Wider learner submission policy | Deadlines, grading, attachments, external-classroom synchronization or guardian publication beyond current local text/formative workflow | Agreed policy, history/privacy and educator UAT | FR-24 remaining scope |
 | Document-file export | Selected approved version/edition, private-field exclusion, target DOCX/PDF/PPTX/Docs fidelity and destination authority | Rendered output review, private-key exclusion and approved write/export destination | FR-18 extension / FR-25 |
 | Email/SMS delivery | Provider credentials/recipient consent, allowed templates, idempotent delivery key, retry/bounce/status/webhook verification | Synthetic recipient validation and replay/failure checks; no silent real-recipient messaging | FR-12 |
 

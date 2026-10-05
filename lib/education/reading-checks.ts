@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { and, asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { getDb } from '@/db/index';
-import { readingChecks, type SelectReadingCheck } from '@/db/schema';
+import { readingChecks, classes, students, type SelectReadingCheck } from '@/db/schema';
 import type { Principal } from './types';
-import { AccessError, assertPrincipal, assertClassWrite, assertStudentInClass, studentReferenceScope, classReferenceScope } from './access';
+import { AccessError, assertPrincipal, assertClassWrite, assertStudentInClass, studentReferenceScope, classReferenceScope, classScope } from './access';
 
 const SOURCE_APP = 'oral-reading-fluency';
 const PROVENANCE = 'manual-reviewed-external';
@@ -35,10 +35,16 @@ function staff(principal: Principal): void {
   assertPrincipal(principal);
   if (principal.role !== 'admin' && principal.role !== 'teacher') throw new AccessError('Reviewed readings are available to staff only');
 }
+function liveRecorder(principal: Principal) {
+  return sql`exists (select 1 from users reading_actor where reading_actor.id = ${principal.id}
+    and reading_actor.school_id = ${principal.schoolId} and reading_actor.role = ${principal.role} and reading_actor.disabled_at is null
+    and reading_actor.identity_issuer is not null and reading_actor.identity_issuer <> ''
+    and reading_actor.identity_subject is not null and reading_actor.identity_subject <> '')`;
+}
 function scope(principal: Principal) {
   assertPrincipal(principal);
   return and(eq(readingChecks.schoolId, principal.schoolId),
-    studentReferenceScope(principal, readingChecks.studentId), classReferenceScope(principal, readingChecks.classId));
+    studentReferenceScope(principal, readingChecks.studentId), classReferenceScope(principal, readingChecks.classId), liveRecorder(principal));
 }
 function view(row: SelectReadingCheck): ReadingCheck {
   return { ...row, durationSeconds: row.durationMs / 1000,
@@ -65,7 +71,16 @@ export async function createReadingCheck(principal: Principal, input: ReadingChe
   const db = getDb();
   const id = data.clientCheckId ?? crypto.randomUUID();
   // A caller-generated UUID is a retry key, not permission to overwrite a record.
-  const [created] = await db.insert(readingChecks).values({ ...payload, id, createdAt: new Date().toISOString() }).onConflictDoNothing().returning();
+  // Validation can precede a class reassignment or enrolment withdrawal. Check
+  // current authority inside the actual write, not only before it.
+  const [created] = await db.insert(readingChecks).select(sql`select
+    ${id}, ${principal.schoolId}, ${data.classId}, ${data.studentId}, ${principal.id}, ${SOURCE_APP}, ${PROVENANCE},
+    ${data.language}, ${data.passageReference}, ${data.readingDate}, ${payload.durationMs}, ${data.wordsAttempted}, ${data.wordsCorrect}, ${new Date().toISOString()}
+    from classes join students on students.id = ${data.studentId}
+    where ${classes.id} = ${data.classId} and ${classScope(principal)} and ${students.schoolId} = ${principal.schoolId}
+      and exists (select 1 from enrolments e where e.class_id = ${classes.id} and e.student_id = ${students.id} and e.status = 'active')
+      and ${liveRecorder(principal)}
+    limit 1`).onConflictDoNothing().returning();
   if (created) return view(created);
   const [existing] = await db.select().from(readingChecks).where(and(eq(readingChecks.id, id), eq(readingChecks.recordedBy, principal.id), scope(principal))).limit(1);
   if (!existing || !Object.entries(payload).every(([key, value]) => existing[key as keyof SelectReadingCheck] === value)) throw new ReadingCheckConflict();

@@ -1,12 +1,14 @@
 # Saha high-level design
 
-Version 2.0 draft, 5 October 2026. Design baseline: source commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
+Version 2.1 draft, 5 October 2026. Design baseline: source commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Read [BRD](BRD.md), [FSD](FSD.md), then this document and [LLD](LLD.md). Canonical requirement IDs and implementation statuses are in [requirements.json](requirements.json). This describes an implementation candidate and separately identified proposals. Source configuration, successful local builds and synthetic tests do not establish a verified production deployment, provider connection or business acceptance.
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 ## 1. System context and responsibility
 
 Trace: BR-01–BR-12; FR-01–FR-26; NFR-01–NFR-09.
 
-Saha owns school identity mappings, record scope, academic records, resource versions and manual reading observations. The browser presents journeys and supplies candidate inputs; server services decide authority and persist records. A configured OIDC provider supplies signed identity, not school roles. A separate ORF application remains responsible for its own sign-in and operation. AmplifiU is a product reference for original Saha workflows; there is no licensed AmplifiU component or API in this architecture.
+Saha owns reviewed school identity mappings, record scope, academic records, resource/curriculum versions, text attempts/formative feedback and original/corrected manual reading observations. The browser presents journeys and supplies candidate inputs; server services decide authority and persist records. A configured OIDC provider supplies signed identity, not school roles. A separate ORF application remains responsible for its own sign-in and operation. AmplifiU is a product reference for original Saha workflows; there is no licensed AmplifiU component or API in this architecture.
 
 ```mermaid
 flowchart LR
@@ -71,9 +73,9 @@ Trace: FR-01–FR-04; NFR-01, NFR-03.
 | OIDC callback | Public GET entry with browser-bound, expiring, one-use state; verifies token before session | Actual provider compatibility and registration require live synthetic validation |
 | Session API | GET reveals only the current verified principal; DELETE revokes the opaque session | Legacy role-selection POST is rejected; no public account provisioning |
 | Protected page layouts | Load a server principal and redirect when absent | Layout protection alone does not protect API or server-service calls |
-| Education APIs | Authenticate every read; validate Origin on mutations; uncached safe responses | New resource/reading schemas are strict; legacy validators are less complete |
+| Education APIs | Authenticate every read; validate Origin on mutations; uncached safe responses; common JSON parser 128 KiB | New domain schemas are strict; legacy validators are less complete |
 | Domain services | Mandatory principal, role checks and SQL record filters | School/class/profile history policy is incomplete |
-| Operator provisioning | Reviewed external environment/account process | No production provisioning UI or automatic first-admin flow |
+| Reviewed account administration | Enabled school administrator provisions explicit issuer/subject and reviews status with attributable reason | First-school/admin bootstrap remains operator work; existing role/identity/school/profile remapping is outside this UI |
 
 Provider issuer/subject pairs identify accounts. Current role, school, disabled state and profile relationships reside in Saha records. Provider email, a browser-selected role and public identity headers confer no authority. Opaque session tokens are sent only as secure cookies; D1 stores their digests. Provider client secrets are server configuration, distinct from application sessions and content. No AI or ORF API credentials have been introduced.
 
@@ -92,7 +94,7 @@ Student profiles are linked through `students.userId`; guardian profiles through
 
 A guardian's access to one child or a student's access to one class never grants access to the full class roster. Enrolment and attendance reads intersect class scope and student scope. Assessment results are staff-only pending publication policy. Report cards add a publication predicate for families. Notices belong to the recipient user, and marking read checks that ownership in the write.
 
-Current scope uses active enrolment and current teacher assignment. Withdrawal, completion or teacher reassignment can remove access to historical class-specific records. Student resource assignments disappear when enrolment is inactive. The design preserves rows but has no temporal entitlement model; retaining records does not establish an agreed historical-access policy.
+Core learner scope uses active enrolment and current teacher assignment. Withdrawal/completion removes student assignment/submission visibility. The reading review/correction extension retains original-class observations for current assigned staff while the learner remains in the school; staff likewise retain permitted class attempts/feedback. Teacher reassignment or student school transfer removes that current authority. Original new-reading entry still requires active enrolment. These specific preservation choices do not establish a complete temporal entitlement model or an accepted historical-access policy.
 
 See [DATA-DICTIONARY](DATA-DICTIONARY.md) for storage relationships and [API-CONTRACTS](API-CONTRACTS.md) for externally observable responses.
 
@@ -122,7 +124,7 @@ stateDiagram-v2
   ApprovedV2 --> AssignedV2: New assignment pins version two
 ```
 
-These labels describe related records, not a single persisted resource status enum. Existing assignments to version one remain valid while version two is a draft. Self-review by an author is currently permitted; independent-review policy is pending. There is no delete/unapprove/rollback endpoint, student submission, online quiz grading or assignment notification. Resource text is rendered as plain text.
+These labels describe related records, not a single persisted resource status enum. Existing assignments to version one remain valid while version two is a draft. Self-review by an author is currently permitted; independent-review policy is pending. The v2.1 text-attempt/feedback extension references those exact assignments. There is no delete/unapprove/rollback endpoint, online quiz grading or assignment notification. Resource text is rendered as plain text.
 
 Printing reads an exact approved saved version through staff-scoped APIs. The default student edition excludes private fields from the printed article; a teacher explicitly selects the teacher edition. This staff print workflow is distinct from learner API serialization, where private fields are never returned. Browser printing is implemented; downloadable Word/PDF generation is proposed.
 
@@ -144,7 +146,7 @@ flowchart LR
   Stored --> Derived[Derived rate and accuracy]
 ```
 
-The `oral-reading-fluency` registry slot is disabled until a valid `SAHA_ORF_APP_URL` is supplied. Its destination is never chosen by request input. A launch may check an optional student context, but does not transmit that context. Manual reading records contain counts, duration, language, passage reference and fixed manual provenance; they contain no audio or transcript. Rate and accuracy are derived observations, not diagnostic classifications, grade norms or demonstrated comprehension. Comparable-task trends and attributable correction flows remain FR-21 proposals.
+The `oral-reading-fluency` registry slot is disabled until a valid `SAHA_ORF_APP_URL` is supplied. Its destination is never chosen by request input. A launch may check an optional student context, but does not transmit that context. Manual reading records contain counts, duration, language, passage reference and fixed manual provenance; they contain no audio or transcript. New correction records append reviewed replacement metrics while preserving the original. History groups exact learner/class/language/task/duration and displays original versus effective latest metrics. Rate/accuracy remain descriptive observations; validated comparability, scoring norms, diagnosis and educator interpretation remain pending.
 
 ## 8. Full-scope extension map
 
@@ -153,18 +155,18 @@ Trace: BR-01–BR-12. This table accounts for all 35 canonical requirements with
 | Requirement IDs | Current design boundary | Proposed extension / dependency |
 |---|---|---|
 | FR-01, FR-02, FR-03 | Provider-neutral OIDC, live sessions and scoped services | Chosen provider registration and verified synthetic callback journey |
-| FR-04 | Reviewed provisioning outside public app | Account administration, disablement/relinking UI and approval process |
+| FR-04 | Reviewed current-school provisioning/status UI, session revocation and administration evidence | Full role/identity/profile remapping and approved review policy |
 | FR-05, FR-06, FR-07, FR-08 | School/roster/course/class/enrolment services | Complete administration journeys and historical relationship policy |
 | FR-09, FR-10, FR-11, FR-12 | Authorized academic writes, private result boundary, published reports and owned in-app notices | Academic date/grading/correction decisions; family result publication; external delivery contracts |
 | FR-13, FR-14, FR-15, FR-16, FR-17, FR-18 | Manual drafts, immutable revisions, review, assignment, learner view and printing | Pilot reviewer policy and educator/print acceptance; document-file exports |
-| FR-19, FR-20, FR-21 | Disabled trusted launch and manual numeric records | Confirm ORF destination; comparable reading tasks and corrections |
-| FR-22, FR-23 | User-entered curriculum context only; no curriculum library or AI service | Licensed/original versioned references, provider choice, human draft review, provenance and budgets |
-| FR-24, FR-25, FR-26 | No submission/feedback model, result import/class adapter or general correction audit | Separately designed contracts, mappings, retention and attributable evidence |
+| FR-19, FR-20, FR-21 | Disabled trusted launch, manual numeric originals, attributable corrections and exact-task history | Confirm ORF destination; educator task/scoring/interpretation and publication policy |
+| FR-22, FR-23 | Manual versioned source/rights declarations, exact review and durable unapproved resource copies; no AI service | Pilot curriculum/actual source rights and suitability; provider choice, grounded drafting, budgets |
+| FR-24, FR-25, FR-26 | Text attempts/reviewed formative feedback and domain review/correction evidence; no external adapter or general audit system | Deadline/grade/guardian policy, verified mappings, general academic correction/export/retention |
 | NFR-01, NFR-02, NFR-03 | Identity/scope, protected writes, selected atomic/repeat-safe operations and limited data forwarding | Broader security review, legacy race/correction work and approved privacy/retention policy |
 | NFR-04, NFR-05, NFR-06 | Existing browser UI and language tags; no agreed scale/accessibility/language suitability target | Representative workload, accessible role journeys and educator language review |
 | NFR-07, NFR-08, NFR-09 | Source/evidence files and synthetic checks | Authorized recovery, support/correlation design and maintained requirement/case/evidence traceability |
 
-Future AI belongs behind a server boundary with structured draft output, validated references, cost limits and human review. It must never automatically approve or assign material. A curriculum library would preserve reference versions and permissions. External adapters would require explicit source identity, replay keys, verified mappings and permission-aware import/export. Submissions/feedback would reference an assignment/version rather than rewrite its content. These are architectural constraints for future design, not callable interfaces or stored models in this baseline; detailed proposals are separated in [LLD](LLD.md).
+Future AI belongs behind a server boundary with structured draft output, validated references, cost limits and human review. It must never automatically approve or assign material. The current manual library preserves source-version/declared-rights evidence; verified permissions remain a human pilot dependency. Text submissions reference an assignment/version without rewriting it. External adapters still require explicit source identity, replay keys, verified mappings and permission-aware import/export. The remaining proposed contracts are separated from implemented local-domain interfaces in [LLD](LLD.md).
 
 ## 9. Nonfunctional decisions and release implications
 
@@ -172,20 +174,45 @@ Trace: NFR-01–NFR-09; BR-10–BR-12.
 
 Security isolation and learner-field omission are release-blocking behaviors. The remaining nonfunctional targets need owners and evidence: school/user volumes, concurrency, representative journeys, latency, availability, retention, accessibility target and language/browser matrix, RPO/RTO, backup method, restore ownership and incident handling. No numerical SLA, legal certification or recovery capability is inferred from the framework or hosting configuration.
 
-`listResources` currently obtains the latest version for each resource using per-resource queries; lists are not generally paginated. Actual workload must guide later query/index/pagination work. No queue is proposed as a deployed solution to unmeasured load. Recovery must verify foreign keys, identity links, private/published visibility and immutable version/assignment relationships in an authorized isolated environment.
+`listResources` now joins each scoped resource to its latest version in one database query, removing the historical per-resource query pattern. The admin dashboard uses an actual scoped enabled-teacher SQL count rather than a bounded list length. Account/event reads are capped 500/200; other lists are not generally paginated and curriculum/feedback reads still contain per-item queries. No capacity/latency claim follows from these changes. Actual workload must guide query/index/pagination work. Recovery must verify foreign keys, reviewed identity events, source-copy bindings, private/published visibility and immutable versions/assignments/attempts/corrections in an authorized isolated environment.
+
+For NFR-09, `scripts/test-catalogue.mjs` reports the canonical 35 requirements and deduplicated runnable evidence links from the designed cases. Catalogue unit checks guard against confusing evidence presence with case execution or business acceptance. Live downstream evidence SELECTs repeat authority checks; `tests/integration/evidence-access-contract.mjs` exercises revocation at those query boundaries.
 
 Implementers must preserve migrations and existing records, use synthetic fixtures, and maintain source/design/API/test evidence together. Node SQLite contract tests and a served local Worker check different execution layers; neither alone proves the actual provider or deployed D1 behavior. See [TEST-STRATEGY](TEST-STRATEGY.md), [DECISIONS-RISKS](DECISIONS-RISKS.md) and repository [VALIDATION](../../VALIDATION.md).
 
 ## 10. Source anchors
 
-| Architectural concern | Source at baseline |
+| Architectural concern | Source baseline plus working extensions |
 |---|---|
 | Worker and build | `worker/index.ts`, `vite.config.ts`, `.openai/hosting.json` |
-| Database binding and schema | `db/index.ts`, `db/schema.ts`, `drizzle/0000_*` through `0003_teacher_resources.sql` |
+| Database binding and schema | `db/index.ts`, `db/schema.ts` and re-exported domain schema modules; migrations 0000–0007 |
 | Identity and session | `lib/education/identity.ts`, `oidc.ts`, `session.ts`, `auth.ts` |
 | HTTP/service boundaries | `lib/education/http.ts`, `access.ts`, `app/api/**`, protected layouts |
 | Academic modules | `schools.ts`, `students.ts`, `guardians.ts`, `courses.ts`, `classes.ts`, `enrolments.ts`, `attendance.ts`, `assessments.ts`, `report-cards.ts`, `notifications.ts` under `lib/education/` |
 | Resource lifecycle | `lib/education/resources.ts`, `resource-types.ts`, `app/resources/**`, `app/learning/page.tsx` |
-| Reading | `lib/education/external-apps.ts`, `reading-checks.ts`, `app/external-apps/page.tsx` |
+| Reading | `lib/education/external-apps.ts`, `reading-checks.ts`, `reading-review.ts`, `app/external-apps/page.tsx`, `app/reading-review/**` |
+| Reviewed accounts | `lib/education/identity-admin.ts`, `db/identity-admin-schema.ts`, `app/admin/users/**` |
+| Manual curriculum | `lib/education/curriculum.ts`, `db/curriculum-schema.ts`, `app/curriculum/**` |
+| Attempts/formative feedback | `lib/education/submissions.ts`, `db/submission-schema.ts`, `app/api/assignments/**`, learner assignment pages |
+
+## 11. Working manual delivery components
+
+Trace: FR-04, FR-21, FR-22, FR-24, FR-26; NFR-01, NFR-02, NFR-09. Each expanded FR remains partial because its broader policy/integration/retention scope is unresolved.
+
+```mermaid
+flowchart TB
+  Admin[School administrator review] --> Accounts[Identity administration service]
+  Accounts --> AccountTxn[Atomic account status + session revocation + revision + event]
+  Author[Staff manual source author] --> Curriculum[Versioned declared source and rights]
+  Curriculum --> ExactReview[Exact saved source review]
+  ExactReview --> CopyTxn[Atomic unapproved resource + version + source binding]
+  CopyTxn --> ResourceReview[Existing resource review and assignment]
+  ResourceReview --> Attempt[Student text attempt pinned to approved assignment]
+  Attempt --> Feedback[Staff-reviewed formative feedback revisions]
+  Original[Original reviewed reading] --> Correction[Attributed append-only metric correction]
+  Correction --> History[Original/effective history and exact-task series]
+```
+
+These services share the existing authenticated Worker/Drizzle/D1 boundary. They introduce eight additive tables and thirteen route files, with no new external runtime, message channel or AI provider. Account and curriculum-copy multi-record operations use D1 atomic batches; revisioned attempts/feedback/corrections use guarded INSERT SELECT with unique sequence keys. Current authority is checked inside the mutation, not merely before it. The correction table also has database no-update/no-delete triggers. Other histories are append-only through their current APIs, without a claimed database-wide immutable audit layer.
 
 Source anchors support implementation claims; canonical requirements remain drafts until separately approved and accepted.

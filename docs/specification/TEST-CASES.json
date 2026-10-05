@@ -1,5 +1,5 @@
 {
-  "version": "2.0-draft",
+  "version": "2.1-draft",
   "date": "2026-10-05",
   "source_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
   "approved": false,
@@ -382,7 +382,10 @@
       "automation": "planned",
       "evidenceFiles": [
         "tests/unit/auth-contract.mjs",
-        "tests/integration/api-contract.mjs"
+        "tests/integration/api-contract.mjs",
+        "tests/integration/identity-admin-contract.mjs",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -396,8 +399,8 @@
       "title": "Disable/re-enable lifecycle revokes prior sessions",
       "layer": "integration",
       "priority": "P0",
-      "preconditions": "Future administration endpoint/actor policy and audit design must be approved; no such complete workflow is currently accepted.",
-      "data": "Future approved account-administration workflow; user has two sessions.",
+      "preconditions": "Current reviewed school-administrator endpoint and synthetic account with two sessions; migration0004 applied. Provider callback acceptance and role/profile remapping remain separate pending scope.",
+      "data": "Reviewed POST/PATCH /api/admin/users workflow; target account has two actual synthetic sessions.",
       "steps": [
         "Disable user through reviewed administrator flow.",
         "Re-enable later; replay both former cookies.",
@@ -407,10 +410,15 @@
         "Disable operation deletes all existing sessions with attributable audit.",
         "Re-enabling does not revive old sessions; new sign-in is required."
       ],
-      "automation": "planned",
+      "automation": "existing",
       "evidenceFiles": [
         "lib/education/session.ts",
-        "docs/current/AUTH-ACCESS.md"
+        "docs/current/AUTH-ACCESS.md",
+        "tests/integration/identity-admin-contract.mjs",
+        "lib/education/identity-admin.ts",
+        "app/admin/users/page.tsx",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -469,7 +477,10 @@
         "tests/integration/api-contract.mjs",
         "tests/integration/api-auth-guards.mjs",
         "tests/integration/resources-contract.mjs",
-        "tests/integration/reading-checks-contract.mjs"
+        "tests/integration/reading-checks-contract.mjs",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -525,7 +536,15 @@
         "tests/integration/api-auth-guards.mjs",
         "tests/integration/resources-contract.mjs",
         "tests/integration/external-apps-contract.mjs",
-        "tests/integration/reading-checks-contract.mjs"
+        "tests/integration/reading-checks-contract.mjs",
+        "tests/unit/http-body-contract.mjs",
+        "tests/integration/identity-admin-contract.mjs",
+        "tests/integration/curriculum-contract.mjs",
+        "tests/integration/submissions-contract.mjs",
+        "tests/integration/reading-review-contract.mjs",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -596,21 +615,27 @@
       "layer": "integration",
       "priority": "P0",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
-      "data": "Synthetic issuer/sub pair and another school user; approved future operator workflow.",
+      "data": "Synthetic explicit issuer/subject and current-school reviewed administrator; profile relinking remains future scope.",
       "steps": [
-        "Provision explicit issuer/subject/role/school.",
-        "Attempt duplicate identity and unauthorized role/school mapping.",
-        "Disable and relink through audited workflow."
+        "Provision explicit issuer/subject/role under actor-fixed school using POST /api/admin/users.",
+        "Attempt duplicate identity, spoofed school/actor, changed retry payload and unauthorized actor.",
+        "Disable through reviewed status endpoint; inspect evidence/session revocation. Separately evaluate pending profile-relink policy without inventing a callable endpoint."
       ],
       "expected": [
-        "No email-based/public registration; duplicate identity rejected.",
-        "Only authorized operator/school workflow changes ownership; session revocation and audit are recorded."
+        "No email-based/public registration; duplicate identity and spoofed scope rejected.",
+        "Reviewed provisioning/status evidence and revocation are attributable; full profile relinking remains planned, so the whole case is not complete."
       ],
       "automation": "planned",
       "evidenceFiles": [
         "scripts/provision-synthetic-identities.mjs",
         "db/schema.ts",
-        "docs/current/AUTH-ACCESS.md"
+        "docs/current/AUTH-ACCESS.md",
+        "tests/integration/identity-admin-contract.mjs",
+        "lib/education/identity-admin.ts",
+        "app/admin/users/page.tsx",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1086,7 +1111,8 @@
       "automation": "existing",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "tests/worker-resources-check.mjs"
+        "tests/worker-resources-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1140,7 +1166,8 @@
       "automation": "existing",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "tests/worker-resources-check.mjs"
+        "tests/worker-resources-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1249,7 +1276,8 @@
       "automation": "planned",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "lib/education/resources.ts"
+        "lib/education/resources.ts",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1277,7 +1305,8 @@
       "automation": "existing",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "tests/worker-resources-check.mjs"
+        "tests/worker-resources-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1416,7 +1445,8 @@
       "automation": "planned",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "tests/worker-resources-check.mjs"
+        "tests/worker-resources-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1445,7 +1475,8 @@
       "automation": "planned",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "lib/education/resources.ts"
+        "lib/education/resources.ts",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1474,7 +1505,10 @@
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
         "tests/worker-resources-check.mjs",
-        "tests/worker-resources-ui-check.mjs"
+        "tests/worker-resources-ui-check.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs",
+        "tests/integration/resource-access-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1807,23 +1841,28 @@
         "FR-21",
         "FR-26"
       ],
-      "title": "Attributable ORF corrections future flow",
+      "title": "Attributable ORF corrections and preserved original",
       "layer": "integration",
       "priority": "P1",
-      "preconditions": "Future correction contract, reviewers and retention are approved; current GET/POST-only reading API cannot satisfy this case.",
-      "data": "Existing reviewed record; proposed correction of miscount 91→90 with reason.",
+      "preconditions": "Current corrections/review endpoints, migration0007 and assigned staff in isolated synthetic fixtures; educator interpretation/retention approval remains pending.",
+      "data": "Existing manual reviewed record; correct miscount91\u219290 with explicit review, reason, expectedRevision and stable clientCorrectionId.",
       "steps": [
-        "Submit approved correction operation once and retry.",
-        "Read original and current review history."
+        "POST reviewed numeric replacement metrics once and retry using the same clientCorrectionId.",
+        "GET corrections and reading-review; inspect immutable original plus effective latest revision."
       ],
       "expected": [
-        "Original observation retained; new revision records actor/time/reason and corrected metrics.",
-        "Retry-safe correction does not silently update immutable original; currently absent editing endpoint remains explicit."
+        "Original observation retained; append-only revision records actor/time/reason and corrected metrics.",
+        "Exact retry preserves one correction; stale/changed/unauthorized requests fail; current review exposes original and effective metrics without diagnostic labels."
       ],
-      "automation": "planned",
+      "automation": "existing",
       "evidenceFiles": [
         "docs/current/EXTERNAL-READING.md",
-        "lib/education/reading-checks.ts"
+        "lib/education/reading-checks.ts",
+        "tests/integration/reading-review-contract.mjs",
+        "lib/education/reading-review.ts",
+        "drizzle/0007_reading_corrections.sql",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1849,7 +1888,9 @@
       ],
       "automation": "manual",
       "evidenceFiles": [
-        "docs/current/EXTERNAL-READING.md"
+        "docs/current/EXTERNAL-READING.md",
+        "tests/integration/reading-review-contract.mjs",
+        "lib/education/reading-review.ts"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1864,19 +1905,24 @@
       "layer": "integration",
       "priority": "P1",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
-      "data": "Original source-A v1/v2; licensed source with permitted uses; no library currently.",
+      "data": "Synthetic original source v1/v2 and manually declared rights/source references in the current curriculum library; no real licensing verification inferred.",
       "steps": [
-        "Register source provenance/version and usage rights in proposed library.",
-        "Link draft to exact source version.",
-        "Update source; reopen existing draft."
+        "Register a manual source with declared provenance/rights and explicitly review its exact version.",
+        "Copy an approved exact source version to an unapproved draft with durable provenance.",
+        "Append a source revision; reopen the existing copied resource."
       ],
       "expected": [
-        "Source provenance and allowed use retained; resource references remain reproducible.",
-        "New source version does not relabel old draft as newly validated/aligned."
+        "Declared source/rights statements and exact reference binding are retained; no automated legal permission or certified alignment is claimed.",
+        "New source versions do not overwrite prior copied content or approval; the copied draft requires its own review."
       ],
-      "automation": "planned",
+      "automation": "existing",
       "evidenceFiles": [
-        "docs/current/AMPLIFY-LITERACY-PLAN.md"
+        "docs/current/AMPLIFY-LITERACY-PLAN.md",
+        "tests/integration/curriculum-contract.mjs",
+        "lib/education/curriculum.ts",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -1902,7 +1948,9 @@
       ],
       "automation": "planned",
       "evidenceFiles": [
-        "docs/current/AMPLIFY-LITERACY-PLAN.md"
+        "docs/current/AMPLIFY-LITERACY-PLAN.md",
+        "tests/integration/curriculum-contract.mjs",
+        "lib/education/curriculum.ts"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2134,23 +2182,28 @@
         "FR-24",
         "FR-17"
       ],
-      "title": "Future authorized learner submission and feedback",
+      "title": "Authorized text submission and reviewed formative feedback",
       "layer": "integration",
       "priority": "P1",
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
       "data": "Assigned approved v1; enrolled learner and unrelated learner; teacher feedback.",
       "steps": [
-        "Submit work through future contract.",
-        "Attempt unrelated submission/read; give teacher-reviewed feedback.",
-        "Create new resource version."
+        "POST plain text to the current assignment submission endpoint using expectedAttempt and stable clientSubmissionId.",
+        "Attempt unrelated submission/read; append explicitly reviewed staff feedback with expectedRevision/clientFeedbackId.",
+        "Create a new unapproved resource version and inspect the existing attempt."
       ],
       "expected": [
-        "Submission/feedback scoped to learner/class and tied to assigned exact version.",
-        "Assigned content stays immutable; private feedback not exposed to unrelated users."
+        "Submission and reviewed feedback stay scoped to learner/class and assigned exact approved version.",
+        "Assigned content stays immutable; unrelated users/families receive no private attempt or feedback."
       ],
-      "automation": "planned",
+      "automation": "existing",
       "evidenceFiles": [
-        "docs/current/TEACHER-WORKSPACE.md"
+        "docs/current/TEACHER-WORKSPACE.md",
+        "tests/integration/submissions-contract.mjs",
+        "lib/education/submissions.ts",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2168,16 +2221,21 @@
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
       "data": "Lost response, repeated submission ID, revision and due-date boundary.",
       "steps": [
-        "Retry same learner submission.",
-        "Revise under agreed policy and cross late boundary."
+        "Retry the same current text attempt and append a subsequent attempt/feedback revision.",
+        "Cross an informational past due-date boundary; record that an enforceable deadline/late/resubmission policy is still pending."
       ],
       "expected": [
-        "No duplicate work or silent overwrite; approved revision trail retained.",
-        "Late/resubmission behavior is explicit policy, not client clock or invented rule."
+        "Stable IDs and expected-number guards prevent duplicate/overwritten work; immutable attempt and feedback histories remain attributable.",
+        "Current due dates are informational and do not block submissions; whole-case policy approval is still pending."
       ],
       "automation": "planned",
       "evidenceFiles": [
-        "docs/current/TEACHER-WORKSPACE.md"
+        "docs/current/TEACHER-WORKSPACE.md",
+        "tests/integration/submissions-contract.mjs",
+        "lib/education/submissions.ts",
+        "tests/integration/evidence-access-contract.mjs",
+        "tests/worker-specification-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2251,17 +2309,21 @@
       "preconditions": "Use isolated synthetic schools A/B; users admin-A/B, teacher-A/unassigned, student-A/B and linked/unlinked guardians. Apply the candidate migrations and reset affected records before the case.",
       "data": "Approved correction requests with actor,reason,old/new values; unauthorized actor.",
       "steps": [
-        "Correct attendance/result/reading through future auditable flows.",
-        "Read history and reject unauthorized correction."
+        "Inspect implemented reviewed identity, curriculum, submission-feedback and reading evidence.",
+        "Correct reading through its current append-only endpoint and reject unauthorized requests.",
+        "Separately specify pending attendance/result correction and general audit/retention workflows without fabricating endpoints."
       ],
       "expected": [
-        "Original evidence plus actor/school/object/time/reason retained; sensitive log bodies excluded.",
-        "No unauthorized overwrite/deletion; complete correction flow remains planned."
+        "Implemented domain evidence preserves actor/time/version or reason where its contract requires it; reading original remains unchanged.",
+        "Attendance/results and complete platform audit/retention remain incomplete, so this broader case is not fulfilled by the new domain suites."
       ],
       "automation": "planned",
       "evidenceFiles": [
         "docs/education/SECURITY-PRIVACY.md",
-        "HANDOVER.md"
+        "HANDOVER.md",
+        "tests/integration/reading-review-contract.mjs",
+        "tests/integration/identity-admin-contract.mjs",
+        "tests/integration/submissions-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2345,7 +2407,8 @@
       "automation": "existing",
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
-        "lib/education/resources.ts"
+        "lib/education/resources.ts",
+        "tests/integration/curriculum-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2372,7 +2435,9 @@
       "automation": "manual",
       "evidenceFiles": [
         "docs/education/ROADMAP.md",
-        "lib/education/resources.ts"
+        "lib/education/resources.ts",
+        "lib/education/curriculum.ts",
+        "lib/education/submissions.ts"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2400,7 +2465,11 @@
       "evidenceFiles": [
         "tests/integration/resources-contract.mjs",
         "tests/integration/reading-checks-contract.mjs",
-        "docs/education/ROADMAP.md"
+        "docs/education/ROADMAP.md",
+        "tests/integration/identity-admin-contract.mjs",
+        "tests/integration/curriculum-contract.mjs",
+        "tests/integration/submissions-contract.mjs",
+        "tests/integration/reading-review-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2430,7 +2499,8 @@
       "evidenceFiles": [
         "app/resources/page.tsx",
         "app/resources/[id]/page.tsx",
-        "tests/worker-resources-ui-check.mjs"
+        "tests/worker-resources-ui-check.mjs",
+        "tests/worker-specification-ui-check.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2625,7 +2695,11 @@
       "evidenceFiles": [
         "db/schema.ts",
         "tests/support/write-worker-fixture.mjs",
-        "docs/current/AUTH-ACCESS.md"
+        "docs/current/AUTH-ACCESS.md",
+        "drizzle/0004_identity_admin.sql",
+        "drizzle/0005_curriculum.sql",
+        "drizzle/0006_submissions.sql",
+        "drizzle/0007_reading_corrections.sql"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2777,7 +2851,10 @@
       "evidenceFiles": [
         "docs/specification/requirements.json",
         "scripts/audit-requirements.mjs",
-        "scripts/check-documentation.py"
+        "scripts/check-documentation.py",
+        "scripts/check-specification.mjs",
+        "scripts/test-catalogue.mjs",
+        "tests/unit/catalogue-contract.mjs"
       ],
       "execution_status": "not-run-for-this-specification"
     },
@@ -2811,5 +2888,13 @@
       ],
       "execution_status": "not-run-for-this-specification"
     }
-  ]
+  ],
+  "delivery_metadata": {
+    "branch": "feat/specification-delivery",
+    "documentation_base_commit": "d53adcf",
+    "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+    "state": "working-candidate-extension",
+    "date": "2026-10-05",
+    "note": "source_commit preserves the historical v2.0 source. Updated source paths/statuses describe current unaccepted working code; no release, deployment or case execution inferred."
+  }
 }

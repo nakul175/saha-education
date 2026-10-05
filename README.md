@@ -1,6 +1,6 @@
 # Saha Education
 
-The [education documentation set](docs/education/README.md) records the original rebuild baseline and proposed requirements. See [HANDOVER.md](HANDOVER.md) for current implementation and validation.
+Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
 
 Saha Education is a comprehensive school management platform designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
 
@@ -19,15 +19,19 @@ Saha Education is a school management system with the following key features:
 - Report card generation and publishing
 - Notification system for students, teachers, and guardians
 - User roles: admin, teacher, guardian, student
+- Reviewed account provisioning and enablement/disablement with administration evidence
+- Manually authored curriculum references, immutable reviews and source-bound teaching draft copies
+- Approved class resources, learner text attempts and reviewed formative feedback
+- External oral-reading launch configuration, manual observations and attributable corrections/history
 
 ## Roles
 
 The application supports the following user roles:
 
-- **Admin**: Full access to all features and system management
-- **Teacher**: Access to classes they teach, student records, assessments, and attendance
-- **Guardian**: Access to their child's information and grades
-- **Student**: Access to personal profile, classes, assessments, and report cards
+- **Admin**: Administration within their school; owner authority does not override student scope
+- **Teacher**: Assigned classes and scoped learner records; private teaching drafts and approved curriculum sources
+- **Guardian**: Explicitly linked learner records and published reports
+- **Student**: Their own linked profile, active classes, approved assignments, saved responses and reviewed feedback
 
 ## Stack
 
@@ -42,7 +46,7 @@ This project uses:
 
 The architecture was modelled on the Saha Health project while maintaining distinct educational domain terminology and functionality.
 
-See [current authentication/access setup](docs/current/AUTH-ACCESS.md) and [validation evidence](VALIDATION.md). Use synthetic data until provider/account lifecycle and remaining acceptance gates are verified.
+See [current authentication/access setup](docs/current/AUTH-ACCESS.md) and [validation evidence](VALIDATION.md). Use synthetic data until provider/account lifecycle and remaining acceptance gates are verified. The identity provider and external ORF destination remain unconfigured; AI drafting and result synchronization remain planned.
 
 ## Setup
 
@@ -101,7 +105,7 @@ pnpm db:generate
 
 ## Data model
 
-The database schema is managed with Drizzle ORM and consists of the following tables:
+The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) covers all 28 tables/225 fields, including authentication, teaching resources and the specification extensions. Core school-administration tables include:
 
 - **schools**: Stores school information including name, address, and timestamps
 - **users**: User accounts with roles (admin|teacher|guardian|student) and associated school references
@@ -121,7 +125,7 @@ Database migrations are generated using `pnpm db:generate` command.
 
 ## Testing
 
-Saha Education employs a layered testing approach to ensure reliability:
+Saha Education defines the following test layers. Static, unit, integration and smoke suites currently run through the catalogue; separate manual Worker/browser procedures cover built synthetic journeys. Recovery, representative load, full accessibility and educator UAT still require their own configured execution. See the [test strategy](docs/specification/TEST-STRATEGY.md) and [actual validation](VALIDATION.md).
 
 ### Test layers:
 1. **Static**: Type checking, code analysis
@@ -136,11 +140,11 @@ Saha Education employs a layered testing approach to ensure reliability:
 ### Test locations:
 - Unit tests: `tests/unit/`
 - Integration tests: `tests/integration/`
-- API tests: `tests/integration/api/`
-- UI tests: `tests/ui/`
+- API contract tests: `tests/integration/`
+- Manual built-app browser checks: `tests/worker-specification-ui-check.mjs`
 
 ### Test helpers:
-The `tests/support/load-education.mjs` module provides test data loading utilities for database setup during testing. All tests utilize in-memory SQLite databases for isolated test execution.
+The helpers in `tests/support/` load service modules and create disposable synthetic SQLite fixtures for contract tests. Manual served/browser procedures use the built Worker and isolated local D1 state with synthetic sessions. They refuse remote origins.
 
 Test results are aggregated and reported with counts for each layer, showing passed, failed, and skipped test counts to validate system quality before deployment.
 
@@ -148,4 +152,4 @@ Test results are aggregated and reported with counts for each layer, showing pas
 
 - Provider-based sign-in replaces role-selection demo login; provider configuration is pending
 - All records require verified school and relationship scopes; no role cookie grants access
-- Full user role management capabilities have been implemented but may be limited in the demo environment
+- Reviewed account provisioning and status administration are implemented; role, identity, school and profile remapping remain pending

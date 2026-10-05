@@ -1,6 +1,8 @@
 # Data dictionary
 
-Version 2.0 draft, 5 October 2026. Implementation evidence: commit `5488bc0d20412a3d4be0c031c99c259c56834d5e`. This inventory covers **20 implemented SQL tables and 156 columns**, obtained by applying migrations 0000–0003 to an empty isolated SQLite database and comparing [schema](../../db/schema.ts) and migration metadata. No production data was read. The [CSV](DATA-DICTIONARY.csv) contains the same field-level inventory with the exact requested columns.
+Version 2.1 draft, 5 October 2026. Current working inventory: **28 implemented SQL tables and 225 columns**, obtained by applying migrations 0000–0007 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had20 tables/156 fields. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 Requirement references: FR-01–FR-03 identity/access; FR-05–FR-12 school/academic records; FR-13–FR-18 teacher resources; FR-20 reviewed reading; NFR-01/NFR-02 constraints and concurrency; NFR-03 retention. IDs and status are canonical in [requirements.json](requirements.json); business context is in [BRD](BRD.md).
 
@@ -21,6 +23,9 @@ Sensitivity labels are engineering handling descriptions, not an approved legal 
 - Reading CHECKs enforce integer milliseconds/counts and fixed source/provenance. Its service additionally enforces valid nonfuture UTC reading date, language/reference limits, staff scope and retry semantics.
 - Resource CHECKs enforce positive integer versions, resource type and paired approval nullability. The unique resource/version key arbitrates stale concurrent revisions; unique version/class protects assignment retries. Content bounds, version/resource consistency, approval eligibility and active student class visibility are service rules. Only approval metadata changes in-place; content versions/assignments are append-only through implemented APIs, not database immutable-row triggers.
 - `attendance.recorded_by` is TEXT without an FK. Newer reading/resource actor references have user FKs. User/guardian/student relationship backfill is not performed by migration 0001.
+
+- New administration, curriculum and submission CHECK/unique keys enforce local row shape and revision uniqueness; same-school, live role, review and exact-version authority remain guarded service predicates. Identity status/session/evidence changes and curriculum resource-copy/provenance use atomic D1 batches.
+- Reading corrections have database no-update/no-delete triggers as well as service revision guards. Other new domain histories are append-only through their APIs; do not infer immutable-row triggers where none exist.
 
 ## `assessment_results`
 
@@ -120,6 +125,41 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0002_rev
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 
+## `curriculum_reference_versions`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Stable exact source-version UUID, distinct from human version number. | Internal draft/reviewed source content and declared rights |
+| reference_id | TEXT | no | none | FK curriculum_references.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE curriculum_versions_reference_number (reference_id, version) | Reference header that owns this immutable content revision. | Internal draft/reviewed source content and declared rights |
+| version | INTEGER | no | none | UNIQUE curriculum_versions_reference_number (reference_id, version); CHECK typeof(version) = 'integer' AND version BETWEEN 1 AND 1000000 | Successive content version 1–1000000; stale expected-version writes conflict. | Internal draft/reviewed source content and declared rights |
+| title | TEXT | no | none | No additional DB constraint | Trimmed reference title; service maximum 160 characters. | Internal draft/reviewed source content and declared rights |
+| curriculum | TEXT | no | none | No additional DB constraint | Declared curriculum context text, maximum 120; no certified alignment implied. | Internal draft/reviewed source content and declared rights |
+| grade_level | TEXT | no | none | No additional DB constraint | Declared grade context text, maximum 40. | Internal draft/reviewed source content and declared rights |
+| subject | TEXT | no | none | No additional DB constraint | Declared subject context text, maximum 80. | Internal draft/reviewed source content and declared rights |
+| language | TEXT | no | none | No additional DB constraint | Language tag, service maximum 35; not a validated curriculum-language suitability claim. | Internal draft/reviewed source content and declared rights |
+| objectives | TEXT | no | none | No additional DB constraint | Manually authored objectives, trimmed 1–4000 characters. | Internal draft/reviewed source content and declared rights |
+| body | TEXT | no | none | CHECK length(trim(body)) BETWEEN 1 AND 20000 | Manually authored source content, trimmed 1–20000; no fetched/imported licensed content. | Internal draft/reviewed source content and declared rights |
+| rights_statement | TEXT | no | none | CHECK length(trim(rights_statement)) BETWEEN 1 AND 2000 | Mandatory declared rights/permission statement, trimmed 1–2000; not independently verified by software. | Internal draft/reviewed source content and declared rights |
+| source_reference | TEXT | no | '' | No additional DB constraint | Optional bounded source/citation label, service maximum 300; SQL default empty string. | Internal draft/reviewed source content and declared rights |
+| source_url | TEXT | yes | none | No additional DB constraint | Optional manually entered HTTPS source URL, service maximum 2000; not fetched by the service. | Internal draft/reviewed source content and declared rights |
+| created_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Staff actor who appended this source version. | Internal draft/reviewed source content and declared rights |
+| created_at | TEXT | no | none | No additional DB constraint | Server ISO version creation timestamp. | Internal draft/reviewed source content and declared rights |
+| approved_by | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK (approved_by IS NULL AND approved_at IS NULL) OR (approved_by IS NOT NULL AND approved_at IS NOT NULL) | First staff reviewer of this exact version; NULL while draft. | Internal draft/reviewed source content and declared rights |
+| approved_at | TEXT | yes | none | CHECK (approved_by IS NULL AND approved_at IS NULL) OR (approved_by IS NOT NULL AND approved_at IS NOT NULL) | First exact-version approval ISO timestamp; paired with approved_by. | Internal draft/reviewed source content and declared rights |
+
+Source: db/curriculum-schema.ts; drizzle/0005_curriculum.sql.
+
+## `curriculum_references`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Stable manually authored reference UUID; optional client retry UUID supported. | Internal staff curriculum reference metadata |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX curriculum_references_school_author (school_id, author_id) | School owning the staff reference. | Internal staff curriculum reference metadata |
+| author_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX curriculum_references_school_author (school_id, author_id) | Original staff author; teachers manage only their own references. | Internal staff curriculum reference metadata |
+| created_at | TEXT | no | none | No additional DB constraint | Server ISO reference creation timestamp. | Internal staff curriculum reference metadata |
+
+Source: db/curriculum-schema.ts; drizzle/0005_curriculum.sql.
+
 ## `enrolments`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -149,6 +189,35 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 | school_id | TEXT | yes | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Optional legacy school ownership; null legacy records fail closed in scoped services. New API records infer the principal school. | Protected family/contact data |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql.
+
+## `identity_admin_events`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Client review UUID and global idempotency key, preserved across exact retries. | Restricted attributable account administration evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_events_school_reviewed (school_id, reviewed_at) | Actor-fixed school of the decision; school scope is checked by service. | Restricted attributable account administration evidence |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current enabled school administrator who explicitly reviewed the action. | Restricted attributable account administration evidence |
+| user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_events_user (user_id) | Provisioned or status-reviewed account; its profile ownership is not remapped. | Restricted attributable account administration evidence |
+| action | TEXT | no | none | CHECK action IN ('provision', 'enable', 'disable') | Decision kind: provision, enable or disable. | Restricted attributable account administration evidence |
+| reason | TEXT | no | none | No additional DB constraint | Explicit one-line review reason/reference, service length10–500; avoid secrets and unnecessary personal data. | Restricted attributable account administration evidence |
+| reviewed_at | TEXT | no | none | INDEX identity_admin_events_school_reviewed (school_id, reviewed_at) | Server ISO review/decision timestamp. | Restricted attributable account administration evidence |
+| previous_enabled | INTEGER | yes | none | CHECK (previous_enabled IS NULL OR previous_enabled IN (0, 1)) AND next_enabled IN (0, 1) | NULL for provisioning; otherwise previous account-enabled flag 0/1. | Restricted attributable account administration evidence |
+| next_enabled | INTEGER | no | none | CHECK (previous_enabled IS NULL OR previous_enabled IN (0, 1)) AND next_enabled IN (0, 1) | Resulting account-enabled flag 0/1. | Restricted attributable account administration evidence |
+| expected_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version > expected_version | Supplied status revision or0 for initial provisioning. | Restricted attributable account administration evidence |
+| resulting_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version > expected_version | Committed expected revision plus 1. | Restricted attributable account administration evidence |
+| request_hash | TEXT | no | none | No additional DB constraint | Private SHA-256 digest of canonical reviewed operation payload; not exposed in event responses. | Restricted attributable account administration evidence |
+| attempt_id | TEXT | no | none | No additional DB constraint | Private server attempt UUID gates one transaction so an old request replay cannot apply its decision again. | Restricted attributable account administration evidence |
+
+Source: db/identity-admin-schema.ts; drizzle/0004_identity_admin.sql.
+
+## `identity_admin_user_versions`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| user_id | TEXT | no | none | PK; FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Account whose reviewed administration revision is tracked; existing accounts without a row read as version 0. | Restricted account administration metadata |
+| version | INTEGER | no | none | CHECK typeof(version) = 'integer' AND version >= 0 | Optimistic account-administration revision; provision creates1, reviewed status changes increment once. | Restricted account administration metadata |
+
+Source: db/identity-admin-schema.ts; drizzle/0004_identity_admin.sql.
 
 ## `notifications`
 
@@ -196,13 +265,26 @@ Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
 | words_correct | INTEGER | no | none | CHECK reading_checks_word_counts | Integer 0..words_attempted numerator; interpretation/comparability policy pending. | Protected learner education observation |
 | created_at | TEXT | no | none | No additional DB constraint | ISO creation timestamp, generated by service; no database timestamp default. | Protected learner education observation |
 
-Exact table CHECK expressions:
-
-- `reading_checks_duration`: `typeof("reading_checks"."duration_ms") = 'integer' AND "reading_checks"."duration_ms" BETWEEN 1000 AND 3600000`.
-- `reading_checks_word_counts`: `typeof("reading_checks"."words_attempted") = 'integer' AND typeof("reading_checks"."words_correct") = 'integer' AND "reading_checks"."words_attempted" BETWEEN 1 AND 500 AND "reading_checks"."words_correct" BETWEEN 0 AND "reading_checks"."words_attempted"`.
-- `reading_checks_source`: `"reading_checks"."source_app_id" = 'oral-reading-fluency' AND "reading_checks"."provenance" = 'manual-reviewed-external'`.
-
 Source: db/schema.ts; drizzle/0002_reviewed_reading.sql.
+
+## `reading_corrections`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; No UPDATE/DELETE: immutable-row triggers | Client correction UUID, stable across exact reviewed-payload retries. | Protected learner observation correction evidence |
+| reading_check_id | TEXT | no | none | FK reading_checks.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE reading_corrections_check_revision (reading_check_id, revision); No UPDATE/DELETE: immutable-row triggers | Original manual observation; source row is preserved. | Protected learner observation correction evidence |
+| revision | INTEGER | no | none | UNIQUE reading_corrections_check_revision (reading_check_id, revision); CHECK typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000000; No UPDATE/DELETE: immutable-row triggers | Successive correction revision, expectedRevision plus 1,1–1000000. | Protected learner observation correction evidence |
+| corrected_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX reading_corrections_actor (corrected_by, corrected_at); No UPDATE/DELETE: immutable-row triggers | Current assigned teacher or school administrator, rechecked at insertion. | Protected learner observation correction evidence |
+| corrected_at | TEXT | no | none | INDEX reading_corrections_actor (corrected_by, corrected_at); No UPDATE/DELETE: immutable-row triggers | Server ISO correction timestamp. | Protected learner observation correction evidence |
+| reason | TEXT | no | none | CHECK length(trim(reason)) BETWEEN 1 AND 1000; No UPDATE/DELETE: immutable-row triggers | Plain reviewed correction reason, trimmed 1–1000, excludes controls and angle brackets. | Protected learner observation correction evidence |
+| language | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement language tag; effective history uses latest correction. | Protected learner observation correction evidence |
+| passage_reference | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement plain task reference, service maximum 200; not a transcript/full passage. | Protected learner observation correction evidence |
+| reading_date | TEXT | no | none | No UPDATE/DELETE: immutable-row triggers | Replacement valid nonfuture UTC calendar date as YYYY-MM-DD. | Protected learner observation correction evidence |
+| duration_ms | INTEGER | no | none | CHECK typeof(duration_ms) = 'integer' AND duration_ms BETWEEN 1000 AND 3600000; No UPDATE/DELETE: immutable-row triggers | Replacement rounded integer duration 1000–3600000 milliseconds. | Protected learner observation correction evidence |
+| words_attempted | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer attempted words1–500. | Protected learner observation correction evidence |
+| words_correct | INTEGER | no | none | CHECK typeof(words_attempted) = 'integer' AND typeof(words_correct) = 'integer' AND words_attempted BETWEEN 1 AND 500 AND words_correct BETWEEN 0 AND words_attempted; No UPDATE/DELETE: immutable-row triggers | Replacement integer correct words0–words_attempted; rate/accuracy are derived, not stored. | Protected learner observation correction evidence |
+
+Source: db/reading-correction-schema.ts; drizzle/0007_reading_corrections.sql.
 
 ## `report_cards`
 
@@ -233,6 +315,20 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 
 Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 
+## `resource_reference_bindings`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Server UUID for the durable reference-copy evidence. | Internal immutable source-to-draft provenance |
+| resource_id | TEXT | no | none | FK teaching_resources.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Copied teaching resource header. | Internal immutable source-to-draft provenance |
+| resource_version_id | TEXT | no | none | FK resource_versions.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE resource_reference_bindings_resource_version (resource_version_id) | Exact initial copied resource version; one binding per resource version. | Internal immutable source-to-draft provenance |
+| reference_id | TEXT | no | none | FK curriculum_references.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Originating manual curriculum reference header. | Internal immutable source-to-draft provenance |
+| reference_version_id | TEXT | no | none | FK curriculum_reference_versions.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX resource_reference_bindings_source (reference_version_id) | Exact reviewed source version copied; later source revisions do not rebind this record. | Internal immutable source-to-draft provenance |
+| selected_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Staff actor who selected/copied this exact source version. | Internal immutable source-to-draft provenance |
+| created_at | TEXT | no | none | No additional DB constraint | Server ISO copy/provenance creation timestamp. | Internal immutable source-to-draft provenance |
+
+Source: db/curriculum-schema.ts; drizzle/0005_curriculum.sql.
+
 ## `resource_versions`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -254,12 +350,6 @@ Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 | created_at | TEXT | no | none | No additional DB constraint | ISO creation timestamp, generated by service; no database timestamp default. | Internal draft/reviewed teaching content |
 | approved_by | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; CHECK resource_versions_approval_pair | One-time approving staff account; null until explicit version review. Self-review is currently allowed. | Internal draft/reviewed teaching content |
 | approved_at | TEXT | yes | none | CHECK resource_versions_approval_pair | One-time ISO approval time; paired with approved_by; new revisions reset both to null. | Internal draft/reviewed teaching content |
-
-Exact table CHECK expressions:
-
-- `resource_versions_positive`: `typeof("resource_versions"."version") = 'integer' AND "resource_versions"."version" >= 1`.
-- `resource_versions_type`: `"resource_versions"."type" IN ('lesson', 'worksheet', 'quiz', 'activity')`.
-- `resource_versions_approval_pair`: `("resource_versions"."approved_by" IS NULL AND "resource_versions"."approved_at" IS NULL) OR ("resource_versions"."approved_by" IS NOT NULL AND "resource_versions"."approved_at" IS NOT NULL)`.
 
 Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 
@@ -302,6 +392,34 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql, drizzle/0002_reviewed_reading.sql.
 
+## `submission_attempts`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Client submission UUID, stable for uncertain exact-payload retries. | Protected learner response and attempt history |
+| assignment_id | TEXT | no | none | FK resource_assignments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX submission_attempts_assignment (assignment_id, created_at); UNIQUE submission_attempts_assignment_student_number (assignment_id, student_id, attempt) | Authorized class assignment that owns the attempt. | Protected learner response and attempt history |
+| version_id | TEXT | no | none | FK resource_versions.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Exact approved assigned resource version, fixed by server. | Protected learner response and attempt history |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE submission_attempts_assignment_student_number (assignment_id, student_id, attempt) | Student profile explicitly linked to submitting account. | Protected learner response and attempt history |
+| submitted_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Authenticated student account; no caller-selected learner ownership. | Protected learner response and attempt history |
+| attempt | INTEGER | no | none | UNIQUE submission_attempts_assignment_student_number (assignment_id, student_id, attempt); CHECK typeof(attempt) = 'integer' AND attempt BETWEEN 1 AND 1000001 | Immutable per-assignment/per-student attempt number, expectedAttempt plus 1. | Protected learner response and attempt history |
+| response | TEXT | no | none | CHECK length(trim(response)) BETWEEN 1 AND 20000 | Escaped plain-text learner response, trimmed 1–20000; not an upload or HTML execution contract. | Protected learner response and attempt history |
+| created_at | TEXT | no | none | INDEX submission_attempts_assignment (assignment_id, created_at) | Server ISO attempt timestamp; due dates do not enforce a deadline in this slice. | Protected learner response and attempt history |
+
+Source: db/submission-schema.ts; drizzle/0006_submissions.sql.
+
+## `submission_feedback`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Client feedback UUID, stable for exact reviewed-payload retries. | Protected formative learner feedback |
+| submission_id | TEXT | no | none | FK submission_attempts.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX submission_feedback_submission (submission_id); UNIQUE submission_feedback_submission_revision (submission_id, revision) | Immutable learner attempt being reviewed. | Protected formative learner feedback |
+| revision | INTEGER | no | none | UNIQUE submission_feedback_submission_revision (submission_id, revision); CHECK typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000001 | Immutable feedback sequence for this attempt, expectedRevision plus 1. | Protected formative learner feedback |
+| feedback | TEXT | no | none | CHECK length(trim(feedback)) BETWEEN 1 AND 8000 | Reviewed formative text, trimmed 1–8000; no automatic grade/publication. | Protected formative learner feedback |
+| reviewed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Authorized current school administrator or assigned teacher. | Protected formative learner feedback |
+| reviewed_at | TEXT | no | none | No additional DB constraint | Server ISO explicit-review timestamp. | Protected formative learner feedback |
+
+Source: db/submission-schema.ts; drizzle/0006_submissions.sql.
+
 ## `teaching_resources`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -330,16 +448,6 @@ Source: db/schema.ts; drizzle/0003_teacher_resources.sql.
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql, drizzle/0002_reviewed_reading.sql, drizzle/0003_teacher_resources.sql.
 
-## Proposed future entities — not implemented tables
+## Remaining proposed entities and policies
 
-These are design candidates, absent from migrations and APIs; they are excluded from the implemented counts above. Field names and relationships require functional/design approval before a migration.
-
-| Candidate entity | Proposed minimum fields / relationships | Requirement | Unresolved policy |
-|---|---|---|---|
-| Curriculum source and source version | school/context, original/licensed source reference, version, subject/grade/language, reviewer, rights/provenance | FR-22 | Pilot curriculum, rights, reference bounds and retention |
-| AI draft run | requesting staff/resource version, provider/model configuration reference, approved source versions, generated provisional content, status/cost/failure/provenance | FR-23 | Provider, data minimization, budget, consent and review; no credentials stored in content |
-| Learner submission and feedback | assignment/version/student references, attributable submission/feedback revisions and publication status | FR-24 | Formats, deadlines, correction/history, guardian visibility and retention |
-| Audit/correction event | actor, school/object, action, immutable correlation/version references and reason/time | FR-26 | Event scope, sensitive-field redaction, correction workflow and retention |
-| External mapping/import receipt | approved provider/tenant, pseudonymous mapping, external event key, payload digest, reviewed import status and attribution | FR-25 | Confirmed contract, identity authority, consent, replay/conflict and deletion |
-
-Existing `resource_versions.curriculum` is free context text and is not a curriculum entity. Existing approval fields are version-specific evidence and are not a general audit-events table. Existing `reading_checks` contains numeric manual observations and is not an external-result payload store. See [integration contracts](INTEGRATION-CONTRACTS.md) and [API contracts](API-CONTRACTS.md).
+AI draft runs/provider provenance/budget, external mapping/import receipts, general academic audit, verified license lifecycle, enforceable submission windows/grades, guardian feedback publication and approved retention/export/deletion remain unimplemented or unresolved. Manual curriculum reference statements are not automated licensing checks. Account administration does not retrofit missing identity/profile ownership. Existing resource curriculum labels remain free text; durable source-copy evidence is in `resource_reference_bindings`. Numeric reading observations/corrections contain no audio, transcript or external-result payload. See [integration contracts](INTEGRATION-CONTRACTS.md) and [API contracts](API-CONTRACTS.md).

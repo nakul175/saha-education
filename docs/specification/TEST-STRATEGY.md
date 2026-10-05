@@ -1,10 +1,12 @@
 # Platform test strategy
 
-Version 2.0 draft, 5 October 2026. Source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 ## Purpose and scope
 
-Validate identity/access, coherent academic records, original teacher resource preparation, exact saved-version review/distribution and responsibly reviewed reading evidence. Proposed curriculum/AI/submission/adapter/audit features are tested as future acceptance design, not claimed implementation. Read [functional specification](FSD.md), [architecture](HLD.md), [low-level design](LLD.md) and [case register](TEST-CASES.json) together; unresolved decisions belong in [decisions/risks](DECISIONS-RISKS.md).
+Validate identity/access, coherent academic records, original teacher preparation, exact review/distribution and reviewed reading evidence. The working extension adds actual reviewed accounts, manual declared source versions/copies, text attempts/formative feedback and reading correction/history. AI/adapters, role/profile remapping, verified licensing, full academic audit, enforced deadlines/grades and approved pilot policies remain future scope. Read [FSD](FSD.md), [HLD](HLD.md), [LLD](LLD.md) and [case register](TEST-CASES.json) together; unresolved decisions belong in [decisions/risks](DECISIONS-RISKS.md).
 
 ## Four distinct records
 
@@ -32,7 +34,7 @@ Fixture set: schools A/B; administrators A/B; assigned and unassigned teachers; 
 |---|---|---|
 | Unit | Isolated rule data and explicit boundary expectations | Deterministic validation/calculation results; no production/runtime inference |
 | Integration | Real disposable schema/relationships and handler dependencies | Expected status plus persisted-state/transaction/authority assertions; fault/race cases included |
-| Smoke | Fresh relevant build, running local Worker, synthetic sessions | Mandatory current P0 access/privacy/pinned-version flows; placeholder basic smoke cannot satisfy this |
+| Smoke | Offline actual route/migration/session boot; served layer needs fresh build/running Worker | Current offline suite replaces historical placeholder; served P0 access/privacy/version/domain journeys still need separate execution |
 | Regression | Changed-area impact and baseline inventory | Risk-tier selection justified, targeted suite outcomes captured; unchanged assertion counts do not prove correctness |
 | Security | Two-school/role/profile matrix and mutation origins | No unauthorized disclosure/mutation; safe errors/logs; callback/replay/claim failures verified |
 | Performance | Approved representative volume/concurrency/journey mix | Latency/error/saturation/query metrics measured; acceptance blocked without approved targets |

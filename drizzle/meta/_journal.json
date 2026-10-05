@@ -29,6 +29,34 @@
       "when": 1791176345420,
       "tag": "0003_teacher_resources",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791182763597,
+      "tag": "0004_identity_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791182763598,
+      "tag": "0005_curriculum",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791182763599,
+      "tag": "0006_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791182763600,
+      "tag": "0007_reading_corrections",
+      "breakpoints": true
     }
   ]
 }

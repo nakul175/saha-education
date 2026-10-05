@@ -1,5 +1,5 @@
 {
-  "version": "2.0-draft",
+  "version": "2.1-draft",
   "date": "2026-10-05",
   "source_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
   "approved": false,
@@ -49,8 +49,8 @@
       "id": "FR-04",
       "business": "BR-01",
       "title": "Identity administration",
-      "implementation_status": "planned",
-      "source": "docs/current/AUTH-ACCESS.md",
+      "implementation_status": "partial",
+      "source": "lib/education/identity-admin.ts",
       "requirement": "Reviewed provisioning, disablement and profile linking workflows; no automatic public registration.",
       "approved": false
     },
@@ -202,8 +202,8 @@
       "id": "FR-21",
       "business": "BR-07",
       "title": "Reading review and trends",
-      "implementation_status": "planned",
-      "source": "docs/current/EXTERNAL-READING.md",
+      "implementation_status": "partial",
+      "source": "lib/education/reading-review.ts",
       "requirement": "Add attributable corrections and comparable-task history after educator scoring policy.",
       "approved": false
     },
@@ -211,8 +211,8 @@
       "id": "FR-22",
       "business": "BR-03",
       "title": "Curriculum reference library",
-      "implementation_status": "planned",
-      "source": "docs/current/AMPLIFY-LITERACY-PLAN.md",
+      "implementation_status": "partial",
+      "source": "lib/education/curriculum.ts",
       "requirement": "Use versioned original/licensed reference sources for selected curricula and languages.",
       "approved": false
     },
@@ -229,8 +229,8 @@
       "id": "FR-24",
       "business": "BR-05",
       "title": "Learner submission and feedback",
-      "implementation_status": "planned",
-      "source": "docs/current/TEACHER-WORKSPACE.md",
+      "implementation_status": "partial",
+      "source": "lib/education/submissions.ts",
       "requirement": "Collect authorized submissions and reviewed feedback without modifying assigned content.",
       "approved": false
     },
@@ -247,8 +247,8 @@
       "id": "FR-26",
       "business": "BR-10",
       "title": "Audit and corrections",
-      "implementation_status": "planned",
-      "source": "docs/education/SECURITY-PRIVACY.md",
+      "implementation_status": "partial",
+      "source": "docs/current/SPECIFICATION-DELIVERY.md",
       "requirement": "Preserve attributable correction/review evidence and agree retention before real records.",
       "approved": false
     },
@@ -333,5 +333,13 @@
       "requirement": "Keep requirements/design/case/evidence links and review impact without promoting coverage to acceptance.",
       "approved": false
     }
-  ]
+  ],
+  "delivery_metadata": {
+    "branch": "feat/specification-delivery",
+    "documentation_base_commit": "d53adcf",
+    "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+    "state": "working-candidate-extension",
+    "date": "2026-10-05",
+    "note": "source_commit preserves the historical v2.0 source. Updated source paths/statuses describe current unaccepted working code; no release, deployment or case execution inferred."
+  }
 }

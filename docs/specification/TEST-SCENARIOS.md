@@ -1,6 +1,8 @@
 # Platform test scenarios
 
-Version 2.0 draft, 5 October 2026. Source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
@@ -18,10 +20,10 @@ This draft contains **101 cases in 18 scenarios**, covers all **35 functional/no
 | SC-08 | Concurrent revisions and exact-version review | TC-043, TC-044, TC-045, TC-046, TC-047, TC-048, TC-049 | FR-03, FR-14, FR-15, NFR-02, NFR-05 |
 | SC-09 | Assignment, learner privacy and printing | TC-050, TC-051, TC-052, TC-053, TC-054, TC-055, TC-056 | FR-03, FR-08, FR-15, FR-16, FR-17, FR-18, NFR-02, NFR-03, NFR-05 |
 | SC-10 | External application launch | TC-057, TC-058, TC-059, TC-060 | FR-03, FR-19, FR-25, NFR-01, NFR-03 |
-| SC-11 | Reviewed numeric ORF and correction gaps | TC-061, TC-062, TC-063, TC-064, TC-065, TC-066, TC-067 | FR-03, FR-20, FR-21, FR-26, NFR-01, NFR-02, NFR-03, NFR-06 |
+| SC-11 | Reviewed numeric ORF and correction history | TC-061, TC-062, TC-063, TC-064, TC-065, TC-066, TC-067 | FR-03, FR-20, FR-21, FR-26, NFR-01, NFR-02, NFR-03, NFR-06 |
 | SC-12 | Curriculum sources and language suitability | TC-068, TC-069, TC-070, TC-071 | FR-13, FR-21, FR-22, FR-23, NFR-06 |
 | SC-13 | Future AI drafting: failure, review and privacy | TC-072, TC-073, TC-074, TC-075, TC-076, TC-077 | FR-15, FR-22, FR-23, NFR-01, NFR-02, NFR-03, NFR-04, NFR-06, NFR-08 |
-| SC-14 | Future submissions and verified adapters | TC-078, TC-079, TC-080, TC-081 | FR-03, FR-17, FR-24, FR-25, FR-26, NFR-01, NFR-02, NFR-03 |
+| SC-14 | Text submissions and future verified adapters | TC-078, TC-079, TC-080, TC-081 | FR-03, FR-17, FR-24, FR-25, FR-26, NFR-01, NFR-02, NFR-03 |
 | SC-15 | Audit, retention and data minimization | TC-082, TC-083, TC-084, TC-085 | FR-09, FR-10, FR-14, FR-15, FR-21, FR-26, NFR-01, NFR-03, NFR-08 |
 | SC-16 | Performance and accessibility | TC-086, TC-087, TC-088, TC-089, TC-090 | FR-13, FR-15, FR-16, FR-17, FR-18, NFR-02, NFR-04, NFR-05 |
 | SC-17 | Recovery, incidents and release environment | TC-091, TC-092, TC-093, TC-094, TC-095 | FR-03, FR-04, NFR-01, NFR-02, NFR-03, NFR-07, NFR-08, NFR-09 |
@@ -29,7 +31,7 @@ This draft contains **101 cases in 18 scenarios**, covers all **35 functional/no
 
 ## Execution boundaries
 
-Current positive/negative resource/session/reading cases can be implemented against the candidate with synthetic data. Planned corrections, curriculum library, AI, submissions, adapters and hosted recovery must remain blocked until their contracts and policies exist. Their expected results describe proposed acceptance behavior, not available endpoints. Live provider/browser callback and external-app availability require independently verified configuration.
+Current positive/negative resource/session/reading cases can be implemented against the candidate with synthetic data. Reviewed identity, manual curriculum versions/copies, text submissions/feedback and reading corrections now have concrete current endpoints. Related runnable suites are mapped without executing the designed cases. AI/adapters, licensed-content verification, role/profile remapping, full academic audit and hosted recovery still require their pending contracts/policies. Live provider/browser callback and external-app availability require independently verified configuration.
 
 Do not convert grouped historical assertions to case passes. A tester must execute the specified steps, compare each expected result and record revision/environment/fixture/defect evidence. Cases can be failed or blocked while the containing suite passes a narrower check.
 
@@ -56,7 +58,7 @@ Cases: TC-011, TC-012, TC-013, TC-014, TC-015. See the case register for each ex
 - TC-012 — Expired, malformed and duplicate cookies (security, existing).
 - TC-013 — Logout revocation and double logout (integration, planned).
 - TC-014 — Disabled user and live role/school changes (integration, planned).
-- TC-015 — Disable/re-enable lifecycle revokes prior sessions (integration, planned).
+- TC-015 — Disable/re-enable lifecycle revokes prior sessions (integration, existing).
 
 ## SC-03: Record and origin authorization
 
@@ -143,7 +145,7 @@ Cases: TC-057, TC-058, TC-059, TC-060. See the case register for each explicit f
 - TC-059 — External launch family and foreign student denial (security, existing).
 - TC-060 — Confirmed app availability and separate sign-in (uat, manual).
 
-## SC-11: Reviewed numeric ORF and correction gaps
+## SC-11: Reviewed numeric ORF and correction history
 
 Cases: TC-061, TC-062, TC-063, TC-064, TC-065, TC-066, TC-067. See the case register for each explicit fixture, procedure and expected outcome.
 
@@ -152,14 +154,14 @@ Cases: TC-061, TC-062, TC-063, TC-064, TC-065, TC-066, TC-067. See the case regi
 - TC-063 — ORF immutable retries and actor collisions (integration, existing).
 - TC-064 — Manual provenance cannot be forged (security, existing).
 - TC-065 — ORF assigned roster and family visibility (integration, existing).
-- TC-066 — Attributable ORF corrections future flow (integration, planned).
+- TC-066 — Attributable ORF corrections and preserved original (integration, existing).
 - TC-067 — Comparable-task trends and non-diagnostic language (uat, manual).
 
 ## SC-12: Curriculum sources and language suitability
 
 Cases: TC-068, TC-069, TC-070, TC-071. See the case register for each explicit fixture, procedure and expected outcome.
 
-- TC-068 — Versioned original/licensed curriculum sources (integration, planned).
+- TC-068 — Versioned original/licensed curriculum sources (integration, existing).
 - TC-069 — Missing/withdrawn source and unsupported alignment (integration, planned).
 - TC-070 — English/Hindi content and locale completeness (uat, manual).
 - TC-071 — Language-specific assessment interpretation (uat, manual).
@@ -175,11 +177,11 @@ Cases: TC-072, TC-073, TC-074, TC-075, TC-076, TC-077. See the case register for
 - TC-076 — AI budget and repeat-request controls (integration, planned).
 - TC-077 — Educator AI content review and disclosure (uat, manual).
 
-## SC-14: Future submissions and verified adapters
+## SC-14: Text submissions and future verified adapters
 
 Cases: TC-078, TC-079, TC-080, TC-081. See the case register for each explicit fixture, procedure and expected outcome.
 
-- TC-078 — Future authorized learner submission and feedback (integration, planned).
+- TC-078 — Authorized text submission and reviewed formative feedback (integration, existing).
 - TC-079 — Submission retries, corrections and late policy (integration, planned).
 - TC-080 — Verified external result mapping and schema (integration, planned).
 - TC-081 — Adapter replay, outage and revoked authorization (integration, planned).

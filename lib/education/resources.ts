@@ -30,9 +30,19 @@ function staff(principal: Principal): void {
   assertPrincipal(principal);
   if (principal.role !== 'admin' && principal.role !== 'teacher') throw new AccessError('Staff resource access required');
 }
+function liveActor(principal: Principal) {
+  assertPrincipal(principal);
+  return sql`exists (select 1 from users u where u.id = ${principal.id} and u.school_id = ${principal.schoolId}
+    and u.role = ${principal.role} and u.disabled_at is null
+    and u.identity_issuer is not null and u.identity_issuer <> '' and u.identity_subject is not null and u.identity_subject <> '')`;
+}
 function resourceScope(principal: Principal) {
   staff(principal);
-  return and(eq(teachingResources.schoolId, principal.schoolId!), principal.role === 'teacher' ? eq(teachingResources.authorId, principal.id) : undefined);
+  return and(eq(teachingResources.schoolId, principal.schoolId!), liveActor(principal), principal.role === 'teacher' ? eq(teachingResources.authorId, principal.id) : undefined);
+}
+function resourceAccess(principal: Principal, id: string, owned = false) {
+  return sql`exists (select 1 from teaching_resources where ${teachingResources.id} = ${id} and ${resourceScope(principal)}
+    ${owned ? sql`and ${teachingResources.authorId} = ${principal.id}` : sql``})`;
 }
 type VersionRow = typeof resourceVersions.$inferSelect;
 type ResourceRow = typeof teachingResources.$inferSelect;
@@ -55,36 +65,46 @@ async function requiredResource(principal: Principal, id: string): Promise<Resou
   if (!row) throw new AccessError('Resource not found', 404);
   return row;
 }
-async function exactVersion(resourceId: string, versionId: string): Promise<VersionRow> {
-  const [row] = await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.id, identifier.parse(versionId)), eq(resourceVersions.resourceId, resourceId))).limit(1);
+async function exactVersion(principal: Principal, resourceId: string, versionId: string): Promise<VersionRow> {
+  const [row] = await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.id, identifier.parse(versionId)), eq(resourceVersions.resourceId, resourceId), resourceAccess(principal, resourceId))).limit(1);
   if (!row) throw new AccessError('Resource version not found', 404);
   return row;
 }
 export async function listResources(principal: Principal): Promise<TeachingResource[]> {
-  const rows = await getDb().select().from(teachingResources).where(resourceScope(principal)).orderBy(desc(teachingResources.createdAt));
-  const result = [];
-  for (const row of rows) {
-    const [latest] = await getDb().select().from(resourceVersions).where(eq(resourceVersions.resourceId, row.id)).orderBy(desc(resourceVersions.version)).limit(1);
-    if (latest) result.push(resourceView(row, latest));
-  }
-  return result;
+  // Resolve every latest version in one scoped query instead of one query per
+  // resource. The unique(resource_id, version) index supports the anti-join.
+  const rows = await getDb().select({ resource: teachingResources, latest: resourceVersions }).from(teachingResources)
+    .innerJoin(resourceVersions, eq(resourceVersions.resourceId, teachingResources.id))
+    .where(and(resourceScope(principal), sql`not exists (select 1 from resource_versions newer
+      where newer.resource_id = ${teachingResources.id} and newer.version > ${resourceVersions.version})`))
+    .orderBy(desc(teachingResources.createdAt));
+  return rows.map(row => resourceView(row.resource, row.latest));
 }
 export async function getResource(principal: Principal, id: string): Promise<TeachingResource | null> {
   const row = await resourceRow(principal, id);
   if (!row) return null;
-  const [latest] = await getDb().select().from(resourceVersions).where(eq(resourceVersions.resourceId, row.id)).orderBy(desc(resourceVersions.version)).limit(1);
+  const [latest] = await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.resourceId, row.id), resourceAccess(principal, row.id))).orderBy(desc(resourceVersions.version)).limit(1);
   return latest ? resourceView(row, latest) : null;
 }
 async function originalRetry(principal: Principal, id: string, content: ResourceContent): Promise<TeachingResource> {
-  const [row] = await getDb().select().from(teachingResources).where(and(eq(teachingResources.id, id), eq(teachingResources.authorId, principal.id), eq(teachingResources.schoolId, principal.schoolId!))).limit(1);
+  const [row] = await getDb().select().from(teachingResources).where(and(eq(teachingResources.id, id), eq(teachingResources.authorId, principal.id), resourceScope(principal))).limit(1);
   if (!row) throw new ResourceConflict();
-  const [version] = await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.resourceId, id), eq(resourceVersions.version, 1))).limit(1);
+  const [version] = await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.resourceId, id), eq(resourceVersions.version, 1), resourceAccess(principal, id, true))).limit(1);
   if (!version || !Object.entries(content).every(([key, value]) => version[key as keyof VersionRow] === value)) throw new ResourceConflict();
   return resourceView(row, version);
 }
 function uniqueFailure(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   return /UNIQUE constraint failed|PRIMARY KEY constraint failed/i.test(error.message) || (error.cause !== undefined && uniqueFailure(error.cause));
+}
+function insertVersion(principal: Principal, version: VersionRow, expectedVersion?: number) {
+  const current = expectedVersion === undefined ? sql`1 = 1` : sql`coalesce((select max(existing.version) from resource_versions existing
+    where existing.resource_id = ${version.resourceId}), 0) = ${expectedVersion}`;
+  return getDb().insert(resourceVersions).select(sql`select ${version.id}, ${version.resourceId}, ${version.version},
+    ${version.title}, ${version.type}, ${version.curriculum}, ${version.gradeLevel}, ${version.subject}, ${version.language},
+    ${version.objectives}, ${version.body}, ${version.teacherNotes}, ${version.answerKey}, ${principal.id}, ${version.createdAt}, null, null
+    from teaching_resources where ${teachingResources.id} = ${version.resourceId} and ${resourceScope(principal)} and ${current}
+    limit 1`).onConflictDoNothing().returning();
 }
 export async function createResource(principal: Principal, input: { content: ResourceContent; clientResourceId?: string }): Promise<TeachingResource> {
   staff(principal);
@@ -94,12 +114,18 @@ export async function createResource(principal: Principal, input: { content: Res
   const [already] = await db.select({ id: teachingResources.id }).from(teachingResources).where(eq(teachingResources.id, id)).limit(1);
   if (already) return originalRetry(principal, id, data.content);
   const createdAt = new Date().toISOString();
-  const row = { id, schoolId: principal.schoolId!, authorId: principal.id, createdAt };
   const version = { ...data.content, id: crypto.randomUUID(), resourceId: id, version: 1, createdBy: principal.id, createdAt, approvedBy: null, approvedAt: null };
   try {
-    // D1 rolls both inserts back together if the immutable resource ID collides.
-    await db.batch([db.insert(teachingResources).values(row).returning(), db.insert(resourceVersions).values(version).returning()]);
-    return resourceView(row, version);
+    // Actual INSERT SELECT statements recheck live authority. D1 atomically
+    // preserves the parent/version pair; zero-row writes are never fabricated as
+    // successful creations, and collisions must match the scoped original retry.
+    const [resources, versions] = await db.batch([
+      db.insert(teachingResources).select(sql`select ${id}, ${principal.schoolId}, ${principal.id}, ${createdAt}
+        from users where users.id = ${principal.id} and ${liveActor(principal)} limit 1`).onConflictDoNothing().returning(),
+      insertVersion(principal, version),
+    ]);
+    if (!resources[0] || !versions[0]) return originalRetry(principal, id, data.content);
+    return resourceView(resources[0], versions[0]);
   } catch (error) {
     if (uniqueFailure(error)) return originalRetry(principal, id, data.content);
     throw error;
@@ -108,34 +134,35 @@ export async function createResource(principal: Principal, input: { content: Res
 export async function reviseResource(principal: Principal, id: string, input: { expectedVersion: number; content: ResourceContent }): Promise<TeachingResource> {
   const row = await requiredResource(principal, id);
   const data = reviseResourceSchema.parse(input);
-  const [latest] = await getDb().select().from(resourceVersions).where(eq(resourceVersions.resourceId, id)).orderBy(desc(resourceVersions.version)).limit(1);
+  const [latest] = await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.resourceId, id), resourceAccess(principal, id))).orderBy(desc(resourceVersions.version)).limit(1);
   if (!latest || latest.version !== data.expectedVersion) throw new ResourceConflict();
   const version = { ...data.content, id: crypto.randomUUID(), resourceId: id, version: data.expectedVersion + 1,
     createdBy: principal.id, createdAt: new Date().toISOString(), approvedBy: null, approvedAt: null };
-  // The unique(resource_id, version) constraint arbitrates concurrent revisions.
-  const [created] = await getDb().insert(resourceVersions).values(version).onConflictDoNothing().returning();
+  // Scope and the latest expected version are rechecked in the actual INSERT;
+  // the unique(resource_id, version) constraint arbitrates competing revisions.
+  const [created] = await insertVersion(principal, version, data.expectedVersion);
   if (!created) throw new ResourceConflict();
   return resourceView(row, created);
 }
 export async function listResourceVersions(principal: Principal, id: string): Promise<ResourceVersion[]> {
   await requiredResource(principal, id);
-  return (await getDb().select().from(resourceVersions).where(eq(resourceVersions.resourceId, id)).orderBy(desc(resourceVersions.version))).map(versionView);
+  return (await getDb().select().from(resourceVersions).where(and(eq(resourceVersions.resourceId, id), resourceAccess(principal, id))).orderBy(desc(resourceVersions.version))).map(versionView);
 }
 export async function approveResource(principal: Principal, id: string, versionId: string): Promise<ResourceVersion> {
   await requiredResource(principal, id);
-  const version = await exactVersion(id, versionId);
+  const version = await exactVersion(principal, id, versionId);
   if (version.approvedAt) return versionView(version);
   // Explicit human confirmation applies to this immutable version only. Authors
   // may review their own work; later revisions begin unapproved.
   const [approved] = await getDb().update(resourceVersions).set({ approvedBy: principal.id, approvedAt: new Date().toISOString() })
-    .where(and(eq(resourceVersions.id, versionId), eq(resourceVersions.resourceId, id), isNull(resourceVersions.approvedAt), isNull(resourceVersions.approvedBy))).returning();
-  return versionView(approved ?? await exactVersion(id, versionId));
+    .where(and(eq(resourceVersions.id, versionId), eq(resourceVersions.resourceId, id), isNull(resourceVersions.approvedAt), isNull(resourceVersions.approvedBy), resourceAccess(principal, id))).returning();
+  return versionView(approved ?? await exactVersion(principal, id, versionId));
 }
 export async function assignResource(principal: Principal, id: string, input: { versionId: string; classId: string; dueDate?: string }): Promise<ResourceAssignment> {
   await requiredResource(principal, id);
   const data = assignmentSchema.parse(input);
   await assertClassWrite(principal, data.classId);
-  const version = await exactVersion(id, data.versionId);
+  const version = await exactVersion(principal, id, data.versionId);
   if (!version.approvedAt || !version.approvedBy) throw new AccessError('Confirm this exact resource version before assigning it', 400);
   const db = getDb();
   const payload = { resourceId: id, versionId: data.versionId, classId: data.classId, assignedBy: principal.id, dueDate: data.dueDate ?? null };
@@ -149,7 +176,9 @@ export async function assignResource(principal: Principal, id: string, input: { 
       and ${resourceVersions.id} = ${data.versionId} and ${resourceVersions.approvedAt} is not null and ${resourceVersions.approvedBy} is not null
     limit 1`).onConflictDoNothing().returning();
   if (created) return assignmentView(created, version);
-  const [existing] = await db.select().from(resourceAssignments).where(and(eq(resourceAssignments.versionId, data.versionId), eq(resourceAssignments.classId, data.classId), eq(resourceAssignments.resourceId, id), classReferenceScope(principal, resourceAssignments.classId))).limit(1);
+  const [existing] = await db.select().from(resourceAssignments).where(and(eq(resourceAssignments.versionId, data.versionId), eq(resourceAssignments.classId, data.classId), eq(resourceAssignments.resourceId, id), classReferenceScope(principal, resourceAssignments.classId), resourceAccess(principal, id),
+    sql`exists (select 1 from resource_versions where ${resourceVersions.id} = ${resourceAssignments.versionId}
+      and ${resourceVersions.resourceId} = ${resourceAssignments.resourceId} and ${resourceVersions.approvedAt} is not null and ${resourceVersions.approvedBy} is not null)`)).limit(1);
   if (!existing || !Object.entries(payload).every(([key, value]) => existing[key as keyof typeof existing] === value)) throw new ResourceConflict();
   return assignmentView(existing, version);
 }
@@ -159,7 +188,7 @@ export async function listResourceAssignments(principal: Principal, filter: { cl
   const rows = await getDb().select({ assignment: resourceAssignments, version: resourceVersions }).from(resourceAssignments)
     .innerJoin(resourceVersions, and(eq(resourceVersions.id, resourceAssignments.versionId), eq(resourceVersions.resourceId, resourceAssignments.resourceId)))
     .innerJoin(teachingResources, eq(teachingResources.id, resourceAssignments.resourceId))
-    .where(and(eq(teachingResources.schoolId, principal.schoolId), isNotNull(resourceVersions.approvedAt), isNotNull(resourceVersions.approvedBy),
+    .where(and(eq(teachingResources.schoolId, principal.schoolId), liveActor(principal), isNotNull(resourceVersions.approvedAt), isNotNull(resourceVersions.approvedBy),
       classReferenceScope(principal, resourceAssignments.classId), filter.classId ? eq(resourceAssignments.classId, identifier.parse(filter.classId)) : undefined))
     .orderBy(desc(resourceAssignments.createdAt));
   return rows.map(row => assignmentView(row.assignment, row.version));

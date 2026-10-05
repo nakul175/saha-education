@@ -1,6 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.0 draft, 5 October 2026. Source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.1 draft, 5 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+
+The v2.1 extensions describe the current working candidate on `feat/specification-delivery`, based on documentation commit `d53adcf`. The original v2.0 application baseline remains `5488bc0d20412a3d4be0c031c99c259c56834d5e`. New behavior is not attributed to that historical SHA; actual execution is recorded separately and all business acceptance remains unapproved.
 
 ## Mandatory boundaries
 
@@ -34,6 +36,10 @@ Private teacher notes and answer keys must be absent from learner-facing server 
 | TC-091 | Local encrypted snapshot/restore verification | recovery | Authorized isolated drill; hosted RPO/RTO pending |
 | TC-092 | Wrong key/tampered backup and destination refusal | recovery | Authorized isolated drill; hosted RPO/RTO pending |
 | TC-093 | Hosted restore and compatible rollback drill | recovery | Authorized isolated drill; hosted RPO/RTO pending |
+
+Current manual-domain evidence reads and exact retries repeat live account/role/school/identity and object scope in the actual SELECT. Earlier authorization cannot release identity administration evidence, private curriculum versions or learner feedback after an authority change. The dedicated `tests/integration/evidence-access-contract.mjs` injects disablement, demotion, author/class changes and withdrawal immediately before downstream reads, then checks safe denials or empty collections, omitted private fields and preserved rows. This provides related evidence for TC-014/017/019/022/068/078/079; full cross-route designed matrices and broader privacy/logging cases remain separate.
+
+Resource authority changes require the same statement-boundary checks. `tests/integration/resource-access-contract.mjs` injects disablement, role/identity changes and changed parent authorship before create/version/retry/revision/approval/assignment operations and staff/learner feeds. It checks no fabricated success, no new unauthorized rows, preserved reviewed content and absent private fields. Its evidence links are conservative additions to TC-014/017/019/039/041/045/046/051/052/053, without executing those full designed cases.
 
 ## Performance design
 

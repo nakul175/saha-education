@@ -118,7 +118,7 @@ function printCatalogue() {
   console.log('layer        suites  components  suites citing no requirement  requirement ids cited');
   for (const l of FILE_LAYERS) { const v = s.layers[l]; console.log(`${l.padEnd(12)} ${String(v.suites).padStart(6)}  ${String(v.components).padStart(10)}  ${String(v.suitesCitingNoRequirement).padStart(28)}  ${String(v.requirementsCited).padStart(21)}`); }
   console.log(`\n${s.suites} suites, ${s.components} component modules (run through their entry), ${s.supportFiles} support files.`);
-  console.log(`${s.suites - s.suitesCitingNoRequirement} of ${s.suites} suites are cited by at least one requirement in requirements/evidence-map.json (${s.suitesCitingNoRequirement} cite none); ${s.components - s.componentsCitingNoRequirement} of ${s.components} component modules are cited (${s.componentsCitingNoRequirement} cite none); ${s.requirementsCitedBySomeTest} of 176 requirements cite at least one test file. A citation is evidence context, not acceptance.`);
+  console.log(`${s.suites - s.suitesCitingNoRequirement} of ${s.suites} suites are linked by the specification case evidence (${s.suitesCitingNoRequirement} have no case link); ${s.requirementsCitedBySomeTest} of ${s.requirementCount} requirements reference at least one runnable test. A link is evidence context, not case execution or acceptance.`);
 }
 if (args.flags.has('check-catalogue') || args.flags.has('list')) {
   writeCatalogueReport();

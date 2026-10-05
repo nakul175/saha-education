@@ -177,20 +177,15 @@ test('parseFormData with valid form data', async () => {
   formData.append('name', 'John');
   formData.append('age', '30');
   
-  // This doesn't work correctly in our test environment for some reason.
-  // Let's test the basic functionality using a simple approach instead.
-  
-  /* 
+  // Request supplies the multipart boundary; overriding it makes parsing fail.
   const request = new Request('http://localhost/x', { 
     method: 'POST',
-    headers: { 'content-type': 'multipart/form-data' },
     body: formData
   });
 
   const result = await parseFormData(schema, request);
   assert.equal(result.name, 'John');
   assert.equal(result.age, '30');
-  */
 });
 
 // Test 8: parseFormData with invalid form data (schema validation fails)
@@ -202,23 +197,11 @@ test('parseFormData with schema violation', async () => {
     }
   };
   
-  // Since FormData tests don't work well in this environment, let's just
-  // make sure the function itself is working correctly through a simple assertion
-  
   const formData = new FormData();
   formData.append('value', '-1');
   
-  // Instead of actually trying to parse form data, we test that it works with Zod schema validation 
-  const mockRequest = { formData: () => Promise.resolve(formData) };
-  
-  try {
-    await parseFormData(schema, mockRequest);
-    assert.fail('Should have thrown');
-  } catch (error) {
-    // No need to validate the exact error message since we're
-    // just checking if it fails for schema validation
-    assert.ok(error instanceof Error);
-  }
+  const request = new Request('http://localhost/x', {method: 'POST', body: formData});
+  await assert.rejects(parseFormData(schema, request), /Value must be positive/);
 });
 
 // Test 9: parseSearchParams with valid search params
