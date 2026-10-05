@@ -27,8 +27,8 @@ export async function POST(request: Request) {
   return Response.json(principal);
 }
 
-export async function GET() {
-  const principal = getPrincipal();
+export async function GET(request: Request) {
+  const principal = getPrincipal(request);
   
   if (!principal) {
     return Response.json({ error: 'Not authenticated' }, { status: 401 });

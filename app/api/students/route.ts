@@ -6,7 +6,7 @@ import { getPrincipal, requireRole } from '@/lib/education/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const principal = getPrincipal();
+    const principal = getPrincipal(request);
     
     if (!principal) {
       return Response.json({ error: 'Authentication required' }, { status: 401 });

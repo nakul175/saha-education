@@ -8,6 +8,11 @@ import type { SchoolInput } from '@/lib/education/validation';
 
 export async function GET(request: NextRequest) {
   try {
+    const principal = getPrincipal(request);
+    if (!principal) {
+      return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    
     const schools = await listSchools();
     return Response.json(schools);
   } catch (error) {
@@ -18,7 +23,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const principal = getPrincipal();
+    const principal = getPrincipal(request);
     if (!principal) {
       return Response.json({ error: 'Authentication required' }, { status: 401 });
     }

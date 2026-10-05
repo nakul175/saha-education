@@ -8,6 +8,11 @@ export async function GET(request: Request) {
   const schoolId = searchParams.get('schoolId') || undefined;
   
   try {
+    const principal = getPrincipal(request);
+    if (!principal) {
+      return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    
     const courses = await listCourses(schoolId);
     return Response.json(courses);
   } catch (error) {
