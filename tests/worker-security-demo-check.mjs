@@ -14,6 +14,8 @@ if (!['127.0.0.1', 'localhost'].includes(base.hostname) || base.pathname !== '/'
 const cookies = JSON.parse(readFileSync(sessionPath, 'utf8'));
 const { ids } = JSON.parse(readFileSync(manifestPath, 'utf8'));
 let checks = 0;
+// A stuck browser must not hold the shared machine: report where it was and stop.
+setTimeout(() => { console.error('not ok - watchdog: the check exceeded 14 minutes'); process.exit(2); }, 14 * 60 * 1000).unref();
 const failures = [];
 // Soft assertions: every failure of a run is listed together, because a mounted run is expensive to repeat.
 const check = (condition, message) => { if (condition) checks++; else failures.push(message); };
@@ -72,10 +74,18 @@ await section('response headers', async () => {
     try { samples.push([label, await get(path, options)]); } catch (error) { failures.push(`${label}: ${error.message}`); }
   }
   for (const [label, response] of samples) {
+    if (!response.headers.get('x-frame-options')) console.log(`Diagnostic: ${label} -> status ${response.status}, headers ${JSON.stringify([...response.headers.keys()])}, body ${JSON.stringify((await response.clone().text()).slice(0, 200))}`);
     assertSecurityHeaders(response, label);
     if (label.includes('API') || label === 'method not allowed' || label.includes('403') || label.includes('401')) equal(response.headers.get('cache-control'), 'no-store', `${label}: no-store`);
     equal(response.headers.get('access-control-allow-origin'), null, `${label}: no CORS allowance`);
     await response.arrayBuffer();
+  }
+  // Denied roles on a mutating route, with an empty and a plausible body: a wrong role must be refused with hardened headers.
+  for (const actor of ['guardian-a', 'teacher-a', 'student-user-a']) {
+    for (const body of ['{}', JSON.stringify({ name: 'x' })]) {
+      const response = await get('/api/students', { actor, method: 'POST', body });
+      console.log(`Diagnostic: ${actor} POST /api/students ${body} -> ${response.status} xfo=${response.headers.get('x-frame-options')} cache=${response.headers.get('cache-control')} body=${(await response.text()).slice(0, 80)}`);
+    }
   }
   equal(samples.find(([label]) => label === 'method not allowed')?.[1].status, 405, 'unsupported method is 405');
   equal(samples.find(([label]) => label === 'hostile origin 403')?.[1].status, 403, 'foreign origin is 403 before the body is read');
@@ -129,6 +139,7 @@ const roleRules = {
 };
 try {
   for (const actor of Object.keys(roleRules)) {
+    console.log(`progress: browser role ${actor} ${new Date().toISOString().slice(11, 19)}`);
     // A cookie jar entry (not an extra Cookie header) so the session also survives the redirects the pages issue.
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
     { const separator = cookies[actor].indexOf('='); await context.addCookies([{ name: cookies[actor].slice(0, separator), value: cookies[actor].slice(separator + 1), domain: base.hostname, path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]); }
@@ -171,7 +182,8 @@ try {
     // Browser enforcement of the policy on a real page of this role.
     const enforcement = await page.evaluate(async () => {
       // Runtime.evaluate from the test driver is exempt from the page CSP, so the probe runs as an inline script of the page itself.
-      const probeScript = document.createElement('script'); probeScript.textContent = "window.__evalProbe = 'allowed'; try { eval('1+1'); } catch (error) { window.__evalProbe = 'blocked'; }"; document.head.append(probeScript);
+      const probeScript = document.createElement('script'); probeScript.textContent = "setTimeout(() => { window.__evalProbe = 'allowed'; try { eval('1+1'); } catch (error) { window.__evalProbe = 'blocked'; } }, 0)"; document.head.append(probeScript);
+      await new Promise(resolve => setTimeout(resolve, 200));
       const evalResult = window.__evalProbe ?? 'inline script did not run';
       let inlineAttribute = 'ran'; window.__inlineProbe = 0; const probe = document.createElement('div'); probe.innerHTML = '<img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" onload="window.__inlineProbe=1">'; document.body.append(probe);
       await new Promise(resolve => setTimeout(resolve, 50)); inlineAttribute = window.__inlineProbe === 1 ? 'ran' : 'blocked';
@@ -186,10 +198,13 @@ try {
   const framing = await browser.newContext({ serviceWorkers: 'block' });
   const framer = await framing.newPage();
   await framer.route('**/*', route => new URL(route.request().url()).origin === base.origin ? route.continue() : route.fulfill({ status: 200, contentType: 'text/html', body: `<iframe id="f" src="${base.origin}/login" width="400" height="300"></iframe>` }));
-  await framer.goto('https://framer.example.invalid/', { waitUntil: 'load', timeout: 20000 }); await framer.waitForTimeout(1500);
-  const frameUrl = framer.frames().find(frame => frame !== framer.mainFrame())?.url() ?? '';
-  const frameText = await framer.frames().find(frame => frame !== framer.mainFrame())?.evaluate(() => document.body?.innerText ?? '').catch(() => '');
-  check(!frameText.includes('Sign in') && !/Saha/.test(frameText), `a foreign page cannot frame the application (frame url ${frameUrl || 'blocked'})`);
+  console.log('progress: framing check');
+  await framer.goto('https://framer.example.invalid/', { waitUntil: 'commit', timeout: 20000 }); await framer.waitForTimeout(4000);
+  const childFrame = framer.frames().find(frame => frame !== framer.mainFrame());
+  const frameUrl = childFrame?.url() ?? '';
+  // A refused frame is an error document; never wait on it (evaluating inside it can block indefinitely).
+  const frameText = frameUrl.startsWith(base.origin) ? await Promise.race([childFrame.evaluate(() => document.body?.innerText ?? '').catch(() => ''), new Promise(resolve => setTimeout(() => resolve(''), 3000))]) : '';
+  check(!frameUrl.startsWith(base.origin) && !frameText.includes('Sign in') && !/Saha/.test(frameText), `a foreign page cannot frame the application (frame url ${frameUrl || 'blocked'})`);
   await framing.close();
 } catch (error) { failures.push('browser section: ' + error.message.split('\n')[0]); } finally { await browser.close(); }
 
