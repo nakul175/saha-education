@@ -20,12 +20,16 @@ export async function authenticated(request: Request, mutation: boolean, action:
 }
 
 export const MAX_JSON_BODY_BYTES = 128 * 1024;
-export async function body<T>(request: Request, schema: z.ZodSchema<T>): Promise<T> {
+/** Streams the request body as UTF-8 text, refusing declared or actual sizes above 128 KiB before they are buffered. */
+export async function boundedText(request: Request, options: { required?: boolean } = {}): Promise<string> {
   const declared = request.headers.get('content-length');
   if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > MAX_JSON_BODY_BYTES)) {
     throw new SyntaxError('Invalid request body size');
   }
-  if (!request.body) throw new SyntaxError('JSON body required');
+  if (!request.body) {
+    if (options.required === false) return '';
+    throw new SyntaxError('JSON body required');
+  }
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
@@ -44,10 +48,12 @@ export async function body<T>(request: Request, schema: z.ZodSchema<T>): Promise
   const bytes = new Uint8Array(size);
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-  let text: string;
-  try { text = new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
   catch { throw new SyntaxError('Invalid JSON encoding'); }
-  return schema.parse(JSON.parse(text));
+}
+
+export async function body<T>(request: Request, schema: z.ZodSchema<T>): Promise<T> {
+  return schema.parse(JSON.parse(await boundedText(request)));
 }
 
 export function found<T>(value: T | null): T {
