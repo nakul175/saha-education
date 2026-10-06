@@ -88,7 +88,7 @@ export async function compileReportCard(principal: Principal, input: ReportCompi
       ${parsed.correction.reason}, ${principal.id}, ${now} where exists (select 1 from report_cards created where created.id=${reportId})`).returning({ id: reportCardCorrections.id }));
   }
   let results: unknown[];
-  try { results = await db.batch(queries as unknown as Parameters<typeof db.batch>[0]) as unknown[]; }
+  try { results = await db.batch(queries as unknown as Parameters<typeof db.batch>[0]) as unknown as unknown[]; }
   catch (error) {
     const hit = errorChainIncludes(error, 'saha_report_line_conflict', 'saha_report_correction_conflict', 'NOT NULL constraint failed: report_card_lines', 'UNIQUE constraint failed: report_card_lines');
     if (!hit) throw error;
