@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable @next/next/no-html-link-for-pages -- Use full-page navigation while vinext beta Link transitions are unreliable. */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -139,7 +140,7 @@ export default function NotificationsPage() {
     {error && !pendingView && <p><a href="/login" target="_blank" rel="noreferrer" className="underline">Sign in in another tab</a>, then reload your inbox.</p>}
     {ready && principal && ['admin', 'teacher'].includes(principal.role) && <p className="text-sm"><a href="/notices" className="underline">Send a notice or see notices you sent</a></p>}
     {ready && <Card><CardHeader><CardTitle>Notification Inbox</CardTitle></CardHeader><CardContent>
-      {paging.total !== null && <p className="mb-3 text-sm text-muted-foreground" role="status">{paging.total === 0 ? 'You have no notices yet.' : `${paging.unread ?? 0} unread of ${paging.total} notices.`}</p>}
+      {paging.total !== null && <p className="mb-3 text-sm text-muted-foreground" aria-live="polite">{paging.total === 0 ? 'You have no notices yet.' : `${paging.unread ?? 0} unread of ${paging.total} notices.`}</p>}
       <label className="mb-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={hideRead} onChange={event => setHideRead(event.target.checked)} />Hide notices I have already read (on this page)</label>
       {notifications.length === 0 ? <p className="text-muted-foreground">No notifications found for your current account.</p> : hideRead && notifications.every(row => !isUnread(row.readAt)) ? <p className="text-muted-foreground">Every notice on this page has been read. Untick the box above to see them, or open older notices.</p> : <div className="space-y-4">{notifications.filter(row => !hideRead || isUnread(row.readAt)).map(row => <article key={row.id} data-notification-id={row.id} aria-labelledby={'notification-title-' + row.id} className={'rounded border p-4 ' + (isUnread(row.readAt) ? 'border-blue-200 bg-blue-50' : '')}><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1 break-words"><h2 id={'notification-title-' + row.id} className="font-medium">{row.title}</h2><p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{row.body}</p><p className="mt-2 text-xs text-muted-foreground">Saved: <StoredDate value={row.createdAt} /></p>{!isUnread(row.readAt) && <p className="mt-1 text-xs text-muted-foreground">Saved read time: <StoredDate value={row.readAt} /></p>}</div>{isUnread(row.readAt) && <Badge variant="secondary">Unread</Badge>}</div>{isUnread(row.readAt) && <div className="mt-3"><Button type="button" size="sm" disabled={blocked} onClick={() => markAsRead(row.id)}>Mark as Read</Button></div>}</article>)}</div>}
       {(paging.next || paging.newer) && <nav aria-label="Notice pages" className="mt-4 flex flex-wrap gap-2">

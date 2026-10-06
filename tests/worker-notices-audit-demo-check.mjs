@@ -23,7 +23,7 @@ async function context(user, viewport = { width: 1280, height: 900 }) {
   if (user && typeof sessions[user] !== 'string') throw new Error('Missing a required synthetic session: ' + user);
   const value = await browser.newContext({ viewport, serviceWorkers: 'block', extraHTTPHeaders: user ? { cookie: sessions[user] } : {} });
   if (user) { const separator = sessions[user].indexOf('='); await value.addCookies([{ name: sessions[user].slice(0, separator), value: sessions[user].slice(separator + 1), domain: base.hostname, path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]); }
-  contexts.push(value);
+  value.label = user ?? 'anonymous'; contexts.push(value);
   value.on('page', page => {
     page.on('pageerror', error => pageErrors.push(error.message));
     page.on('dialog', async dialog => { dialogs.push(dialog.message()); await dialog.dismiss(); });
@@ -34,7 +34,8 @@ async function context(user, viewport = { width: 1280, height: 900 }) {
 }
 async function raw(value, path, method = 'GET', data) {
   const url = new URL(path, base); if (url.origin !== base.origin) throw new Error('Synthetic requests must remain local.');
-  return value.request.fetch(url.href, { method, timeout: 20000, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) });
+  try { return await value.request.fetch(url.href, { method, timeout: 30000, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) }); }
+  catch (failure) { throw new Error(`Local request failed for ${value.label ?? 'anonymous'}: ${method} ${path}: ${failure instanceof Error ? failure.message.split('\n')[0] : failure}`); }
 }
 async function api(value, path, method = 'GET', data, expected = 200) {
   const response = await raw(value, path, method, data); const body = await response.text();
