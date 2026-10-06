@@ -16,7 +16,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 143
+      "minPassed": 163
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -101,7 +101,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 253
+      "minPassed": 259
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -117,6 +117,11 @@
       "layer": "integration",
       "file": "tests/integration/family-ui-contract.mjs",
       "minPassed": 307
+    },
+    "integration/guardian-records-contract": {
+      "layer": "integration",
+      "file": "tests/integration/guardian-records-contract.mjs",
+      "minPassed": 243
     },
     "integration/identity-admin-contract": {
       "layer": "integration",
@@ -208,6 +213,11 @@
       "file": "tests/integration/resources-contract.mjs",
       "minPassed": 147
     },
+    "integration/school-setup-contract": {
+      "layer": "integration",
+      "file": "tests/integration/school-setup-contract.mjs",
+      "minPassed": 240
+    },
     "integration/school-structure-authority-contract": {
       "layer": "integration",
       "file": "tests/integration/school-structure-authority-contract.mjs",
@@ -222,6 +232,11 @@
       "layer": "integration",
       "file": "tests/integration/session-revocation-contract.mjs",
       "minPassed": 411
+    },
+    "integration/student-records-contract": {
+      "layer": "integration",
+      "file": "tests/integration/student-records-contract.mjs",
+      "minPassed": 225
     },
     "integration/submission-windows-contract": {
       "layer": "integration",
