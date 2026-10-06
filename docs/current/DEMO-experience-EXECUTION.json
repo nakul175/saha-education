@@ -37,9 +37,9 @@
   "guardedRun": {
     "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
     "suites": 55,
-    "assertions": 22590,
+    "assertions": 22594,
     "unit": 119,
-    "integration": 22294,
+    "integration": 22298,
     "smoke": 177,
     "failed": 0,
     "guard": "passed",
@@ -54,7 +54,7 @@
     "exit": 0
   },
   "eslint": {
-    "files": 32,
+    "files": "all changed ts/tsx/mjs files against origin/main",
     "maxWarnings": 0,
     "exit": 0
   },
@@ -64,10 +64,10 @@
     "passed": 67
   },
   "languageContract": {
-    "passed": 95,
-    "strings": 1841,
-    "hits": 67,
-    "knownGroups": 23,
+    "passed": 99,
+    "strings": 1839,
+    "hits": 75,
+    "knownGroups": 25,
     "hitsOnMainSameRules": 91,
     "groupsOnMainSameRules": 35,
     "stringsOnMainSameExtractor": 1780,
@@ -138,11 +138,20 @@
   },
   "seedCompatibility": {
     "extraMigrations": [
-      "0018_course_class_enrolment_lifecycle (origin/demo/courses-enrolment)",
-      "0025_immutable_evidence_guards (origin/demo/security-change-control)"
+      "0017 school-records",
+      "0018 courses-enrolment",
+      "0019 attendance",
+      "0020 assessments-reports",
+      "0021 notices-audit",
+      "0023 curriculum-submissions",
+      "0024 identity"
     ],
+    "excluded": [
+      "0025 security-change-control (creates trigger submission_attempts_no_update, which 0021 also creates)"
+    ],
+    "tables": 63,
     "foreignKeyProblems": 0,
-    "mergePreviewConflicts": 0
+    "studentsAfterReload": 40
   },
   "mutations": [
     {
@@ -795,5 +804,110 @@
     "hosted demo not covered and hosting blocker unchanged",
     "designed cases remain unrun as written",
     "no business, educator or accessibility acceptance"
+  ],
+  "existingMountedProcedures": [
+    {
+      "file": "tests/worker-demo-ui-check.mjs",
+      "passed": 26,
+      "failed": 0,
+      "note": "needed the learner-to-student label pin change"
+    },
+    {
+      "file": "tests/worker-dashboard-ui-check.mjs",
+      "passed": 31,
+      "failed": 0
+    },
+    {
+      "file": "tests/worker-domain-ui-check.mjs",
+      "passed": 39,
+      "failed": 0
+    },
+    {
+      "file": "tests/worker-profile-assessment-ui-check.mjs",
+      "passed": 36,
+      "failed": 0
+    },
+    {
+      "file": "tests/worker-school-course-ui-check.mjs",
+      "passed": 40,
+      "failed": 0
+    },
+    {
+      "file": "tests/worker-specification-ui-check.mjs",
+      "passed": 38,
+      "failed": 0
+    },
+    {
+      "file": "tests/worker-accessibility-check.mjs",
+      "sampledPages": 100,
+      "failed": 0,
+      "formalAccessibilityAcceptance": false
+    },
+    {
+      "file": "tests/worker-family-ui-check.mjs",
+      "passed": 36,
+      "failed": 0,
+      "note": "first run failed because a shell added to /notifications contradicted the no-navigation assertion; fixed by keeping the inbox without navigation"
+    },
+    {
+      "file": "tests/worker-structure-ui-check.mjs",
+      "runsOnBranch": 3,
+      "failedRunsOnBranch": 3,
+      "runsOnMain": 3,
+      "failedRunsOnMain": 1,
+      "note": "same strict-locator race on two status messages after the school save; present on origin/main; cause of the higher rate here not established"
+    },
+    {
+      "file": "tests/worker-registry-ui-check.mjs",
+      "failedOnBranch": true,
+      "failedOnMain": true,
+      "note": "same 30 s timeout waiting for the create response on both"
+    }
+  ],
+  "existingMountedProceduresNotRerun": [
+    "attendance",
+    "assessment-review",
+    "reading",
+    "resources",
+    "learner-recovery",
+    "reviewed-registry",
+    "development",
+    "literacy"
+  ],
+  "finalTree": {
+    "guardedRun": {
+      "suites": 55,
+      "assertions": 22594,
+      "failed": 0,
+      "guard": "passed"
+    },
+    "experienceCheck": {
+      "checks": 1127,
+      "failed": 0
+    },
+    "domainUi": 39,
+    "familyUi": 36,
+    "demoUi": 26
+  },
+  "dryRunMerges": {
+    "branches": [
+      "assessments-reports",
+      "attendance",
+      "courses-enrolment",
+      "curriculum-submissions",
+      "identity",
+      "notices-audit",
+      "reading-review",
+      "school-records",
+      "security-change-control"
+    ],
+    "conflicts": 0,
+    "note": "git merge-tree of this branch with each pushed demo branch, after moving the catalogue entry; two earlier conflicts (catalogue entry position, and wording in two pages) were removed by editing this branch"
+  },
+  "defectsInOtherAreas": [
+    "0021_notices_audit.sql (notices-audit) and 0025_immutable_evidence_guards.sql (security-change-control) both create trigger submission_attempts_no_update; the second to be applied fails with: trigger submission_attempts_no_update already exists",
+    "worker-structure-ui-check has a strict-locator race on two status messages after the school save (also on origin/main)",
+    "worker-registry-ui-check times out waiting for the create response (also on origin/main)",
+    "class page prints stored Course ID and Teacher ID; report card prints Student ID; assignment page prints Learner <id> when a name is missing; submission window shows Staff ID"
   ]
 }

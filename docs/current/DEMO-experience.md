@@ -17,7 +17,7 @@ These were true on `main` (`cadd2eb`) before any change.
 7. **Two level-one headings** on 48 of the 114 audits: the shell's title and the page's title.
 8. **A skipped heading level** on `/enrolments`.
 9. **The interface is English only.** `lib/education/i18n.ts` and its unit test exist, but no page imports it.
-10. **Raw stored ids shown to people.** Class pages print Course ID and Teacher ID; the report card prints Student ID; the assignment page printed `Learner <id>` when a name was missing (fixed).
+10. **Raw stored ids shown to people.** Class pages print Course ID and Teacher ID; the report card prints Student ID; the assignment page prints `Learner <id>` when a name is missing (not fixed here; see the language findings).
 
 ## What was built
 
@@ -27,13 +27,13 @@ These were true on `main` (`cadd2eb`) before any change.
 | One-command local demo (`pnpm demo`): builds if needed, creates the local database, starts the Worker, prints the address | `scripts/demo.mjs`, `package.json` |
 | Role guide on every home page: what the role can do, plus (demo mode only) a labelled five-minute path | `components/role-guide.tsx`, `app/dashboard/*/page.tsx` |
 | Sign-in page explains each role in a sentence; "Learner" is "Student"; the notice says real student details must not be entered | `app/login/page.tsx` |
-| Shared frame for the five routes above; one h1 per page; no button nested in a link | layouts, `app/classes/page.tsx`, `app/students/page.tsx`, `components/app-shell.tsx`, `app/enrolments/page.tsx` |
-| Wording fixes in strings no test asserts | listed in [language findings](#language-findings) |
+| Shared frame for `/guardians`, `/enrolments`, `/report-cards` and `/classes`, and a main landmark with margins for the inbox (it keeps no navigation); one h1 per page; no button nested in a link | layouts, `app/classes/page.tsx`, `app/students/page.tsx`, `components/app-shell.tsx`, `app/enrolments/page.tsx` |
+| Wording fixes in strings no test asserts and no other branch rewrites | listed in [language findings](#language-findings) |
 | Language contract with a ratcheting known list and a reading-grade bound | `tests/integration/language-suitability-contract.mjs`, `tests/support/ui-strings.mjs` |
 | Seed contract | `tests/integration/demo-seed-contract.mjs` |
 | Mounted procedure: real first-visit flow, guided paths, seeded content, 375px and 1280px baseline | `tests/worker-demo-experience-check.mjs`, `tests/support/write-demo-fixture.mjs` (registered in the manual list of `scripts/test-catalogue.mjs`) |
 
-No migration was added. The seed only inserts rows into existing tables. The shell now shows `Signed in as <role>` and the account id on a second line, because `demo-login-ui-contract` asserts that the account id is shown. Hiding it is a decision for the owner of that contract.
+No migration was added. The seed only inserts rows into existing tables. The shell still shows the raw account id (for example `saha-demo-teacher`) above the role, because `demo-login-ui-contract` asserts that the account id is shown; a name would read better, and that is a decision for the owner of that contract. I first rewrote that block, then restored it: the identity branch changes the same lines.
 
 ## Evidence
 
@@ -41,9 +41,9 @@ All commands ran on this branch with Node 24.19.0, synthetic data only, an isola
 
 | Check | Result |
 | --- | --- |
-| `node scripts/test.mjs static unit integration smoke --fast --guard` after a fresh build | 55 suites, 22,590 assertions (119 unit, 22,294 integration, 177 smoke), 0 failed, regression guard passed with 53 baselined suites. The two new suites are not in the baseline yet (a note, not a failure); the baseline file was not touched |
+| `node scripts/test.mjs static unit integration smoke --fast --guard` after a fresh build | 55 suites, 22,594 assertions (119 unit, 22,298 integration, 177 smoke), 0 failed, regression guard passed with 53 baselined suites. The two new suites are not in the baseline yet (a note, not a failure); the baseline file was not touched |
 | `tests/integration/demo-seed-contract.mjs` | 67 checks |
-| `tests/integration/language-suitability-contract.mjs` | 95 checks over 1,841 strings; 67 known remaining hits in 23 file-and-rule groups, each with a reason |
+| `tests/integration/language-suitability-contract.mjs` | 99 checks over 1,839 strings; 75 known remaining hits in 25 file-and-rule groups, each with a reason |
 | Whole-repo `tsc --noEmit` | exit 0 |
 | `python3 scripts/check-documentation.py` | passed |
 | `node scripts/test.mjs --check-catalogue` | passed |
@@ -53,6 +53,25 @@ All commands ran on this branch with Node 24.19.0, synthetic data only, an isola
 | `node scripts/demo.mjs` end to end (first run, then a second launch that reuses the database) | started in 5 s after the build existed; login page 200; each of the four roles signed in through `/api/demo` and its home page held the guide and the demo path; the second launch reported "Using the existing demo database" |
 
 The mounted procedure audits 31 distinct routes: 22 for the administrator, 18 for the teacher, 9 for the guardian and 8 for the student (57 role and route pairs), each at 375px and 1280px, so 114 page audits. Each audit checks: the page is served and not redirected, no horizontal scroll, every form control has a name, every button and link has a name, exactly one main landmark, no button inside a link, a page language, and axe-core (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`) serious or critical violations. It also checks the first Tab stop is the skip link and the next control shows a focus indicator on each role's home page at both widths, and reports one h1 and skipped heading levels. A canary page with deliberate defects is measured first with the same function, so a clean result on the real pages cannot come from a measurement that sees nothing. The procedure asserts 0 requests outside 127.0.0.1, 0 page errors and 0 server errors.
+
+### Existing mounted procedures rerun on this branch
+
+Changes to shared pages can break procedures written for the old pages, so the ones that visit those pages were rerun (Chromium, local Worker, fictional data; each run on its own fixture and a fresh build):
+
+| Procedure | Result |
+| --- | --- |
+| `worker-demo-ui-check` (26 procedures) | 26 passed, 0 failed, 0 external requests, 0 page errors. Needed the label pin change from "learner" to "student" |
+| `worker-dashboard-ui-check` | 31 passed, 0 failed |
+| `worker-domain-ui-check` | 39 passed, 0 failed |
+| `worker-profile-assessment-ui-check` | 36 of 36 passed |
+| `worker-school-course-ui-check` | 40 of 40 passed |
+| `worker-specification-ui-check` | 38 passed, 0 failed |
+| `worker-accessibility-check` | 100 sampled pages, 0 failed (its own output says it is not accessibility acceptance) |
+| `worker-family-ui-check` | first run failed: it asserts the inbox has no school navigation, and the shell I had added to `/notifications` contradicted that. Fixed by keeping the inbox without navigation (a main landmark and page margins only); then 36 of 36 passed |
+| `worker-structure-ui-check` | **fails here in 3 of 3 runs** (10, 10 and 12 checks passed first) at "School details saved": two `status` messages are on screen at once ("saved" and "Loading school details…"), which trips Playwright's strict locator. The same copy of `origin/main` failed with the same message in 1 of 3 runs and passed 26 of 26 in the other two. So the race exists on `main`; why it showed more often here is not explained (3 runs each) and was not investigated further |
+| `worker-registry-ui-check` | fails on this branch and on `origin/main` the same way (30-second timeout waiting for the create response after the first check); not caused by this branch |
+
+Not rerun: the attendance, assessment-review, reading, resources, learner-recovery, reviewed-registry, development and literacy procedures. They need their own fixtures; they were not checked page by page against this branch, so they remain unverified here and the orchestrator should include them in the merged run.
 
 ### Mutation checks
 
@@ -67,11 +86,13 @@ The mounted procedure audits 31 distinct routes: 22 for the administrator, 18 fo
 
 ## Language findings
 
-Method: a TypeScript parse of `app/` and `components/` (not `components/ui` or `app/api`) extracts every string a person can read: page text, readable attributes, messages handed to state setters or errors, and sentence-like strings in arrays. It reads source only, so text built from data at run time is not seen. 1,841 strings were found (1,780 on `main` under the same extractor). Words flagged: UUID, JSON, payload, idempotent, CAS, snapshot, immutable, normalized, envelope, issuer or identity subject, token, staged, null/undefined/NaN, HTTP/API/SQL/D1/OIDC/CSRF, code identifiers, dotted format ids, raw ID labels, "learner" and "enrollment".
+Method: a TypeScript parse of `app/` and `components/` (not `components/ui` or `app/api`) extracts every string a person can read: page text, readable attributes, messages handed to state setters or errors, and sentence-like strings in arrays. It reads source only, so text built from data at run time is not seen. 1,839 strings were found (1,780 on `main` under the same extractor). Words flagged: UUID, JSON, payload, idempotent, CAS, snapshot, immutable, normalized, envelope, issuer or identity subject, token, staged, null/undefined/NaN, HTTP/API/SQL/D1/OIDC/CSRF, code identifiers, dotted format ids, raw ID labels, "learner" and "enrollment".
 
-**Fixed** (strings no existing test asserts): "snapshot", "immutable" and "UUID" wording on the assessment, attendance, class and assignment pages ("Loaded snapshot" is now "Page loaded at"); "tokens" is now "access codes" on two admin pages; "learner" is now "student" in six sentences; "enrollments" is now "enrolments"; the assignment page no longer prints `Learner <id>`; resource and curriculum pages say "adds a new revision; earlier ones are kept". The sign-in page, the guide and the shell use "student" throughout.
+**Fixed** (strings no existing test asserts, in pages no other pushed branch changes at those lines): on the assessment page "Loaded snapshot" is now "Page loaded at", the "immutable original save receipt" is "the original saved copy", the "Immutable before-and-after evidence" heading is "Saved before-and-after record", and "learner" is now "student" in three sentences; the class page says "class details" and "class record" instead of "snapshot"; "tokens" is now "access codes" on two admin pages; "enrollments" is now "enrolments"; resource and curriculum pages say "adds a new revision; earlier ones are kept". The sign-in page, the guide, the demo banner and the launcher use "student" throughout.
 
-**Kept, with a reason in the contract** (67 hits in 23 groups):
+**Not edited because another branch rewrites the same lines** (dry-run merges conflict): `app/classes/[id]/attendance/page.tsx` (the attendance branch) and `app/assignments/[id]/page.tsx` (the curriculum and submissions branch). Recommended wording for their owners: "Loaded snapshot" becomes "Page loaded at"; "immutable original save receipt" becomes "original saved copy"; "Immutable before-and-after evidence" becomes "Saved before-and-after record"; "learner" becomes "student"; remove "and UUID" and "original expectations or UUID" from the recovery sentences; and `Learner <id>` (printed when a name is missing) should not show a stored id.
+
+**Kept, with a reason in the contract** (75 hits in 25 groups, against 91 in 35 on `main`):
 
 - Pinned by an existing contract or mounted test: "No active learners are available", "Multiple saved results exist for a learner", the attendance summary sentences, "exact original request and UUID are retained", the curriculum "HTTPS source URL" label, "Observation ID", feedback and window "revision" labels. Changing them is a decision for the owner of those tests.
 - Administrator-only identity fields: issuer, subject, Profile ID, Linked account ID, Decision ID. They are the exact data being entered and quoted.
@@ -106,7 +127,7 @@ Totals: 23 automated-baseline-partial, 24 not-executed, 1 not-executable-locally
 | TC-141 | uat | NFR-05 | automated-baseline-partial | /schools, /courses, /classes, /enrolments (admin) and /classes (teacher) audited; /classes and /enrolments gained the shared navigation and main landmark in this branch | blocked: needs named human reviewer; role mutation controls were not exercised |
 | TC-149 | uat | NFR-05 | automated-baseline-partial | /report-cards list and detail audited for admin and guardian; draft hidden from the guardian is asserted on the dashboard | blocked: needs named human reviewer; draft creation and lost-response recovery not run |
 | TC-156 | regression | NFR-05 | not-executed | not executed here: behaviour is owned by another workstream (uncertain read acknowledgement) | Run against the merged inbox. |
-| TC-157 | uat | NFR-05, NFR-06 | automated-baseline-partial | /notifications audited for all four roles at both widths; the page now sits in the shared shell with a main landmark | blocked: needs named human reviewer; wording and retention policy review |
+| TC-157 | uat | NFR-05, NFR-06 | automated-baseline-partial | /notifications audited for all four roles at both widths; the inbox now has a main landmark (it keeps no school navigation, as an existing mounted assertion requires) | blocked: needs named human reviewer; wording and retention policy review |
 | TC-165 | security | NFR-05 | not-executed | Not a wording or layout check | Run the case against the merged dashboards. |
 | TC-180 | accessibility | NFR-05, NFR-06 | automated-baseline-partial | Four role dashboards at 375 and 1280: one h1, one main, no overflow, zero axe findings, no nested button inside a link anywhere in the audited set. Labels and focus order beyond the skip link were not reviewed | blocked: needs named human reviewer; locale review |
 | TC-202 | integration | NFR-05 | not-executed | not executed here: behaviour is owned by another workstream (viewer selection cancellation) | Run against the merged attendance viewer. |
@@ -142,7 +163,14 @@ Totals: 23 automated-baseline-partial, 24 not-executed, 1 not-executable-locally
 - The measurements come from one local Chromium, one operating system, fictional data and axe-core. They do not include a screen reader, keyboard-only journeys beyond the skip link and first control, zoom, forced colours, print, Hindi or any other language, real phones, or colour contrast beyond what axe reports.
 - Reading grade and the forbidden-word list find only what they are written to find. They do not judge whether a message is respectful or useful.
 - The language contract fails when new developer wording appears or when a known entry gets looser. Other agents' branches will add strings; if the merged tree fails it, either fix the wording or add a reasoned entry. A count that falls below its cap also fails so the list shrinks.
-- The seed was loaded on a schema that also holds the pushed migrations `0018` (course, class and enrolment lifecycle) and `0025` (immutable evidence guards): 0 foreign key problems. It does not create lifecycle rows for courses, classes or enrolments; pages from the course workstream should treat missing rows as the legacy state.
+- The seed was loaded on a schema that also holds the migrations other demo branches had pushed (`0017` school records, `0018` course, class and enrolment lifecycle, `0019` attendance, `0020` assessment lifecycle and reports, `0021` notices and audit, `0023` curriculum status, `0024` identity changes): 63 tables, 0 foreign key problems, and the dump reloads with 40 students. `0025` (immutable evidence guards) was left out of that run because it cannot be applied on top of `0021` (see below). The seed does not create lifecycle rows for courses, classes or enrolments; pages from the course workstream should treat missing rows as the legacy state. Dry-run merges (`git merge-tree`) of this branch with each of the nine pushed demo branches show no conflicts. Migration number 0026 was reserved and not used.
+
+## Defects found in other areas
+
+- **Duplicate trigger.** `drizzle/0021_notices_audit.sql` (notices and audit) and `drizzle/0025_immutable_evidence_guards.sql` (security and change control) both create the trigger `submission_attempts_no_update`. Whichever is applied second fails with "trigger submission_attempts_no_update already exists", so the two branches cannot both be merged as they stand.
+- **Existing mounted procedures that fail on `origin/main` too:** `worker-structure-ui-check` (two status messages at once after the school save, 1 failure in 3 runs on `main`) and `worker-registry-ui-check` (30-second timeout waiting for the create response).
+- **Raw stored ids shown to people:** Course ID and Teacher ID on the class page, Student ID on the report card, `Learner <id>` on the assignment page when a name is missing, Staff ID in the submission window.
+- **The inbox has no school navigation and no skip link.** An existing mounted assertion requires the first; the second is a decision for the notices owner. This branch only adds a main landmark and margins there.
 - The demo guide's steps name pages that other workstreams are changing. The mounted procedure checks each step's link opens; if a step stops matching its screen, update `components/role-guide.tsx` and [DEMO.md](../DEMO.md).
 - A hosted demo (TC-284) is not covered. The private hosted deployment failure is unchanged.
 - The mounted procedure was run with seeded sessions, as the other procedures are. The home redirect and the real demo sign-in were exercised separately by the first-visit part of the same procedure at 375px.
