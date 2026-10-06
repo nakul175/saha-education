@@ -161,7 +161,7 @@ export default function ManageAssessmentPage({ params }: { params: Promise<{ id:
             </>}
             {state === 'published' && <>
               <p data-readiness="published">These results are published. The details are locked; a published result can only change through the reviewed correction path in the result editor, which keeps the earlier value in its history.</p>
-              {readiness.unpublishBlockedByReports > 0 && <p role="note">{readiness.unpublishBlockedByReports} line{readiness.unpublishBlockedByReports === 1 ? '' : 's'} in published report cards use these results, so they cannot be unpublished until the reports are replaced.</p>}
+              {readiness.unpublishBlockedByReports > 0 && <p role="note">Published report cards include {readiness.unpublishBlockedByReports} result line{readiness.unpublishBlockedByReports === 1 ? '' : 's'} from this assessment, so it cannot be unpublished until those reports are replaced.</p>}
               <div><Label htmlFor="unpublish-reason">Reason for unpublishing</Label><Textarea id="unpublish-reason" rows={3} maxLength={500} value={unpublishReason} disabled={disabled || !readiness.canUnpublish} onChange={event => setUnpublishReason(event.target.value)} /><p className="mt-1 text-sm text-muted-foreground">At least 10 characters. The reason is kept in the history.</p></div>
               <Button type="button" variant="outline" disabled={disabled || !readiness.canUnpublish} onClick={() => void act('unpublish')}>{busy === 'unpublish' ? 'Unpublishing…' : 'Unpublish results'}</Button>
             </>}

@@ -284,7 +284,7 @@ try {
     await api(other, '/api/report-cards/eligible?studentId=' + ANA, 'GET', undefined, 403);
   });
   await check('Results used by a published report cannot be unpublished, in the page or the API', async () => {
-    await goManage(page, 'lc-assessment-partial'); await expect(page.getByText('line in published report cards use these results')).toBeVisible(); await expect(unpublishButton(page)).toBeDisabled();
+    await goManage(page, 'lc-assessment-partial'); await expect(page.getByText(/(1 line in published report cards use these results|Published report cards include 1 result line from this assessment)/)).toBeVisible(); await expect(unpublishButton(page)).toBeDisabled();
     const refused = await api(teacher, lifecyclePath('lc-assessment-partial'), 'POST', { clientRequestId: crypto.randomUUID(), action: 'unpublish', reason }, 409); assert.equal(refused.code, 'in_published_report');
   });
 
