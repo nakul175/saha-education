@@ -209,6 +209,20 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0002_rev
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
 
+## `curriculum_reference_status_events`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Client-supplied status-event UUID, stable for exact actor/payload retry. | Internal staff curriculum availability history |
+| reference_id | TEXT | no | none | FK curriculum_references.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE curriculum_status_reference_revision (reference_id, revision); UPDATE/DELETE blocked by immutable-row triggers | Curriculum reference whose availability changed. | Internal staff curriculum availability history |
+| revision | INTEGER | no | none | UNIQUE curriculum_status_reference_revision (reference_id, revision); CHECK curriculum_status_revision: typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000000; UPDATE/DELETE blocked by immutable-row triggers | Status sequence 1 through 1000000; the highest revision is current and no row means never retired. | Internal staff curriculum availability history |
+| status | TEXT | no | none | CHECK curriculum_status_state: status IN ('active', 'retired'); UPDATE/DELETE blocked by immutable-row triggers | Availability set by this event: retired hides the reference and blocks new copies; active reinstates it. | Internal staff curriculum availability history |
+| reason | TEXT | no | none | CHECK curriculum_status_reason: length(trim(reason)) BETWEEN 10 AND 500; UPDATE/DELETE blocked by immutable-row triggers | Required explanation recorded with the change. | Internal staff curriculum availability history |
+| changed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated author or administrator who made the change. | Internal staff curriculum availability history |
+| changed_at | TEXT | no | none | No additional DB constraint; UPDATE/DELETE blocked by immutable-row triggers | Server-generated ISO time of the change. | Internal staff curriculum availability history |
+
+Source: db/curriculum-schema.ts; drizzle/0023_curriculum_status.sql.
+
 ## `curriculum_reference_versions`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |

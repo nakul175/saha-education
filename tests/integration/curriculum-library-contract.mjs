@@ -146,6 +146,7 @@ try {
   check((await call('status', 'POST', null, ids.fractions, event())).status, 401, 'Anonymous retirement denied');
   for (const user of ['guardian-a', 'student-user-a']) check((await call('status', 'POST', user, ids.fractions, event())).status, 403, 'Family cannot retire');
   for (const user of ['teacher-other', 'teacher-b', 'admin-b']) check((await call('status', 'POST', user, ids.fractions, event())).status, 404, 'A non-manager cannot retire or discover the reference');
+  check((await call('status', 'POST', 'teacher-a', ids.fractions, event({ expectedRevision: 5 }))).status, 409, 'A revision the reference has not reached cannot be claimed (compare and set)');
   check(sqlite.prepare('SELECT count(*) AS n FROM curriculum_reference_status_events').get().n, 0, 'Rejected retirements wrote nothing');
 
   response = await call('status', 'POST', 'teacher-a', ids.fractions, event());

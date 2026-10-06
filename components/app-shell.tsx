@@ -76,6 +76,7 @@ export function AppShell({
     { id: 'reading-imports', label: 'Reading imports', path: '/reading-imports' },
     { id: 'resources', label: 'Teaching resources', path: '/resources' },
     { id: 'learning', label: 'Class resources', path: '/learning' },
+    { id: 'submissions', label: 'Submissions and feedback', path: '/submissions' },
     { id: 'external-apps', label: 'Reading apps', path: '/external-apps' },
     { 
       id: 'dashboard', 
@@ -146,7 +147,7 @@ export function AppShell({
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'submissions', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications
@@ -156,7 +157,7 @@ export function AppShell({
     
     // Student can only access dashboard and notifications
     if (principal.role === 'student') {
-      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications', 'learning'].includes(item.id);
+      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications', 'learning', 'submissions'].includes(item.id);
     }
     
     return false;
