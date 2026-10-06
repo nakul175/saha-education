@@ -2,7 +2,6 @@
 // Page callbacks use substituted React hooks/elements; not mounted-browser or accessibility evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';

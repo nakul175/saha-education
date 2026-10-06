@@ -2,7 +2,6 @@
 // Unchanged candidate client callbacks use substituted hooks/elements, not mounted-browser evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/d1';

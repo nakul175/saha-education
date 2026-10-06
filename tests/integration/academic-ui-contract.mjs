@@ -3,7 +3,6 @@
 // this is not mounted-browser, educator acceptance or hosted execution evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
