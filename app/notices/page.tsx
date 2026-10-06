@@ -204,7 +204,7 @@ export default function NoticesPage() {
             <label className="block space-y-1"><span>Title</span>
               <input className={inputStyle} required maxLength={120} value={title} onChange={event => { setTitle(event.target.value); setConfirmed(false); }} /></label>
             <label className="block space-y-1"><span>Message</span>
-              <textarea className={inputStyle} rows={6} required maxLength={2000} value={body} aria-describedby="message-help" onChange={event => { setBody(event.target.value); setConfirmed(false); }} /></label>
+              <textarea className={inputStyle} rows={6} required maxLength={2000} value={body} aria-label="Message" aria-describedby="message-help" onChange={event => { setBody(event.target.value); setConfirmed(false); }} /></label>
             <p id="message-help" className="text-sm text-muted-foreground">Plain text only, up to 2,000 characters ({body.length} used). Write in short, clear sentences. Do not include passwords or private details that only some readers should see.</p>
             <label className="flex items-start gap-2"><input type="checkbox" className="mt-1" required checked={confirmed} onChange={event => setConfirmed(event.target.checked)} />
               <span>I have checked who will receive this notice{audienceCount > 0 ? ` (${plural(audienceCount, 'person', 'people')})` : ''} and what it says.</span></label>

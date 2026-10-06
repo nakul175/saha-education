@@ -106,9 +106,9 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
             <label className="block space-y-1"><span>Correction title</span>
               <input className={inputStyle} required maxLength={120} value={title} onChange={event => { setTitle(event.target.value); setConfirmed(false); }} /></label>
             <label className="block space-y-1"><span>Corrected message</span>
-              <textarea className={inputStyle} rows={5} required maxLength={2000} value={body} onChange={event => { setBody(event.target.value); setConfirmed(false); }} /></label>
+              <textarea className={inputStyle} rows={5} required maxLength={2000} aria-label="Corrected message" value={body} onChange={event => { setBody(event.target.value); setConfirmed(false); }} /></label>
             <label className="block space-y-1"><span>Why is this correction needed?</span>
-              <textarea className={inputStyle} rows={2} required minLength={10} maxLength={500} aria-describedby="reason-help" value={reason} onChange={event => { setReason(event.target.value); setConfirmed(false); }} /></label>
+              <textarea className={inputStyle} rows={2} required minLength={10} maxLength={500} aria-label="Why is this correction needed?" aria-describedby="reason-help" value={reason} onChange={event => { setReason(event.target.value); setConfirmed(false); }} /></label>
             <p id="reason-help" className="text-sm text-muted-foreground">Use 10–500 characters on one line. Readers will see this reason.</p>
             <label className="flex items-start gap-2"><input type="checkbox" className="mt-1" required checked={confirmed} onChange={event => setConfirmed(event.target.checked)} />
               <span>I have checked the correction and that it should go to the {plural(detail.recipientCount, 'person', 'people')} who received the original.</span></label>

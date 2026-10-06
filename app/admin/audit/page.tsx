@@ -193,7 +193,7 @@ export default function AuditTrailPage() {
                   <fieldset disabled={saving} className="space-y-3">
                     <legend className="font-medium">Add a correction note</legend>
                     <label className="block space-y-1"><span>Note</span>
-                      <textarea className={inputStyle} rows={3} required minLength={10} maxLength={500} aria-describedby={'note-help-' + key} value={note} onChange={event => { setNote(event.target.value); setConfirmed(false); }} /></label>
+                      <textarea className={inputStyle} rows={3} required minLength={10} maxLength={500} aria-label="Note" aria-describedby={'note-help-' + key} value={note} onChange={event => { setNote(event.target.value); setConfirmed(false); }} /></label>
                     <p id={'note-help-' + key} className="text-sm text-muted-foreground">Use 10–500 characters on one line. The note is added beside this entry and cannot be edited later.</p>
                     <label className="flex items-start gap-2"><input type="checkbox" className="mt-1" required checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /><span>I have checked this note and it should be kept on record.</span></label>
                     <Button type="submit" disabled={saving || !confirmed || note.trim().length < 10}>{saving ? 'Adding…' : 'Add note'}</Button>
