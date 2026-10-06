@@ -98,6 +98,11 @@ try {
     check((await get('/api/records/guardians', 'guardian-a')).body.items.map(item => item.id), ['guardian-profile-a'], 'A guardian sees only themself');
     check((await get('/api/records/guardians?limit=0', 'admin-a')).status, 400, 'Bad paging rejected'); check((await get('/api/records/guardians?grade=7', 'admin-a')).status, 400, 'Unknown filter rejected');
     await send('POST', linkPath('student-other'), 'admin-a', link('g-zed')); check((await get('/api/records/guardians', 'teacher-a')).body.items.map(item => item.id), ['guardian-profile-a'], 'The link to another teacher\'s student does not widen teacher-a scope');
+    await send('POST', linkPath('student-other'), 'admin-a', link('guardian-profile-a'));
+    check((await get('/api/records/guardians/guardian-profile-a', 'admin-a')).body.children.map(item => item.id).sort(), ['student-a', 'student-other'], 'Administrator sees both children');
+    check((await get('/api/records/guardians/guardian-profile-a', 'teacher-a')).body.children.map(item => item.id), ['student-a'], 'A teacher sees only the child of an assigned class');
+    check((await get('/api/records/guardians', 'admin-a')).body.items.find(item => item.id === 'guardian-profile-a').linkedStudents, 2, 'Administrator count includes both children');
+    check((await get('/api/records/guardians', 'teacher-a')).body.items.find(item => item.id === 'guardian-profile-a').linkedStudents, 1, 'Teacher count includes only the visible child');
   });
   await scenario('guardian edit is administrator-only, version-checked and validated', async ({ get, send, check, okay, snapshot, row }) => {
     const detail = (await get('/api/records/guardians/guardian-profile-a', 'admin-a')).body; check(detail.guardian.hasLogin, true, 'Detail shows whether a login account is linked'); okay(!('userId' in detail.guardian), 'The account id is not disclosed');

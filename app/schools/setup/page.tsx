@@ -66,7 +66,11 @@ function SetupEditor({ principal }: { principal: Principal }) {
     const before = view;
     const latest = await load(true);
     if (!latest || !before) return;
-    const changed = (Object.keys(fieldNames) as (keyof Draft)[]).filter(key => draftOf(latest)[key] !== draftOf(before)[key]).map(key => `${fieldNames[key]} is now saved as "${draftOf(latest)[key] || 'empty'}"`);
+    // Fields you did not touch take the latest saved value; fields you changed keep your edit.
+    const was = draftOf(before), now = draftOf(latest), keys = Object.keys(fieldNames) as (keyof Draft)[];
+    const mine = (key: keyof Draft) => draft !== null && draft[key] !== was[key];
+    const changed = keys.filter(key => now[key] !== was[key]).map(key => `${fieldNames[key]} is now saved as "${now[key] || 'empty'}"${mine(key) ? ' (your edit is kept)' : ''}`);
+    setDraft(Object.fromEntries(keys.map(key => [key, mine(key) ? draft![key] : now[key]])) as Draft);
     setConflict(false);
     setMessage({ kind: 'warning', text: 'The latest saved details are loaded and your edits are kept. ' + (changed.length ? 'Changed by someone else: ' + changed.join('; ') + '. ' : '') + 'Review, then save again.' });
   }

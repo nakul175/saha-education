@@ -35,6 +35,7 @@ try {
     const legacy = await get('/api/schools', 'teacher-a');
     check(legacy.body.map(school => Object.keys(school).sort()), [['address', 'createdAt', 'id', 'name', 'updatedAt']], 'Legacy school DTO keeps exactly its original fields');
     check(legacy.body[0].name, 'Synthetic School A Renamed', 'Legacy reads see the saved name');
+    const bootstrap = await send('POST', '/api/schools', 'admin-a', { name: 'Self provisioned school' }); check(bootstrap.status, 403, 'A school administrator cannot create a school (operator provisioning only)'); check(count('schools'), 2, 'No school was created');
     check(count('school_setup_settings'), 1, 'One settings row'); check(row("SELECT updated_by FROM school_setup_settings WHERE school_id='a'").updated_by, 'admin-a', 'Actor is attributed from the session, not the caller');
     const cleared = await send('PATCH', setupPath('a'), 'admin-a', valid(saved.body, { address: '', academicYear: null, contactEmail: null, contactPhone: '' }));
     check(cleared.status, 200, 'Deliberately cleared optional fields save'); check([cleared.body.school.address, cleared.body.settings.academicYear, cleared.body.settings.contactEmail, cleared.body.settings.contactPhone], [null, null, null, null], 'Empty means null');
@@ -46,6 +47,8 @@ try {
     const afterOne = snapshot();
     const stale = await send('PATCH', setupPath('a'), 'admin-second-a', valid(first, { name: 'Competing name' }));
     check([stale.status, stale.body.reason], [409, 'stale'], 'A second administrator holding the old token cannot overwrite the first save'); check(snapshot(), afterOne, 'Stale competing save changes nothing');
+    const mixed = await send('PATCH', setupPath('a'), 'admin-a', { ...valid(one.body, { name: 'Mixed tokens' }), expectedVersion: first.settings.version });
+    check([mixed.status, mixed.body.reason], [409, 'stale'], 'A current record token with an old settings version is also stale'); check(snapshot(), afterOne, 'Mixed-token save changes nothing');
     const replay = await send('PATCH', setupPath('a'), 'admin-a', valid(first));
     check([replay.status, replay.body], [409, { error: 'Conflict', reason: 'stale' }], 'The old token is a safe stale conflict, never a blind overwrite'); check(snapshot(), afterOne, 'Stale save changes nothing');
     const legacy = await send('PATCH', '/api/schools/a', 'admin-a', { name: 'Legacy rename' });

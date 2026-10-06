@@ -46,8 +46,11 @@ function DetailsForm({ detail, setDetail, reload }: { detail: StudentRecordDetai
   async function keepMine() {
     const latest = await reload();
     if (!latest) { setMessage({ kind: 'error', text: 'The latest record could not be loaded. Reload the page.' }); return; }
-    const before = draftOf(student), now = draftOf(latest.student);
-    const changed = (Object.keys(now) as (keyof Draft)[]).filter(key => now[key] !== before[key]).map(key => `${labels[key]} is now "${now[key]}"`);
+    // Fields you did not touch take the latest saved value; fields you changed keep your edit.
+    const before = draftOf(student), now = draftOf(latest.student), keys = Object.keys(now) as (keyof Draft)[];
+    const mine = (key: keyof Draft) => draft[key] !== before[key];
+    const changed = keys.filter(key => now[key] !== before[key]).map(key => `${labels[key]} is now "${now[key]}"${mine(key) ? ' (your edit is kept)' : ''}`);
+    setDraft(Object.fromEntries(keys.map(key => [key, mine(key) ? draft[key] : now[key]])) as Draft);
     setConflict(false);
     setMessage({ kind: 'warning', text: 'The latest record is loaded and your edits are kept. ' + (changed.length ? 'Changed by someone else: ' + changed.join('; ') + '. ' : '') + 'Review, then save again.' });
   }

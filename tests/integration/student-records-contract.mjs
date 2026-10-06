@@ -83,6 +83,7 @@ try {
     check((await send('POST', '/api/records/students/student-a/status', 'admin-a', { ...first, reason: 'A different reason entirely' })).body.reason, 'request-reused', 'A UUID cannot be reused for different content');
     check((await send('POST', '/api/records/students/student-a/status', 'admin-a', status('deactivate', 1))).body.reason, 'already-inactive', 'Deactivating twice is refused');
     check((await send('POST', '/api/records/students/student-a/status', 'admin-a', status('reactivate', 0))).body.reason, 'stale', 'A stale version cannot reactivate');
+    check((await send('POST', '/api/records/students/student-a/status', 'admin-a', status('reactivate', 5))).body.reason, 'stale', 'A version from the future is not accepted either'); check(count('student_status_events'), 1, 'No event was written for a refused version');
     const on = await send('POST', '/api/records/students/student-a/status', 'admin-a', status('reactivate', 1, { reason: 'Student returned to the school' }));
     check(on.status, 201, 'Reactivation recorded'); check([on.body.detail.student.status, on.body.detail.student.statusVersion, on.body.detail.activeEnrolments], ['active', 2, 0], 'Active again at version two; enrolments are not silently re-created');
     check(on.body.detail.history.map(item => item.action), ['reactivate', 'deactivate'], 'History is newest first and complete');
