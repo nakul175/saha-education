@@ -176,7 +176,8 @@ export default function AdminUsersPage() {
       try { applyInventory(await inventory()); }
       catch { setMessage('Reviewed account saved. Reload accounts to refresh the full list and recent reviews.'); }
     } catch (caught) {
-      if (caught instanceof RequestError && caught.status === 409) setError('This identity, email or earlier request conflicts with saved information. Reload accounts and review existing mappings before trying again. Your form has been kept.');
+      if (caught instanceof RequestError && caught.status === 409 && caught.reason === 'demo_issuer') setError(CONFLICT.demo_issuer + ' Your form has been kept.');
+      else if (caught instanceof RequestError && caught.status === 409) setError('This identity, email or earlier request conflicts with saved information. Reload accounts and review existing mappings before trying again. Your form has been kept.');
       else displayError(caught, 'The save could not be confirmed. Keep this page open and retry without changing the form.');
     } finally { busy.current = false; setSaving(false); }
   }
@@ -380,7 +381,7 @@ export default function AdminUsersPage() {
       <section aria-labelledby="provision-title" className="space-y-4 rounded border p-4">
         <h2 id="provision-title" className="text-xl font-semibold">Provision a reviewed account</h2>
         <p>Enter a new person’s exact provider issuer and subject. An email match does not link identities. This form does not create a student or guardian profile.</p>
-        <form onSubmit={provision} className="space-y-4">
+        <form onSubmit={provision} className="space-y-4" aria-labelledby="provision-title">
           <fieldset disabled={saving || loading} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block space-y-1"><span>Name</span><input className={inputStyle} required maxLength={120} autoComplete="off" value={form.name} onChange={event => setForm(previous => ({ ...previous, reviewConfirmed: false, name: event.target.value }))} /></label>

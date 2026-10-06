@@ -283,7 +283,13 @@ try {
     okay(ui.all(item => item.props?.['data-synthetic']).length === 1 && /Synthetic demo\./.test(page()), 'The panel carries the synthetic label');
     okay(/removal is unavailable/.test(page()), 'Removal of the demo sign-in is explained as unavailable');
     check(ui.all(item => item.type === 'fieldset').filter(item => item.props.disabled).length, 1, 'The sign-in form is disabled for a synthetic account');
-    check(count('identity_admin_changes'), 0, 'Nothing recorded by looking'); drained();
+    check(count('identity_admin_changes'), 0, 'Nothing recorded by looking');
+    // Provisioning with a provider issuer is refused inside the synthetic installation, with its own plain explanation.
+    await ui.type('Name', 'Outside Teacher'); await ui.type('Email', 'outside@example.invalid'); await ui.type('Exact trusted identity issuer', provider);
+    await ui.type('Exact provider identity subject', 'outside-sub'); await ui.type('Reason and review reference', why); await ui.tick('I checked this person');
+    const before = count('users'); await ui.submit('provision-title');
+    okay(/accepts only the synthetic demo issuer/.test(alertText(ui)), 'demo_issuer explained: ' + alertText(ui)); check(count('users'), before, 'No account was created');
+    drained();
   });
   check(externalRequests, 0, 'Identity screens remain synthetic and offline');
   console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, actualRequests, externalRequests,
