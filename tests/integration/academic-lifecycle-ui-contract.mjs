@@ -48,6 +48,8 @@ try {
   check(client.readFailureMessage(failure, 'This roster').includes('unavailable to your current account'), true, 'A 403 read is explained plainly');
   check(client.readFailureMessage(new Error('x'), 'This roster'), 'This roster could not be loaded. Reload to try again.', 'An unexpected failure is explained plainly');
   check([client.formatDay('2026-10-05'), client.formatDay(null), client.formatDay('bad')], ['5 Oct 2026', 'Not set', 'Not set'], 'Dates are formatted without a local-time shift');
+  check([client.formatDayRange(null, null), client.formatDayRange('2026-10-05', null), client.formatDayRange(null, '2026-12-01'), client.formatDayRange('2026-10-05', '2026-12-01')],
+    ['No class dates have been set.', 'From 5 Oct 2026, with no end date.', 'Until 1 Dec 2026, with no start date.', '5 Oct 2026 to 1 Dec 2026.'], 'A class date range reads as a plain sentence');
   // ---- every server conflict code has a plain-language message
   const sources = [read('drizzle/0018_course_class_enrolment_lifecycle.sql'), read('lib/education/academic-lifecycle.ts')].join('\n');
   const codes = new Set([...sources.matchAll(/saha_academic_conflict:([a-z-]+)/g)].map(match => match[1]).concat([...sources.matchAll(/LifecycleError\('([a-z-]+)'/g)].map(match => match[1])));

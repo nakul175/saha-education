@@ -64,6 +64,14 @@ export function formatDay(value: string | null | undefined): string {
   return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
+/** One plain sentence for a class date range; never "Not set to Not set". */
+export function formatDayRange(start: string | null | undefined, end: string | null | undefined): string {
+  if (!start && !end) return 'No class dates have been set.';
+  if (start && !end) return `From ${formatDay(start)}, with no end date.`;
+  if (!start && end) return `Until ${formatDay(end)}, with no start date.`;
+  return `${formatDay(start)} to ${formatDay(end)}.`;
+}
+
 export function formatMoment(value: string | null | undefined): string {
   if (!value) return 'Unknown time';
   const time = Date.parse(value);

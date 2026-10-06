@@ -42,7 +42,14 @@ async function api(value, path, method = 'GET', data, expected = 200) {
   assert.equal(response.status(), expected, 'Local API status: ' + method + ' ' + path); return response.json();
 }
 async function goto(page, path) {
-  const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 45000 }); assert.equal(response?.status(), 200); return response;
+  try { const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 45000 }); assert.equal(response?.status(), 200); return response; }
+  catch (error) {
+    // Separate a stalled browser navigation from a stalled Worker: ask the Worker for the same page directly.
+    const began = Date.now(); let probe;
+    try { const direct = await fetch(base.origin + path, { headers: { cookie: sessions['admin-a'] }, redirect: 'manual', signal: AbortSignal.timeout(10000) }); await direct.text(); probe = direct.status + ' in ' + (Date.now() - began) + ' ms'; } catch (failure) { probe = 'no answer: ' + failure.name; }
+    console.log('  navigation to ' + path + ' failed; direct request to the Worker: ' + probe + '; the page now shows ' + new URL(page.url()).pathname);
+    throw error;
+  }
 }
 async function labelsAndWidth(page) {
   const missing = await page.locator('input:not([type=hidden]),select,textarea').evaluateAll(items => items.filter(item => !item.labels?.length && !item.getAttribute('aria-label') && !item.getAttribute('aria-labelledby')).length);

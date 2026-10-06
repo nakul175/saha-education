@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { END_LABELS, STATUS_LABELS, formatDay, readFailureMessage, readJson, todayUtc } from '@/lib/education/academic-lifecycle-client';
+import { END_LABELS, STATUS_LABELS, formatDay, formatDayRange, readFailureMessage, readJson, todayUtc } from '@/lib/education/academic-lifecycle-client';
 import type { ChangeInput, ClassLifecycle, RosterRow } from '@/lib/education/academic-lifecycle-types';
 import type { Class, Principal, Student } from '@/lib/education/types';
 
@@ -95,7 +95,7 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
     {cls && data && <>
       <Card><CardHeader><CardTitle><h2>Class summary</h2></CardTitle></CardHeader><CardContent className="space-y-1 break-words">
         <p className="flex flex-wrap items-center gap-2"><Badge variant={closed ? 'outline' : 'secondary'}>{closed ? 'Closed' : 'Open'}</Badge><span>{cls.courseTitle ?? 'Course'} · Term {cls.term}</span></p>
-        <p>Teacher: {cls.teacher?.name ?? 'No teacher available'}</p><p role="status">{seats}</p><p>Dates: {formatDay(cls.settings.startsOn)} to {formatDay(cls.settings.endsOn)}</p>
+        <p>Teacher: {cls.teacher?.name ?? 'No teacher available'}</p><p role="status">{seats}</p><p>Class dates: {formatDayRange(cls.settings.startsOn, cls.settings.endsOn)}</p>
         {closed && <p role="status">This class is closed. {manage ? 'Reopen it from the class settings to change the roster.' : 'The roster cannot change until an administrator reopens it.'}</p>}
         {manage && <p><a className="underline" href={'/classes/' + encodeURIComponent(cls.id) + '/manage'}>Open settings for {cls.name}</a></p>}
       </CardContent></Card>
