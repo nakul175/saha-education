@@ -233,4 +233,4 @@ try {
   console.log('part ok', passed);
 } finally { globalThis.fetch = oldFetch; }
 check(networkCalls, 0, 'No external request');
-console.log(JSON.stringify({ passed, scenarios, networkCalls }));
+console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, networkCalls }));
