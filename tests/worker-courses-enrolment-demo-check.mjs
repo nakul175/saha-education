@@ -17,7 +17,7 @@ const browser = await chromium.launch({ executablePath, headless: true, args: ['
 const owners = new Map(), contexts = [], pageErrors = [], externalRequests = [], failedResources = [], checks = [], screenshots = [], dialogs = [];
 let passed = 0;
 const suffix = crypto.randomUUID().slice(0, 8), today = new Date().toISOString().slice(0, 10);
-const failures = [], pendingRequests = new Set();
+const failures = [], pendingRequests = new Set(), stalls = { reads: 0, navigations: 0 };
 const check = async (name, action) => { const began = Date.now(); try { await action(); passed++; checks.push(name); console.log('ok - ' + name + ' (' + (Date.now() - began) + ' ms)'); } catch (error) { failures.push(name); console.log('not ok - ' + name + ': ' + String(error?.message ?? error).split('\n').slice(0, 8).join(' | ').slice(0, 900)); await diagnose(); } };
 const diagnose = async () => { console.log('  requests still pending: ' + JSON.stringify([...pendingRequests].map(request => request.method() + ' ' + new URL(request.url()).pathname)).slice(0, 600)); for (const value of contexts) for (const open of value.pages()) { if (!open.url().startsWith(base.origin)) continue; try { const text = await Promise.race([open.locator('[role=alert],[role=status]').allInnerTexts(), new Promise((_, reject) => setTimeout(() => reject(new Error('unresponsive')), 4000))]); console.log('  screen ' + new URL(open.url()).pathname + ' notices: ' + JSON.stringify(text).slice(0, 500)); } catch { console.log('  screen unreadable'); } } };
 async function context(user) {
@@ -37,15 +37,22 @@ async function context(user) {
 async function api(value, path, method = 'GET', data, expected = 200) {
   const url = new URL(path, base); if (url.origin !== base.origin || url.username || url.password) throw new Error('Synthetic requests must remain local.');
   let response;
-  try { response = await value.request.fetch(url.href, { method, timeout: 15000, maxRedirects: 0, headers: { cookie: sessions[owners.get(value)] ?? '', ...(method === 'GET' ? {} : { Origin: base.origin }) }, ...(data === undefined ? {} : { data }) }); }
-  catch { throw new Error('Local API transport failed: ' + url.pathname); }
+  // Only a read is ever repeated after a stalled local connection; a write is never retried blindly.
+  for (let attempt = 1; !response; attempt++) {
+    try { response = await value.request.fetch(url.href, { method, timeout: 15000, maxRedirects: 0, headers: { cookie: sessions[owners.get(value)] ?? '', ...(method === 'GET' ? {} : { Origin: base.origin }) }, ...(data === undefined ? {} : { data }) }); }
+    catch { if (method === 'GET' && attempt < 2) { stalls.reads++; continue; } throw new Error('Local API transport failed: ' + url.pathname); }
+  }
   assert.equal(response.status(), expected, 'Local API status: ' + method + ' ' + path); return response.json();
 }
 // Close a page only once its requests have finished, so no in-flight request is abandoned on a shared connection.
 const settled = async page => { await page.waitForLoadState('networkidle').catch(() => undefined); await page.close(); };
 async function goto(page, path) {
-  try { const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 45000 }); assert.equal(response?.status(), 200); return response; }
-  catch (error) {
+  try {
+    let response;
+    try { response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 20000 }); }
+    catch { stalls.navigations++; response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 30000 }); }
+    assert.equal(response?.status(), 200); return response;
+  } catch (error) {
     // Separate a stalled browser navigation from a stalled Worker: ask the Worker for the same page directly.
     const began = Date.now(); let probe;
     try { const direct = await fetch(base.origin + path, { headers: { cookie: sessions['admin-a'] }, redirect: 'manual', signal: AbortSignal.timeout(10000) }); await direct.text(); probe = direct.status + ' in ' + (Date.now() - began) + ' ms'; } catch (failure) { probe = 'no answer: ' + failure.name; }
@@ -148,6 +155,7 @@ try {
     await status(page, 'Class settings saved'); await expect(page.getByText('0 of 3 places used')).toBeVisible();
     await page.getByLabel(/^Capacity/).fill('2'); await reasonField(page).fill('Back to two'); await page.getByRole('button', { name: 'Save class settings' }).click(); await status(page, 'Class settings saved');
   });
+  await settled(page);
 
   // ---- Roster, batch enrolment, capacity, lifecycle
   const roster = await admin.newPage();
@@ -271,10 +279,10 @@ try {
   await narrow.setViewportSize({ width: 1280, height: 900 }); await goto(narrow, '/classes/' + classId + '/manage'); await shot(narrow, 'manage-desktop');
   await check('Browser assets load and all observed requests stay local', async () => { assert.deepEqual(pageErrors, []); assert.deepEqual(externalRequests, []); assert.deepEqual(failedResources, []); });
   if (failures.length) throw new Error(failures.length + ' check(s) failed: ' + failures.join('; '));
-  const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, checks, screenshots,
+  const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, repeatedReads: stalls.reads, repeatedNavigations: stalls.navigations, checks, screenshots,
     limits: ['Built localhost Worker with final migrated synthetic sessions only.', 'Offline: non-local requests are aborted and counted.', 'Lost replies are modelled by dropping a real response; no real recipient, identity provider or paid service.'] };
   writeFileSync(join(outputDir, 'courses-enrolment-results.json'), JSON.stringify(result, null, 2) + '\n');
-  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length }));
+  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, repeatedReads: stalls.reads, repeatedNavigations: stalls.navigations }));
 } catch (error) {
   for (const value of contexts) for (const page of value.pages()) if (page.url().startsWith(base.origin)) console.error('Local screen: ' + new URL(page.url()).pathname + '\n' + (await page.locator('body').innerText()).slice(0, 1600));
   console.log(JSON.stringify({ passed, failed: failures.length || 1, externalRequests: externalRequests.length, pageErrors: pageErrors.length })); throw error;
