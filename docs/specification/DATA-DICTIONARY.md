@@ -192,6 +192,34 @@ Source: db/attendance-reviews-schema.ts; drizzle/0013_attendance_reviews.sql.
 
 Source: db/attendance-reviews-schema.ts; drizzle/0013_attendance_reviews.sql.
 
+## `attendance_changes`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Database-generated random identifier of one logged replacement or deletion. | Protected staff attendance evidence; before/after notes and attribution |
+| attendance_id | TEXT | no | none | No FK so the entry survives deletion of the saved row ; UPDATE/DELETE blocked by immutable-row triggers | Saved attendance row that was replaced or removed. | Protected staff attendance evidence; before/after notes and attribution |
+| class_id | TEXT | no | none | INDEX attendance_changes_class_date (class_id, attendance_date, changed_at); UPDATE/DELETE blocked by immutable-row triggers | Class of the changed row, copied from the row before the change. | Protected staff attendance evidence; before/after notes and attribution |
+| student_id | TEXT | no | none | INDEX attendance_changes_student (student_id, changed_at); UPDATE/DELETE blocked by immutable-row triggers | Learner of the changed row, copied from the row before the change. | Protected staff attendance evidence; before/after notes and attribution |
+| attendance_date | TEXT | no | none | INDEX attendance_changes_class_date (class_id, attendance_date, changed_at); UPDATE/DELETE blocked by immutable-row triggers | Literal stored attendance date of the changed row, including any legacy non-calendar text. | Protected staff attendance evidence; before/after notes and attribution |
+| change_kind | TEXT | no | none | CHECK IN ('update','delete'); UPDATE/DELETE blocked by immutable-row triggers | update when status, note or recorder changed; delete when the row was removed. Insertions and updates that change none of those fields are not logged. | Protected staff attendance evidence; before/after notes and attribution |
+| before_record | TEXT | no | none | CHECK valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Exact prior id/status/note/recordedBy/createdAt/updatedAt written by the AFTER UPDATE/DELETE trigger. | Protected staff attendance evidence; before/after notes and attribution |
+| after_record | TEXT | yes | none | CHECK SQL NULL or valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Exact new id/status/note/recordedBy/createdAt/updatedAt; null for a deletion. | Protected staff attendance evidence; before/after notes and attribution |
+| changed_at | TEXT | no | none | INDEX attendance_changes_class_date; INDEX attendance_changes_student; UPDATE/DELETE blocked by immutable-row triggers | Database clock ISO time of the change; written by the trigger, not the caller. | Protected staff attendance evidence; before/after notes and attribution |
+
+Source: db/attendance-workflow-schema.ts; drizzle/0019_attendance_workflow.sql.
+
+## `school_attendance_settings`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| school_id | TEXT | no | none | PK; FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | School that owns this attendance calendar. No row means UTC calendar dates and future dates allowed. | Non-learner school configuration |
+| timezone | TEXT | no | none | CHECK length 1-64 and only letters, digits, underscore, plus, slash and hyphen | IANA timezone name whose calendar day is the school attendance date. The service accepts only names the runtime recognises. | Non-learner school configuration |
+| future_dates_allowed | INTEGER | no | 1 | CHECK IN (0,1) | Whether a new reviewed save may use a date after today at the school. Exact replays are never blocked by this setting. | Non-learner school configuration |
+| updated_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current school administrator who last saved the setting; server-derived. | Non-learner school configuration |
+| updated_at | TEXT | no | none | No additional DB constraint | Server ISO time of the last save. | Non-learner school configuration |
+
+Source: db/attendance-workflow-schema.ts; drizzle/0019_attendance_workflow.sql.
+
 ## `auth_rate_limits`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |

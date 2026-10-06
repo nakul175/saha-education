@@ -26,7 +26,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 173
+      "minPassed": 179
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -67,6 +67,11 @@
       "layer": "integration",
       "file": "tests/integration/attendance-summary-contract.mjs",
       "minPassed": 103
+    },
+    "integration/attendance-workflow-contract": {
+      "layer": "integration",
+      "file": "tests/integration/attendance-workflow-contract.mjs",
+      "minPassed": 362
     },
     "integration/course-catalog-ui-contract": {
       "layer": "integration",
@@ -111,7 +116,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 264
+      "minPassed": 266
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
