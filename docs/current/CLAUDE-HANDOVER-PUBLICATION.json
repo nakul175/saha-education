@@ -1,0 +1,49 @@
+{
+  "recorded_at_utc": "2026-10-06T03:01:48.873131+00:00",
+  "user_instruction": "Reconcile completed work, merge to Git, update documentation for Claude continuation",
+  "application_source_commit": "426a49d4c218e0033087669e3fb98b22c52605ed",
+  "application_merge_commit": "bdeea544c8fc8d208f4391bac24e506082ea81f7",
+  "application_merge_pr": 6,
+  "application_merge_url": "https://github.com/nakul175/saha-education/pull/6",
+  "exact_validated_application_tree": "5efc15472891846f1b14ddff8c716e0a5da8f819",
+  "remote_main_tree_equality_verified": true,
+  "merge_inside_authorized_window": true,
+  "earlier_pr_reconciliation": {
+    "1": {
+      "state": "closed as superseded; original branch retained",
+      "original_head": "8baba5d543482e309c460e3058b88bc9cb44abb4",
+      "adapted_commit": "0c4b492e0524f417a4246d2eac9c1536a9f57870",
+      "verified": "19 non-root-README blobs originally byte-identical; root README intro adapted; range-diff/ancestor audit found no unique meaningful omission"
+    },
+    "2": "automatically marked merged; head48d40fd is ancestor of main",
+    "3": "automatically marked merged; head0aba24b is ancestor of main",
+    "4": "automatically marked merged; head5488bc0 is ancestor of main",
+    "5": "automatically marked merged; headd53adcf is ancestor of main"
+  },
+  "unfinished_work": {
+    "branch": "handoff/assessment-detail-2026-10-06",
+    "commit": "e1283e78d7d19f6637c0821304e5a4a5cbd438d6",
+    "remote_verified": true,
+    "root_original_application_test_bytes_equal_remote": true,
+    "additional_local_stash": "5e74c0edf640f9a704d85fb90bde0f0c412de158",
+    "excluded_from_verified_main": true
+  },
+  "heartbeat": {
+    "id": "saha-education-development-for-four-hours",
+    "status": "PAUSED",
+    "rrule_preserved": true,
+    "prompt_preserved": true,
+    "target_thread_preserved": true,
+    "reason": "Sponsor requested immediate Claude handover; further automated feature work paused"
+  },
+  "hosting": {
+    "status": "failed",
+    "returned_url": null,
+    "error": "incomplete input: SQLITE_ERROR",
+    "details": "HOSTED-DEPLOYMENT-FAILURE.json",
+    "source": "8088b5f88213401ff900506362c227a55120f3c1",
+    "applied_migration_boundary": "unknown; no repeated failed archive or history rewrite"
+  },
+  "verification_record": "EIGHT-HOUR-BATCH-4-EXECUTION.json",
+  "documentation_closure": "This documentation-only followup starts from the application merge; no application/test/migration changes and no transfer of hosted acceptance."
+}
