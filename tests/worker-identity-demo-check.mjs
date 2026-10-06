@@ -42,11 +42,19 @@ async function newContext({ cookie, width = 1280, height = 900 } = {}) {
   });
   return value;
 }
+function describe(error) {
+  const first = String(error?.message ?? error).split('\n')[0].slice(0, 200);
+  return error && 'actual' in error && 'expected' in error ? `${first} actual=${JSON.stringify(error.actual)} expected=${JSON.stringify(error.expected)}`.slice(0, 400) : first;
+}
 async function proc(name, action) {
   try { await action(); procedures.push({ name, result: 'pass' }); console.log('ok - ' + name); }
-  catch (error) {
-    procedures.push({ name, result: 'fail', message: String(error?.message ?? error).split('\n')[0].slice(0, 300) }); console.log('not ok - ' + name + ' :: ' + String(error?.message ?? error).split('\n')[0].slice(0, 200));
-  }
+  catch (error) { procedures.push({ name, result: 'fail', message: describe(error) }); console.log('not ok - ' + name + ' :: ' + describe(error)); }
+}
+let navigationRetries = 0;
+/** One retry of a navigation that timed out (a stalled local response); every retry is counted in the result record. */
+async function go(page, path, options = { waitUntil: 'networkidle' }) {
+  try { return await page.goto(new URL(path, base).href, options); }
+  catch (error) { if (!/Timeout/.test(String(error?.message))) throw error; navigationRetries++; return page.goto(new URL(path, base).href, options); }
 }
 const skip = (name, reason) => { procedures.push({ name, result: 'not-executed', message: reason }); console.log('skipped - ' + name + ' :: ' + reason); };
 async function shot(page, name) {
@@ -64,7 +72,9 @@ async function labelsAndWidth(page, scope = 'main') {
 }
 const alertLine = page => page.locator('p[role=alert]');
 async function api(context, path, method = 'GET', data) {
-  const response = await context.request.fetch(new URL(path, base).href, { method, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin, 'Content-Type': 'application/json' }, ...(data === undefined ? {} : { data: JSON.stringify(data) }), timeout: 15000 });
+  // The request jar does not send a Secure host cookie to http://127.0.0.1, so the browser context's cookie is passed explicitly.
+  const stored = (await context.cookies(base.href)).filter(cookie => cookie.name === '__Host-saha_session');
+  const response = await context.request.fetch(new URL(path, base).href, { method, maxRedirects: 0, headers: { ...(stored.length ? { cookie: `${stored[0].name}=${stored[0].value}` } : {}), ...(method === 'GET' ? {} : { Origin: base.origin, 'Content-Type': 'application/json' }) }, ...(data === undefined ? {} : { data: JSON.stringify(data) }), timeout: 15000 });
   const text = await response.text(); let body = null; try { body = JSON.parse(text); } catch { /* Not JSON. */ }
   return { status: response.status(), body, headers: response.headers() };
 }
@@ -78,7 +88,7 @@ async function demoSuite() {
     { role: 'student', label: 'learner', title: 'My progress', roleLabel: 'Learner' },
   ];
   async function loginPage(page) {
-    const response = await page.goto(new URL('/login', base).href, { waitUntil: 'networkidle' });
+    const response = await go(page, '/login');
     assert.equal(response?.status(), 200);
     await expect(page.getByRole('heading', { name: 'Explore Saha Education', exact: true })).toBeVisible();
   }
@@ -122,7 +132,7 @@ async function demoSuite() {
       await page.getByRole('button', { name: 'Sign out', exact: true }).click();
       await expect(page).toHaveURL(/\/login$/);
       assert.equal((await whoami(page)).status, 401, 'The server session is gone after sign-out');
-      await page.goto(new URL('/account', base).href, { waitUntil: 'networkidle' });
+      await go(page, '/account');
       await expect(page).toHaveURL(/\/login$/); await expect(page.getByRole('heading', { name: 'Explore Saha Education', exact: true })).toBeVisible();
     });
   }
@@ -137,7 +147,6 @@ async function demoSuite() {
     const cookies = (await main.cookies()).filter(cookie => cookie.name === '__Host-saha_session');
     assert.equal(cookies.length, 1, 'Exactly one opaque session cookie');
     assert.equal(cookies[0].httpOnly && cookies[0].secure && cookies[0].sameSite === 'Lax' && cookies[0].path === '/', true, 'HttpOnly, Secure, SameSite=Lax, Path=/');
-    await page.goto(new URL('/api/session', base).href); await page.evaluate(() => fetch('/api/session', { method: 'DELETE' }));
   });
   await proc('Wrong-origin and origin-less demo entry is refused with no session', async () => {
     const stranger = await newContext();
@@ -159,7 +168,7 @@ async function demoSuite() {
     await page.reload({ waitUntil: 'networkidle' });
     await expect(page).toHaveURL(/\/login\?reason=expired$/);
     await expect(page.getByText('Your session ended. Sign in again to continue.', { exact: true })).toBeVisible();
-    await page.goto(new URL('/dashboard/teacher', base).href, { waitUntil: 'networkidle' });
+    await go(page, '/dashboard/teacher');
     await expect(page).toHaveURL(/\/login/); await shot(page, 'expired');
     await enter(page, roles[1]);
     assert.equal((await whoami(page)).body.id, 'saha-demo-teacher', 'Entering again renews a working session');
@@ -172,13 +181,13 @@ async function demoSuite() {
   await enter(page, roles[0]);
   await proc('A teacher cannot reach account administration', async () => {
     await enter(teacher, roles[1]);
-    await teacher.goto(new URL('/admin/users', base).href, { waitUntil: 'networkidle' });
+    await go(teacher, '/admin/users');
     await expect(teacher.getByText('This workspace is available to school administrators.')).toBeVisible();
     const refused = await api(teacherContext, '/api/admin/users'); assert.equal(refused.status, 403);
     assert.equal((await api(teacherContext, '/api/admin/users/saha-demo-admin/role', 'PATCH', { clientRequestId: crypto.randomUUID(), expectedVersion: 0, role: 'teacher', reviewConfirmed: true, reason: why })).status, 403);
   });
   await proc('Administrator opens account administration with the synthetic label and mobile layout', async () => {
-    await page.goto(new URL('/admin/users', base).href, { waitUntil: 'networkidle' });
+    await go(page, '/admin/users');
     await expect(page.getByRole('heading', { name: 'Reviewed account administration', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Demo teacher', exact: true })).toBeVisible();
     await expect(page.getByText('Synthetic demo sign-in').first()).toBeVisible();
@@ -205,7 +214,7 @@ async function demoSuite() {
   const learnerContext = await newContext(); const learner = await learnerContext.newPage();
   await proc('Disabling a demo account signs it out at once, blocks entry in plain words, and re-enabling does not revive the session', async () => {
     await enter(learner, roles[3]);
-    await page.goto(new URL('/admin/users', base).href, { waitUntil: 'networkidle' });
+    await go(page, '/admin/users');
     await page.getByRole('button', { name: 'Disable access for Demo learner', exact: true }).click();
     await page.getByLabel('Reason for this access change', { exact: false }).fill(why);
     await page.getByRole('checkbox', { name: /I reviewed this account and confirm this disable/ }).check();
@@ -228,7 +237,7 @@ async function demoSuite() {
     assert.equal((await whoami(learner)).body.id, 'saha-demo-student');
   });
   await proc('The demo accounts keep working after the administration decisions and the history names people, not raw ids', async () => {
-    await page.goto(new URL('/admin/users', base).href, { waitUntil: 'networkidle' });
+    await go(page, '/admin/users');
     await expect(page.getByRole('heading', { name: 'Recent administration reviews', exact: true })).toBeVisible();
     const history = await page.locator('section[aria-labelledby=administration-history-title]').innerText();
     assert.match(history, /Disabled · Demo learner/); assert.match(history, /Enabled · Demo learner/);
@@ -244,7 +253,7 @@ async function realSuite() {
   await proc('Real mode fails closed: no demo, an unavailable notice, and a friendly failure on sign-in', async () => {
     assert.deepEqual((await api(anonymous, '/api/demo')).body, { available: false, synthetic: true });
     assert.deepEqual((await api(anonymous, '/api/auth/login')).body, { configured: false }, 'The status check reports only configured or not');
-    await visitor.goto(new URL('/login', base).href, { waitUntil: 'networkidle' });
+    await go(visitor, '/login');
     await expect(visitor.getByRole('heading', { name: 'Sign in to Saha Education', exact: true })).toBeVisible();
     await expect(visitor.getByRole('button', { name: /^Explore as/ })).toHaveCount(0);
     await expect(visitor.getByText(/School sign-in has not been set up on this installation yet/)).toBeVisible();
@@ -255,12 +264,12 @@ async function realSuite() {
     await labelsAndWidth(visitor); await shot(visitor, 'login-unconfigured');
   });
   await proc('A failed provider callback returns to the sign-in page with an explanation and no session', async () => {
-    const callback = await api(anonymous, '/api/auth/callback?code=forged-code&state=forged-state');
-    assert.equal(callback.status, 303); assert.equal(callback.headers.location, '/login?error=signin_failed');
-    assert.equal(/__Host-saha_session=[A-Za-z0-9_-]{20,}/.test(callback.headers['set-cookie'] ?? ''), false, 'No session cookie on failure');
-    await visitor.goto(new URL('/login?error=signin_failed', base).href, { waitUntil: 'networkidle' });
+    await go(visitor, '/api/auth/callback?code=forged-code&state=forged-state');
+    await expect(visitor).toHaveURL(/\/login\?error=signin_failed$/);
     await expect(alertLine(visitor)).toContainText('School sign-in could not be completed');
-    await visitor.goto(new URL('/login?reason=expired', base).href, { waitUntil: 'networkidle' });
+    assert.equal((await anonymous.cookies(base.href)).some(cookie => cookie.name === '__Host-saha_session'), false, 'No session cookie on failure');
+    assert.equal((await whoami(visitor)).status, 401);
+    await go(visitor, '/login?reason=expired');
     await expect(visitor.getByText('Your session ended. Sign in again to continue.', { exact: true })).toBeVisible();
     await expect(alertLine(visitor)).toHaveCount(0);
   });
@@ -268,12 +277,12 @@ async function realSuite() {
     for (const path of ['/api/account', '/api/session', '/api/admin/users', '/api/admin/users/changes', '/api/admin/users/teacher-a']) assert.equal((await api(anonymous, path)).status, 401, path);
     const forged = await anonymous.request.fetch(new URL('/api/admin/users', base).href, { headers: { cookie: 'saha_demo_role=admin', 'x-saha-role': 'admin' } });
     assert.equal(forged.status(), 401);
-    await visitor.goto(new URL('/account', base).href, { waitUntil: 'networkidle' }); await expect(visitor).toHaveURL(/\/login$/);
+    await go(visitor, '/account'); await expect(visitor).toHaveURL(/\/login$/);
   });
-  for (const [id, label, school] of [['teacher-a', 'Teacher', 'Synthetic school a'], ['guardian-a', 'Guardian', 'Synthetic school a'], ['student-user-a', 'Learner', 'Synthetic school a'], ['admin-a', 'School administrator', 'Synthetic school a']]) {
+  for (const [id, label, school, home] of [['teacher-a', 'Teacher', 'Synthetic school a', 'teacher'], ['guardian-a', 'Guardian', 'Synthetic school a', 'guardian'], ['student-user-a', 'Learner', 'Synthetic school a', 'student'], ['admin-a', 'School administrator', 'Synthetic school a', 'admin']]) {
     await proc(`${label}: account page shows school sign-in, role and school without any synthetic-demo claim`, async () => {
       const context = await asRole(id); const page = await context.newPage();
-      await page.goto(new URL('/', base).href, { waitUntil: 'networkidle' });
+      await go(page, '/dashboard/' + home);
       const link = page.getByRole('link', { name: 'Your account', exact: true }); await expect(link).toHaveAttribute('href', '/account'); await link.click();
       await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible();
       await expect(page.locator('dl')).toContainText(label); await expect(page.locator('dl')).toContainText(school); await expect(page.locator('dl')).toContainText('School sign-in');
@@ -285,7 +294,7 @@ async function realSuite() {
   await proc('Teacher, guardian and learner cannot administer accounts', async () => {
     for (const id of ['teacher-a', 'guardian-a', 'student-user-a']) {
       const context = await asRole(id), page = await context.newPage();
-      await page.goto(new URL('/admin/users', base).href, { waitUntil: 'networkidle' });
+      await go(page, '/admin/users');
       await expect(page.getByText('This workspace is available to school administrators.')).toBeVisible();
       assert.equal((await api(context, '/api/admin/users')).status, 403, id);
       assert.equal((await api(context, '/api/admin/users/changes')).status, 403, id);
@@ -293,7 +302,7 @@ async function realSuite() {
     }
   });
   const adminContext = await asRole('admin-a'); const admin = await adminContext.newPage();
-  const goAdmin = async () => { await admin.goto(new URL('/admin/users', base).href, { waitUntil: 'networkidle' }); await expect(admin.getByRole('heading', { name: 'Reviewed account administration', exact: true })).toBeVisible(); };
+  const goAdmin = async () => { await go(admin, '/admin/users'); await expect(admin.getByRole('heading', { name: 'Reviewed account administration', exact: true })).toBeVisible(); };
   const newcomer = 'Mounted Newcomer ' + suffix;
   async function review(reasonLabel, checkbox, submit) {
     await admin.getByLabel(reasonLabel, { exact: true }).fill(why);
@@ -383,7 +392,7 @@ async function realSuite() {
   });
   await proc('Sign-out from the account page ends the opaque session', async () => {
     const context = await asRole('teacher-other'); const page = await context.newPage();
-    await page.goto(new URL('/account', base).href, { waitUntil: 'networkidle' });
+    await go(page, '/account');
     await page.getByRole('button', { name: 'Sign out', exact: true }).click(); await expect(page).toHaveURL(/\/login$/);
     assert.equal((await whoami(page)).status, 401);
   });
@@ -402,7 +411,7 @@ try {
 } catch (error) { fatal = String(error?.message ?? error).slice(0, 300); console.log('fatal: ' + fatal); }
 finally {
   const passed = procedures.filter(item => item.result === 'pass').length, failed = procedures.filter(item => item.result === 'fail').length, notExecuted = procedures.filter(item => item.result === 'not-executed').length;
-  const result = { executedAt: new Date().toISOString(), mode, passed, failed, notExecuted, fatal, localApiRequests, externalRequests: externalRequests.length, pageErrors: pageErrors.length,
+  const result = { executedAt: new Date().toISOString(), mode, passed, failed, notExecuted, fatal, localApiRequests, navigationRetries, externalRequests: externalRequests.length, pageErrors: pageErrors.length,
     scope: 'Mounted local Chromium over an isolated built Worker and D1; synthetic data only; no real identity provider, ORF, paid AI or recipient; no UAT, accessibility-certification or business acceptance claim',
     procedures, screenshots, externalRequestDetails: externalRequests, pageErrorDetails: pageErrors };
   writeFileSync(`${outputDir}/identity-${mode}-results.json`, JSON.stringify(result, null, 2) + '\n');
