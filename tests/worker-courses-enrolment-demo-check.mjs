@@ -41,6 +41,8 @@ async function api(value, path, method = 'GET', data, expected = 200) {
   catch { throw new Error('Local API transport failed: ' + url.pathname); }
   assert.equal(response.status(), expected, 'Local API status: ' + method + ' ' + path); return response.json();
 }
+// Close a page only once its requests have finished, so no in-flight request is abandoned on a shared connection.
+const settled = async page => { await page.waitForLoadState('networkidle').catch(() => undefined); await page.close(); };
 async function goto(page, path) {
   try { const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 45000 }); assert.equal(response?.status(), 200); return response; }
   catch (error) {
@@ -109,14 +111,14 @@ try {
     await page.getByLabel('Course title').fill(title + ' III'); await reasonField(page).fill('Second rename'); await page.getByRole('button', { name: 'Save course changes' }).click(); await status(page, 'Course edit saved');
     await second.getByLabel('Course title').fill(title + ' stale overwrite'); await reasonField(second).fill('Stale attempt'); await second.getByRole('button', { name: 'Save course changes' }).click();
     await expect(second.getByRole('alert')).toContainText('This record changed since you opened it'); await expect(second.getByRole('alert')).toContainText('Nothing was saved');
-    assert.equal((await adminApi.get('/api/courses')).find(row => row.id === courseId).title, title + ' III'); await second.close();
+    assert.equal((await adminApi.get('/api/courses')).find(row => row.id === courseId).title, title + ' III'); await settled(second);
   });
   await check('Retiring a course hides it from new classes while reinstatement restores it', async () => {
     await page.reload({ waitUntil: 'networkidle' }); await reasonField(page).fill('No longer offered this term'); await page.getByRole('button', { name: 'Retire this course' }).click();
     await status(page, 'Course retirement saved'); await expect(page.getByText('This course is retired.')).toBeVisible(); await expect(page.getByRole('button', { name: 'Reinstate this course' })).toBeVisible();
-    const shown = await admin.newPage(); await goto(shown, '/classes/new'); assert.equal(await shown.locator('#new-class-course option', { hasText: title }).count(), 0, 'Retired course is not selectable'); await shown.close();
+    const shown = await admin.newPage(); await goto(shown, '/classes/new'); assert.equal(await shown.locator('#new-class-course option', { hasText: title }).count(), 0, 'Retired course is not selectable'); await settled(shown);
     await reasonField(page).fill('Offered again'); await page.getByRole('button', { name: 'Reinstate this course' }).click(); await status(page, 'Course reinstatement saved');
-    const again = await admin.newPage(); await goto(again, '/classes/new'); assert.equal(await again.locator('#new-class-course option', { hasText: title }).count(), 1, 'Reinstated course is selectable'); await again.close();
+    const again = await admin.newPage(); await goto(again, '/classes/new'); assert.equal(await again.locator('#new-class-course option', { hasText: title }).count(), 1, 'Reinstated course is selectable'); await settled(again);
   });
 
   // ---- Class creation, settings and teacher assignment
@@ -177,12 +179,12 @@ try {
     await roster.getByLabel('Reason (required, at least 5 characters)').fill('Family moved away'); await roster.getByRole('button', { name: 'Confirm withdraw' }).click(); await status(roster, 'Withdraw for Synthetic Alpha saved');
     await expect(roster.getByText('1 of 2 places used')).toBeVisible(); await expect(roster.getByRole('button', { name: 'Re-enrol Synthetic Alpha' })).toBeVisible();
     const alphaCard = roster.locator('li', { has: roster.getByRole('heading', { name: 'Synthetic Alpha' }) }); await expect(alphaCard).toContainText('Withdrawn'); await expect(alphaCard).toContainText('Ended');
-    const manage = await admin.newPage(); await goto(manage, '/classes/' + classId + '/manage'); await expect(manage.getByText('Reason: Family moved away')).toBeVisible(); await manage.close();
+    const manage = await admin.newPage(); await goto(manage, '/classes/' + classId + '/manage'); await expect(manage.getByText('Reason: Family moved away')).toBeVisible(); await settled(manage);
   });
   await check('Lowering capacity below the enrolled learners is refused', async () => {
     const manage = await admin.newPage(); await goto(manage, '/classes/' + classId + '/manage');
     await manage.getByLabel(/^Capacity/).fill('0'); await reasonField(manage).fill('Too low'); await manage.getByRole('button', { name: 'Save class settings' }).click();
-    await expect(manage.getByRole('alert')).toBeVisible(); await manage.close();
+    await expect(manage.getByRole('alert')).toBeVisible(); await settled(manage);
   });
   await check('A lost reply keeps the same request: checking the receipt finds it saved and nothing is applied twice', async () => {
     await roster.reload({ waitUntil: 'networkidle' }); let delivered = 0; const lostReplies = [];
@@ -219,7 +221,7 @@ try {
     await status(manage, 'Class closure saved'); await expect(manage.getByText('This class is closed')).toBeVisible(); await expect(manage.getByRole('button', { name: 'Save class settings' })).toBeDisabled();
     await roster.reload({ waitUntil: 'networkidle' }); await expect(roster.getByText('This class is closed, so no learner can be enrolled.')).toBeVisible();
     assert.ok((await adminApi.get('/api/classes/' + classId + '/roster')).every(row => row.status !== 'active'));
-    await reasonField(manage).fill('More teaching needed'); await manage.getByRole('button', { name: 'Reopen this class' }).click(); await status(manage, 'Class reopening saved'); await manage.close();
+    await reasonField(manage).fill('More teaching needed'); await manage.getByRole('button', { name: 'Reopen this class' }).click(); await status(manage, 'Class reopening saved'); await settled(manage);
   });
 
   // ---- Scoped views
@@ -230,28 +232,28 @@ try {
     const log = await view.request.fetch(new URL('/api/classes/' + classId + '/history', base).href, { headers: { cookie: sessions['teacher-new'] } }); const data = await log.json();
     assert.ok(data.items.length > 0 && data.items.every(item => item.reason === null && item.actorName === null), 'Teacher history carries no reasons or actors');
     const sourceLabel = data.items.find(item => item.kind === 'enrolment.transfer'); assert.ok(!sourceLabel || !sourceLabel.label.includes('Destination'), 'Teacher of the source never learns the destination name');
-    await view.close();
-    const manageView = await newTeacher.newPage(); await goto(manageView, '/classes/' + classId + '/manage'); await expect(manageView.getByText('Only a school administrator can change class settings.')).toBeVisible(); assert.equal(await manageView.getByRole('button', { name: 'Save class settings' }).count(), 0); await manageView.close();
+    await settled(view);
+    const manageView = await newTeacher.newPage(); await goto(manageView, '/classes/' + classId + '/manage'); await expect(manageView.getByText('Only a school administrator can change class settings.')).toBeVisible(); assert.equal(await manageView.getByRole('button', { name: 'Save class settings' }).count(), 0); await settled(manageView);
   });
   await check('The former teacher and an unrelated teacher are told the class is unavailable and receive no roster', async () => {
-    for (const value of [teacher, otherTeacher]) { const view = await value.newPage(); await goto(view, '/classes/' + classId + '/roster'); await expect(view.getByRole('alert')).toContainText('unavailable to your current account'); assert.equal(await view.getByRole('heading', { name: 'Learners (0)' }).count(), 0); await view.close(); }
+    for (const value of [teacher, otherTeacher]) { const view = await value.newPage(); await goto(view, '/classes/' + classId + '/roster'); await expect(view.getByRole('alert')).toContainText('unavailable to your current account'); assert.equal(await view.getByRole('heading', { name: 'Learners (0)' }).count(), 0); await settled(view); }
   });
   await check('A guardian and a learner see only their own enrolment history, with no administrator reasons', async () => {
     for (const value of [family, learner]) {
       const view = await value.newPage(); await goto(view, '/enrolments/history');
       await expect(view.getByRole('heading', { name: 'Enrolment history', level: 1 })).toBeVisible(); await expect(view.getByRole('heading', { name: /^Classes for / })).toBeVisible();
-      await expect(view.getByText('Reason:')).toHaveCount(0); await noRawIds(view); await labelsAndWidth(view); await view.close();
+      await expect(view.getByText('Reason:')).toHaveCount(0); await noRawIds(view); await labelsAndWidth(view); await settled(view);
     }
-    const nobody = await foreignFamily.newPage(); await goto(nobody, '/enrolments/history'); assert.equal(await nobody.getByText('student-a Synthetic').count(), 0); await nobody.close();
+    const nobody = await foreignFamily.newPage(); await goto(nobody, '/enrolments/history'); assert.equal(await nobody.getByText('student-a Synthetic').count(), 0); await settled(nobody);
   });
   await check('Families and learners cannot open rosters, settings or the reviewed-change endpoint', async () => {
     for (const [name, value] of [['guardian-a', family], ['student-user-a', learner]]) {
       await api(value, '/api/classes/class-a/roster', 'GET', undefined, 403); await api(value, '/api/classes/class-a/history', 'GET', undefined, 403); await api(value, '/api/academic-changes', 'POST', { clientRequestId: crypto.randomUUID(), changes: [{ kind: 'course.create', code: 'X-' + name, title: 'No', gradeLevel: '8' }] }, 403);
     }
-    const hub = await family.newPage(); await goto(hub, '/academic'); await expect(hub.getByText('This page is for school staff.')).toBeVisible(); assert.equal(await hub.getByRole('link', { name: 'Add a course' }).count(), 0); await hub.close();
+    const hub = await family.newPage(); await goto(hub, '/academic'); await expect(hub.getByText('This page is for school staff.')).toBeVisible(); assert.equal(await hub.getByRole('link', { name: 'Add a course' }).count(), 0); await settled(hub);
   });
   await check('Anonymous visitors are redirected to sign-in', async () => {
-    const view = await anon.newPage(); await view.goto(base.origin + '/classes/' + classId + '/roster', { waitUntil: 'networkidle' }); await expect(view).toHaveURL(/\/login/); await view.close();
+    const view = await anon.newPage(); await view.goto(base.origin + '/classes/' + classId + '/roster', { waitUntil: 'networkidle' }); await expect(view).toHaveURL(/\/login/); await settled(view);
   });
   await check('Teachers cannot make reviewed changes', async () => { await api(newTeacher, '/api/academic-changes', 'POST', { clientRequestId: crypto.randomUUID(), changes: [{ kind: 'course.create', code: 'T-' + suffix, title: 'No', gradeLevel: '8' }] }, 403); });
 
