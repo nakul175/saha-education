@@ -217,6 +217,12 @@ try {
     await ui.type('New role for this account', 'guardian'); await ui.type('Reason for the role change', why);
     check(ui.one(item => item.type === 'button' && text(item) === 'Change role').props.disabled, true, 'Unconfirmed review cannot be submitted');
     await ui.tick('I reviewed this account and confirm this role');
+    check(ui.control('I reviewed this account and confirm this role').props.checked, true, 'The confirmation is recorded');
+    await ui.type('Reason for the role change', why + ' (edited)');
+    check(ui.control('I reviewed this account and confirm this role').props.checked, false, 'Editing the reason clears the earlier confirmation');
+    await ui.tick('I reviewed this account and confirm this role'); await ui.type('New role for this account', 'student'); await ui.type('New role for this account', 'guardian');
+    check(ui.control('I reviewed this account and confirm this role').props.checked, false, 'Editing the role clears the earlier confirmation');
+    await ui.tick('I reviewed this account and confirm this role');
     await ui.submit('role-change-title');
     okay(/Reviewed role change saved\. Rita Roster is now guardian\./.test(statusText(ui)), 'Role change confirmed in the status region: ' + statusText(ui));
     check([count('identity_admin_changes'), count('auth_sessions', `user_id='${rita.id}'`)], [1, 0], 'One audit row and the person’s sessions ended');
