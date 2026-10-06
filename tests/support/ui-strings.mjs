@@ -37,9 +37,24 @@ export function extractStrings(file, root) {
   const sourceText = readFileSync(file, 'utf8');
   const source = ts.createSourceFile(file, sourceText, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX);
   const found = [];
+  const seen = new Set();
   const add = (node, text, kind) => {
     const value = clean(text);
-    if (value && looksLikeProse(value)) found.push({ file: relative(root, file), line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1, text: value, kind });
+    if (seen.has(node.getStart())) return;
+    if (value && looksLikeProse(value)) { seen.add(node.getStart()); found.push({ file: relative(root, file), line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1, text: value, kind }); }
+  };
+  // Any other sentence-like string (for example a role description inside an array of choices). It must be text
+  // handed to the reader, not an import path, comparison, switch case, type, object key or non-readable attribute.
+  const isSentenceLiteral = node => {
+    if (!ts.isStringLiteral(node) && !ts.isNoSubstitutionTemplateLiteral(node) && !ts.isTemplateExpression(node)) return false;
+    const parent = node.parent;
+    if (ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent) || ts.isCaseClause(parent) || ts.isLiteralTypeNode(parent) || ts.isElementAccessExpression(parent) || ts.isExternalModuleReference(parent)) return false;
+    if (ts.isJsxAttribute(parent) || (ts.isJsxExpression(parent) && ts.isJsxAttribute(parent.parent))) return false;
+    if (ts.isBinaryExpression(parent) && [ts.SyntaxKind.EqualsEqualsEqualsToken, ts.SyntaxKind.ExclamationEqualsEqualsToken, ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.ExclamationEqualsToken].includes(parent.operatorToken.kind)) return false;
+    if (ts.isPropertyAssignment(parent) && parent.name === node) return false;
+    if (ts.isCallExpression(parent) && /^(fetch|cn|clsx|cva|twMerge|require|import|getElementById|querySelector|URL|includes|startsWith|endsWith|has|get|set|redirect|revalidatePath|replace|match|test|split|join)$/.test(parent.expression.getText().split('.').pop())) return false;
+    const value = clean(textOf(node) ?? '');
+    return /^[A-Z][A-Za-z’'-]*\s+\S/.test(value) && /\s/.test(value);
   };
   const textOf = node => ts.isStringLiteralLike(node) ? node.text
     : ts.isTemplateExpression(node) ? node.head.text + node.templateSpans.map(span => ' ' + span.literal.text).join('') : null;
@@ -66,7 +81,7 @@ export function extractStrings(file, root) {
       stringsIn(node.initializer, 'property');
     } else if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
       if (MESSAGE_CALLEE.test(node.expression.getText())) for (const argument of node.arguments ?? []) stringsIn(argument, 'message');
-    }
+    } else if (isSentenceLiteral(node)) add(node, textOf(node), 'literal');
     ts.forEachChild(node, walk);
   };
   walk(source);
