@@ -29,13 +29,42 @@ async function context(user, viewport = { width: 1280, height: 900 }) {
     page.on('dialog', async dialog => { dialogs.push(dialog.message()); await dialog.dismiss(); });
     page.on('response', response => { if (response.status() >= 400 && ['script', 'stylesheet'].includes(response.request().resourceType())) failedResources.push({ path: new URL(response.url()).pathname, status: response.status() }); });
   });
-  await value.route('**/*', route => { const url = new URL(route.request().url()); if (url.origin === base.origin) return route.continue(); externalRequests.push({ origin: url.origin, pathname: url.pathname }); return route.abort(); });
+  await value.route('**/*', async route => {
+    const url = new URL(route.request().url());
+    if (url.origin !== base.origin) { externalRequests.push({ origin: url.origin, pathname: url.pathname }); return route.abort(); }
+    if (!url.pathname.startsWith('/api/')) return route.continue();
+    // Local API calls from the pages go through the same bounded exact-retry as the direct calls below.
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const response = await route.fetch({ timeout: LOCAL_ATTEMPT_MS });
+        if (attempt < LOCAL_ATTEMPTS && await restartedMidRequest(response)) { workerRestartRetries++; continue; }
+        return route.fulfill({ response });
+      } catch {
+        if (attempt < LOCAL_ATTEMPTS) { workerRestartRetries++; continue; }
+        return route.abort();
+      }
+    }
+  });
   return value;
 }
+// The shared local sandbox sometimes restarts the Worker under a request ("Your worker restarted mid-request",
+// HTTP 503) or drops it without a reply. Every request this procedure makes is either a read or carries a client
+// UUID (exact retry is the designed, idempotent behaviour), so the harness repeats it, bounded, and reports the count.
+const LOCAL_ATTEMPTS = 6, LOCAL_ATTEMPT_MS = 10000;
+let workerRestartRetries = 0;
+const restartedMidRequest = async response => response.status() === 503 && /restarted mid-request/i.test(await response.text().catch(() => ''));
 async function raw(value, path, method = 'GET', data) {
   const url = new URL(path, base); if (url.origin !== base.origin) throw new Error('Synthetic requests must remain local.');
-  try { return await value.request.fetch(url.href, { method, timeout: 30000, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) }); }
-  catch (failure) { throw new Error(`Local request failed for ${value.label ?? 'anonymous'}: ${method} ${path}: ${failure instanceof Error ? failure.message.split('\n')[0] : failure}`); }
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const response = await value.request.fetch(url.href, { method, timeout: LOCAL_ATTEMPT_MS, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) });
+      if (attempt < LOCAL_ATTEMPTS && await restartedMidRequest(response)) { workerRestartRetries++; continue; }
+      return response;
+    } catch (failure) {
+      if (attempt < LOCAL_ATTEMPTS) { workerRestartRetries++; continue; }
+      throw new Error(`Local request failed for ${value.label ?? 'anonymous'}: ${method} ${path}: ${failure instanceof Error ? failure.message.split('\n')[0] : failure}`);
+    }
+  }
 }
 async function api(value, path, method = 'GET', data, expected = 200) {
   const response = await raw(value, path, method, data); const body = await response.text();
@@ -43,7 +72,8 @@ async function api(value, path, method = 'GET', data, expected = 200) {
   return body ? JSON.parse(body) : null;
 }
 async function open(page, path, headingName, level = 1) {
-  const response = await page.goto(base.origin + path, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  let response = await page.goto(base.origin + path, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  for (let attempt = 1; attempt < LOCAL_ATTEMPTS && response?.status() === 503; attempt++) { workerRestartRetries++; response = await page.goto(base.origin + path, { waitUntil: 'domcontentloaded', timeout: 30000 }); }
   assert.equal(response?.status(), 200, 'Page status for ' + path);
   if (headingName) await expect(page.getByRole('heading', { name: headingName, level }).first()).toBeVisible();
 }
@@ -281,17 +311,17 @@ try {
     for (const [user, path, heading] of [['teacher-a', '/notices', 'Send a notice'], ['teacher-a', '/notices/' + shared.firstId, firstTitle], ['guardian-a', '/notifications', 'Notifications'], ['admin-a', '/admin/audit', 'Audit trail']]) {
       const phone = await context(user, { width: 375, height: 800 }); const screen = await phone.newPage(); await open(screen, path, heading);
       if (path === '/notices') { await screen.getByLabel('Class', { exact: true }).selectOption({ label: 'class-a (T1)' }); await expect(screen.getByText(/This will reach 3 people:/)).toBeVisible(); }
-      if (path === '/admin/audit') { await expect(screen.locator('#entries-title ~ ul > li').first()).toBeVisible(); await screen.getByRole('button', { name: 'Show details and notes' }).first().click(); await expect(screen.getByText('Correction notes').first()).toBeVisible(); }
+      if (path === '/admin/audit') { await expect(screen.locator('#entries-title ~ ul > li').first()).toBeVisible(); await screen.getByRole('button', { name: 'Show details and notes' }).first().click(); await expect(screen.getByRole('heading', { name: 'Correction notes' }).first()).toBeVisible(); }
       await noOverflow(screen); await allLabelled(screen); await plainScreen(screen); await shot(screen, 'phone-' + path.split('/').filter(Boolean).join('-').slice(0, 24));
     }
   });
   await check('No alert() dialogs, page errors, external requests or failed assets across the whole run', async () => {
     assert.deepEqual(dialogs, []); assert.deepEqual(pageErrors, []); assert.deepEqual(externalRequests, []); assert.deepEqual(failedResources, []);
   });
-  const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, dialogs: dialogs.length, checks, screenshots,
+  const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, dialogs: dialogs.length, workerRestartRetries, checks, screenshots,
     note: 'Fixture is synthetic and isolated; one injected network fault (blocked /api/notices) exercises the failed-load state. Results do not imply business acceptance.' };
   writeFileSync(join(outputDir, 'saha-notices-audit-ui-results.json'), JSON.stringify(result, null, 2) + '\n');
-  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, dialogs: dialogs.length }));
+  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, dialogs: dialogs.length, workerRestartRetries }));
 } catch (error) {
   const result = { executedAt: new Date().toISOString(), passed, failed: 1, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, dialogs: dialogs.length, checks, screenshots, failure: error instanceof Error ? error.message : String(error) };
   writeFileSync(join(outputDir, 'saha-notices-audit-ui-results.json'), JSON.stringify(result, null, 2) + '\n');
