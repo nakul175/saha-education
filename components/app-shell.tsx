@@ -185,8 +185,10 @@ export function AppShell({
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 text-sm">
-                  <p className="font-medium">Signed in as {principal.role}</p>
-                  <p className="break-all text-xs text-muted-foreground">Account: {principal.id}</p>
+                  <p className="break-all font-medium">{principal.id}</p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {principal.role}
+                  </p>
                 </div>
               </div>
               <Button 
