@@ -183,7 +183,7 @@ export default function StudentsPage() {
         <div>
           <h1 className="text-3xl font-bold">Student Registry</h1>
           <p className="text-muted-foreground mt-2">
-            Manage student records and enrollments
+            Manage student records and enrolments
           </p>
         </div>
 

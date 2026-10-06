@@ -183,7 +183,7 @@ export default function AdminUsersPage() {
             <label className="block space-y-1"><span>Reason for this access change</span>
               <textarea className={inputStyle} rows={3} required minLength={10} maxLength={500} value={review.reason} onChange={event => setReview(previous => previous ? { ...previous, reviewConfirmed: false, reason: event.target.value } : null)} />
             </label>
-            <p className="text-sm text-muted-foreground">Use 10–500 characters on one line. Record the decision without passwords, tokens or unnecessary personal details.</p>
+            <p className="text-sm text-muted-foreground">Use 10–500 characters on one line. Record the decision without passwords, access codes or unnecessary personal details.</p>
             <label className="flex items-start gap-2"><input type="checkbox" required checked={review.reviewConfirmed} onChange={event => setReview(previous => previous ? { ...previous, reviewConfirmed: event.target.checked } : null)} />
               <span>I reviewed this account and confirm this {review.enabled ? 'enable' : 'disable'} decision.</span></label>
             <div className="flex flex-wrap gap-3"><Button type="submit" variant={review.enabled ? 'default' : 'destructive'} disabled={!review.reviewConfirmed}>{saving ? 'Saving review…' : review.enabled ? 'Enable reviewed account' : 'Disable reviewed account'}</Button>
@@ -206,7 +206,7 @@ export default function AdminUsersPage() {
             </div>
             <label className="block space-y-1"><span>Exact provider identity subject</span><input className={inputStyle} required maxLength={255} autoComplete="off" value={form.identitySubject} onChange={event => setForm(previous => ({ ...previous, reviewConfirmed: false, identitySubject: event.target.value }))} /></label>
             <label className="block space-y-1"><span>Reason and review reference</span><textarea className={inputStyle} rows={3} required minLength={10} maxLength={500} value={form.reason} onChange={event => setForm(previous => ({ ...previous, reviewConfirmed: false, reason: event.target.value }))} /></label>
-            <p className="text-sm text-muted-foreground">Use 10–500 characters on one line. Record the review without passwords, tokens or unnecessary personal details.</p>
+            <p className="text-sm text-muted-foreground">Use 10–500 characters on one line. Record the review without passwords, access codes or unnecessary personal details.</p>
             <label className="flex items-start gap-2"><input type="checkbox" required checked={form.reviewConfirmed} onChange={event => setForm(previous => ({ ...previous, reviewConfirmed: event.target.checked }))} />
               <span>I checked this person’s school role and exact identity with the trusted provider and confirm provisioning.</span></label>
             <Button type="submit" disabled={!form.reviewConfirmed}>{saving ? 'Saving review…' : 'Provision reviewed account'}</Button>

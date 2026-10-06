@@ -213,7 +213,7 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
     {loading && <p role="status">Loading saved attendance and current roster…</p>}
     {staff && snapshot && <>
       <Card className="min-w-0"><CardHeader><CardTitle>Current saved records and intended changes</CardTitle><p className="text-sm text-muted-foreground">Date: {snapshot.date}. Unrecorded learners remain blank. Only explicit changes are submitted.</p></CardHeader><CardContent className="space-y-4">
-        {snapshot.roster.truncated && <p role="alert">Showing {snapshot.roster.items.length} of {snapshot.roster.total} active learners. This roster exceeds the editor limit of {snapshot.roster.limit}; saving is unavailable.</p>}
+        {snapshot.roster.truncated && <p role="alert">Showing {snapshot.roster.items.length} of {snapshot.roster.total} active students. This roster exceeds the editor limit of {snapshot.roster.limit}; saving is unavailable.</p>}
         {!snapshot.canReview && !snapshot.roster.truncated && snapshot.roster.total > 0 && <p role="alert">The stored roster or attendance requires review. Saving is unavailable; no duplicate records are selected or removed.</p>}
         {snapshot.roster.total === 0 && <p>No active learners are available for this class.</p>}
         <form onSubmit={event => void save(event)} className="space-y-5">
@@ -223,7 +223,7 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
               return <article key={row.student.id} data-attendance-student={row.student.id} className="min-w-0 rounded border p-3 space-y-3 break-words">
                 <h2 className="font-semibold">{name}</h2><p className="text-sm">Admission number: {row.student.admissionNumber}</p>
                 <div className="rounded bg-muted/30 p-2"><h3 className="font-medium">Loaded saved record</h3><RecordEvidence record={row.record} /></div>
-                {row.needsReview && <p role="alert">This learner has stored records requiring review; changes are unavailable.</p>}
+                {row.needsReview && <p role="alert">This student has saved records that need review; changes are unavailable.</p>}
                 <div className="grid min-w-0 gap-3 sm:grid-cols-2"><div className="min-w-0"><Label htmlFor={'status-' + row.student.id}>Attendance status for {name}</Label><select id={'status-' + row.student.id} value={mark.status} onChange={event => edit(row.student.id, { status: event.target.value })} className="mt-1 w-full min-w-0 rounded border bg-background p-2"><option value="" disabled={row.record !== null}>Choose a status</option>{!validStatus(mark.status) && mark.status !== '' && <option value={mark.status}>{mark.status} (stored status requires review)</option>}{statuses.map(status => <option key={status} value={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}</select></div>
                 <div className="min-w-0"><Label htmlFor={'note-' + row.student.id}>Attendance note for {name}</Label><textarea id={'note-' + row.student.id} value={mark.note} rows={3} aria-describedby={'note-guidance-' + row.student.id} onChange={event => edit(row.student.id, { note: event.target.value })} className="mt-1 w-full min-w-0 rounded border bg-background p-2" /><p id={'note-guidance-' + row.student.id} className="text-sm text-muted-foreground">New or replacement notes: up to 2,000 characters. An unchanged saved note is retained.</p></div></div>
                 {changed(mark, row.record) && <p className="text-sm font-medium">Intended change</p>}
@@ -232,15 +232,15 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
             <div><Label htmlFor="attendance-reason">Reason for attendance changes</Label><textarea id="attendance-reason" value={reason} rows={3} aria-describedby="attendance-reason-guidance" onChange={event => { setReason(event.target.value); setReviewed(false); setNotice(null); }} className="mt-1 w-full min-w-0 rounded border bg-background p-2" /><p id="attendance-reason-guidance" className="text-sm text-muted-foreground">Enter a single-line explanation of 10–500 characters. Current length: {reasonLength}.</p></div>
             <label className="flex items-start gap-2"><input type="checkbox" checked={reviewed} onChange={event => setReviewed(event.target.checked)} className="mt-1" /><span>I reviewed the loaded records and these intended attendance changes.</span></label>
             <p>{dirty.length} learner{dirty.length === 1 ? '' : 's'} with intended changes.</p>
-            {invalidDirty && <p role="alert">Choose a status for every changed learner and keep new notes within 2,000 characters.</p>}
+            {invalidDirty && <p role="alert">Choose a status for every changed student and keep new notes within 2,000 characters.</p>}
             <Button type="submit" className="max-w-full whitespace-normal" disabled={blocked || !reviewed || !dirty.length || invalidDirty || !validReason}>{saving ? 'Saving reviewed attendance…' : 'Save reviewed attendance'}</Button>
           </fieldset>
         </form>
         {uncertain && !pendingAccessDenied && <form onSubmit={event => void save(event, true)}><Button type="submit" disabled={saving} className="max-w-full whitespace-normal">{saving ? 'Confirming pending save…' : 'Retry pending save'}</Button><p className="mt-2 text-sm">This retries the original reviewed request, including its original date and saved-record expectations.</p></form>}
-        <p className="text-sm text-muted-foreground break-words">Loaded snapshot: {snapshot.asOf}</p>
+        <p className="text-sm text-muted-foreground break-words">Page loaded at: {snapshot.asOf}</p>
       </CardContent></Card>
-      {confirmed && <Card className="min-w-0" data-confirmed-attendance-review={confirmed.id}><CardHeader><CardTitle>Confirmed saved review</CardTitle><p className="text-sm text-muted-foreground">This is the immutable original save receipt. It does not assert that these marks remain current.</p></CardHeader><CardContent><ReviewEvidence review={confirmed} snapshot={snapshot} /></CardContent></Card>}
-      <Card className="min-w-0"><CardHeader><CardTitle>Saved attendance review history</CardTitle><p className="text-sm text-muted-foreground">Immutable before-and-after evidence for {snapshot.date}. Current records are shown above.</p></CardHeader><CardContent className="space-y-3">
+      {confirmed && <Card className="min-w-0" data-confirmed-attendance-review={confirmed.id}><CardHeader><CardTitle>Confirmed saved review</CardTitle><p className="text-sm text-muted-foreground">This is the original saved copy. The marks may have changed since.</p></CardHeader><CardContent><ReviewEvidence review={confirmed} snapshot={snapshot} /></CardContent></Card>}
+      <Card className="min-w-0"><CardHeader><CardTitle>Saved attendance review history</CardTitle><p className="text-sm text-muted-foreground">Saved before-and-after record for {snapshot.date}. Current records are shown above.</p></CardHeader><CardContent className="space-y-3">
         {historyError && <p role="alert">Review history could not be loaded. Reload current records to try again.</p>}
         {!history && !historyError && <p role="status">Loading review history…</p>}
         {history?.total === 0 && <p>No saved attendance reviews for this date.</p>}
