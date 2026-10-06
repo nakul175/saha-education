@@ -1,0 +1,164 @@
+{
+  "recordedAt": "2026-10-06",
+  "agent": "A4",
+  "branch": "demo/attendance",
+  "workstream": "FR-09 attendance",
+  "synthetic": true,
+  "migration": "0019_attendance_workflow",
+  "node": "24.19.0",
+  "newContractSuite": {
+    "file": "tests/integration/attendance-workflow-contract.mjs",
+    "checks": 362,
+    "scenarios": 10,
+    "networkCalls": 0
+  },
+  "existingSuitesRun": {
+    "api-contract": 26,
+    "academic-integrity-contract": 218,
+    "attendance-review-contract": 390,
+    "attendance-review-access-contract": 3782,
+    "attendance-summary-contract": 103,
+    "attendance-summary-access-contract": 279,
+    "dashboard-contract": 137,
+    "dashboard-access-contract": 422,
+    "session-revocation-contract": 411,
+    "family-ui-contract": 307,
+    "d1-attendance-portability-contract": 186,
+    "identity-admin-contract": 153,
+    "reading-review-contract": 177,
+    "submissions-contract": 137,
+    "live-domain-authority-contract": 783,
+    "attendance-workflow-contract": 362,
+    "learner-recovery-ui-contract": 635,
+    "development-recovery-contract": 254
+  },
+  "guardedRun": {
+    "status": "pending"
+  },
+  "mounted": {
+    "ui": {
+      "passed": 31,
+      "failed": 0
+    },
+    "summary_ui": {
+      "passed": 23,
+      "failed": 0
+    },
+    "api": {
+      "passed": 257,
+      "failed": 1
+    },
+    "demo": {
+      "passed": 25,
+      "failed": 0
+    }
+  },
+  "staticChecks": {
+    "status": "pending"
+  },
+  "mutations": [
+    {
+      "name": "schoolLocalDate uses the UTC date instead of the school zone",
+      "detected": true,
+      "by": "workflow contract: \"Africa/Kigali 2026-10-05T22:30:00Z: UTC+2 crosses midnight before UTC does\""
+    },
+    {
+      "name": "future-date policy never blocks",
+      "detected": true,
+      "by": "workflow contract: \"A date after the school calendar date is rejected\""
+    },
+    {
+      "name": "change log marks every change as reviewed",
+      "detected": true,
+      "by": "workflow contract: \"Replacement and its cleared note are visible and flagged as not reviewed\""
+    },
+    {
+      "name": "learner view returns teacher notes to families",
+      "detected": true,
+      "by": "workflow contract: \"Learner and family never see teacher notes or recorder names\""
+    },
+    {
+      "name": "learner view ignores current class assignment",
+      "detected": true,
+      "by": "workflow contract: \"The teacher sees only rows from their own class\""
+    },
+    {
+      "name": "recorder name shown to families",
+      "detected": true,
+      "by": "workflow contract: \"Learner and family never see teacher notes or recorder names\""
+    },
+    {
+      "name": "change-log update-immutability trigger disabled",
+      "detected": true,
+      "by": "workflow contract: \"Missing expected exception\""
+    },
+    {
+      "name": "replacement not logged (update trigger never fires)",
+      "detected": true,
+      "by": "workflow contract: \"The correction produced one change-log row\""
+    },
+    {
+      "name": "deletion not logged",
+      "detected": true,
+      "by": "workflow contract: TypeError reading the missing delete-log row (fails, but less specifically than the others)"
+    }
+  ],
+  "designedCases": {
+    "inScope": 40,
+    "pass": 31,
+    "fail": 0,
+    "blocked": 9,
+    "accepted": 0,
+    "results": {
+      "TC-028": "pass",
+      "TC-029": "pass",
+      "TC-030": "blocked",
+      "TC-082": "blocked",
+      "TC-096": "blocked",
+      "TC-112": "pass",
+      "TC-115": "pass",
+      "TC-116": "pass",
+      "TC-117": "blocked",
+      "TC-174": "pass",
+      "TC-175": "pass",
+      "TC-176": "pass",
+      "TC-181": "blocked",
+      "TC-182": "pass",
+      "TC-183": "pass",
+      "TC-184": "pass",
+      "TC-185": "pass",
+      "TC-186": "pass",
+      "TC-187": "pass",
+      "TC-188": "pass",
+      "TC-189": "pass",
+      "TC-190": "pass",
+      "TC-191": "pass",
+      "TC-192": "pass",
+      "TC-193": "pass",
+      "TC-194": "pass",
+      "TC-195": "pass",
+      "TC-196": "pass",
+      "TC-197": "pass",
+      "TC-198": "pass",
+      "TC-199": "pass",
+      "TC-200": "pass",
+      "TC-201": "pass",
+      "TC-202": "pass",
+      "TC-203": "blocked",
+      "TC-204": "blocked",
+      "TC-205": "blocked",
+      "TC-259": "pass",
+      "TC-312": "pass",
+      "TC-313": "blocked"
+    }
+  },
+  "limits": [
+    "Local Chromium on one machine, local D1 emulation, fictional synthetic data. Not cross-browser, not assistive-technology, not performance, not hosted.",
+    "The new triggers run in node:sqlite and the local Worker D1 emulation. They have not run on a hosted D1 database; the hosted deployment blocker from the handover is unchanged and untouched.",
+    "No designed case is accepted. 9 of 40 are blocked because they need reviewers, agreed policy or an environment that does not exist.",
+    "The legacy attendance POST can still overwrite without a reason (now logged, not prevented).",
+    "No school calendar exists, so there is no percentage, no school-day denominator and no term boundary. A session is class plus date.",
+    "Open policy decisions: calendar and terms, what an absence means, retention of the change log, family visibility of notes.",
+    "Real identity provider, ORF, paid AI and real-recipient delivery were not touched or enabled; there were 0 external requests in every mounted run."
+  ]
+}
