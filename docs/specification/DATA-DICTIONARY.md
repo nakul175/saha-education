@@ -359,6 +359,30 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; drizzle/0009_aca
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql; drizzle/0008_profile_links.sql.
 
+## `identity_admin_changes`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Client review UUID and idempotency key for one role or identity decision; exact retries return the original decision. | Restricted attributable account administration evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_changes_school_reviewed (school_id, reviewed_at) | Actor-fixed school of the decision. | Restricted attributable account administration evidence |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current enabled school administrator who explicitly reviewed the decision. | Restricted attributable account administration evidence |
+| user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_changes_user (user_id) | Account whose role or sign-in identity was changed; profile ownership is not remapped. | Restricted attributable account administration evidence |
+| action | TEXT | no | none | CHECK action IN ('change_role', 'link_identity', 'unlink_identity') | Decision kind: change_role, link_identity or unlink_identity. | Restricted attributable account administration evidence |
+| reason | TEXT | no | none | CHECK length(reason) BETWEEN 10 AND 500 | Explicit one-line review reason/reference; avoid secrets and unnecessary personal data. | Restricted attributable account administration evidence |
+| reviewed_at | TEXT | no | none | INDEX identity_admin_changes_school_reviewed (school_id, reviewed_at) | Server ISO review/decision timestamp. | Restricted attributable account administration evidence |
+| previous_role | TEXT | no | none | CHECK previous_role and next_role IN ('admin', 'teacher', 'guardian', 'student') | Account role before the decision. | Restricted attributable account administration evidence |
+| next_role | TEXT | no | none | CHECK previous_role and next_role IN ('admin', 'teacher', 'guardian', 'student') | Account role after the decision; equals previous_role for identity decisions. | Restricted attributable account administration evidence |
+| previous_issuer | TEXT | yes | none | No additional DB constraint | Exact provider issuer before the decision; NULL when the account had none. | Restricted attributable account administration evidence |
+| previous_subject | TEXT | yes | none | No additional DB constraint | Exact provider subject before the decision; NULL when the account had none. | Restricted attributable account administration evidence |
+| next_issuer | TEXT | yes | none | No additional DB constraint | Exact provider issuer after the decision; NULL after unlink or role change decisions. | Restricted attributable account administration evidence |
+| next_subject | TEXT | yes | none | No additional DB constraint | Exact provider subject after the decision; NULL after unlink or role change decisions. | Restricted attributable account administration evidence |
+| expected_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version = expected_version + 1 | Supplied shared account-administration revision. | Restricted attributable account administration evidence |
+| resulting_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version = expected_version + 1 | Committed expected revision plus 1. | Restricted attributable account administration evidence |
+| request_hash | TEXT | no | none | No additional DB constraint | Private SHA-256 digest of the canonical reviewed operation; not exposed in responses. | Restricted attributable account administration evidence |
+| attempt_id | TEXT | no | none | No additional DB constraint | Private server attempt UUID gating one transaction so an old retry cannot apply its decision again. | Restricted attributable account administration evidence |
+
+Source: db/identity-admin-schema.ts; drizzle/0024_identity_admin_changes.sql.
+
 ## `identity_admin_events`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -784,3 +808,11 @@ Student date_of_birth and assessment date remain original calendar/text evidence
 The v2.12 clients add no SQL fields/tables;41 tables/338 fields remain and CSV inventory is unchanged. School address null, empty and nonempty are distinct. Omitted PATCH address leaves current value; deliberate empty stores empty and there is no existing restore-to-null operation. Current card's shared no-address label is a display limitation, not data normalization. School createdAt stays its exact raw preflight value; new acknowledgement updatedAt must be canonical UTC milliseconds. Existing legacy GET timestamps remain raw evidence.
 
 Course code remains globally unique, description may be null in saved catalog, and new creation acknowledgement fields/timestamps are correlated to original submitted values. Dirty intent, actor keys, pending exact body/endpoint and ordinary known acknowledgement are private mounted-page state only: they are not new persisted dictionary fields, audit/immutable receipts, durable client queue or consent/educational evidence. Later saved changes stay distinct from original comparison. See [focused design](SCHOOL-COURSE-UI-DESIGN.md).
+
+## Migration 0017: school setup and student/guardian records (candidate, demo branch)
+
+Additive migration `0017_school_records` adds six tables and 54 columns (47 tables and 392 fields in total); no earlier table is altered. The specification defines no academic year, term, deactivation, link-level relationship or unlink, so these are labelled candidate extensions, not approved requirements, and nothing here records acceptance.
+
+- `school_setup_settings` and `school_setup_terms`: one settings row per school (academic year label, contact email/phone, current term) and its terms, both guarded by exact-version compare-and-set. Design notes and evidence are in the demo record under docs/current (not linked here).
+- `student_record_status` and `student_status_events`: active/inactive override per student (absence of a row means active) with an immutable, replay-safe event log carrying a reason and the number of enrolments withdrawn. Inactive does not change sign-in or family visibility; that policy is undecided.
+- `student_guardian_details` and `student_guardian_events`: link-level relationship (overrides the profile-level `guardians.relationship` for one student) and an immutable link/update/unlink history that survives unlinking. `student_guardians.is_primary` keeps its original meaning; the public guardian DTO still omits it.
