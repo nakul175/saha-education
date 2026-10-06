@@ -1,0 +1,90 @@
+{
+  "strategies": {
+    "drizzle breakpoint pieces (whole piece executed)": {
+      "applied": 81,
+      "failures": 0,
+      "firstFailure": null,
+      "firstIncompleteInput": null,
+      "filesWithFailures": 0
+    },
+    "one physical line per statement": {
+      "applied": 97,
+      "failures": 816,
+      "firstFailure": {
+        "file": "0000_youthful_jamie_braddock.sql",
+        "piece": 0,
+        "error": "incomplete input"
+      },
+      "firstIncompleteInput": {
+        "file": "0000_youthful_jamie_braddock.sql",
+        "piece": 0,
+        "error": "incomplete input"
+      },
+      "filesWithFailures": 17
+    },
+    "split at every semicolon": {
+      "applied": 90,
+      "failures": 114,
+      "firstFailure": {
+        "file": "0007_reading_corrections.sql",
+        "piece": 3,
+        "error": "incomplete input"
+      },
+      "firstIncompleteInput": {
+        "file": "0007_reading_corrections.sql",
+        "piece": 3,
+        "error": "incomplete input"
+      },
+      "filesWithFailures": 9
+    },
+    "split at semicolon followed by newline": {
+      "applied": 128,
+      "failures": 47,
+      "firstFailure": {
+        "file": "0010_reading_imports.sql",
+        "piece": 9,
+        "error": "incomplete input"
+      },
+      "firstIncompleteInput": {
+        "file": "0010_reading_imports.sql",
+        "piece": 9,
+        "error": "incomplete input"
+      },
+      "filesWithFailures": 5
+    }
+  },
+  "pieceFacts": {
+    "sqlFiles": 17,
+    "nonEmptyBreakpointPieces": 81,
+    "piecesContainingTriggers": 17,
+    "emptyOrCommentOnlyPieces": [
+      "0001_trusted_identity.sql#11"
+    ],
+    "multiStatementPieces": [
+      {
+        "piece": "0005_curriculum.sql#0",
+        "statements": 7
+      },
+      {
+        "piece": "0010_reading_imports.sql#0",
+        "statements": 18
+      },
+      {
+        "piece": "0012_report_publication_receipts.sql#0",
+        "statements": 9
+      },
+      {
+        "piece": "0013_attendance_reviews.sql#0",
+        "statements": 19
+      },
+      {
+        "piece": "0014_assessment_reviews.sql#0",
+        "statements": 21
+      },
+      {
+        "piece": "0015_registry_creation.sql#0",
+        "statements": 14
+      }
+    ]
+  }
+}
