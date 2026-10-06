@@ -1,0 +1,152 @@
+{
+  "recordedAt": "2026-10-07",
+  "branch": "demo/curriculum-submissions",
+  "agent": "A8",
+  "synthetic": true,
+  "requirements": {
+    "FR-22": "working on synthetic data; rights position remains an open business question",
+    "FR-24": "working on synthetic data; file upload out of scope; guardian visibility stays denied; no late policy defined"
+  },
+  "migration": "0023_curriculum_status.sql",
+  "newSuites": {
+    "integration/curriculum-library-contract": 140,
+    "integration/submission-progress-contract": 61
+  },
+  "guardedRun": {
+    "suites": 55,
+    "assertions": 22637,
+    "unit": 119,
+    "integration": 22341,
+    "smoke": 177,
+    "failed": 0,
+    "typecheck": "passed",
+    "tscExit": 0,
+    "buildExit": 0
+  },
+  "mountedProcedure": {
+    "file": "tests/worker-curriculum-submissions-demo-check.mjs",
+    "passed": 23,
+    "failed": 0,
+    "freshRunsInARow": 2,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "phoneWidthPixels": 375
+  },
+  "existingMountedChecks": {
+    "worker-specification-ui-check": {
+      "passed": 38,
+      "failed": 0
+    },
+    "worker-resources-ui-check": {
+      "passed": 14,
+      "failed": 0
+    },
+    "worker-family-ui-check": {
+      "passed": 36,
+      "failed": 0
+    },
+    "worker-learner-recovery-ui-check": {
+      "passed": 30,
+      "failed": 0
+    },
+    "worker-development-ui-check": {
+      "passed": 32,
+      "failed": 1,
+      "failure": "Assessment conflict keeps intended edits and requires current-state comparison",
+      "sameFailureWithoutThisBranch": true,
+      "baselineCheckoutHead": "cadd2ebd8df0d1a0d24b609a59a756c725d9012c"
+    }
+  },
+  "mutations": {
+    "integration": {
+      "applied": 17,
+      "detected": 17
+    },
+    "browser": {
+      "applied": 1,
+      "detected": 1,
+      "passedBeforeFailure": 6
+    }
+  },
+  "designedCases": [
+    {
+      "case": "TC-068",
+      "status": "executable checks passed",
+      "evidence": "curriculum-contract 131, evidence-access-contract 58, curriculum-library-contract 140; mounted journey shows version, source and declared rights on the copy."
+    },
+    {
+      "case": "TC-069",
+      "status": "partly executed",
+      "evidence": "Withdrawn source: retire blocks revise, approve and copy, hides the reference from peers, and the resource page shows the retired note (library contract 140, mounted journey). Unsupported alignment is an FR-23 matter that is not implemented here: not run."
+    },
+    {
+      "case": "TC-072",
+      "status": "not run, disabled by design",
+      "evidence": "Paid AI stays disabled and no AI call was added."
+    },
+    {
+      "case": "TC-078",
+      "status": "executable checks passed",
+      "evidence": "submissions-contract 137, evidence-access-contract 58, mounted journey (submit, reviewed feedback, learner sees it)."
+    },
+    {
+      "case": "TC-079",
+      "status": "partly executed",
+      "evidence": "Exact retry and changed retry (submissions-contract and mounted journey) and correction by resubmission (mounted journey) ran. The late policy is not defined by the specification, so only the informational due-date note and the window cutoff exist; there is nothing further to run."
+    },
+    {
+      "case": "TC-126 to TC-132",
+      "status": "executable checks passed",
+      "evidence": "submission-windows-contract 191, submissions-contract 137, development-recovery-contract 253; mounted journey closes and reopens a window. The mounted API check `worker-development-check` was not run in this workstream."
+    },
+    {
+      "case": "TC-133",
+      "status": "not run",
+      "evidence": "Manual usability case; not performed."
+    },
+    {
+      "case": "TC-230 to TC-237, TC-240, TC-242",
+      "status": "executable checks passed",
+      "evidence": "learner-recovery-ui-contract 635 (callback suite with substituted hooks); worker-learner-recovery-ui-check 30 passed on the earlier build of this branch."
+    },
+    {
+      "case": "TC-243, TC-244",
+      "status": "not run",
+      "evidence": "Manual cases; the mounted recovery check passing is supporting evidence only."
+    },
+    {
+      "case": "TC-245",
+      "status": "not run",
+      "evidence": "Planned performance case."
+    },
+    {
+      "case": "TC-259",
+      "status": "executable checks passed",
+      "evidence": "session-revocation-contract 411."
+    },
+    {
+      "case": "TC-314 to TC-320, TC-322 to TC-328",
+      "status": "executable checks passed",
+      "evidence": "reading-practice-ui-contract 445 and demo-login-ui-contract 249 exercise the copy route and the curriculum source shape this branch extended."
+    },
+    {
+      "case": "TC-321, TC-329",
+      "status": "not run",
+      "evidence": "Manual cases; not performed."
+    }
+  ],
+  "noCaseAccepted": true,
+  "limits": [
+    "single local Chromium and fictional data",
+    "rights are the author declaration, not verified; school rights position is an open business decision",
+    "no file upload",
+    "no late policy or grade",
+    "guardian visibility not defined and denied",
+    "DATA-DICTIONARY prose counts need updating at integration",
+    "two new suites not yet in tests/regression-baseline.json",
+    "worker-development-ui-check failure pre-exists this branch",
+    "designed cases unrun as a set",
+    "hosting blocker unchanged"
+  ]
+}
