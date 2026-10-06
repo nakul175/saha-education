@@ -309,5 +309,6 @@ export { reportPublicationReceipts } from './report-publication-schema';
 export { attendanceReviews, attendanceReviewEntries } from './attendance-reviews-schema';
 export { assessmentReviews, assessmentReviewEntries } from './assessment-reviews-schema';
 export { demoInstallations } from './demo-schema';
+export { courseLifecycle, classSettings, enrolmentLifecycle, academicChangeRequests, academicEvents } from './academic-lifecycle-schema';
 
 export { registryCreationReceipts } from './registry-create-schema';

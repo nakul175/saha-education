@@ -129,6 +129,13 @@
       "breakpoints": true
     },
     {
+      "idx": 18,
+      "version": "6",
+      "when": 1792000018000,
+      "tag": "0018_course_class_enrolment_lifecycle",
+      "breakpoints": true
+    },
+    {
       "idx": 24,
       "version": "6",
       "when": 1792000024000,
