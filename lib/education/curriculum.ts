@@ -216,7 +216,7 @@ export async function listCurriculumVersions(principal: Principal, id: string): 
 async function createRetry(principal: Principal, id: string, content: CurriculumContent): Promise<CurriculumReference> {
   const [row] = await getDb().select().from(curriculumReferences).where(and(eq(curriculumReferences.id, id), eq(curriculumReferences.authorId, principal.id), schoolScope(principal))).limit(1);
   const [version] = await getDb().select().from(curriculumReferenceVersions).where(and(eq(curriculumReferenceVersions.referenceId, id), eq(curriculumReferenceVersions.version, 1), ownedReference(principal, id))).limit(1);
-  if (!row || !version || !Object.entries(content).every(([key, value]) => version[key as keyof CurriculumVersion] === value)) throw new CurriculumConflict();
+  if (!row || !version || !Object.entries(content).every(([key, value]) => version[key as keyof typeof version] === value)) throw new CurriculumConflict();
   return referenceView(principal, row, version, await currentStatus(id), await userNames(principal, [row.authorId, version.createdBy, version.approvedBy]));
 }
 function versionInsert(principal: Principal, id: string, versionId: string, number: number, createdAt: string, content: CurriculumContent, predicate: ReturnType<typeof sql>) {
