@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const input = await body(request, provisionIdentitySchema);
     try { return Response.json(await provisionIdentity(principal, input), { status: 201 }); }
     catch (error) {
-      if (error instanceof IdentityAdminConflict) return Response.json({ error: 'Identity administration conflict' }, { status: 409 });
+      if (error instanceof IdentityAdminConflict) return Response.json({ error: 'Identity administration conflict', reason: error.reason }, { status: 409 });
       throw error;
     }
   });
