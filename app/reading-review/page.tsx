@@ -41,7 +41,7 @@ async function loadView(classId: string, studentId: string, signal: AbortSignal)
     (rosterResult.reason.status === 401 || rosterResult.reason.status === 403)) throw rosterResult.reason;
   return { all: allResult.value, filtered: filteredResult.value,
     students: rosterResult.status === 'fulfilled' ? rosterResult.value.enrolledStudents ?? [] : [],
-    rosterWarning: rosterResult.status === 'rejected' ? 'Current roster names could not be loaded. Historical student IDs remain available.' : '' };
+    rosterWarning: rosterResult.status === 'rejected' ? 'Current roster names could not be loaded. Historical learners remain available.' : '' };
 }
 const inputStyle = 'w-full min-w-0 rounded border bg-background p-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const buttonStyle = 'rounded border px-3 py-2 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -221,7 +221,7 @@ export default function ReadingReviewPage() {
   const studentLabel = (id: string) => {
     const name = studentNames.get(id);
     if (!name) return 'Learner (name unavailable)';
-    return currentIds.has(id) || !students.length ? name : name + ' (not currently enrolled; retained reading history)';
+    return currentIds.has(id) || rosterWarning ? name : name + ' (not currently enrolled; retained reading history)';
   };
   const staffLabel = (id: string) => names.staff[id] ?? 'Staff member (name unavailable)';
   const overview = studentIds.map(id => {
