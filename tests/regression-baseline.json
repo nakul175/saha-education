@@ -8,6 +8,16 @@
       "file": "tests/integration/academic-integrity-contract.mjs",
       "minPassed": 218
     },
+    "integration/academic-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/academic-lifecycle-contract.mjs",
+      "minPassed": 387
+    },
+    "integration/academic-lifecycle-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/academic-lifecycle-ui-contract.mjs",
+      "minPassed": 113
+    },
     "integration/academic-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/academic-ui-contract.mjs",
@@ -16,7 +26,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 163
+      "minPassed": 173
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -101,7 +111,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 259
+      "minPassed": 264
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
