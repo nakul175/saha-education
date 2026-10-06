@@ -1,0 +1,364 @@
+{
+  "recordedAt": "2026-10-06",
+  "agent": "A9 security, atomicity and change control",
+  "branch": "demo/security-change-control",
+  "baseMain": "cadd2ebd8df0d1a0d24b609a59a756c725d9012c",
+  "applicationSourceChanged": true,
+  "applicationSourceChanges": [
+    "worker/index.ts and lib/education/security-headers.ts (browser security headers)",
+    "lib/education/http.ts boundedText and app/api/external-apps/[id]/launch/route.ts (bounded launch body)",
+    "drizzle/0025_immutable_evidence_guards.sql and journal entry 25 (16 immutability triggers)"
+  ],
+  "synthetic": true,
+  "acceptanceClaimed": false,
+  "guardedRun": {
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "node": [
+      "24.19.0"
+    ],
+    "suites": 57,
+    "assertions": 44310,
+    "unit": 119,
+    "integration": 44014,
+    "smoke": 177,
+    "failed": 0,
+    "regressionGuard": "passed; 53 baselined suites; 4 new suites not yet in tests/regression-baseline.json (integrator-owned)",
+    "tsc": "passed, exit 0"
+  },
+  "suites": [
+    {
+      "file": "tests/integration/authorization-matrix-contract.mjs",
+      "checks": 20330,
+      "failed": 0,
+      "scope": "96 handlers, 35 pages inventory, 89 protected handlers x 11 credential states, hostile Origin, role and object scope, hostile writes"
+    },
+    {
+      "file": "tests/integration/security-hardening-contract.mjs",
+      "checks": 322,
+      "failed": 0,
+      "scope": "headers, body bounds, hostile input, existence oracle (22 pairs), cookie flags, session lifecycle, throttle, safe errors"
+    },
+    {
+      "file": "tests/integration/atomicity-concurrency-contract.mjs",
+      "checks": 819,
+      "failed": 0,
+      "scope": "27 write paths + demo install: injected fault at each written table, retry, key clash, stale version, six-way contention, prevalidation, 56-trigger inventory and attacks"
+    },
+    {
+      "file": "tests/integration/migration-governance-contract.mjs",
+      "checks": 411,
+      "failed": 0,
+      "scope": "hash-pinned originals, numbering, monotonic journal, single-statement pieces, replay and upgrade equivalence"
+    }
+  ],
+  "mounted": {
+    "file": "tests/worker-security-demo-check.mjs",
+    "fixture": "tests/support/write-security-fixture.mjs",
+    "passed": 1291,
+    "failed": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "cspViolations": 0,
+    "visits": 177,
+    "renderedInPlace": 155,
+    "redirected": 22,
+    "freshRunsAtTip": 1,
+    "earlierRuns": "three earlier runs failed or hung for faults in the script (redirect cookie, CSP eval probe, frame evaluation), fixed; one recorded an unexplained 503 without headers on the denied-role request that did not recur",
+    "notMutationChecked": true
+  },
+  "mutations": [
+    {
+      "name": "remove each security header",
+      "detected": true
+    },
+    {
+      "name": "restore the unbounded launch body read",
+      "detected": true
+    },
+    {
+      "name": "raise the sign-in limit",
+      "detected": true
+    },
+    {
+      "name": "widen the body cap",
+      "detected": true
+    },
+    {
+      "name": "drop a 0025 trigger",
+      "detected": true
+    },
+    {
+      "name": "shorten the frozen column list",
+      "detected": true
+    },
+    {
+      "name": "edit an original migration",
+      "detected": true
+    },
+    {
+      "name": "back-date the journal entry",
+      "detected": true
+    },
+    {
+      "name": "merge two triggers into one piece",
+      "detected": true
+    },
+    {
+      "name": "split a batch into sequential awaits (resource create)",
+      "detected": true
+    },
+    {
+      "name": "remove the expected-version predicate (identity status)",
+      "detected": true
+    },
+    {
+      "name": "remove the Origin check / role gate / teacher class scope / no-store in the matrix",
+      "detected": true
+    },
+    {
+      "name": "remove the student scope from getStudent (existence oracle)",
+      "detected": true
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "state": "fixed",
+      "summary": "no browser security headers"
+    },
+    {
+      "id": "F2",
+      "state": "fixed",
+      "summary": "launch route read an unbounded body"
+    },
+    {
+      "id": "F3",
+      "state": "open",
+      "summary": "12 handlers parse the body before the role gate (400 instead of 403 for a denied role)"
+    },
+    {
+      "id": "F4",
+      "state": "fixed",
+      "summary": "no DB guard on immutable evidence tables (migration 0025)"
+    },
+    {
+      "id": "F5",
+      "state": "open",
+      "summary": "legacy inputs have no per-field length limits (policy)"
+    },
+    {
+      "id": "F6",
+      "state": "open",
+      "summary": "teachers can read unpublished report drafts (policy decision)"
+    },
+    {
+      "id": "F7",
+      "state": "open",
+      "summary": "unused unbounded request-body helper remains"
+    },
+    {
+      "id": "F8",
+      "state": "recorded",
+      "summary": "shared sign-in bucket without cf-connecting-ip"
+    },
+    {
+      "id": "F9",
+      "state": "recorded",
+      "summary": "non-monotonic historical journal timestamps"
+    },
+    {
+      "id": "F10",
+      "state": "recorded",
+      "summary": "static files carry no Worker-added headers"
+    }
+  ],
+  "cases": [
+    {
+      "cases": [
+        "TC-011"
+      ],
+      "outcome": "executed, passed",
+      "note": "digest-only token, cookie flags"
+    },
+    {
+      "cases": [
+        "TC-012"
+      ],
+      "outcome": "executed, passed",
+      "note": "credential states over 89 handlers and pages"
+    },
+    {
+      "cases": [
+        "TC-016"
+      ],
+      "outcome": "executed, passed",
+      "note": "forged role cookies and headers"
+    },
+    {
+      "cases": [
+        "TC-017"
+      ],
+      "outcome": "executed, passed",
+      "note": "cross-school and unassigned-class matrix"
+    },
+    {
+      "cases": [
+        "TC-019"
+      ],
+      "outcome": "executed, passed",
+      "note": "Origin and no-store, also on the real Worker"
+    },
+    {
+      "cases": [
+        "TC-020"
+      ],
+      "outcome": "executed, partial",
+      "note": "API half only; the learner/print view was not rendered"
+    },
+    {
+      "cases": [
+        "TC-029"
+      ],
+      "outcome": "executed, passed",
+      "note": "whole-batch invalid input and failure"
+    },
+    {
+      "cases": [
+        "TC-034"
+      ],
+      "outcome": "executed, passed",
+      "note": "report publication and notice atomic retry"
+    },
+    {
+      "cases": [
+        "TC-039",
+        "TC-040",
+        "TC-043",
+        "TC-044",
+        "TC-047"
+      ],
+      "outcome": "executed, passed",
+      "note": "resource create, revision, approval retry, race, stale"
+    },
+    {
+      "cases": [
+        "TC-051",
+        "TC-052"
+      ],
+      "outcome": "executed, partial",
+      "note": "class-authority change during the race not re-run"
+    },
+    {
+      "cases": [
+        "TC-063"
+      ],
+      "outcome": "executed, passed",
+      "note": "ORF immutable retries"
+    },
+    {
+      "cases": [
+        "TC-084"
+      ],
+      "outcome": "executed, partial",
+      "note": "console spy only; operator logs not inspected"
+    },
+    {
+      "cases": [
+        "TC-104",
+        "TC-105"
+      ],
+      "outcome": "executed, partial",
+      "note": "profile decision replay and CAS"
+    },
+    {
+      "cases": [
+        "TC-111",
+        "TC-116"
+      ],
+      "outcome": "executed, passed",
+      "note": "enrolment race and academic batch fault"
+    },
+    {
+      "cases": [
+        "TC-120",
+        "TC-122"
+      ],
+      "outcome": "executed, partial",
+      "note": "import confirm and fault CAS"
+    },
+    {
+      "cases": [
+        "TC-129"
+      ],
+      "outcome": "executed, passed",
+      "note": "window CAS and old-UUID replay"
+    },
+    {
+      "cases": [
+        "TC-144",
+        "TC-145",
+        "TC-147"
+      ],
+      "outcome": "executed, partial",
+      "note": "publication race and trigger fault"
+    },
+    {
+      "cases": [
+        "TC-191",
+        "TC-192",
+        "TC-193",
+        "TC-217",
+        "TC-218",
+        "TC-219"
+      ],
+      "outcome": "executed, passed",
+      "note": "reviewed attendance and result faults and races"
+    },
+    {
+      "cases": [
+        "TC-262",
+        "TC-263",
+        "TC-264",
+        "TC-265",
+        "TC-268"
+      ],
+      "outcome": "executed, passed",
+      "note": "registry creation"
+    },
+    {
+      "cases": [
+        "TC-279"
+      ],
+      "outcome": "executed, partial",
+      "note": "first demo install faults and concurrency"
+    },
+    {
+      "cases": [
+        "TC-091",
+        "TC-092",
+        "TC-093"
+      ],
+      "outcome": "blocked",
+      "note": "snapshot, tamper and hosted restore drills need an authorized drill and approved targets"
+    },
+    {
+      "cases": [
+        "TC-100",
+        "TC-101"
+      ],
+      "outcome": "manual, not run",
+      "note": "traceability and release acceptance are manual sign-off"
+    }
+  ],
+  "limits": [
+    "local and synthetic only; no hosted D1, provider, paid AI or real recipient",
+    "in-process harness batch transaction is not proof of hosted D1 behaviour",
+    "concurrency is cooperative within one process, it exercises SQL arbitration",
+    "fault injection models failed statements, not process death or storage corruption",
+    "matrix expectations are transcribed from the contract; silent areas are reported, not judged",
+    "mounted procedure: one Chromium, local Worker, fictional data; not accessibility, performance or acceptance",
+    "the CI workflow has not been executed by GitHub from here",
+    "hosted migration failure remains unresolved; nothing here changes an original migration",
+    "execution does not imply business acceptance"
+  ]
+}
