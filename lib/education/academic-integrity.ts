@@ -41,7 +41,7 @@ export function academicSchoolPair(principal: Principal, studentId: string | SQL
 export function rethrowAcademicConflict(error: unknown): never {
   let current: unknown = error;
   for (let depth = 0; depth < 5 && current instanceof Error; depth++) {
-    if (/saha_(?:enrolment|result)_pair_conflict|UNIQUE constraint failed: attendance\.(?:class_id|student_id|date)/.test(current.message)) {
+    if (/saha_(?:enrolment|result)_pair_conflict|saha_assessment_published_lock|UNIQUE constraint failed: attendance\.(?:class_id|student_id|date)/.test(current.message)) {
       throw new AcademicConflict();
     }
     current = current.cause;

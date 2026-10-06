@@ -120,6 +120,13 @@
       "when": 1791228000016,
       "tag": "0016_synthetic_demo",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1792000020000,
+      "tag": "0020_assessment_lifecycle_reports",
+      "breakpoints": true
     }
   ]
 }
