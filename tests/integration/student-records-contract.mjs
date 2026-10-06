@@ -16,7 +16,7 @@ try {
     const all = await get('/api/records/students?status=all', 'admin-a');
     check(all.status, 200, 'Administrator reads the directory'); check(all.body.total, 5, 'Own school only: three added plus two seeded students'); check(names(all.body).includes('s-foreign'), false, 'Another school never appears');
     check(Object.keys(all.body).sort(), ['grades', 'items', 'limit', 'offset', 'total'], 'Directory DTO shape'); check(all.body.grades, ['7', '8', '9'], 'Grade choices come from the visible scope');
-    check(Object.keys(all.body.items[0]).sort(), ['admissionNumber', 'createdAt', 'dateOfBirth', 'firstName', 'gradeLevel', 'id', 'lastName', 'schoolId', 'status', 'statusChangedAt', 'statusVersion', 'updatedAt', 'userId'], 'Record DTO shape');
+    check(Object.keys(all.body.items[0]).sort(), ['admissionNumber', 'createdAt', 'dateOfBirth', 'firstName', 'gradeLevel', 'hasLogin', 'id', 'lastName', 'schoolId', 'status', 'statusChangedAt', 'statusVersion', 'updatedAt'], 'Record DTO shape');
     check(names(await get('/api/records/students?status=all&q=ana', 'admin-a').then(r => r.body)), ['s-ana'], 'Name search is case-insensitive and school-bound');
     check(names(await get('/api/records/students?status=all&q=ADM-002', 'admin-a').then(r => r.body)), ['s-bo'], 'Admission-number search');
     check(names(await get('/api/records/students?status=all&q=zed%20ana', 'admin-a').then(r => r.body)), ['s-ana'], 'Every search word must match');
@@ -46,7 +46,7 @@ try {
     const { student } = (await get('/api/records/students/student-a', 'admin-a')).body;
     const saved = await send('PATCH', '/api/records/students/student-a', 'admin-a', edit(student, { firstName: 'Renamed', gradeLevel: '9', admissionNumber: 'student-a-new', dateOfBirth: '2012-02-29' }));
     check(saved.status, 200, 'Edit saves'); check([saved.body.student.firstName, saved.body.student.gradeLevel, saved.body.student.admissionNumber, saved.body.student.dateOfBirth], ['Renamed', '9', 'student-a-new', '2012-02-29'], 'Fields saved (leap day is a real date)');
-    okay(saved.body.student.updatedAt > student.updatedAt, 'Version token advances'); check(saved.body.student.userId, 'student-user-a', 'Login binding is retained'); check(row("SELECT user_id FROM students WHERE id='student-a'").user_id, 'student-user-a', 'Stored binding retained');
+    okay(saved.body.student.updatedAt > student.updatedAt, 'Version token advances'); check(saved.body.student.hasLogin, true, 'Login binding is retained'); okay(!JSON.stringify(saved.body).includes('student-user-a'), 'The login account id is never disclosed'); check(row("SELECT user_id FROM students WHERE id='student-a'").user_id, 'student-user-a', 'Stored binding retained');
     check((await get('/api/students/student-a', 'student-user-a')).body.firstName, 'Renamed', 'The student sees their own corrected record through the existing API');
     const before = snapshot();
     const stale = await send('PATCH', '/api/records/students/student-a', 'admin-a', edit(student, { firstName: 'Stale overwrite' })); check([stale.status, stale.body.reason], [409, 'stale'], 'A stale form is a safe conflict'); check(snapshot(), before, 'Stale edit changed nothing');

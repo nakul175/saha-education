@@ -230,9 +230,11 @@ try {
   });
   await check('A learner sees only themself and a teacher only students of assigned classes', async () => {
     const view = await learner.newPage(); await open(view, '/records', 'Student records'); await expect(rowsOf(view)).toHaveCount(1); await expect(rowsOf(view).first()).toContainText('Asha');
-    await open(view, '/records/guardians', 'Guardian records'); await expect(view.locator('ul[aria-label="Guardians"] > li').first()).toContainText('Meera Verma'); await view.close();
-    const expected = await api(teacher, '/api/records/students?status=all&limit=100'); const row = await teacher.newPage(); await open(row, '/records', 'Student records');
-    await row.getByLabel('Status', { exact: true }).selectOption('all'); await row.getByRole('button', { name: 'Search' }).click(); await expect(rowsOf(row)).toHaveCount(expected.items.length); assert.ok(expected.items.length >= 1 && expected.items.length < 28);
+    await open(view, '/records/guardians', 'Guardian records'); await expect(view.locator('ul[aria-label="Guardians"]')).toContainText('Meera Verma'); await expect(view.locator('ul[aria-label="Guardians"]')).not.toContainText('Imran Khan'); await view.close();
+    const own = await api(teacher, '/api/records/students?status=all&limit=100'); assert.equal(own.total, 0, 'the earlier deactivation withdrew the only active enrolment and reactivation does not restore it');
+    const mine = await teacher.newPage(); await open(mine, '/records', 'Student records'); await expect(mine.getByText('There are no student records to show for your account yet.')).toBeVisible(); await mine.close();
+    const other = await context('teacher-other'); const expected = await api(other, '/api/records/students?status=all&limit=100'); const row = await other.newPage(); await open(row, '/records', 'Student records');
+    await expect(rowsOf(row)).toHaveCount(expected.items.length); assert.equal(expected.items.length, 1); await expect(rowsOf(row).first()).toContainText('Bilal'); assert.ok(expected.items.length < 28);
     await row.close();
   });
   await check('Another school is invisible: its administrator sees only their students and cross-school records are not found', async () => {

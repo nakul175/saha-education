@@ -10,7 +10,7 @@ import type { Principal } from './types';
 
 export type StudentStatus = 'active' | 'inactive';
 export type StudentRecord = {
-  id: string; schoolId: string; userId: string | null; firstName: string; lastName: string; dateOfBirth: string; admissionNumber: string; gradeLevel: string;
+  id: string; schoolId: string; hasLogin: boolean; firstName: string; lastName: string; dateOfBirth: string; admissionNumber: string; gradeLevel: string;
   createdAt: string; updatedAt: string; status: StudentStatus; statusVersion: number; statusChangedAt: string | null;
 };
 export type StudentDirectory = { items: StudentRecord[]; total: number; limit: number; offset: number; grades: string[] };
@@ -36,7 +36,7 @@ export type StudentStatusInput = z.input<typeof studentStatusSchema>;
 const statusColumn = sql<StudentStatus>`coalesce(${studentRecordStatus.status}, 'active')`;
 const versionColumn = sql<number>`coalesce(${studentRecordStatus.version}, 0)`;
 const recordColumns = {
-  id: students.id, schoolId: students.schoolId, userId: students.userId, firstName: students.firstName, lastName: students.lastName, dateOfBirth: students.dateOfBirth,
+  id: students.id, schoolId: students.schoolId, hasLogin: sql<number>`case when ${students.userId} is null then 0 else 1 end`, firstName: students.firstName, lastName: students.lastName, dateOfBirth: students.dateOfBirth,
   admissionNumber: students.admissionNumber, gradeLevel: students.gradeLevel, createdAt: students.createdAt, updatedAt: students.updatedAt,
   status: statusColumn, statusVersion: versionColumn, statusChangedAt: studentRecordStatus.changedAt,
 };
@@ -44,6 +44,7 @@ async function liveAdmin(principal: Principal): Promise<void> {
   const [actor] = await getDb().select({ id: users.id }).from(users).where(and(eq(users.id, principal.id), profileAdminScope(principal))).limit(1);
   if (!actor) throw new AccessError('Administrator access required');
 }
+const toRecord = (row: { hasLogin: number | boolean }) => ({ ...row, hasLogin: Boolean(row.hasLogin) });
 function selectRecords() {
   return getDb().select(recordColumns).from(students).leftJoin(studentRecordStatus, eq(studentRecordStatus.studentId, students.id));
 }
@@ -64,7 +65,7 @@ export async function listStudentDirectory(principal: Principal, value: z.input<
   const [count] = await db.select({ total: sql<number>`count(*)` }).from(students).leftJoin(studentRecordStatus, eq(studentRecordStatus.studentId, students.id)).where(where);
   const grades = await db.selectDistinct({ grade: students.gradeLevel }).from(students).where(and(studentScope(principal), profileActorScope(principal))).orderBy(students.gradeLevel).limit(100);
   await liveActorFor(principal);
-  return { items: items as StudentRecord[], total: Number(count?.total ?? 0), limit: query.limit, offset: query.offset, grades: grades.map(row => row.grade) };
+  return { items: items.map(toRecord) as StudentRecord[], total: Number(count?.total ?? 0), limit: query.limit, offset: query.offset, grades: grades.map(row => row.grade) };
 }
 async function liveActorFor(principal: Principal): Promise<void> {
   const [actor] = await getDb().select({ id: users.id }).from(users).where(and(eq(users.id, principal.id), profileActorScope(principal))).limit(1);
@@ -86,7 +87,7 @@ export async function getStudentRecord(principal: Principal, id: string): Promis
     .from(studentStatusEvents).leftJoin(users, eq(users.id, studentStatusEvents.actorId))
     .where(and(eq(studentStatusEvents.studentId, id), eq(studentStatusEvents.schoolId, principal.schoolId!))).orderBy(sql`${studentStatusEvents.resultingVersion} desc`).limit(50);
   await liveAdmin(principal);
-  return { student: student as StudentRecord, activeEnrolments: Number(active?.n ?? 0), history: history.map(eventView) };
+  return { student: toRecord(student) as StudentRecord, activeEnrolments: Number(active?.n ?? 0), history: history.map(eventView) };
 }
 
 /** Version-checked ordinary edit. The login binding is never touched here (reviewed link workflow). */
@@ -110,7 +111,7 @@ export async function updateStudentRecord(principal: Principal, id: string, valu
   if (!updated[0]) { await liveAdmin(principal); throw new RecordConflict('stale'); }
   const [saved] = await selectRecords().where(and(eq(students.id, id), studentScope(principal), profileAdminScope(principal))).limit(1);
   if (!saved) throw new AccessError('Student not found', 404);
-  return saved as StudentRecord;
+  return toRecord(saved) as StudentRecord;
 }
 
 /** Deactivate/reactivate is append-only history: nothing is deleted. Deactivation withdraws the student's
