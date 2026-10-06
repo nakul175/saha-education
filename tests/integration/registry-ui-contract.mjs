@@ -2,11 +2,11 @@
 // Unchanged candidate client callbacks use substituted hooks/elements, not mounted-browser evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { z } from 'zod';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root, stamp } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
 const routes = { session: await load('app/api/session/route.ts'), students: await load('app/api/students/route.ts'), guardians: await load('app/api/guardians/route.ts'), reviewedStudents: await load('app/api/registry/students/route.ts'), reviewedGuardians: await load('app/api/registry/guardians/route.ts') };
 const sessions = await load('lib/education/session.ts');
@@ -42,7 +42,7 @@ async function client(path) {
 // Candidate production sources are loaded unchanged after the preceding publication.
 const Student = (await client('app/students/page.tsx')).default;
 const Guardian = (await client('app/guardians/page.tsx')).default;
-async function settle() { for (let index = 0; index < 12; index++) await turn(); }
+const settle = () => settleQuiet();
 function driver(Component) {
   const ui = { cells: [], effects: [], index: 0, tree: null,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(); for (const effect of ui.effects) effect(); },
@@ -71,7 +71,8 @@ async function scenario(name, kind, action) {
   const cookies = {}; for (const id of ['admin-a', 'guardian-a', 'teacher-a', 'student-user-a', 'admin-b']) cookies[id] = (await sessions.createSession(id)).split(';')[0];
   let actor = 'admin-a', intercept;
   const trace = [], responses = [], uis = [];
-  async function api(path, method = 'GET', payload, user = actor) { const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('Synthetic registry contracts remain offline.'); } requests++; const headers = { origin }; if (user) headers.cookie = cookies[user]; const request = new Request(url, { method, headers: { ...headers, ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: typeof payload === 'string' ? payload : JSON.stringify(payload) }) }); const route = url.pathname === '/api/session' ? routes.session : url.pathname === '/api/students' ? routes.students : url.pathname === '/api/guardians' ? routes.guardians : url.pathname === '/api/registry/students' ? routes.reviewedStudents : url.pathname === '/api/registry/guardians' ? routes.reviewedGuardians : null; if (!route) throw new Error('Unexpected registry API path'); return route[method](request); }
+  function api(...args) { return serverWork(() => routeApi(...args)); }
+  async function routeApi(path, method = 'GET', payload, user = actor) { const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('Synthetic registry contracts remain offline.'); } requests++; const headers = { origin }; if (user) headers.cookie = cookies[user]; const request = new Request(url, { method, headers: { ...headers, ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: typeof payload === 'string' ? payload : JSON.stringify(payload) }) }); const route = url.pathname === '/api/session' ? routes.session : url.pathname === '/api/students' ? routes.students : url.pathname === '/api/guardians' ? routes.guardians : url.pathname === '/api/registry/students' ? routes.reviewedStudents : url.pathname === '/api/registry/guardians' ? routes.reviewedGuardians : null; if (!route) throw new Error('Unexpected registry API path'); return route[method](request); }
   globalThis.fetch = async (path, options = {}) => { const response = await api(String(path), options.method || 'GET', options.body); trace.push({ path: String(path), method: options.method || 'GET', status: response.status, ...(options.body ? { payload: JSON.parse(options.body), body: options.body } : {}) }); const result = intercept ? await intercept({ path: String(path), options, response }) : response; if (result) responses.push(result); return result; };
   async function mount() { const ui = driver(kind === 'students' ? Student : Guardian); uis.push(ui); await ui.flush(); return ui; }
   function writes() { return trace.filter(item => item.method === 'POST'); }

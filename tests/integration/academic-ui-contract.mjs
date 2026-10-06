@@ -3,10 +3,10 @@
 // this is not mounted-browser, educator acceptance or hosted execution evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
 const routes = { students: await load('app/api/students/route.ts'), classes: await load('app/api/classes/route.ts'), enrolments: await load('app/api/enrolments/route.ts'), session: await load('app/api/session/route.ts'), reports: await load('app/api/report-cards/route.ts'), report: await load('app/api/report-cards/[id]/route.ts') };
 const sessions = await load('lib/education/session.ts');
@@ -30,7 +30,7 @@ async function component(path) {
   return (await import('data:text/javascript;base64,' + Buffer.from(prefix + compiled.replace(/^import[^\n]*;\n/gm, '') + '\n//# sourceURL=saha-academic-client-' + path.replaceAll('/', '-')).toString('base64'))).default;
 }
 const Enrolments = await component('app/enrolments/page.tsx'), Reports = await component('app/report-cards/page.tsx');
-async function settle() { for (let index = 0; index < 18; index++) await turn(); }
+const settle = () => settleQuiet();
 function driver(Component) {
   const ui = { cells: [], index: 0, effects: [], tree: null,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(); for (const effect of ui.effects) effect(); },
@@ -68,7 +68,7 @@ async function scenario(name, Component, action, actor = 'admin-a') {
     else if (url.pathname === '/api/report-cards') route = routes.reports;
     else if (url.pathname.startsWith('/api/report-cards/')) { route = routes.report; parameters = { params: Promise.resolve({ id: url.pathname.split('/').at(-1) }) }; }
     else throw new Error('Unexpected academic route');
-    requests++; const response = await route[method](request, parameters);
+    requests++; const response = await serverWork(() => route[method](request, parameters));
     context.trace.push({ path: url.pathname, search: url.search, method, status: response.status, body: init.body, actor: context.actor });
     return context.after ? await context.after(url.pathname, method, response, url, init) : response;
   };

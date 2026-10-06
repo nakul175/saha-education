@@ -2,10 +2,10 @@
 // Candidate page callbacks use substituted hooks/elements, not mounted-browser evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
 const routes = { session: await load('app/api/session/route.ts'), profile: await load('app/api/students/[id]/route.ts'), links: await load('app/api/students/[id]/guardians/route.ts'), guardians: await load('app/api/guardians/route.ts'), classes: await load('app/api/classes/route.ts'), assessments: await load('app/api/assessments/route.ts'), results: await load('app/api/assessments/[id]/results/route.ts') };
 const sessions = await load('lib/education/session.ts');
@@ -32,7 +32,7 @@ async function client(path) {
 }
 const Profile = (await client('app/students/[id]/page.tsx')).default;
 const Index = (await client('app/assessments/page.tsx')).default;
-async function settle() { for (let index = 0; index < 40; index++) await turn(); }
+const settle = () => settleQuiet();
 function driver(Component, props) {
   const ui = { cells: [], effects: [], index: 0, tree: null, props,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(ui.props); for (const effect of ui.effects) effect(); },
@@ -56,7 +56,8 @@ async function scenario(name, kind, action, initialActor = 'admin-a') {
   const cookies = {}; for (const id of ['admin-a', 'admin-b', 'teacher-a', 'guardian-a', 'student-user-a']) cookies[id] = (await sessions.createSession(id)).split(';')[0];
   let actor = initialActor, intercept;
   const trace = [], responses = [], uis = [];
-  async function api(path, method = 'GET', payload, user = actor) {
+  function api(...args) { return serverWork(() => routeApi(...args)); }
+  async function routeApi(path, method = 'GET', payload, user = actor) {
     const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('Contracts are local synthetic only'); }
     requests++; const headers = { origin, ...(user ? { cookie: cookies[user] } : {}) };
     const request = new Request(url, { method, headers: { ...headers, ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: typeof payload === 'string' ? payload : JSON.stringify(payload) }) });

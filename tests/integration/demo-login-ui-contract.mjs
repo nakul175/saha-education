@@ -3,10 +3,10 @@
 // This is not mounted React, browser, keyboard, geometry or accessibility evidence.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { bindings, freshDatabase, load, root } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 
 const origin = 'https://education.example.invalid';
 const installation = '908df258-dff2-43d4-a540-503b2c7e7d13';
@@ -37,7 +37,7 @@ async function client(path) {
 }
 const Login = (await client('app/login/page.tsx')).default;
 const Shell = (await client('components/app-shell.tsx')).AppShell;
-async function settle() { for (let index = 0; index < 10; index++) await turn(); }
+const settle = () => settleQuiet();
 function mount(Component, props = {}) {
   const ui = { cells: [], effects: [], index: 0, tree: null,
     render() { currentUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(props); for (const effect of ui.effects) effect(); },
@@ -67,7 +67,7 @@ async function scenario(name, enabled, action) {
     const request = new Request(url, { method, headers: { origin: wrongOrigin ? 'https://other.example.invalid' : origin, ...(cookie ? { cookie } : {}), ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: payload }) });
     const route = path === '/api/demo' ? routes.demo : path === '/api/session' ? routes.session : path === '/api/auth/login' ? routes.login : null;
     assert.ok(route, 'Only explicit actual local routes are used');
-    const response = await route[method](request);
+    const response = await serverWork(() => route[method](request));
     const issued = response.headers.get('set-cookie'); if (issued) cookie = issued.split(';')[0];
     return response;
   }
