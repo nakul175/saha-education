@@ -1,0 +1,61 @@
+{
+  "recordedAt": "2026-10-06",
+  "baseMain": "0dc55a4ca7f62d8fa5db3f797f0b9a7d32cef4a2",
+  "preservedCommit": "e1283e78d7d19f6637c0821304e5a4a5cbd438d6",
+  "applicationSourceChanged": false,
+  "synthetic": true,
+  "guardedRun": {
+    "node": [
+      "24.19.0",
+      "22.22.0"
+    ],
+    "suites": 53,
+    "assertions": 22428,
+    "unit": 119,
+    "integration": 22132,
+    "smoke": 177,
+    "failed": 0
+  },
+  "assessmentDetailCallbackSuite": {
+    "checks": 1476,
+    "scenarios": 101,
+    "requests": 1538,
+    "baselineMin": 1476
+  },
+  "mountedProcedure": {
+    "file": "tests/worker-assessment-review-ui-check.mjs",
+    "passed": 43,
+    "failed": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "freshRunsAtTip": 2
+  },
+  "mountedApiCheck": {
+    "file": "tests/worker-assessment-review-check.mjs",
+    "passed": 249,
+    "requests": 102,
+    "externalRequests": 0
+  },
+  "mutations": [
+    {
+      "name": "discard notice claims the started save was cancelled",
+      "detected": true
+    },
+    {
+      "name": "originalScope = Boolean(authorized && pendingView)",
+      "detected": true,
+      "passedFailedOnMutant": [
+        19,
+        1
+      ],
+      "note": "first survived because the actor-binding check was racy; strengthened then detected"
+    }
+  ],
+  "limits": [
+    "single local Chromium and fictional data",
+    "callback suites substitute hooks",
+    "designed cases unrun",
+    "no business approval",
+    "hosting blocker unchanged"
+  ]
+}

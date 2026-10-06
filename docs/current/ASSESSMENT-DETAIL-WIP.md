@@ -1,5 +1,7 @@
 # Assessment detail work preserved for continuation
 
+> **Status, 6 October 2026:** completed and verified in [ASSESSMENT-DETAIL-COMPLETION](ASSESSMENT-DETAIL-COMPLETION.md). The text below is the original hand-off, kept unchanged for history.
+
 This branch preserves the unfinished student-result editor page and its independent callback suite after the agent stopped on a Codex usage limit. It is excluded from the validated main release. Parent is `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`; this branch contains only two application/test files and these two handoff records. Apply the focused commit onto updated main rather than replacing main with this older branch tree.
 
 The candidate adds current-account snapshot/history reads, private hiding, original-actor exact serialized pending requests, correlated new/replayed acknowledgements, known-save/current-read separation and explicit read-only discard/review recovery. Reviewed UUID/CAS/history and raw zero/null/empty/score types remain server-owned. A started request can persist after unmount; pending state is not durable. Authorized saved history may remain visible to other currently authorized staff; unsent/pending intent and original client confirmation remain actor-bound.

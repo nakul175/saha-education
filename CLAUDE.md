@@ -7,3 +7,5 @@ Preserved unfinished assessment work is on handoff/assessment-detail-2026-10-06,
 The private hosted SQL deployment failure remains unresolved and has no returned URL. Preserve all original/applied migration history and obtain the failed filename/last applied boundary before repair. Real provider/ORF settings are unprovided; paid AI and real recipients remain disabled. Use synthetic data only.
 
 Current v2.12 designs contain371 unrun cases/51 scenarios; executable checks do not imply business acceptance. Preserve earlier source-specific records and sources/ reference files. Commit and push verified batches, keep application authority on the server, and avoid blind retries of uncertain mutations. Full next steps and actual evidence are linked in the handover.
+
+Update 6 October 2026: the preserved assessment work was finished on a continuation branch (see docs/current/ASSESSMENT-DETAIL-COMPLETION.md); the hosting failure remains unresolved. The statements above describe the original handover.
