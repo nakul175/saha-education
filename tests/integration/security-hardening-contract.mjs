@@ -153,6 +153,26 @@ async function streamed(actor, path, megabytes, method = 'POST') {
   equal(f.changedTables(before, f.fingerprint()), [], 'Hostile identifiers changed nothing');
 }
 {
+  // No existence oracle: an object the actor may not see is indistinguishable from one that does not exist.
+  const i = f.ids;
+  const oracle = [
+    ['admin-b', id => `/api/students/${id}`, 'student-a'], ['admin-b', id => `/api/classes/${id}`, 'class-a'], ['admin-b', id => `/api/courses/${id}`, 'course-a'],
+    ['admin-b', id => `/api/assessments/${id}`, 'assessment-a'], ['admin-b', id => `/api/assessments/${id}/results`, 'assessment-a'], ['admin-b', id => `/api/report-cards/${id}`, 'published-a'],
+    ['admin-b', id => `/api/resources/${id}`, i.resource], ['admin-b', id => `/api/curriculum/${id}`, i.curriculum], ['admin-b', id => `/api/assignments/${id}/submissions`, i.assignment],
+    ['admin-b', id => `/api/reading-checks/${id}/corrections`, i.reading], ['admin-b', id => `/api/reading-imports/${id}`, i.import], ['admin-b', id => `/api/schools/${id}`, 'a'],
+    ['admin-b', id => `/api/classes/${id}/attendance-editor?date=2026-10-02`, 'class-a'], ['admin-b', id => `/api/assessments/${id}/result-editor`, 'assessment-a'],
+    ['teacher-a', id => `/api/students/${id}`, 'student-other'], ['student-user-a', id => `/api/students/${id}`, 'student-peer'], ['teacher-a', id => `/api/resources/${id}`, i.resourceOther],
+    ['teacher-a', id => `/api/curriculum/${id}`, i.curriculumOther], ['guardian-a', id => `/api/report-cards/${id}`, i.reportDraft], ['teacher-a', id => `/api/classes/${id}`, 'class-other'],
+    ['guardian-a', id => `/api/classes/${id}`, 'class-other'], ['admin-a', id => `/api/guardians/${id}`, 'guardian-profile-b'],
+  ];
+  for (const [actor, path, real] of oracle) {
+    const foreign = await f.call(actor, 'GET', path(real));
+    const missing = await f.call(actor, 'GET', path('missing-' + crypto.randomUUID()));
+    equal([foreign.status, foreign.json], [missing.status, missing.json], `${actor} ${path(':id')}: an inaccessible object answers exactly like a missing one`);
+    equal(foreign.status, 404, `${actor} ${path(':id')}: not found, never a 403 that confirms existence`);
+  }
+}
+{
   // Hostile text is stored and returned as literal data in JSON; markup is never interpreted by the API layer.
   const hostile = ['<script>alert(1)</script>', '"><img src=x onerror=alert(1)>', "Robert'); DROP TABLE students;--", '{{7*7}}${7*7}', 'a‮b', 'line1\r\nSet-Cookie: x=1', 'null\u0000byte', '😀'.repeat(50)];
   for (const text of hostile) {

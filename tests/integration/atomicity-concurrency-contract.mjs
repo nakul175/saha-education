@@ -341,6 +341,30 @@ console.log(`${scenarios.length} write paths, ${failurePoints} injected failure 
 check(failurePoints >= 50, `${failurePoints} failure points exercised`);
 
 // ---------------------------------------------------------------------------------------------------------------
+// Section 2b: whole-batch prevalidation (TC-029, TC-116): a bad second member leaves the valid first member unwritten.
+// ---------------------------------------------------------------------------------------------------------------
+{
+  const assessment = await newAssessment();
+  const day = date();
+  const batches = [
+    ['attendance: invalid status in the second entry', 'teacher-a', 'POST', '/api/attendance', { classId: 'class-a', date: day, entries: [{ studentId: 'student-a', status: 'present' }, { studentId: 'student-peer', status: 'bogus' }] }, [400]],
+    ['attendance: second pupil in another school', 'teacher-a', 'POST', '/api/attendance', { classId: 'class-a', date: day, entries: [{ studentId: 'student-a', status: 'present' }, { studentId: 'student-b', status: 'present' }] }, [400, 403, 404]],
+    ['attendance: second pupil not in the class', 'teacher-a', 'POST', '/api/attendance', { classId: 'class-a', date: day, entries: [{ studentId: 'student-a', status: 'present' }, { studentId: 'student-other', status: 'present' }] }, [400, 403, 404]],
+    ['attendance: duplicate pupil', 'teacher-a', 'POST', '/api/attendance', { classId: 'class-a', date: day, entries: [{ studentId: 'student-a', status: 'present' }, { studentId: 'student-a', status: 'absent' }] }, [400]],
+    ['results: second score above the maximum', 'teacher-a', 'POST', `/api/assessments/${assessment.id}/results`, { results: [{ studentId: 'student-a', score: 3 }, { studentId: 'student-peer', score: 99 }] }, [400]],
+    ['results: second pupil not in the class', 'teacher-a', 'POST', `/api/assessments/${assessment.id}/results`, { results: [{ studentId: 'student-a', score: 3 }, { studentId: 'student-other', score: 4 }] }, [400, 403, 404]],
+    ['results: duplicate pupil', 'teacher-a', 'POST', `/api/assessments/${assessment.id}/results`, { results: [{ studentId: 'student-a', score: 3 }, { studentId: 'student-a', score: 4 }] }, [400]],
+    ['reviewed attendance: second entry invalid', 'teacher-a', 'POST', '/api/classes/class-a/attendance-editor', { date: day, clientRequestId: uid(), reviewConfirmed: true, reason: 'Synthetic reviewed attendance change.', entries: [{ studentId: 'student-a', status: 'present', note: null, expectedRecord: null }, { studentId: 'student-peer', status: 'bogus', note: null, expectedRecord: null }] }, [400]],
+  ];
+  for (const [name, actor, method, path, body, statuses] of batches) {
+    const before = f.fingerprint();
+    const result = await f.call(actor, method, path, { body });
+    check(statuses.includes(result.status), `${name}: refused with ${statuses} (got ${result.status} ${result.text.slice(0, 80)})`);
+    equal(f.changedTables(before, f.fingerprint()).filter(name => !NOISE.has(name)), [], `${name}: the valid first member was not written`);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------
 // Section 3: first-use synthetic demo installation is atomic (own empty database).
 // ---------------------------------------------------------------------------------------------------------------
 {
