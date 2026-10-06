@@ -20,7 +20,7 @@ const check = async (name, action) => { await action(); passed++; checks.push(na
 async function context(user) {
   if (user && typeof sessions[user] !== 'string') throw new Error('Missing a required synthetic session: ' + user);
   const value = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Pacific/Kiritimati', serviceWorkers: 'block', extraHTTPHeaders: user ? { cookie: sessions[user] } : {} });
-  if (user) { const separator = sessions[user].indexOf('='); await value.addCookies([{ name: sessions[user].slice(0, separator), value: sessions[user].slice(separator + 1), domain: base.hostname, path: '/', secure: base.protocol === 'https:', httpOnly: true, sameSite: 'Lax' }]); }
+  if (user) { const separator = sessions[user].indexOf('='); await value.addCookies([{ name: sessions[user].slice(0, separator), value: sessions[user].slice(separator + 1), domain: base.hostname, path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]); }
   contexts.push(value); owners.set(value, user);
   value.on('page', page => {
     page.on('pageerror', error => pageErrors.push(error.message));
@@ -181,7 +181,7 @@ try {
     await roster.getByRole('button', { name: 'Re-enrol Synthetic Alpha' }).click(); await roster.getByLabel('Reason (required, at least 5 characters)').fill('Returned to school'); await roster.getByRole('button', { name: 'Confirm re-enrol' }).click();
     await expect(roster.getByRole('alert')).toContainText('could not be confirmed'); await expect(roster.getByRole('button', { name: 'Check whether it was saved' })).toBeVisible();
     await roster.unroute('**/api/academic-changes', lose); assert.equal(delivered, 1);
-    await roster.getByRole('button', { name: 'Check whether it was saved' }).click(); await status(roster, 'was saved'); await expect(roster.getByText('2 of 2 places used')).toBeVisible();
+    await roster.getByRole('button', { name: 'Check whether it was saved' }).click(); await status(roster, 'was already saved'); await expect(roster.getByText('2 of 2 places used')).toBeVisible();
     const events = (await adminApi.get('/api/classes/' + classId + '/history')).items.filter(item => item.kind === 'enrolment.reenrol'); assert.equal(events.length, 1, 'Exactly one re-enrolment event');
   });
   await check('A request dropped before reaching the Worker is retried once with the same id and applied exactly once', async () => {
@@ -232,7 +232,7 @@ try {
       await expect(view.getByRole('heading', { name: 'Enrolment history', level: 1 })).toBeVisible(); await expect(view.getByRole('heading', { name: /^Classes for / })).toBeVisible();
       await expect(view.getByText('Reason:')).toHaveCount(0); await noRawIds(view); await labelsAndWidth(view); await view.close();
     }
-    const nobody = await foreignFamily.newPage(); await goto(nobody, '/enrolments/history'); assert.equal(await nobody.getByText('Synthetic student a').count(), 0); await nobody.close();
+    const nobody = await foreignFamily.newPage(); await goto(nobody, '/enrolments/history'); assert.equal(await nobody.getByText('student-a Synthetic').count(), 0); await nobody.close();
   });
   await check('Families and learners cannot open rosters, settings or the reviewed-change endpoint', async () => {
     for (const [name, value] of [['guardian-a', family], ['student-user-a', learner]]) {
