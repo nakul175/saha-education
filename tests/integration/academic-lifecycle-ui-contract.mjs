@@ -69,6 +69,8 @@ try {
     const directory = page.split('/').slice(0, 2).join('/');
     check(existsSync(join(root, directory, 'layout.tsx')) && read(directory + '/layout.tsx').includes('getServerPrincipal'), true, page + ' sits under a server-side sign-in layout');
   }
+  // The mounted Worker hands a dynamic page a thenable whose `then` returns nothing, so `params.then(...).catch(...)` crashes the page.
+  for (const page of pages.filter(path => path.includes('[id]'))) check([/Promise\.resolve\(params\)/.test(read(page)), /\bparams\.then\(/.test(read(page))], [true, false], page + ' reads route params through Promise.resolve');
   check(existsSync(join(root, 'app/academic/layout.tsx')), true, 'The hub has its own server-side sign-in layout');
   // submissions only through the reviewed endpoint, with a reason field wherever the server requires one
   for (const page of pages.filter(path => /roster|manage|\[id\]\/page|new/.test(path))) check(/useChangeSubmission/.test(read(page)), true, page + ' submits through the retained-request-id hook');

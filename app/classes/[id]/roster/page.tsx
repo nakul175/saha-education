@@ -33,7 +33,7 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
   const invalidate = useCallback(() => { generation.current++; controller.current?.abort(); }, []);
   useEffect(() => {
     let active = true; mounted.current = true;
-    params.then(value => { if (active) setClassId(value.id); }).catch(() => { if (active) { setLoading(false); setError('This class could not be identified. Open it again from the class list.'); } });
+    Promise.resolve(params).then(value => { if (active) setClassId(value.id); }).catch(() => { if (active) { setLoading(false); setError('This class could not be identified. Open it again from the class list.'); } });
     return () => { active = false; mounted.current = false; invalidate(); };
   }, [params, invalidate]);
   const reload = useCallback(async () => {

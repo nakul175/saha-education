@@ -28,7 +28,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   const invalidate = useCallback(() => { generation.current++; controller.current?.abort(); }, []);
   useEffect(() => {
     let active = true; mounted.current = true;
-    params.then(value => { if (active) setCourseId(value.id); }).catch(() => { if (active) { setLoading(false); setError('This course could not be identified. Open it again from the course list.'); } });
+    Promise.resolve(params).then(value => { if (active) setCourseId(value.id); }).catch(() => { if (active) { setLoading(false); setError('This course could not be identified. Open it again from the course list.'); } });
     return () => { active = false; mounted.current = false; invalidate(); };
   }, [params, invalidate]);
   const reload = useCallback(async () => {

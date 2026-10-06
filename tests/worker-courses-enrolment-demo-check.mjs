@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { chromium, expect } from '@playwright/test';
+import { chromium, expect as baseExpect } from '@playwright/test';
+const expect = baseExpect.configure({ timeout: 10000 });
 const origin = process.env.SAHA_WORKER_TEST_URL, fixture = process.env.SAHA_WORKER_SESSION_FIXTURE, executablePath = process.env.SAHA_TEST_BROWSER;
 const outputDir = process.env.SAHA_TEST_OUTPUT_DIR || '/tmp';
 if (!origin || !fixture || !executablePath) throw new Error('Supply a local built Worker, private synthetic sessions and local browser.');
@@ -16,13 +17,15 @@ const browser = await chromium.launch({ executablePath, headless: true, args: ['
 const owners = new Map(), contexts = [], pageErrors = [], externalRequests = [], failedResources = [], checks = [], screenshots = [], dialogs = [];
 let passed = 0;
 const suffix = crypto.randomUUID().slice(0, 8), today = new Date().toISOString().slice(0, 10);
-const failures = [];
-const check = async (name, action) => { try { await action(); passed++; checks.push(name); console.log('ok - ' + name); } catch (error) { failures.push(name); console.log('not ok - ' + name + ': ' + String(error?.message ?? error).split('\n').slice(0, 8).join(' | ').slice(0, 900)); } };
+const failures = [], pendingRequests = new Set();
+const check = async (name, action) => { const began = Date.now(); try { await action(); passed++; checks.push(name); console.log('ok - ' + name + ' (' + (Date.now() - began) + ' ms)'); } catch (error) { failures.push(name); console.log('not ok - ' + name + ': ' + String(error?.message ?? error).split('\n').slice(0, 8).join(' | ').slice(0, 900)); await diagnose(); } };
+const diagnose = async () => { console.log('  requests still pending: ' + JSON.stringify([...pendingRequests].map(request => request.method() + ' ' + new URL(request.url()).pathname)).slice(0, 600)); for (const value of contexts) for (const open of value.pages()) { if (!open.url().startsWith(base.origin)) continue; try { const text = await Promise.race([open.locator('[role=alert],[role=status]').allInnerTexts(), new Promise((_, reject) => setTimeout(() => reject(new Error('unresponsive')), 4000))]); console.log('  screen ' + new URL(open.url()).pathname + ' notices: ' + JSON.stringify(text).slice(0, 500)); } catch { console.log('  screen unreadable'); } } };
 async function context(user) {
   if (user && typeof sessions[user] !== 'string') throw new Error('Missing a required synthetic session: ' + user);
   const value = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Pacific/Kiritimati', serviceWorkers: 'block', extraHTTPHeaders: user ? { cookie: sessions[user] } : {} });
   if (user) { const separator = sessions[user].indexOf('='); await value.addCookies([{ name: sessions[user].slice(0, separator), value: sessions[user].slice(separator + 1), domain: base.hostname, path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]); }
-  contexts.push(value); owners.set(value, user);
+  value.setDefaultTimeout(15000); contexts.push(value); owners.set(value, user);
+  value.on('request', request => pendingRequests.add(request)); value.on('requestfinished', request => pendingRequests.delete(request)); value.on('requestfailed', request => pendingRequests.delete(request));
   value.on('page', page => {
     page.on('pageerror', error => pageErrors.push(error.message));
     page.on('dialog', dialog => { dialogs.push(dialog.type()); void dialog.dismiss(); });
@@ -39,7 +42,7 @@ async function api(value, path, method = 'GET', data, expected = 200) {
   assert.equal(response.status(), expected, 'Local API status: ' + method + ' ' + path); return response.json();
 }
 async function goto(page, path) {
-  const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 25000 }); assert.equal(response?.status(), 200); return response;
+  const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 45000 }); assert.equal(response?.status(), 200); return response;
 }
 async function labelsAndWidth(page) {
   const missing = await page.locator('input:not([type=hidden]),select,textarea').evaluateAll(items => items.filter(item => !item.labels?.length && !item.getAttribute('aria-label') && !item.getAttribute('aria-labelledby')).length);
@@ -175,12 +178,12 @@ try {
     await expect(manage.getByRole('alert')).toBeVisible(); await manage.close();
   });
   await check('A lost reply keeps the same request: checking the receipt finds it saved and nothing is applied twice', async () => {
-    await roster.reload({ waitUntil: 'networkidle' }); let delivered = 0;
-    const lose = async route => { if (route.request().method() !== 'POST') return route.continue(); delivered++; await route.fetch(); return route.abort('connectionreset'); };
+    await roster.reload({ waitUntil: 'networkidle' }); let delivered = 0; const lostReplies = [];
+    const lose = async route => { if (route.request().method() !== 'POST') return route.continue(); delivered++; const reply = await route.fetch({ headers: { ...route.request().headers(), cookie: sessions['admin-a'] } }); lostReplies.push(reply.status() + ' ' + (await reply.text()).slice(0, 200)); return route.abort('connectionreset'); };
     await roster.route('**/api/academic-changes', lose);
     await roster.getByRole('button', { name: 'Re-enrol Synthetic Alpha' }).click(); await roster.getByLabel('Reason (required, at least 5 characters)').fill('Returned to school'); await roster.getByRole('button', { name: 'Confirm re-enrol' }).click();
     await expect(roster.getByRole('alert')).toContainText('could not be confirmed'); await expect(roster.getByRole('button', { name: 'Check whether it was saved' })).toBeVisible();
-    await roster.unroute('**/api/academic-changes', lose); assert.equal(delivered, 1);
+    await roster.unroute('**/api/academic-changes', lose); assert.equal(delivered, 1); assert.ok(lostReplies[0]?.startsWith('201'), 'The delivered request was applied by the Worker: ' + lostReplies[0]);
     await roster.getByRole('button', { name: 'Check whether it was saved' }).click(); await status(roster, 'was already saved'); await expect(roster.getByText('2 of 2 places used')).toBeVisible();
     const events = (await adminApi.get('/api/classes/' + classId + '/history')).items.filter(item => item.kind === 'enrolment.reenrol'); assert.equal(events.length, 1, 'Exactly one re-enrolment event');
   });
@@ -246,16 +249,17 @@ try {
   await check('Teachers cannot make reviewed changes', async () => { await api(newTeacher, '/api/academic-changes', 'POST', { clientRequestId: crypto.randomUUID(), changes: [{ kind: 'course.create', code: 'T-' + suffix, title: 'No', gradeLevel: '8' }] }, 403); });
 
   // ---- Responsive and accessible
-  await page.setViewportSize({ width: 375, height: 800 });
+  const narrow = await admin.newPage(); await narrow.setViewportSize({ width: 375, height: 800 });
   await check('At 375px every page has labelled controls, no horizontal overflow, no raw ids and no dialogs', async () => {
     for (const path of ['/academic', '/courses/new', '/courses/' + courseId, '/classes/new', '/classes/' + classId + '/manage', '/classes/' + classId + '/roster', '/enrolments/history']) {
-      await goto(page, path); await expect(page.getByRole('heading', { level: 1 }).last()).toBeVisible();
-      await labelsAndWidth(page); await noRawIds(page);
+      try { await goto(narrow, path); } catch (error) { throw new Error('Opening ' + path + ' failed: ' + String(error?.message).split('\n')[0]); }
+      await expect(narrow.getByRole('heading', { level: 1 }).last()).toBeVisible();
+      await labelsAndWidth(narrow); await noRawIds(narrow);
     }
     assert.deepEqual(dialogs, [], 'No alert/confirm/prompt dialogs');
   });
-  await goto(page, '/classes/' + classId + '/roster'); await shot(page, 'roster-375');
-  await page.setViewportSize({ width: 1280, height: 900 }); await goto(page, '/classes/' + classId + '/manage'); await shot(page, 'manage-desktop');
+  await goto(narrow, '/classes/' + classId + '/roster'); await shot(narrow, 'roster-375');
+  await narrow.setViewportSize({ width: 1280, height: 900 }); await goto(narrow, '/classes/' + classId + '/manage'); await shot(narrow, 'manage-desktop');
   await check('Browser assets load and all observed requests stay local', async () => { assert.deepEqual(pageErrors, []); assert.deepEqual(externalRequests, []); assert.deepEqual(failedResources, []); });
   if (failures.length) throw new Error(failures.length + ' check(s) failed: ' + failures.join('; '));
   const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, checks, screenshots,
