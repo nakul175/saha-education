@@ -16,7 +16,8 @@ export async function authenticated(request: Request, mutation: boolean, action:
     const status = error instanceof AccessError || error instanceof AuthError ? error.status : error instanceof z.ZodError || error instanceof SyntaxError ? 400 : 500;
     const messages: Record<number, string> = { 400: 'Invalid request', 401: 'Authentication required', 403: 'Forbidden', 404: 'Not found', 409: 'Conflict', 500: 'Internal server error', 503: 'Service unavailable' };
     // A stable lifecycle code (for example `class-full`) lets a client explain a conflict; it never carries record contents.
-    const code = error instanceof AccessError && typeof (error as { code?: unknown }).code === 'string' && /^[a-z-]{1,40}$/.test((error as { code: string }).code) ? (error as { code: string }).code : undefined;
+    const rawCode = error instanceof AccessError ? (error as unknown as { code?: unknown }).code : undefined;
+    const code = typeof rawCode === 'string' && /^[a-z-]{1,40}$/.test(rawCode) ? rawCode : undefined;
     return Response.json({ error: messages[status] || messages[500], ...(code ? { code } : {}) }, { status, headers: { 'Cache-Control': 'no-store' } });
   }
 }
