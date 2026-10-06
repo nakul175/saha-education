@@ -16,7 +16,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 136
+      "minPassed": 143
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -93,10 +93,15 @@
       "file": "tests/integration/demo-login-ui-contract.mjs",
       "minPassed": 249
     },
+    "integration/demo-session-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/demo-session-lifecycle-contract.mjs",
+      "minPassed": 71
+    },
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 252
+      "minPassed": 253
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -118,6 +123,16 @@
       "file": "tests/integration/identity-admin-contract.mjs",
       "minPassed": 153
     },
+    "integration/identity-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/identity-lifecycle-contract.mjs",
+      "minPassed": 186
+    },
+    "integration/identity-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/identity-ui-contract.mjs",
+      "minPassed": 128
+    },
     "integration/learner-recovery-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/learner-recovery-ui-contract.mjs",
@@ -127,6 +142,11 @@
       "layer": "integration",
       "file": "tests/integration/live-domain-authority-contract.mjs",
       "minPassed": 783
+    },
+    "integration/oidc-local-issuer-contract": {
+      "layer": "integration",
+      "file": "tests/integration/oidc-local-issuer-contract.mjs",
+      "minPassed": 150
     },
     "integration/principal-authority-contract": {
       "layer": "integration",

@@ -165,11 +165,13 @@ async function demoSuite() {
     await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible();
     expireServerSide("user_id = 'saha-demo-teacher'");
     assert.equal((await whoami(page)).status, 401, 'The expired session no longer resolves');
-    await page.reload({ waitUntil: 'networkidle' });
-    await expect(page).toHaveURL(/\/login\?reason=expired$/);
+    // The account page also redirects itself to the expiry notice as soon as it learns the session ended, which can interrupt this reload. Either outcome is the behaviour under test, so tolerate only an interrupted navigation and then wait for the page to settle.
+    await page.reload({ waitUntil: 'commit' }).catch(error => { if (!/ERR_ABORTED|interrupted by another navigation/.test(String(error))) throw error; });
+    await expect(page).toHaveURL(/\/login\?reason=expired$/, { timeout: 15000 });
     await expect(page.getByText('Your session ended. Sign in again to continue.', { exact: true })).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await go(page, '/dashboard/teacher');
-    await expect(page).toHaveURL(/\/login/); await shot(page, 'expired');
+    await expect(page).toHaveURL(/\/login/); await page.waitForLoadState('networkidle'); await shot(page, 'expired');
     await enter(page, roles[1]);
     assert.equal((await whoami(page)).body.id, 'saha-demo-teacher', 'Entering again renews a working session');
     await page.getByRole('link', { name: 'Your account', exact: true }).click();
