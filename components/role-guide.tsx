@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-html-link-for-pages -- full-page navigation follows the tested vinext workspace behavior. */
 import { demoRuntimeAllowed } from '@/lib/education/demo-policy';
 import type { Role } from '@/lib/education/types';
 

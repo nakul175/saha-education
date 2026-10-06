@@ -32,7 +32,6 @@ const widths = [375, 1280];
 const browser = await chromium.launch({ executablePath, headless: true, args: ['--disable-background-networking'] });
 const external = [], pageErrors = [], serverErrors = [], results = [], findings = [];
 let checks = 0, failed = 0;
-const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const fail = (message, detail) => { failed++; findings.push({ message, detail }); console.error('FAIL - ' + message + (detail ? ' :: ' + JSON.stringify(detail).slice(0, 300) : '')); };
 function expect(condition, message, detail) { checks++; if (!condition) fail(message, detail); }
 

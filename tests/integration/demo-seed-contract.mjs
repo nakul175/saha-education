@@ -24,8 +24,8 @@ check(first.manifest, second.manifest, 'Same anchor, same manifest');
 const later = buildDemo({ anchor: '2026-11-03' }).manifest;
 okay(later.window.first > first.manifest.window.first && later.window.last > first.manifest.window.last, 'A later anchor moves the calendar window forward');
 check(later.counts.learners, first.manifest.counts.learners, 'The cast does not depend on the date');
-for (const bad of ['2026-02-30', 'yesterday', '26-10-06']) assert.throws(() => buildDemo({ anchor: bad }), /anchor/i, `Rejects ${bad}`), passed++;
-assert.throws(() => buildDemo({ anchor: ANCHOR, installationId: 'not-a-uuid' }), /version 4 UUID/), passed++;
+for (const bad of ['2026-02-30', 'yesterday', '26-10-06']) { assert.throws(() => buildDemo({ anchor: bad }), /anchor/i, `Rejects ${bad}`); passed++; }
+assert.throws(() => buildDemo({ anchor: ANCHOR, installationId: 'not-a-uuid' }), /version 4 UUID/); passed++;
 check(buildDemo({ anchor: ANCHOR }).manifest.installationId, DEMO_INSTALLATION_ID, 'Default installation id is the documented one');
 
 // 2. Load the dump into an empty database exactly as the launcher does (schema, rows in parent order, triggers last).
