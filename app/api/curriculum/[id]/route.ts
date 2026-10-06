@@ -9,7 +9,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const input = await body(request, reviseCurriculumSchema);
     try { return Response.json(await reviseCurriculumReference(principal, (await params).id, input)); }
     catch (error) {
-      if (error instanceof CurriculumConflict) return Response.json({ error: 'Curriculum reference conflict' }, { status: 409 });
+      if (error instanceof CurriculumConflict) return Response.json({ error: 'Curriculum reference conflict', ...(error.code ? { code: error.code } : {}) }, { status: 409 });
       throw error;
     }
   });

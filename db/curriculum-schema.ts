@@ -35,6 +35,23 @@ export const curriculumReferenceVersions = sqliteTable('curriculum_reference_ver
   check('curriculum_versions_approval_pair', sql`(${t.approvedBy} IS NULL AND ${t.approvedAt} IS NULL) OR (${t.approvedBy} IS NOT NULL AND ${t.approvedAt} IS NOT NULL)`),
 ]);
 
+// Retirement is an append-only status history; the highest revision is current.
+// No row means the reference is active, exactly as before this table existed.
+export const curriculumStatusEvents = sqliteTable('curriculum_reference_status_events', {
+  id: text('id').primaryKey(),
+  referenceId: text('reference_id').notNull().references(() => curriculumReferences.id),
+  revision: integer('revision').notNull(),
+  status: text('status').notNull(),
+  reason: text('reason').notNull(),
+  changedBy: text('changed_by').notNull().references(() => users.id),
+  changedAt: text('changed_at').notNull(),
+}, t => [
+  uniqueIndex('curriculum_status_reference_revision').on(t.referenceId, t.revision),
+  check('curriculum_status_revision', sql`typeof(${t.revision}) = 'integer' AND ${t.revision} BETWEEN 1 AND 1000000`),
+  check('curriculum_status_state', sql`${t.status} IN ('active', 'retired')`),
+  check('curriculum_status_reason', sql`length(trim(${t.reason})) BETWEEN 10 AND 500`),
+]);
+
 // A copied draft retains the exact immutable source, even after either is revised.
 export const resourceReferenceBindings = sqliteTable('resource_reference_bindings', {
   id: text('id').primaryKey(),
