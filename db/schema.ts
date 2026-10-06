@@ -298,7 +298,7 @@ export type InsertNotification = typeof notifications.$inferInsert;
 
 // Keep the full additive schema visible to Drizzle tooling. Foreign-key
 // callbacks in the feature modules resolve these base tables after evaluation.
-export { identityAdminUserVersions, identityAdminEvents } from './identity-admin-schema';
+export { identityAdminUserVersions, identityAdminEvents, identityAdminChanges } from './identity-admin-schema';
 export { curriculumReferences, curriculumReferenceVersions, resourceReferenceBindings } from './curriculum-schema';
 export { submissionAttempts, submissionFeedback } from './submission-schema';
 export { readingCorrections } from './reading-correction-schema';
