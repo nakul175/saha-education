@@ -89,7 +89,7 @@ Saha Education demo is running. All people, classes and records are invented.
     Administrator   sees school totals, accounts and report publishing
     Teacher         takes attendance, enters results, plans reading practice
     Guardian        sees linked children, attendance, results and published reports
-    Learner         sees class resources and own progress
+    Student         sees class resources and own progress
 
   A five-minute walkthrough is in docs/DEMO.md. Press Ctrl-C to stop.
 `);
