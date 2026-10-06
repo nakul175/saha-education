@@ -7,6 +7,7 @@ import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
 const routes = { classes: await load('app/api/classes/route.ts'), session: await load('app/api/session/route.ts'), reading: await load('app/api/reading-checks/route.ts'), review: await load('app/api/reading-review/route.ts'), corrections: await load('app/api/reading-checks/[id]/corrections/route.ts'), curriculum: await load('app/api/curriculum/route.ts'), curriculumDetail: await load('app/api/curriculum/[id]/route.ts'), versions: await load('app/api/curriculum/[id]/versions/route.ts'), approve: await load('app/api/curriculum/[id]/approve/route.ts'), snapshot: await load('app/api/curriculum/[id]/snapshot/route.ts'), draft: await load('app/api/curriculum/[id]/draft/route.ts'), resource: await load('app/api/resources/[id]/route.ts'), resourceApprove: await load('app/api/resources/[id]/approve/route.ts') };
 const sessions = await load('lib/education/session.ts');
@@ -30,7 +31,7 @@ async function component(path) {
   return (await import('data:text/javascript;base64,' + Buffer.from(prefix + compiled.replace(/^import[^\n]*;\n/gm, '') + '\n//# sourceURL=saha-practice-client-' + path.replaceAll('/', '-')).toString('base64'))).default;
 }
 const Planner = await component('app/reading-practice/page.tsx');
-async function settle() { for (let index = 0; index < 18; index++) await turn(); }
+const settle = () => settleQuiet();
 function driver(Component) {
   const ui = { cells: [], index: 0, effects: [], tree: null,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(); for (const effect of ui.effects) effect(); },
@@ -72,7 +73,7 @@ async function scenario(name, action, actor = 'teacher-a') {
       else if (url.pathname.startsWith('/api/resources/')) { const parts = url.pathname.split('/'); route = parts[4] === 'approve' ? routes.resourceApprove : routes.resource; parameters = { params: Promise.resolve({ id: parts[3] }) }; }
       else throw new Error('Unexpected practice route ' + url.pathname);
     }
-    requests++; const response = await route[method](request, parameters);
+    requests++; const response = await serverWork(() => route[method](request, parameters));
     context.trace.push({ path: url.pathname, search: url.search, method, status: response.status, body: init.body, actor: context.actor });
     return context.after ? await context.after(url.pathname, method, response, url, init) : response;
   };

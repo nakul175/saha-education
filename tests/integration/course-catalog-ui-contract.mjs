@@ -6,6 +6,7 @@ import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
 const routes = { session: await load('app/api/session/route.ts'), courses: await load('app/api/courses/route.ts'), schools: await load('app/api/schools/route.ts') };
 const sessions = await load('lib/education/session.ts');
@@ -27,7 +28,7 @@ globalThis.__sahaCourseReact = {
 const compiled = ts.transpileModule(readFileSync(root + 'app/courses/page.tsx', 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.React } }).outputText;
 const prefix = 'const React=globalThis.__sahaCourseReact;const {useState,useRef,useCallback,useEffect}=React;const AppShell="app-shell",Button="button",Input="input",Textarea="textarea",Label="label",Card="section",CardContent="div",CardHeader="header",CardTitle="h2";const {isExactStoredTimestamp}=globalThis.__sahaCourseTimestamp;\n';
 const Page = (await import('data:text/javascript;base64,' + Buffer.from(prefix + compiled.replace(/^import[^\n]*;\n/gm, '')).toString('base64'))).default;
-async function settle() { for (let index = 0; index < 40; index++) await turn(); }
+const settle = () => settleQuiet();
 function driver() {
   const ui = { cells: [], effects: [], index: 0, tree: null,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Page(); for (const effect of ui.effects) effect(); },
@@ -56,7 +57,8 @@ async function scenario(name, action, initialActor = 'admin-a') {
   const cookies = {}; for (const id of ['admin-a', 'admin-same', 'admin-b', 'teacher-a', 'guardian-a', 'student-user-a']) cookies[id] = (await sessions.createSession(id)).split(';')[0];
   let actor = initialActor, intercept;
   const trace = [], responses = [], uis = [];
-  async function api(path, method = 'GET', payload, user = actor) {
+  function api(...args) { return serverWork(() => routeApi(...args)); }
+  async function routeApi(path, method = 'GET', payload, user = actor) {
     const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('Contract uses local synthetic routes only'); }
     requests++; const request = new Request(url, { method, headers: { origin, ...(user ? { cookie: cookies[user] } : {}), ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: typeof payload === 'string' ? payload : JSON.stringify(payload) }) });
     const route = url.pathname === '/api/session' ? routes.session : url.pathname === '/api/courses' ? routes.courses : url.pathname === '/api/schools' ? routes.schools : null;

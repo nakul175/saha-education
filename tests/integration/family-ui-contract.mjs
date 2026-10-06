@@ -7,6 +7,7 @@ import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root, stamp } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
 const routes = { session: await load('app/api/session/route.ts'), notices: await load('app/api/notifications/route.ts'), class: await load('app/api/classes/[id]/route.ts') };
 const sessions = await load('lib/education/session.ts');
@@ -31,7 +32,7 @@ async function component(path) {
   return (await import('data:text/javascript;base64,' + Buffer.from(prefix + compiled.replace(/^import[^\n]*;\n/gm, '') + '\n//# sourceURL=saha-family-client-' + path.replaceAll('/', '-')).toString('base64'))).default;
 }
 const Inbox = await component('app/notifications/page.tsx'), ClassDetail = await component('app/classes/[id]/page.tsx');
-async function settle() { for (let index = 0; index < 18; index++) await turn(); }
+const settle = () => settleQuiet();
 function driver(Component, props = {}) {
   const ui = { cells: [], index: 0, effects: [], tree: null, props,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(ui.props); for (const effect of ui.effects) effect(); },
@@ -65,7 +66,7 @@ async function scenario(name, Component, action, actor = 'guardian-a', options =
     else if (url.pathname === '/api/notifications') route = routes.notices;
     else if (url.pathname.startsWith('/api/classes/')) { route = routes.class; parameters = { params: Promise.resolve({ id: decodeURIComponent(url.pathname.split('/').at(-1)) }) }; }
     else throw new Error('Unexpected family-view route; coherent class view must not request child records');
-    requests++; const response = await route[method](new Request(url, { ...init, headers: { ...init.headers, origin, cookie: cookies[context.actor] ?? '' } }), parameters);
+    requests++; const response = await serverWork(() => route[method](new Request(url, { ...init, headers: { ...init.headers, origin, cookie: cookies[context.actor] ?? '' } }), parameters));
     context.trace.push({ path: url.pathname, search: url.search, method, status: response.status, actor: context.actor });
     return context.after ? await context.after(url.pathname, method, response, url, init) : response;
   };

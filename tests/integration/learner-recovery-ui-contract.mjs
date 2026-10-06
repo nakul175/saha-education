@@ -6,6 +6,7 @@ import { setImmediate as turn } from 'node:timers/promises';
 import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
+import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 
 const origin = 'https://education.example.invalid';
 bindings.SAHA_ALLOWED_ORIGINS = origin;
@@ -42,7 +43,7 @@ const assignmentClient = await client('app/assignments/[id]/page.tsx');
 const windowClient = await client('components/assignment-submission-window.tsx');
 const learningClient = await client('app/learning/page.tsx');
 const attendanceClient = await client('app/classes/[id]/attendance/page.tsx');
-async function settle() { for (let i = 0; i < 12; i++) await turn(); }
+const settle = () => settleQuiet();
 function driver(Component, props) {
   const ui = { cells: [], effects: [], index: 0, props, tree: null,
     render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(ui.props); for (const effect of ui.effects) effect(); return ui.tree; },
@@ -85,7 +86,8 @@ async function scenario(name, actor, action) {
   const submissionsPath = '/api/assignments/' + assignment.id + '/submissions', windowPath = '/api/assignments/' + assignment.id + '/submission-window';
   let currentActor = actor, intercept;
   const trace = [], delivered = [], uis = [];
-  async function api(path, method = 'GET', payload, user = currentActor) {
+  function api(...args) { return serverWork(() => routeApi(...args)); }
+  async function routeApi(path, method = 'GET', payload, user = currentActor) {
     const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('External requests are forbidden in synthetic recovery tests.'); }
     requests++;
     const headers = { origin }; if (user) headers.cookie = cookies[user];
