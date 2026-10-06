@@ -38,7 +38,8 @@ export async function sendChangeRequest(request: { clientRequestId: string; reas
   try { data = JSON.parse(await response.text()); } catch { data = null; }
   const record = data && typeof data === 'object' ? data as Record<string, unknown> : {};
   if ((response.status === 200 || response.status === 201) && record.receipt && typeof record.receipt === 'object') return { state: 'saved', result: record as unknown as ChangeResult };
-  if (response.status >= 500) return { state: 'unconfirmed' };
+  // A success status without a readable receipt (or any 5xx/redirect/timeout) is an unknown outcome, never "nothing was saved".
+  if (response.status >= 500 || response.status < 400 || [408, 425, 429].includes(response.status)) return { state: 'unconfirmed' };
   const code = typeof record.code === 'string' ? record.code : null;
   if (response.status === 401) return { state: 'refused', status: 401, code, message: 'Sign in again, then reload this page. Nothing was saved.' };
   if (response.status === 403) return { state: 'refused', status: 403, code, message: 'Your account is not allowed to make this change. Nothing was saved.' };

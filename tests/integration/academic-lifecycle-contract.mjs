@@ -200,6 +200,13 @@ try {
     check((await get(routes.classHistory, 'admin-a', '/api/classes/class-other/history', 'class-other').then(body)).items.some(e => e.kind === 'enrolment.transfer'), true, 'Destination class history shows the transfer in');
     const outLabel = (await get(routes.classHistory, 'teacher-a', '/api/classes/class-a/history', 'class-a').then(body)).items.find(e => e.kind === 'enrolment.transfer').label;
     check(outLabel.includes('class-other'), false, 'Source teacher does not learn the destination class name'); check(outLabel.includes('out of'), true, 'Source teacher still sees the transfer out');
+    const learnerView = actor => get(routes.studentHistory, actor, '/api/enrolments/history?studentId=student-a');
+    check((await learnerView('teacher-a')).status, 404, 'A teacher no longer reads a learner who has left their class (existing active-enrolment scope)');
+    const destinationView = await body(await learnerView('teacher-other'));
+    check(destinationView.enrolments.map(e => e.classId), ['class-other'], 'The destination teacher sees only the enrolment in their class');
+    check(destinationView.events.some(e => e.kind === 'enrolment.transfer' && e.label.includes('into class-other') && !e.label.includes('class-a')), true, 'Destination teacher history shows the transfer in without the source name');
+    check(destinationView.events.every(e => e.reason === null && e.actorName === null), true, 'Teachers never receive reasons or actors');
+    check(destinationView.events.every(e => !e.label.includes('class-a')), true, 'No event shown to the destination teacher names the class the learner came from');
     await expect(await post('admin-a', transfer('class-other'), { reason: 'Back again.' }), 409, 'not-active', 'The ended source enrolment cannot be transferred again');
     const newToken = token(sqlite, 'enrolments', row("SELECT id FROM enrolments WHERE student_id='student-a' AND class_id='class-other'").id);
     const back = await expect(await post('admin-a', [{ kind: 'enrolment.transfer', enrolmentId: row("SELECT id FROM enrolments WHERE student_id='student-a' AND class_id='class-other'").id, expectedUpdatedAt: newToken, toClassId: 'class-a', effectiveOn: today }], { reason: 'Back to the first class.' }), 201, undefined, 'Transfer back reuses the withdrawn pair row');
@@ -333,6 +340,17 @@ try {
     check(message(() => header('admin-a', 'not-a-uuid')).includes('saha_academic_conflict:invalid-request'), true, 'The request id must be UUID shaped');
     check(message(() => header('admin-a', uuid(), 3)).includes('saha_academic_conflict:invalid-request'), true, 'The declared item count must match the items');
     check([count('courses'), count('academic_change_requests'), count('academic_events')], before, 'Rejected direct writes left nothing behind');
+    // optimistic concurrency is enforced by the database as well, for any writer that skips the service pre-check
+    const raw = (kind, subjectId, parts, payload) => sqlite.prepare("INSERT INTO academic_change_requests(id,school_id,actor_id,request_hash,reason,items_json,item_count,created_at) VALUES (?,?,?,?,NULL,?,1,?)")
+      .run(uuid(), 'a', 'admin-a', 'c'.repeat(64), JSON.stringify([{ id: uuid(), kind, subjectId, classId: null, relatedClassId: null, studentId: null, effectiveOn: null, ...parts, payload }]), new Date().toISOString());
+    const oldToken = '1999-01-01T00:00:00.000Z';
+    const edit = expectedUpdatedAt => () => raw('course.edit', 'course-a', {}, { expectedUpdatedAt, code: 'course-a', title: 'Direct edit', description: null, gradeLevel: '8', before: {} });
+    check(message(edit(oldToken)).includes('saha_academic_conflict:stale'), true, 'A stale course token is refused by the database');
+    check(row("SELECT title FROM courses WHERE id='course-a'").title, 'Synthetic math', 'The stale direct edit changed nothing');
+    check(message(() => raw('enrolment.withdraw', 'student-a-enrolment', { classId: 'class-a', studentId: 'student-a', effectiveOn: today }, { expectedUpdatedAt: oldToken, studentName: 'x', className: 'y', previousStatus: 'active' })).includes('saha_academic_conflict:stale'), true, 'A stale enrolment token is refused by the database');
+    check(message(() => raw('class.close', 'class-a', { classId: 'class-a' }, { expectedUpdatedAt: oldToken, className: 'class-a', completeActive: false })).includes('saha_academic_conflict:stale'), true, 'A stale class token is refused by the database');
+    check(row("SELECT status FROM enrolments WHERE id='student-a-enrolment'").status, 'active', 'The stale direct withdrawal changed nothing');
+    check(message(edit(row("SELECT updated_at u FROM courses WHERE id='course-a'").u)), '', 'The same direct edit with the current token is accepted (control)'); check(row("SELECT title FROM courses WHERE id='course-a'").title, 'Direct edit', 'The accepted direct edit applied');
     // immutability
     const ok = uuid(); header('admin-a', ok);
     check(message(() => sqlite.exec(`UPDATE academic_change_requests SET reason='tamper' WHERE id='${ok}'`)).includes('immutable'), true, 'A recorded request cannot be edited');
