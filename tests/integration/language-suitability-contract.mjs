@@ -12,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { allStrings, readingGrade } from '../support/ui-strings.mjs';
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+// SAHA_LANGUAGE_ROOT points the report mode at another checkout (for example an older tree, to measure before and after).
+const root = process.env.SAHA_LANGUAGE_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 export const RULES = {
   uuid: [/\bUUIDs?\b/, 'UUID'],

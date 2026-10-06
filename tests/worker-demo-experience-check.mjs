@@ -47,10 +47,8 @@ async function newContext(role, width) {
   return context;
 }
 
-async function inspect(page, role, path, width) {
-  const response = await page.goto(new URL(path, base).href, { waitUntil: 'networkidle', timeout: 25000 });
-  expect(response?.status() === 200, `${role} ${path} @${width}: page is served`, { status: response?.status() });
-  expect(new URL(page.url()).pathname === path, `${role} ${path} @${width}: not redirected away`, { landed: new URL(page.url()).pathname });
+// Measures the page that is currently loaded: layout facts plus the axe rules. Used for every real page and for the canary page below.
+async function measure(page) {
   const layout = await page.evaluate(() => {
     const doc = document.documentElement;
     const controls = [...document.querySelectorAll('input:not([type=hidden]),select,textarea')];
@@ -67,14 +65,21 @@ async function inspect(page, role, path, width) {
       skippedHeadingLevels: skipped, langAttr: doc.lang, hasSkipLink: Boolean(document.querySelector('a[href="#main-content"]')), nested: document.querySelectorAll('button a, a button').length, wide,
       title: document.title, banner: document.querySelectorAll('header').length };
   });
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  return { layout, axe, serious: axe.violations.filter(v => v.impact === 'serious' || v.impact === 'critical') };
+}
+
+async function inspect(page, role, path, width) {
+  const response = await page.goto(new URL(path, base).href, { waitUntil: 'networkidle', timeout: 25000 });
+  expect(response?.status() === 200, `${role} ${path} @${width}: page is served`, { status: response?.status() });
+  expect(new URL(page.url()).pathname === path, `${role} ${path} @${width}: not redirected away`, { landed: new URL(page.url()).pathname });
+  const { layout, axe, serious } = await measure(page);
   expect(layout.scrollWidth <= layout.viewport + 1, `${role} ${path} @${width}: no horizontal scroll`, { scrollWidth: layout.scrollWidth, viewport: layout.viewport, wide: layout.wide });
   expect(layout.unlabelled.length === 0, `${role} ${path} @${width}: every form control has a name`, layout.unlabelled);
   expect(layout.buttonsWithoutName.length === 0, `${role} ${path} @${width}: every button and link has a name`, layout.buttonsWithoutName);
   expect(layout.mains === 1, `${role} ${path} @${width}: exactly one main landmark`, { mains: layout.mains });
   expect(layout.nested === 0, `${role} ${path} @${width}: no button inside a link or link inside a button`, { nested: layout.nested });
   expect(layout.langAttr === 'en', `${role} ${path} @${width}: page language is declared`, { lang: layout.langAttr });
-  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
-  const serious = axe.violations.filter(v => v.impact === 'serious' || v.impact === 'critical');
   expect(serious.length === 0, `${role} ${path} @${width}: no serious or critical axe violations`, serious.map(v => ({ id: v.id, nodes: v.nodes.length, target: v.nodes[0]?.target })));
   results.push({ role, path, width, layout: { h1: layout.h1, skippedHeadingLevels: layout.skippedHeadingLevels, mains: layout.mains, scrollWidth: layout.scrollWidth },
     axe: axe.violations.map(v => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })) });
@@ -114,6 +119,28 @@ async function guided(role) {
 }
 
 try {
+  // 0. Canary: the same measurement must catch deliberate defects, otherwise a clean result on the real pages would mean nothing.
+  {
+    const context = await browser.newContext({ viewport: { width: 375, height: 800 }, serviceWorkers: 'block' });
+    const page = await context.newPage();
+    await page.setContent(`<!doctype html><html><head><title>Canary</title></head><body>
+      <main><h1>One</h1><h3>Skipped a level</h3><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=">
+      <input type="text"><a href="/x"><button type="button">Nested</button></a><button type="button"></button>
+      <div style="width:1500px;height:10px;background:#ccc"></div><p style="color:#bbb;background:#fff">Pale grey words on white</p></main><main><h1>Two</h1></main></body></html>`);
+    const { layout, serious } = await measure(page);
+    const seen = new Set(serious.map(v => v.id));
+    expect(layout.scrollWidth > layout.viewport + 1, 'canary: a 1500px element is reported as horizontal scroll', { scrollWidth: layout.scrollWidth });
+    expect(layout.unlabelled.length >= 1, 'canary: an input with no label is reported');
+    expect(layout.buttonsWithoutName.length >= 1, 'canary: a button with no name is reported');
+    expect(layout.mains === 2, 'canary: two main landmarks are reported', { mains: layout.mains });
+    expect(layout.nested >= 1, 'canary: a button inside a link is reported');
+    expect(layout.skippedHeadingLevels >= 1, 'canary: a skipped heading level is reported');
+    expect(layout.h1 === 2, 'canary: two h1 headings are reported', { h1: layout.h1 });
+    expect(layout.langAttr !== 'en', 'canary: a missing page language is reported', { lang: layout.langAttr });
+    expect(seen.has('image-alt') && seen.has('label') && seen.has('button-name'), 'canary: axe reports the image, label and button defects as serious or critical', [...seen]);
+    expect(serious.length >= 3, 'canary: axe finds at least three serious or critical problems', { found: serious.length });
+    await context.close();
+  }
   // 1. Real first-visit flow: the sign-in page, the acknowledgement, then each role entry button.
   for (const [role, label] of [['admin', 'administrator'], ['teacher', 'teacher'], ['guardian', 'guardian'], ['student', 'student']]) {
     const context = await browser.newContext({ viewport: { width: 375, height: 800 }, serviceWorkers: 'block' });

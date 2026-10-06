@@ -1,0 +1,799 @@
+{
+  "recordedAt": "2026-10-06",
+  "branch": "demo/experience",
+  "baseMain": "cadd2eb",
+  "synthetic": true,
+  "migrationAdded": false,
+  "node": "24.19.0",
+  "seed": {
+    "anchor": "2026-10-06",
+    "window": {
+      "first": "2026-08-17",
+      "last": "2026-10-05",
+      "schoolDays": 36
+    },
+    "counts": {
+      "learners": 40,
+      "guardianProfiles": 37,
+      "classes": 6,
+      "courses": 3,
+      "enrolments": 120,
+      "attendance": 2596,
+      "assessments": 19,
+      "results": 357,
+      "readingChecks": 256,
+      "resources": 5,
+      "resourceVersions": 6,
+      "assignments": 5,
+      "references": 3,
+      "reports": 40,
+      "publishedReports": 20,
+      "notices": 6
+    },
+    "expect": {
+      "guardianNoticesAfterSeed": 3
+    }
+  },
+  "guardedRun": {
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "suites": 55,
+    "assertions": 22590,
+    "unit": 119,
+    "integration": 22294,
+    "smoke": 177,
+    "failed": 0,
+    "guard": "passed",
+    "baselinedSuitesChecked": 53,
+    "newSuitesNotInBaseline": [
+      "integration/demo-seed-contract",
+      "integration/language-suitability-contract"
+    ]
+  },
+  "typecheck": {
+    "command": "tsc --noEmit (whole repository)",
+    "exit": 0
+  },
+  "eslint": {
+    "files": 32,
+    "maxWarnings": 0,
+    "exit": 0
+  },
+  "documentationCheck": "passed",
+  "catalogueCheck": "passed",
+  "demoSeedContract": {
+    "passed": 67
+  },
+  "languageContract": {
+    "passed": 95,
+    "strings": 1841,
+    "hits": 67,
+    "knownGroups": 23,
+    "hitsOnMainSameRules": 91,
+    "groupsOnMainSameRules": 35,
+    "stringsOnMainSameExtractor": 1780,
+    "readingGrade": {
+      "all": 7.09,
+      "familyFacing": 6.2,
+      "guideShortLabels": 3.61,
+      "familyFacingOnMain": 7.56,
+      "bounds": {
+        "guideAndFamily": 8,
+        "all": 9
+      }
+    },
+    "serverErrorMessages": {
+      "literalErrorForms": 23,
+      "namingNextStep": 3
+    }
+  },
+  "mountedFirstRun": {
+    "file": "tests/worker-demo-experience-check.mjs",
+    "checks": 1117,
+    "failed": 39,
+    "noMainLandmarkAudits": 32,
+    "nestedControlAudits": 6,
+    "wrongSeedSiblingName": 1,
+    "multipleH1Audits": 48,
+    "skippedHeadingAudits": 2,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "serverErrors": 0
+  },
+  "mountedFinal": {
+    "checks": 1127,
+    "canaryChecks": 10,
+    "failed": 0,
+    "pageAudits": 114,
+    "distinctRoutes": 31,
+    "roleRoutePairs": 57,
+    "widths": [
+      375,
+      1280
+    ],
+    "axeViolations": 0,
+    "multipleH1Audits": 0,
+    "skippedHeadingAudits": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "serverErrors": 0,
+    "earlierRunWithoutCanary": {
+      "checks": 1117,
+      "failed": 0
+    }
+  },
+  "demoLauncher": {
+    "command": "node scripts/demo.mjs --port 8810 --anchor 2026-10-06 --state <temp>",
+    "firstRunSeconds": 5,
+    "secondRunSeconds": 3,
+    "loginStatus": 200,
+    "rolesSignedIn": [
+      "admin",
+      "teacher",
+      "guardian",
+      "student"
+    ],
+    "guideAndDemoPathOnEveryDashboard": true,
+    "secondLaunchReusedDatabase": true,
+    "runs": 2
+  },
+  "seedCompatibility": {
+    "extraMigrations": [
+      "0018_course_class_enrolment_lifecycle (origin/demo/courses-enrolment)",
+      "0025_immutable_evidence_guards (origin/demo/security-change-control)"
+    ],
+    "foreignKeyProblems": 0,
+    "mergePreviewConflicts": 0
+  },
+  "mutations": [
+    {
+      "target": "language contract",
+      "mutant": "JSON payload added to a login description",
+      "detected": true,
+      "note": "first survived (extractor skipped array strings); extractor fixed, then detected"
+    },
+    {
+      "target": "language contract",
+      "mutant": "cap one above the real count",
+      "detected": true
+    },
+    {
+      "target": "seed contract",
+      "mutant": "guardian email domain changed to a real one",
+      "detected": true
+    },
+    {
+      "target": "seed contract",
+      "mutant": "demo guardian linked to another profile",
+      "detected": true
+    },
+    {
+      "target": "seed contract",
+      "mutant": "row timestamps taken from the clock",
+      "detected": true
+    },
+    {
+      "target": "mounted procedure",
+      "mutant": "the real defects present in the first run",
+      "detected": true,
+      "failures": 39
+    }
+  ],
+  "cases": {
+    "requirementsCovered": [
+      "NFR-05",
+      "NFR-06"
+    ],
+    "total": 48,
+    "statusCounts": {
+      "not-executed": 24,
+      "automated-baseline-partial": 23,
+      "not-executable-locally": 1
+    },
+    "anyAccepted": false,
+    "list": [
+      {
+        "id": "TC-042",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Template switch and failed save preserve editing",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream (template switch and failed save in the resource editor)",
+        "remaining": "Run the case against the merged resource editor.",
+        "accepted": false
+      },
+      {
+        "id": "TC-048",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Conflict UI retains unsaved edits",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream (conflict handling)",
+        "remaining": "Run the case against the merged editors.",
+        "accepted": false
+      },
+      {
+        "id": "TC-056",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Teacher print edition explicitly opted in",
+        "status": "not-executed",
+        "evidence": "The print view /resources/[id]/print was not in the audited route list",
+        "remaining": "blocked: needs named human reviewer; manual print layout",
+        "accepted": false
+      },
+      {
+        "id": "TC-067",
+        "layer": "uat",
+        "requirements": [
+          "NFR-06"
+        ],
+        "title": "Comparable-task trends and non-diagnostic language",
+        "status": "not-executed",
+        "evidence": "No trend display was exercised",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-070",
+        "layer": "uat",
+        "requirements": [
+          "NFR-06"
+        ],
+        "title": "English/Hindi content and locale completeness",
+        "status": "not-executed",
+        "evidence": "Observation only: the interface text is English only and lib/education/i18n.ts is not used by any page; the seed holds one Hindi worksheet and Hindi reading checks. No locale completeness claim is made",
+        "remaining": "blocked: needs named human reviewer; locale coverage must be recorded per language",
+        "accepted": false
+      },
+      {
+        "id": "TC-071",
+        "layer": "uat",
+        "requirements": [
+          "NFR-06"
+        ],
+        "title": "Language-specific assessment interpretation",
+        "status": "not-executed",
+        "evidence": "Not applicable to a wording or layout check",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-077",
+        "layer": "uat",
+        "requirements": [
+          "NFR-06"
+        ],
+        "title": "Educator AI content review and disclosure",
+        "status": "not-executed",
+        "evidence": "AI planning is switched off in the demo",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-088",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Keyboard/focus and validation announcements",
+        "status": "automated-baseline-partial",
+        "evidence": "On each role dashboard at both widths the first Tab stop is the skip link and the next control shows a focus indicator (8 checks). Every audited control has a name and nothing nests a button in a link (57 role and route pairs at 375 and 1280). Validation and conflict announcements were not exercised",
+        "remaining": "blocked: needs named human reviewer; the case says an automated scan alone cannot pass it",
+        "accepted": false
+      },
+      {
+        "id": "TC-089",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Screen-reader learner and print accessibility",
+        "status": "automated-baseline-partial",
+        "evidence": "One h1 and one main landmark on every audited page, zero axe serious or critical findings. No screen reader, zoom or print output was tried",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-090",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Mobile and long-content editing recovery",
+        "status": "automated-baseline-partial",
+        "evidence": "No horizontal scroll at 375px on any audited page (reading pages only). Editing, failure and retry were not exercised",
+        "remaining": "Run the editing and retry steps; blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-098",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Student approved learning and guardian boundary UAT",
+        "status": "automated-baseline-partial",
+        "evidence": "Student and guardian paths open and are clean at both widths. The cross-class and draft denial steps were not run here",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-099",
+        "layer": "uat",
+        "requirements": [
+          "NFR-06"
+        ],
+        "title": "Reviewed ORF interpretation UAT",
+        "status": "not-executed",
+        "evidence": "Reading checks are seeded but no interpretation was reviewed",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-109",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Profile ownership review usability and policy acceptance",
+        "status": "automated-baseline-partial",
+        "evidence": "/admin/profile-links audited at 375 and 1280 (admin): no overflow, named controls, zero axe findings. The page still prints Profile ID, Linked account ID and Decision ID (language contract known list, reason recorded)",
+        "remaining": "blocked: needs named human reviewer; keyboard, screen reader and uncertain-save steps not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-125",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Import preview educator review and accessible uncertainty",
+        "status": "automated-baseline-partial",
+        "evidence": "/reading-imports audited (teacher) at both widths. The page still shows JSON and ID wording for IT staff (known list, reason recorded)",
+        "remaining": "blocked: needs named human reviewer; preview, review and recovery steps not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-133",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Submission window review usability and educator policy",
+        "status": "automated-baseline-partial",
+        "evidence": "The assignment page with the submission window controls was audited (teacher) at both widths",
+        "remaining": "blocked: needs named human reviewer; time zone, 409 and uncertain-save steps not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-141",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Role-appropriate structure administration usability",
+        "status": "automated-baseline-partial",
+        "evidence": "/schools, /courses, /classes, /enrolments (admin) and /classes (teacher) audited; /classes and /enrolments gained the shared navigation and main landmark in this branch",
+        "remaining": "blocked: needs named human reviewer; role mutation controls were not exercised",
+        "accepted": false
+      },
+      {
+        "id": "TC-149",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Saved-report review and uncertain draft recovery usability",
+        "status": "automated-baseline-partial",
+        "evidence": "/report-cards list and detail audited for admin and guardian; draft hidden from the guardian is asserted on the dashboard",
+        "remaining": "blocked: needs named human reviewer; draft creation and lost-response recovery not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-156",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Inbox uncertainty retains rows and recovery action",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream (uncertain read acknowledgement)",
+        "remaining": "Run against the merged inbox.",
+        "accepted": false
+      },
+      {
+        "id": "TC-157",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Inbox accessibility and retention wording review",
+        "status": "automated-baseline-partial",
+        "evidence": "/notifications audited for all four roles at both widths; the page now sits in the shared shell with a main landmark",
+        "remaining": "blocked: needs named human reviewer; wording and retention policy review",
+        "accepted": false
+      },
+      {
+        "id": "TC-165",
+        "layer": "security",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Literal dashboard text and private fields stay separated",
+        "status": "not-executed",
+        "evidence": "Not a wording or layout check",
+        "remaining": "Run the case against the merged dashboards.",
+        "accepted": false
+      },
+      {
+        "id": "TC-180",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Role dashboard keyboard mobile and language review",
+        "status": "automated-baseline-partial",
+        "evidence": "Four role dashboards at 375 and 1280: one h1, one main, no overflow, zero axe findings, no nested button inside a link anywhere in the audited set. Labels and focus order beyond the skip link were not reviewed",
+        "remaining": "blocked: needs named human reviewer; locale review",
+        "accepted": false
+      },
+      {
+        "id": "TC-202",
+        "layer": "integration",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Attendance viewer selection cancellation and explicit refresh",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream (viewer selection cancellation)",
+        "remaining": "Run against the merged attendance viewer.",
+        "accepted": false
+      },
+      {
+        "id": "TC-203",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Reviewed recorder uncertainty conflict and accessible evidence",
+        "status": "automated-baseline-partial",
+        "evidence": "/classes/[id]/attendance audited (admin and teacher) at both widths",
+        "remaining": "blocked: needs named human reviewer; conflict, uncertain acknowledgement and date edit steps not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-205",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Educator attendance meaning and correction governance acceptance",
+        "status": "not-executed",
+        "evidence": "A meaning and governance review",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-208",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Saved zero null empty and unrecorded results stay distinct",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "Run against the merged assessment editor.",
+        "accepted": false
+      },
+      {
+        "id": "TC-209",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Literal assessment calendar disclosure avoids shifts and crashes",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "Run against the merged assessment pages.",
+        "accepted": false
+      },
+      {
+        "id": "TC-211",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Unicode limits and unchanged long saved grade feedback",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "Run against the merged assessment editor.",
+        "accepted": false
+      },
+      {
+        "id": "TC-213",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Raw numeric evidence repair and unrepresentable read-only gates",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "Run against the merged assessment editor.",
+        "accepted": false
+      },
+      {
+        "id": "TC-216",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Reviewed feedback edit cannot repeat legacy stale overwrite",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "Run against the merged assessment editor.",
+        "accepted": false
+      },
+      {
+        "id": "TC-224",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Explicit dirty review preserves supplied grade and resets confirmation",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream; page-level baseline only for /assessments/[id]",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-225",
+        "layer": "regression",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Conflict comparison uncertain original retry and truthful refresh failure",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "Run against the merged assessment editor.",
+        "accepted": false
+      },
+      {
+        "id": "TC-226",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Result editor keyboard mobile plain text and literal date review",
+        "status": "automated-baseline-partial",
+        "evidence": "/assessments and /assessments/[id] audited (admin, teacher, guardian, student) at both widths",
+        "remaining": "blocked: needs named human reviewer; long text, history and assistive-technology review",
+        "accepted": false
+      },
+      {
+        "id": "TC-229",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Educator result correction meaning grade and publication acceptance",
+        "status": "not-executed",
+        "evidence": "A meaning and governance review",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-243",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Learner recovery keyboard mobile plain-text and focus review",
+        "status": "automated-baseline-partial",
+        "evidence": "The assignment page was audited (teacher and student) at both widths. Save, lock, denied view and retry steps were not run",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-253",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Registry mounted form search privacy and recovery acceptance review",
+        "status": "automated-baseline-partial",
+        "evidence": "/students, /guardians and /enrolments (admin) audited at both widths. /students no longer nests a button inside a link",
+        "remaining": "blocked: needs named human reviewer; registry create and retry steps not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-276",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Mounted registry review retry and receipt mobile keyboard acceptance",
+        "status": "automated-baseline-partial",
+        "evidence": "Same pages as TC-253",
+        "remaining": "blocked: needs named human reviewer; review retry and receipt sequences not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-284",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Private hosted demo audience role and fictional journey review",
+        "status": "not-executable-locally",
+        "evidence": "A hosted demo is needed and the private hosted deployment is blocked. Locally, each role signs in through the real first-visit flow and sees the fictional banner (mounted check)",
+        "remaining": "blocked: needs named human reviewer; hosted outcome not available",
+        "accepted": false
+      },
+      {
+        "id": "TC-293",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Restored current actor academic privacy and mounted recovery review",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream (restored actor recovery)",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-305",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Family inbox keyboard mobile and read-status recovery review",
+        "status": "automated-baseline-partial",
+        "evidence": "/notifications as guardian audited at 375 and 1280: no overflow, named controls, zero axe findings",
+        "remaining": "blocked: needs named human reviewer; read-status recovery and screen reader matrix not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-312",
+        "layer": "integration",
+        "requirements": [
+          "NFR-05"
+        ],
+        "title": "Family attendance navigation uses the existing scoped viewer",
+        "status": "not-executed",
+        "evidence": "The guardian /attendance page was audited, but the staff and family link text was not asserted",
+        "remaining": "Run against the merged attendance navigation.",
+        "accepted": false
+      },
+      {
+        "id": "TC-313",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Family current class and inbox usability acceptance",
+        "status": "automated-baseline-partial",
+        "evidence": "Guardian /classes, /attendance and /notifications audited at both widths",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-317",
+        "layer": "integration",
+        "requirements": [
+          "NFR-06"
+        ],
+        "title": "Manual focus source rights and language stay educator decisions",
+        "status": "not-executed",
+        "evidence": "not executed here: behaviour is owned by another workstream",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-321",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Mounted reading planner accessibility and suitability review",
+        "status": "automated-baseline-partial",
+        "evidence": "/reading-practice (teacher) audited at both widths",
+        "remaining": "blocked: needs named human reviewer; focus, source rights and language steps not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-329",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Educator original-copy recovery and editor handoff acceptance",
+        "status": "not-executed",
+        "evidence": "An educator review of original-copy recovery",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-335",
+        "layer": "accessibility",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Mounted student profile navigation privacy and accessibility review",
+        "status": "automated-baseline-partial",
+        "evidence": "/students and /students/[id] audited for admin and guardian at both widths. The guardian home lists only the two linked children. Profile privacy beyond that was not exercised",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-349",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Mounted family assessment report navigation and unchanged staff handoff review",
+        "status": "automated-baseline-partial",
+        "evidence": "Guardian /assessments, /report-cards and /report-cards/[id] audited at both widths",
+        "remaining": "blocked: needs named human reviewer; the staff-editor handoff review not run",
+        "accepted": false
+      },
+      {
+        "id": "TC-360",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Mounted school native recovery and educator usability review",
+        "status": "automated-baseline-partial",
+        "evidence": "School and course pages audited (admin) at both widths; the planned 40 and 26 mounted procedures were not run here",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      },
+      {
+        "id": "TC-371",
+        "layer": "uat",
+        "requirements": [
+          "NFR-05",
+          "NFR-06"
+        ],
+        "title": "Mounted course catalog creation comparison and educator usability review",
+        "status": "automated-baseline-partial",
+        "evidence": "/courses audited (admin) at both widths; the course-catalog mounted procedures were not run here",
+        "remaining": "blocked: needs named human reviewer",
+        "accepted": false
+      }
+    ]
+  },
+  "limits": [
+    "single local Chromium and fictional data",
+    "axe-core and measured layout only; no assistive technology, zoom, print, forced colours or non-English review",
+    "no named human reviewer decisions",
+    "hosted demo not covered and hosting blocker unchanged",
+    "designed cases remain unrun as written",
+    "no business, educator or accessibility acceptance"
+  ]
+}
