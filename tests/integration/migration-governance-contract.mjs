@@ -89,7 +89,8 @@ for (const name of files.filter(file => Number(file.slice(0, 4)) > 16)) {
       triggerPieces++;
       check((code.match(/\bCREATE\s+TRIGGER\b/gi) ?? []).length === 1, `${label}: exactly one trigger per piece`);
       check(/\bEND\s*;$/i.test(code), `${label}: trigger ends with END;`);
-      check((code.match(/\bEND\s*;/gi) ?? []).length === 1, `${label}: one END; (no second statement after the trigger)`);
+      // A trigger body may hold CASE ... END expressions; every END beyond one per CASE belongs to the trigger itself, so exactly one remains.
+      check((code.match(/\bEND\b/gi) ?? []).length === (code.match(/\bCASE\b/gi) ?? []).length + 1, `${label}: one closing END (no second statement after the trigger)`);
     } else {
       const body = code.replace(/;$/, '');
       check(!body.includes(';'), `${label}: exactly one statement (no semicolon inside the piece)`);
