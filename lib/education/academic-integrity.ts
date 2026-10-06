@@ -3,7 +3,9 @@ import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import type { Principal } from './types';
 
 export class AcademicConflict extends AccessError {
-  constructor(message = 'Academic records changed; reload before saving again') { super(message, 409); }
+  /** Optional stable reason (for example class-full) from the lifecycle guards; never record contents. */
+  readonly code?: string;
+  constructor(message = 'Academic records changed; reload before saving again', code?: string) { super(message, 409); this.code = code; }
 }
 
 export function assertAcademicStaff(principal: Principal): void {
@@ -41,8 +43,8 @@ export function academicSchoolPair(principal: Principal, studentId: string | SQL
 export function rethrowAcademicConflict(error: unknown): never {
   let current: unknown = error;
   for (let depth = 0; depth < 5 && current instanceof Error; depth++) {
-    if (/saha_(?:enrolment|result)_pair_conflict|saha_assessment_published_lock|UNIQUE constraint failed: attendance\.(?:class_id|student_id|date)/.test(current.message)) {
-      throw new AcademicConflict();
+    if (/saha_(?:enrolment|result)_pair_conflict|saha_assessment_published_lock|saha_academic_conflict:|UNIQUE constraint failed: attendance\.(?:class_id|student_id|date)/.test(current.message)) {
+      throw new AcademicConflict(undefined, /saha_academic_conflict:([a-z-]+)/.exec(current.message)?.[1]);
     }
     current = current.cause;
   }

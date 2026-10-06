@@ -4,6 +4,7 @@ import type { SelectClass, SelectStudent, InsertClass } from '@/db/schema';
 import { classes, courses, students, enrolments } from '@/db/schema';
 import { classSchema } from './validation';
 import { and, eq, sql } from 'drizzle-orm';
+import { rethrowAcademicConflict } from './academic-integrity';
 import { AccessError, assertPrincipal, assertAdmin, assertSchool, assertUserLink, classScope, studentScope, studentReferenceScope, livePrincipalScope } from './access';
 
 // These references are checked again by the mutation itself: a successful
@@ -47,9 +48,12 @@ export async function createClass(principal: Principal, input: Omit<InsertClass,
   if (!course) throw new AccessError('Course must belong to this school', 400);
   await assertUserLink(principal, data.teacherId, 'teacher');
   const now = new Date().toISOString();
-  const [record] = await db.insert(classes).select(sql`select ${crypto.randomUUID()}, ${principal.schoolId}, ${data.courseId},
-    ${data.teacherId}, ${data.name}, ${data.term}, ${data.schedule ?? null}, ${now}, ${now}
-    where ${livePrincipalScope(principal)} and ${classReferences(principal, data.courseId, data.teacherId)}`).returning();
+  let record: SelectClass | undefined;
+  try {
+    [record] = await db.insert(classes).select(sql`select ${crypto.randomUUID()}, ${principal.schoolId}, ${data.courseId},
+      ${data.teacherId}, ${data.name}, ${data.term}, ${data.schedule ?? null}, ${now}, ${now}
+      where ${livePrincipalScope(principal)} and ${classReferences(principal, data.courseId, data.teacherId)}`).returning();
+  } catch (error) { rethrowAcademicConflict(error); }
   if (!record) throw new AccessError('Class references or administrator authority changed', 409);
   return record;
 }
@@ -63,8 +67,11 @@ export async function updateClass(principal: Principal, id: string, input: Omit<
   const [course] = await db.select({ id: courses.id }).from(courses).where(and(eq(courses.id, data.courseId), eq(courses.schoolId, principal.schoolId!), livePrincipalScope(principal))).limit(1);
   if (!course) throw new AccessError('Course must belong to this school', 400);
   await assertUserLink(principal, data.teacherId, 'teacher');
-  const [record] = await db.update(classes).set({ ...data, updatedAt: new Date().toISOString() }).where(and(eq(classes.id, id), classScope(principal),
-    classReferences(principal, data.courseId, data.teacherId))).returning();
+  let record: SelectClass | undefined;
+  try {
+    [record] = await db.update(classes).set({ ...data, updatedAt: new Date().toISOString() }).where(and(eq(classes.id, id), classScope(principal),
+      classReferences(principal, data.courseId, data.teacherId))).returning();
+  } catch (error) { rethrowAcademicConflict(error); }
   if (!record) throw new AccessError('Class references or administrator authority changed', 409);
   return record;
 }
