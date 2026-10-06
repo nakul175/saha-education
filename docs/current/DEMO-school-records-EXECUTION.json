@@ -1,0 +1,104 @@
+{
+ "recordedAt": "2026-10-06",
+ "agent": "A2",
+ "branch": "demo/school-records",
+ "synthetic": true,
+ "accepted": 0,
+ "approvalsChanged": false,
+ "migration": {
+  "file": "drizzle/0017_school_records.sql",
+  "journalIdx": 17,
+  "when": 1792000017000,
+  "tables": 6,
+  "columns": 54,
+  "totalTables": 47,
+  "totalFields": 392
+ },
+ "routes": 9,
+ "pages": 5,
+ "newContractSuites": {
+  "school-setup": {
+   "checks": 240,
+   "scenarios": 11,
+   "requests": 89
+  },
+  "student-records": {
+   "checks": 225,
+   "scenarios": 9,
+   "requests": 91
+  },
+  "guardian-records": {
+   "checks": 243,
+   "scenarios": 11,
+   "requests": 102
+  },
+  "externalRequests": 0
+ },
+ "guardedRun": {
+  "suites": 56,
+  "assertions": 23162,
+  "unit": 119,
+  "integration": 22866,
+  "smoke": 177,
+  "failed": 0,
+  "baselinedSuites": 53,
+  "newSuitesNotInBaseline": 3
+ },
+ "mountedProcedure": {
+  "file": "tests/worker-school-records-demo-check.mjs",
+  "passed": 16,
+  "failed": 0,
+  "skipped": 0,
+  "externalRequests": 0,
+  "pageErrors": 0,
+  "dialogs": 0
+ },
+ "typecheckExit": 0,
+ "buildExit": 0,
+ "mutations": {
+  "backend": {
+   "total": 18,
+   "survivedFirst": 4,
+   "detectedFinally": 18
+  },
+  "mountedPage": [
+   "UI1 stale reload keeps an old copy of untouched fields: detected at check 4 of the mounted procedure (saved school name was the old copy, strict-equality assertion failed after 3 earlier checks passed)",
+   "UI2 deactivation no longer needs a 10-character reason: first run is not valid evidence (the local Worker restarted mid-request in an earlier step, so the mutated check was never reached); a rerun was queued and is not part of this record",
+   "UI3 guardians are sent to the administrator management page: detected by the guardian link assertion (Playwright received `/records/students/student-a`, expected `/students/...`); my first log scan missed Playwright's message format and reported it as survived, the log shows the failure"
+  ]
+ },
+ "designedCases": {
+  "referencingFR05orFR06": 81,
+  "executedInPart": 13,
+  "passedAutomatedSteps": 13,
+  "failed": 0,
+  "blockedSteps": [
+   "TC-023 policy",
+   "TC-025 UAT comparison"
+  ],
+  "notExecuted": 68,
+  "accepted": 0,
+  "executedIds": [
+   "TC-018",
+   "TC-021",
+   "TC-023",
+   "TC-024",
+   "TC-025",
+   "TC-106",
+   "TC-258",
+   "TC-342",
+   "TC-350",
+   "TC-354",
+   "TC-355",
+   "TC-357",
+   "TC-358"
+  ]
+ },
+ "limits": [
+  "synthetic data, one local Chromium",
+  "candidate extensions have no approved specification",
+  "admission uniqueness and deactivation effects are open policy",
+  "hosting blocker unchanged",
+  "no business approval"
+ ]
+}

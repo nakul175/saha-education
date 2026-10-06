@@ -1,0 +1,528 @@
+{
+  "recordedAt": "2026-10-06",
+  "workstream": "A3 FR-07 courses and classes, FR-08 enrolment lifecycle",
+  "branch": "demo/courses-enrolment",
+  "baseMain": "cadd2ebd8df0d1a0d24b609a59a756c725d9012c",
+  "applicationCommit": "fe01fa6",
+  "synthetic": true,
+  "migration": "0018_course_class_enrolment_lifecycle",
+  "guardedRun": {
+    "node": "v24.19.0",
+    "suites": 55,
+    "assertions": 22943,
+    "unit": 119,
+    "integration": 22647,
+    "smoke": 177,
+    "failed": 0,
+    "newSuitesNotInBaseline": [
+      "integration/academic-lifecycle-contract",
+      "integration/academic-lifecycle-ui-contract"
+    ]
+  },
+  "lifecycleContract": {
+    "checks": 387,
+    "scenarios": 9
+  },
+  "lifecycleUiContract": {
+    "checks": 113
+  },
+  "mountedProcedure": {
+    "file": "tests/worker-courses-enrolment-demo-check.mjs",
+    "finalRuns": 4,
+    "passedEach": 26,
+    "failed": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "repeatedNavigationsInFinalRuns": 1,
+    "repeatedReadsInFinalRuns": 0
+  },
+  "mutations": {
+    "applied": 13,
+    "detected": 13
+  },
+  "designedCases": {
+    "total": 61,
+    "pass": 52,
+    "fail": 0,
+    "blocked": 9,
+    "accepted": 0,
+    "cases": [
+      {
+        "id": "TC-025",
+        "result": "blocked",
+        "checks": [
+          "integration/api-contract",
+          "integration/reading-checks-contract"
+        ]
+      },
+      {
+        "id": "TC-026",
+        "result": "pass",
+        "checks": [
+          "integration/api-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-027",
+        "result": "pass",
+        "checks": [
+          "integration/academic-integrity-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-054",
+        "result": "pass",
+        "checks": [
+          "integration/resources-contract"
+        ]
+      },
+      {
+        "id": "TC-096",
+        "result": "blocked",
+        "checks": [
+          "integration/api-contract",
+          "integration/live-domain-authority-contract"
+        ]
+      },
+      {
+        "id": "TC-110",
+        "result": "pass",
+        "checks": [
+          "integration/academic-integrity-contract",
+          "integration/development-recovery-contract"
+        ]
+      },
+      {
+        "id": "TC-111",
+        "result": "pass",
+        "checks": [
+          "integration/academic-integrity-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-117",
+        "result": "blocked",
+        "checks": []
+      },
+      {
+        "id": "TC-134",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract"
+        ]
+      },
+      {
+        "id": "TC-135",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-136",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-137",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-138",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract"
+        ]
+      },
+      {
+        "id": "TC-139",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract"
+        ]
+      },
+      {
+        "id": "TC-140",
+        "result": "pass",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract"
+        ]
+      },
+      {
+        "id": "TC-141",
+        "result": "blocked",
+        "checks": [
+          "integration/school-structure-authority-contract",
+          "integration/live-domain-authority-contract"
+        ]
+      },
+      {
+        "id": "TC-161",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-163",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-167",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-168",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-170",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract",
+          "integration/academic-lifecycle-contract"
+        ]
+      },
+      {
+        "id": "TC-173",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-176",
+        "result": "pass",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-181",
+        "result": "blocked",
+        "checks": [
+          "integration/dashboard-contract",
+          "integration/dashboard-access-contract"
+        ]
+      },
+      {
+        "id": "TC-183",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-review-contract",
+          "integration/attendance-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-187",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-review-contract",
+          "integration/attendance-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-190",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-review-contract",
+          "integration/attendance-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-194",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-review-contract",
+          "integration/attendance-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-198",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-summary-contract",
+          "integration/attendance-summary-access-contract"
+        ]
+      },
+      {
+        "id": "TC-200",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-summary-contract",
+          "integration/attendance-summary-access-contract"
+        ]
+      },
+      {
+        "id": "TC-201",
+        "result": "pass",
+        "checks": [
+          "integration/attendance-summary-contract",
+          "integration/attendance-summary-access-contract",
+          "integration/session-revocation-contract"
+        ]
+      },
+      {
+        "id": "TC-205",
+        "result": "blocked",
+        "checks": [
+          "integration/attendance-review-contract",
+          "integration/attendance-review-access-contract",
+          "integration/attendance-summary-contract",
+          "integration/attendance-summary-access-contract"
+        ]
+      },
+      {
+        "id": "TC-207",
+        "result": "pass",
+        "checks": [
+          "integration/assessment-review-contract",
+          "integration/assessment-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-212",
+        "result": "pass",
+        "checks": [
+          "integration/assessment-review-contract",
+          "integration/assessment-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-214",
+        "result": "pass",
+        "checks": [
+          "integration/assessment-review-contract",
+          "integration/assessment-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-220",
+        "result": "pass",
+        "checks": [
+          "integration/assessment-review-contract",
+          "integration/assessment-review-access-contract"
+        ]
+      },
+      {
+        "id": "TC-286",
+        "result": "pass",
+        "checks": [
+          "integration/academic-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-287",
+        "result": "pass",
+        "checks": [
+          "integration/academic-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-289",
+        "result": "pass",
+        "checks": [
+          "integration/academic-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-290",
+        "result": "pass",
+        "checks": [
+          "integration/academic-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-291",
+        "result": "pass",
+        "checks": [
+          "integration/academic-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-293",
+        "result": "blocked",
+        "checks": [
+          "integration/academic-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-306",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract",
+          "integration/demo-login-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-307",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-308",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-309",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-310",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-311",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-312",
+        "result": "pass",
+        "checks": [
+          "integration/family-ui-contract",
+          "integration/d1-attendance-portability-contract"
+        ]
+      },
+      {
+        "id": "TC-313",
+        "result": "blocked",
+        "checks": [
+          "integration/family-ui-contract",
+          "integration/family-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-361",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-362",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-363",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-364",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-365",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-366",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-367",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-368",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-369",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-370",
+        "result": "pass",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      },
+      {
+        "id": "TC-371",
+        "result": "blocked",
+        "checks": [
+          "integration/course-catalog-ui-contract"
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "single local Chromium and fictional data",
+    "local D1 only; hosted deployment failure unchanged and not retried",
+    "designed cases unrun by people; UAT cases blocked",
+    "no business approval; working policies unapproved",
+    "two new suites not yet in the regression baseline"
+  ]
+}
