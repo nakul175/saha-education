@@ -364,9 +364,7 @@ export default function StudentsPage() {
                       </TableCell>
                       <TableCell>{new Date(student.dateOfBirth).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">
-                        <a href={`/students/${student.id}`}>
-                          <Button variant="outline" size="sm">View</Button>
-                        </a>
+                        <Button asChild variant="outline" size="sm"><a href={`/students/${student.id}`}>View</a></Button>
                       </TableCell>
                     </TableRow>
                   ))}

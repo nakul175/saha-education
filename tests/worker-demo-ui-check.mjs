@@ -36,7 +36,7 @@ const roles = [
   { role: 'admin', label: 'administrator', title: 'Admin Dashboard', paths: ['/', '/admin/users', '/admin/profile-links', '/curriculum', '/reading-practice', '/reading-review', '/reading-imports', '/resources', '/learning', '/external-apps', '/students', '/guardians', '/schools', '/classes', '/courses', '/enrolments', '/attendance', '/assessments', '/report-cards', '/notifications'] },
   { role: 'teacher', label: 'teacher', title: 'Teacher Dashboard', paths: ['/', '/curriculum', '/reading-practice', '/reading-review', '/reading-imports', '/resources', '/learning', '/external-apps', '/students', '/classes', '/courses', '/enrolments', '/attendance', '/assessments', '/report-cards', '/notifications'] },
   { role: 'guardian', label: 'guardian', title: 'Guardian Dashboard', paths: ['/', '/students', '/classes', '/attendance', '/assessments', '/report-cards', '/notifications'] },
-  { role: 'student', label: 'learner', title: 'My progress', paths: ['/', '/learning', '/students', '/classes', '/attendance', '/assessments', '/report-cards', '/notifications'] },
+  { role: 'student', label: 'student', title: 'My progress', paths: ['/', '/learning', '/students', '/classes', '/attendance', '/assessments', '/report-cards', '/notifications'] },
 ];
 async function check(name, action) {
   activeProcedure = name; checkpoint('procedure start'); await action();

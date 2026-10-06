@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-html-link-for-pages -- full-page links avoid the observed vinext beta transition failure. */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -95,7 +96,7 @@ export default function ClassesPage() {
     } catch { setNeedsCheck(true); setError('The class save could not be confirmed. Reload classes and check the saved list before creating another. Your entries are retained.'); }
     finally { lock.current = false; setSaving(false); }
   }
-  return <div className="mx-auto max-w-6xl space-y-6 p-4">
+  return <AppShell principal={principal}><div className="mx-auto max-w-6xl space-y-6 p-4">
     <div><a href="/" className="text-sm underline">Dashboard</a><h1>Classes</h1><p className="text-muted-foreground">Classes available to your account.</p></div>
     {(error || notice) && <div ref={message} tabIndex={-1} role={error ? 'alert' : 'status'} className="rounded border p-3 break-words">{error || notice}</div>}
     {loading && <p role="status">Loading classes…</p>}
@@ -120,5 +121,5 @@ export default function ClassesPage() {
         </fieldset></form>
       </CardContent></Card>}
     </div>
-  </div>;
+  </div></AppShell>;
 }

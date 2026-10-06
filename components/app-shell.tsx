@@ -166,14 +166,14 @@ export function AppShell({
     <div className="min-h-screen bg-background">
       <a href="#main-content" className="absolute left-4 top-4 z-50 -translate-y-24 rounded-md bg-background px-4 py-2 font-medium text-foreground shadow focus:translate-y-0">Skip to main content</a>
       {syntheticDemo && <aside className="flex flex-wrap items-center justify-between gap-2 border-b bg-amber-50 px-4 py-2 text-sm text-amber-950" aria-label="Synthetic demo">
-        <p><strong>Synthetic demo.</strong> Fictional records only; please don’t enter real learner details.</p>
+        <p><strong>Synthetic demo.</strong> Fictional records only; please don’t enter real student details.</p>
         <a className="font-medium underline underline-offset-4" href="/login">Switch demo role</a>
       </aside>}
       {/* Header */}
       <header className="border-b">
         <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold">Saha Education</h1>
+            <p className="text-xl font-bold">Saha Education</p>
           </div>
           
           {principal ? (
@@ -185,10 +185,8 @@ export function AppShell({
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 text-sm">
-                  <p className="break-all font-medium">{principal.id}</p>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {principal.role}
-                  </p>
+                  <p className="font-medium">Signed in as {principal.role}</p>
+                  <p className="break-all text-xs text-muted-foreground">Account: {principal.id}</p>
                 </div>
               </div>
               <Button 

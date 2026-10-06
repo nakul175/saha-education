@@ -104,7 +104,7 @@ try {
     okay(ui.all(item => item.type === 'button').every(item => item.props.disabled), 'All demo buttons communicate the unchecked state');
     await ui.acknowledge(); okay(ui.all(item => item.type === 'button').every(item => !item.props.disabled), 'Explicit acknowledgement enables the fixed role choices'); drained();
   });
-  for (const [role, label] of [['admin', 'administrator'], ['teacher', 'teacher'], ['guardian', 'guardian'], ['student', 'learner']]) await scenario(role + ' same-frame role selection sends one strict request', true, async ({ open, writes, sqlite, cookie, drained }) => {
+  for (const [role, label] of [['admin', 'administrator'], ['teacher', 'teacher'], ['guardian', 'guardian'], ['student', 'student']]) await scenario(role + ' same-frame role selection sends one strict request', true, async ({ open, writes, sqlite, cookie, drained }) => {
     const ui = await open(); await ui.acknowledge(); const callback = ui.button('Explore as ' + label).props.onClick;
     await Promise.all([callback(), callback()]); await ui.flush(); check(writes().length, 1, 'A same-frame repeated click has one actual server entry');
     check(JSON.parse(writes()[0].body), { role, syntheticAcknowledged: true }, 'Chooser never adds public identity, school or account fields'); check(writes()[0].status, 200, 'Actual isolated server demo entry succeeds');
@@ -126,8 +126,8 @@ try {
   for (const malformed of ['json', 'destination', 'synthetic']) await scenario('Malformed successful demo delivery ' + malformed + ' does not navigate', true, async ({ open, setIntercept, writes, drained }) => {
     const ui = await open(); await ui.acknowledge(); let changed = false;
     setIntercept(async ({ path, options, response }) => { if (!changed && path === '/api/demo' && options.method === 'POST') { changed = true; check(response.status, 200, 'Delivery mutation follows an actual committed synthetic entry'); const value = await response.json(); if (malformed === 'destination') value.destination = 'https://outside.example.invalid'; if (malformed === 'synthetic') value.synthetic = false; return new Response(malformed === 'json' ? '{invalid' : JSON.stringify(value), { headers: { 'content-type': 'application/json' } }); } return response; });
-    await ui.click('Explore as learner'); check(writes().length, 1, 'Malformed receipt triggers no automatic entry retry'); check(redirects, [], 'Untrusted successful delivery cannot navigate to another destination');
-    okay(ui.one(item => item.props?.role === 'alert'), 'Malformed reply is described as unsuccessful entry'); check(ui.button('Explore as learner').props.disabled, false, 'Malformed delivery leaves a deliberate normal retry available'); drained();
+    await ui.click('Explore as student'); check(writes().length, 1, 'Malformed receipt triggers no automatic entry retry'); check(redirects, [], 'Untrusted successful delivery cannot navigate to another destination');
+    okay(ui.one(item => item.props?.role === 'alert'), 'Malformed reply is described as unsuccessful entry'); check(ui.button('Explore as student').props.disabled, false, 'Malformed delivery leaves a deliberate normal retry available'); drained();
   });
   await scenario('Shared shell provides native login and a main-content shortcut', false, async ({ open, drained }) => {
     const ui = await open(Shell, { principal: null, children: 'Synthetic main content' });
