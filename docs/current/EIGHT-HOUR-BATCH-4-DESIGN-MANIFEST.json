@@ -1,0 +1,264 @@
+{
+  "version": "2.12",
+  "state": "frozen-design-content-not-execution-or-acceptance",
+  "frozen_at_utc": "2026-10-05T21:59:20Z",
+  "candidate_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
+  "ownership": {
+    "canonical_files": 35,
+    "excluded_root_owned": [
+      "docs/specification/RELEASE-OPERATIONS.md",
+      "docs/specification/TEST-EXECUTION.md",
+      "docs/specification/EXECUTION-SUMMARY.json",
+      "docs/current/*"
+    ],
+    "no_application_test_git_browser_build_or_sites_edits": true
+  },
+  "previous_manifest": {
+    "path": "/private/tmp/saha-v211-documentation-metadata-successor-manifest.json",
+    "sha256": "46210ec157394eda479b9adec8c652426b49c2ceea0dbabb55da0b0ec72f2299",
+    "preserved_immutable": true
+  },
+  "counts": {
+    "business_requirements": 12,
+    "functional_nonfunctional_requirements": 35,
+    "cases": 371,
+    "scenarios": 51,
+    "automation": {
+      "existing": 268,
+      "planned": 50,
+      "manual": 53
+    },
+    "tables": 41,
+    "fields": 338,
+    "api_routes": 60,
+    "api_handlers": 96,
+    "offline_fictional_prototype_screens": 12
+  },
+  "approvals": "all false",
+  "case_outcomes": "all not-run-for-this-specification",
+  "historical_case_objects": {
+    "path": "/private/tmp/saha-v211-final-349-case-preservation.json",
+    "count": 349,
+    "deep_equal_preserved": true,
+    "baseline_sha256": "5a035afc6ea969a8b231798a3e805e448c394e0dcd996f70c403541403673e9c",
+    "comparison": "entire ordered original349 objects, every field/value preserved"
+  },
+  "source_hashes": {
+    "app/schools/page.tsx": "eaed6fae95c1ea9dd9526fc5aca38a05a1545fe9bb11e2cfe4d99588d3943559",
+    "tests/integration/school-ui-contract.mjs": "b05e2b64b829ef72066e784d76d88383c8cf94330e27dcaf6b62234dee60bedc",
+    "app/courses/page.tsx": "8f0923f86f6472bc87b4bc3e6acb97ce4c330b515faf15c08cccfd272b631595",
+    "tests/integration/course-catalog-ui-contract.mjs": "d60e0bb9f5de082efcc0c449c55e03868380dd1d28410e77eb62ee3aae957fcc"
+  },
+  "source_observation_bounds": {
+    "school": {
+      "checks": 840,
+      "scenarios": 67,
+      "actual_session_handler_sqlite_requests": 664,
+      "external_requests": 0,
+      "original711_assertion_meanings_retained": true
+    },
+    "course": {
+      "checks": 925,
+      "scenarios": 62,
+      "actual_session_handler_sqlite_requests": 554,
+      "external_requests": 0,
+      "original803_assertion_meanings_retained": true
+    },
+    "limits": "Actual fictional opaque sessions/routes/production D1 SQLite with substituted hooks/elements; no mounted rendering, canonical procedure execution or acceptance. Named delivered4xx/malformed timestamps after real commit do not prove rollback. No combined next build/browser/hosted pass asserted."
+  },
+  "manual_procedure_design": {
+    "path": "tests/worker-school-course-ui-check.mjs",
+    "design_freeze_sha256": "d749d57cc68309e689f0226a50be9548585c0456ed0b2911d63b836a7fec8ce7",
+    "planned": 40,
+    "state": "UNRUN at historical design freeze",
+    "retained_structure_path": "tests/worker-structure-ui-check.mjs",
+    "retained_structure_planned": 26,
+    "subsequent_revision_and_incomplete_or_final_outcomes": "coordinator-owned dated records only; no completed40 or canonical acceptance inferred"
+  },
+  "checks": {
+    "documentation": "passed73 Markdown/local links/baseline references",
+    "specification": "passed371 JSON/CSV case and35 trace parity;41 tables338 fields60 routes96 handlers/source links",
+    "historical_requirements": "passed20 draft requirement mappings; no acceptance",
+    "owned35_whitespace_lf_eof": "passed no trailing whitespace/CR/blank EOF",
+    "historical349_case_objects": "deep equal",
+    "version_parent_alignment": "all35 canonical current metadata aligned",
+    "inventory_csv_bytes": "both dictionary/API exports unchanged from prior frozen successor"
+  },
+  "files": [
+    {
+      "path": "docs/specification/ACADEMIC-UI-DESIGN.md",
+      "bytes": 7749,
+      "sha256": "26fa6a570e069449090c7a2f3881d581752669735ca311c7c22cb6b01003eb54"
+    },
+    {
+      "path": "docs/specification/API-CONTRACTS.csv",
+      "bytes": 18230,
+      "sha256": "b0344e033dbf3562a487a70721e283234ec7125701cac0330cf0b5f0e0cd428e"
+    },
+    {
+      "path": "docs/specification/API-CONTRACTS.md",
+      "bytes": 57848,
+      "sha256": "50a74538d955a226bd9dbfe91ce6bc8c93e15605f2e3a961df044739f10e44e3"
+    },
+    {
+      "path": "docs/specification/ASSESSMENT-DESIGN.md",
+      "bytes": 16848,
+      "sha256": "3c33944e6ab7af5b931bfc2801a46c378c3105a4c8b17a05f8f614315840a6bd"
+    },
+    {
+      "path": "docs/specification/ATTENDANCE-DESIGN.md",
+      "bytes": 17358,
+      "sha256": "b94f0b150adefcab20f8ea1cea5f7acf5b880c0022da549142f8ba6fe6d35c9d"
+    },
+    {
+      "path": "docs/specification/BRD.md",
+      "bytes": 29759,
+      "sha256": "f735adad9b9e6016c6f12c16ad3c339797ef5688b195c54043e9ab537a434fa1"
+    },
+    {
+      "path": "docs/specification/CHANGE-CONTROL.md",
+      "bytes": 17137,
+      "sha256": "f7939219d44fd9959e7c1f951cbf17c50fa63f1a0505dad94485985bf954fa73"
+    },
+    {
+      "path": "docs/specification/DASHBOARD-DESIGN.md",
+      "bytes": 10256,
+      "sha256": "c8523f2bbff042919e38bf1ec7286aeea98f585fd2682aeeedb93ed07f8377e7"
+    },
+    {
+      "path": "docs/specification/DATA-DICTIONARY.csv",
+      "bytes": 106210,
+      "sha256": "79eb036c1322dd7ed19bbeea6bd3797838d328df53cbe3fc1a4f5b0113bf3905"
+    },
+    {
+      "path": "docs/specification/DATA-DICTIONARY.md",
+      "bytes": 108411,
+      "sha256": "69ecf7e44794a74beff0d593f5fddbf74e35e9b9101042f6e9c8b2625d648446"
+    },
+    {
+      "path": "docs/specification/DECISIONS-RISKS.md",
+      "bytes": 26725,
+      "sha256": "0ec0464bb9a2561635573cad91f8bc2d78ce44fc789c21aa0c7c833d3313fdfe"
+    },
+    {
+      "path": "docs/specification/FAMILY-UI-DESIGN.md",
+      "bytes": 10897,
+      "sha256": "4d2715da7efb9666d3a5ae2b32efb30ac221427481407f437a32c4a9f11cc17a"
+    },
+    {
+      "path": "docs/specification/FSD.md",
+      "bytes": 62772,
+      "sha256": "dae916ff253a318550f82cf6b8b680798f60c568dcc708235a739e6c9916fd1a"
+    },
+    {
+      "path": "docs/specification/HLD.md",
+      "bytes": 44772,
+      "sha256": "4ea43683ad605fc9cc2c80a37aa7042d57e70dd05024ba146b54dec3d54a0068"
+    },
+    {
+      "path": "docs/specification/INTEGRATION-CONTRACTS.md",
+      "bytes": 30394,
+      "sha256": "b794a78cf3e8ffd84f34c0c55c31f33de0bac1810f5b83adfb36771099306cf6"
+    },
+    {
+      "path": "docs/specification/LEARNER-RECOVERY-DESIGN.md",
+      "bytes": 9083,
+      "sha256": "7deb89a8dd095a470e30fb483dbdf190b1dd74d863fed402b58f1f04fe53adf3"
+    },
+    {
+      "path": "docs/specification/LLD.md",
+      "bytes": 95140,
+      "sha256": "d359fcb3eea07e7ffe124ad4063ae2e646c9437807db67ae051ba9570e3018c3"
+    },
+    {
+      "path": "docs/specification/PROFILE-ASSESSMENT-UI-DESIGN.md",
+      "bytes": 9482,
+      "sha256": "8e8a1508fedf3550b13989f8c407dc1ce84ca8ebb23577d4b8bc140bad184ec9"
+    },
+    {
+      "path": "docs/specification/READING-PRACTICE-DESIGN.md",
+      "bytes": 11929,
+      "sha256": "ee57cf86d64e8e19da82b4628d0f7577976dd837a2d4c9538e287633ff1a05ba"
+    },
+    {
+      "path": "docs/specification/README.md",
+      "bytes": 7960,
+      "sha256": "2fea4a20c1c5c6e23396b510a72704cdbb141d1f2ecc9b0a6eaad2e994ed135e"
+    },
+    {
+      "path": "docs/specification/REGISTRY-DESIGN.md",
+      "bytes": 11287,
+      "sha256": "d2b75f01f2bbf382031799f8a372242abafe850d246f185f411b147b41781285"
+    },
+    {
+      "path": "docs/specification/REGRESSION-PLAN.md",
+      "bytes": 20458,
+      "sha256": "d84c40e0fffd2c05298724ec97582ca9c4743da5844496ca037445577c986be3"
+    },
+    {
+      "path": "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+      "bytes": 12009,
+      "sha256": "a15c08b2f951444492c79c1bb0b2ff6dd13233df2441568b010f2af3c2a8d8ea"
+    },
+    {
+      "path": "docs/specification/SECURITY-NONFUNCTIONAL-TESTS.md",
+      "bytes": 24273,
+      "sha256": "e3fe3e88ffbe6f96faaf95f1ef72aeaf7c59ccfb9a9e3c362662ac72819319f3"
+    },
+    {
+      "path": "docs/specification/SESSION-DEMO-DESIGN.md",
+      "bytes": 10169,
+      "sha256": "ae59d3656aee194645e6936dbe9bbab4eb78b98e504a3947e8b3ba7cc049634f"
+    },
+    {
+      "path": "docs/specification/SMOKE-TESTS.md",
+      "bytes": 18631,
+      "sha256": "e14d2e5361f933cae5be9e9e10729586b50fd2fec5186a43618051b178221376"
+    },
+    {
+      "path": "docs/specification/TEST-CASES.csv",
+      "bytes": 443256,
+      "sha256": "47bdcdddec2289c2cf860afdf04492980570939084d093c4b647a50954ec6037"
+    },
+    {
+      "path": "docs/specification/TEST-CASES.json",
+      "bytes": 616090,
+      "sha256": "d60b70d51670ce44f6921197848995849cde75febc763550e5f221866b7d5ce0"
+    },
+    {
+      "path": "docs/specification/TEST-SCENARIOS.md",
+      "bytes": 61103,
+      "sha256": "236d1eec2e119676971a7587819a9cd661020b78ff9b15252b1ae6ee6658fa94"
+    },
+    {
+      "path": "docs/specification/TEST-STRATEGY.md",
+      "bytes": 23642,
+      "sha256": "2ec871b36095e9ffb1cab71294394dfc3c6ba1a7b32f42869b4135bac5e45547"
+    },
+    {
+      "path": "docs/specification/TRACEABILITY.csv",
+      "bytes": 85704,
+      "sha256": "3330cda3aa50a070388ab5aed357f56ecd2bf44682f389e942339b6f6f7cdc87"
+    },
+    {
+      "path": "docs/specification/UAT.md",
+      "bytes": 20521,
+      "sha256": "d33cce26e47a24a1fe5dce450a443c3f8e6e194618c321cee4d24dd7811c8d05"
+    },
+    {
+      "path": "docs/specification/UNIT-INTEGRATION-TESTS.md",
+      "bytes": 29531,
+      "sha256": "ed16e3f6a2e5759275317c8769c0430c6c399fb8c74b094ac92f8461162e3791"
+    },
+    {
+      "path": "docs/specification/WIREFRAMES.md",
+      "bytes": 34467,
+      "sha256": "806d2ae7780cfe7b280a57c50f7020d51e2cab3183063deccb52b20eeb3c557c"
+    },
+    {
+      "path": "docs/specification/requirements.json",
+      "bytes": 18099,
+      "sha256": "5ae3095483b2c9eb3ec744ee4369b94dae3de4f3805b1ed4f25d9ed1895d9be0"
+    }
+  ]
+}

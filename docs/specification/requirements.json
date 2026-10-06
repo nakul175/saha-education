@@ -1,0 +1,361 @@
+{
+  "version": "2.12",
+  "date": "2026-10-06",
+  "source_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
+  "approved": false,
+  "business_requirements": [
+    "BR-01",
+    "BR-02",
+    "BR-03",
+    "BR-04",
+    "BR-05",
+    "BR-06",
+    "BR-07",
+    "BR-08",
+    "BR-09",
+    "BR-10",
+    "BR-11",
+    "BR-12"
+  ],
+  "requirements": [
+    {
+      "id": "FR-01",
+      "business": "BR-02",
+      "title": "Trusted sign-in",
+      "implementation_status": "partial",
+      "source": "lib/education/oidc.ts",
+      "requirement": "Configure chosen OIDC provider; verify issuer/subject and callback before creating a session.",
+      "approved": false
+    },
+    {
+      "id": "FR-02",
+      "business": "BR-02",
+      "title": "Session lifecycle",
+      "implementation_status": "implemented",
+      "source": "lib/education/session.ts",
+      "requirement": "Opaque hashed sessions, expiry and logout; verified server Principal privately pins exact token and issuer/subject for SQL-time session/account authority. Separate default-off isolated synthetic demo uses the same opaque session enforcement.",
+      "approved": false
+    },
+    {
+      "id": "FR-03",
+      "business": "BR-02",
+      "title": "Record authorization",
+      "implementation_status": "implemented",
+      "source": "lib/education/access.ts",
+      "requirement": "Scope domain reads/writes to current school, enabled mapped actor role, class assignment and explicit profile links; actual SQL revalidates the original verified request session and identity; assemble each role dashboard in one coherent current-scoped SQL snapshot.",
+      "approved": false
+    },
+    {
+      "id": "FR-04",
+      "business": "BR-01",
+      "title": "Identity administration",
+      "implementation_status": "partial",
+      "source": "lib/education/identity-admin.ts",
+      "requirement": "Reviewed provisioning, status and versioned student/guardian login link/unlink workflows; no public registration or existing identity/role/school remapping.",
+      "approved": false
+    },
+    {
+      "id": "FR-05",
+      "business": "BR-01",
+      "title": "School setup",
+      "implementation_status": "partial",
+      "source": "lib/education/schools.ts",
+      "requirement": "School-scoped administration with current actor checks in SQL; current viewer re-verifies exact actor/current school, preserves deliberate dirty-field/null-address intent and separates known update acknowledgement from read-only original-account comparison after uncertain delivery. No automatic resend, immutable school receipt or CAS is added; school bootstrap remains operator provisioned.",
+      "approved": false
+    },
+    {
+      "id": "FR-06",
+      "business": "BR-01",
+      "title": "Student and guardian records",
+      "implementation_status": "partial",
+      "source": "lib/education/students.ts",
+      "requirement": "Maintain student and guardian links with explicit role-matched school identity ownership; reviewed new creation uses actor-bound immutable UUID receipts and exact recovery without changing later profiles. Current scoped student profiles separate exact-pair guardian association acknowledgement from current relationship reload and retain only mounted original-pair recovery under fresh original administrator access. Association is distinct from reviewed login ownership and adds no immutable receipt. Legacy creation remains compatible and non-idempotent.",
+      "approved": false
+    },
+    {
+      "id": "FR-07",
+      "business": "BR-01",
+      "title": "Courses and classes",
+      "implementation_status": "partial",
+      "source": "lib/education/classes.ts",
+      "requirement": "Maintain school course/class structure with current course and enabled trusted teacher references checked at persistence. Current catalog verifies actor/current school and administrator creation, separates ordinary known acknowledgement from original-only non-idempotent saved-list comparison, and preserves existing global course-code uniqueness. Class viewer consumes one coherently scoped class/profile response and verifies the current account; current availability does not assert absence of other enrolments. No immutable course receipt or CAS is added.",
+      "approved": false
+    },
+    {
+      "id": "FR-08",
+      "business": "BR-01",
+      "title": "Enrolment lifecycle",
+      "implementation_status": "partial",
+      "source": "lib/education/enrolments.ts",
+      "requirement": "Record active/withdrawn/completed enrolment and guard new duplicate pairs without deleting legacy evidence; current scoped class/roster UI rejects obsolete actor/selection replies and actions. Uncertain non-idempotent enrolment saves require original-account comparison, with agreed historical policy still pending.",
+      "approved": false
+    },
+    {
+      "id": "FR-09",
+      "business": "BR-01",
+      "title": "Attendance",
+      "implementation_status": "partial",
+      "source": "lib/education/attendance.ts",
+      "requirement": "Record authorized attendance; use current-scoped observed summaries and reviewed dirty-only full-evidence CAS with immutable before/after receipts, preserving legacy replacement semantics; school calendar, correction governance and historical entitlement remain unapproved.",
+      "approved": false
+    },
+    {
+      "id": "FR-10",
+      "business": "BR-01",
+      "title": "Assessments and results",
+      "implementation_status": "partial",
+      "source": "lib/education/assessments.ts",
+      "requirement": "Manage current assigned-class assessments/results; the current verified index gives staff native result-editor links and family metadata plus published-report navigation without inviting private result access. Use coherent active-roster snapshots and reviewed dirty-only full result/metadata CAS with immutable before/after receipts and exact original retries, preserving legacy replacement semantics; grades, correction governance and family result publication remain unapproved.",
+      "approved": false
+    },
+    {
+      "id": "FR-11",
+      "business": "BR-01",
+      "title": "Published reports",
+      "implementation_status": "partial",
+      "source": "lib/education/report-cards.ts",
+      "requirement": "Keep drafts private and publish scoped term reports with one immutable winner receipt and atomic eligible-guardian notices; current role/learner UI hides obsolete private data and recovers publication through exact original endpoint/body. Draft creation is not UUID-idempotent and needs original-account comparison after uncertain delivery.",
+      "approved": false
+    },
+    {
+      "id": "FR-12",
+      "business": "BR-01",
+      "title": "In-app notices",
+      "implementation_status": "partial",
+      "source": "lib/education/notifications.ts",
+      "requirement": "Show live recipient-owned saved notices; verify current account around inbox reads and before markers, confirm saved server readAt through owned reload, and recover only the exact original notice under fresh original scope. Historical notices remain retained, all stored channel labels stay compatible and external delivery remains disabled.",
+      "approved": false
+    },
+    {
+      "id": "FR-13",
+      "business": "BR-03",
+      "title": "Resource authoring",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Create original lesson/worksheet/quiz/activity drafts with curriculum context and private staff fields. The manual reading-practice planner copies an exact reviewed source into a provisional draft without injecting its private focus, learner identity or observation.",
+      "approved": false
+    },
+    {
+      "id": "FR-14",
+      "business": "BR-04",
+      "title": "Resource revisions",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Append immutable content versions and reject stale concurrent edits.",
+      "approved": false
+    },
+    {
+      "id": "FR-15",
+      "business": "BR-04",
+      "title": "Exact-version review",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Explicitly approve a saved version with one-time reviewer/time; later versions need review.",
+      "approved": false
+    },
+    {
+      "id": "FR-16",
+      "business": "BR-05",
+      "title": "Class assignment",
+      "implementation_status": "implemented",
+      "source": "lib/education/resources.ts",
+      "requirement": "Assign exact approved version to an authorized class with repeat-safe writes.",
+      "approved": false
+    },
+    {
+      "id": "FR-17",
+      "business": "BR-05",
+      "title": "Learner resource view",
+      "implementation_status": "implemented",
+      "source": "app/learning/page.tsx",
+      "requirement": "Show only currently authorized active-class approved assignments; omit staff notes/answer keys and clear obsolete learner cards/action links when role or feed access changes.",
+      "approved": false
+    },
+    {
+      "id": "FR-18",
+      "business": "BR-05",
+      "title": "Reviewed printing",
+      "implementation_status": "implemented",
+      "source": "app/resources/[id]/print/page.tsx",
+      "requirement": "Print exact approved student edition; staff explicitly choose teacher edition.",
+      "approved": false
+    },
+    {
+      "id": "FR-19",
+      "business": "BR-06",
+      "title": "External ORF launch",
+      "implementation_status": "partial",
+      "source": "lib/education/external-apps.ts",
+      "requirement": "Launch confirmed trusted HTTPS app with separate sign-in and no learner/session forwarding.",
+      "approved": false
+    },
+    {
+      "id": "FR-20",
+      "business": "BR-07",
+      "title": "Reviewed ORF records",
+      "implementation_status": "implemented",
+      "source": "lib/education/reading-checks.ts",
+      "requirement": "Record manual reviewed counts/duration/provenance; derive rate/accuracy and protect retries.",
+      "approved": false
+    },
+    {
+      "id": "FR-21",
+      "business": "BR-07",
+      "title": "Reading review and trends",
+      "implementation_status": "partial",
+      "source": "lib/education/reading-review.ts",
+      "requirement": "Add attributable corrections and comparable-task history after educator scoring policy. Manual planning shows effective/original evidence and correction revision without adaptive placement or educational norms; later corrections never rebase an original uncertain copy.",
+      "approved": false
+    },
+    {
+      "id": "FR-22",
+      "business": "BR-03",
+      "title": "Curriculum reference library",
+      "implementation_status": "partial",
+      "source": "lib/education/curriculum.ts",
+      "requirement": "Use versioned original/licensed reference sources for selected curricula and languages. Staff manually review exact source/language/declared rights in the planner; original UUID copy recovery remains separate from current source/resource versions and later assignment.",
+      "approved": false
+    },
+    {
+      "id": "FR-23",
+      "business": "BR-08",
+      "title": "Optional AI draft assistance",
+      "implementation_status": "planned",
+      "source": "docs/current/AMPLIFY-LITERACY-PLAN.md",
+      "requirement": "Produce structured provisional teacher drafts with references, review, provenance and budget controls.",
+      "approved": false
+    },
+    {
+      "id": "FR-24",
+      "business": "BR-05",
+      "title": "Learner submission and feedback",
+      "implementation_status": "partial",
+      "source": "lib/education/submissions.ts",
+      "requirement": "Collect immutable authorized text attempts and reviewed feedback; append reviewed open/closed/timed submission windows independently of informational due dates; recover uncertain client writes through original actor-bound UUID/body without rebasing later attempts or policies.",
+      "approved": false
+    },
+    {
+      "id": "FR-25",
+      "business": "BR-09",
+      "title": "External result and class adapters",
+      "implementation_status": "planned",
+      "source": "docs/current/EXTERNAL-READING.md",
+      "requirement": "Verify external contracts before automatic mapped import/export; local normalized JSON drafts require explicit educator review and do not authenticate a vendor.",
+      "approved": false
+    },
+    {
+      "id": "FR-26",
+      "business": "BR-10",
+      "title": "Audit and corrections",
+      "implementation_status": "partial",
+      "source": "lib/education/assessment-reviews.ts",
+      "requirement": "Preserve attributable domain correction/review evidence including reviewed attendance and assessment results; complete unified audit, legacy-write governance and agreed retention before real records.",
+      "approved": false
+    },
+    {
+      "id": "NFR-01",
+      "business": "BR-02",
+      "title": "Security",
+      "implementation_status": "partial",
+      "source": "lib/education/http.ts",
+      "requirement": "Trusted identity, same-origin mutations, current token/account/record scope, strict schemas and safe errors; clear protected client views on known access loss and require fresh same-actor authorization for exact pending recovery. Isolated synthetic demo cannot confer authority in school environments; broader review remains.",
+      "approved": false
+    },
+    {
+      "id": "NFR-02",
+      "business": "BR-10",
+      "title": "Atomicity and concurrency",
+      "implementation_status": "partial",
+      "source": "lib/education/resources.ts",
+      "requirement": "Preserve confirmed records through repeat-safe writes, atomic batches and conflicts, including immutable reviewed registry creation plus profile in one statement; legacy non-idempotent APIs retain their accepted contracts.",
+      "approved": false
+    },
+    {
+      "id": "NFR-03",
+      "business": "BR-10",
+      "title": "Privacy and retention",
+      "implementation_status": "planned",
+      "source": "docs/current/EXTERNAL-READING.md",
+      "requirement": "Minimize data; approve retention, deletion, access and export policies without claiming legal certification.",
+      "approved": false
+    },
+    {
+      "id": "NFR-04",
+      "business": "BR-10",
+      "title": "Performance and scale",
+      "implementation_status": "planned",
+      "source": "docs/education/ROADMAP.md",
+      "requirement": "Measure agreed workload and approve latency/availability targets before pilot.",
+      "approved": false
+    },
+    {
+      "id": "NFR-05",
+      "business": "BR-11",
+      "title": "Accessibility",
+      "implementation_status": "planned",
+      "source": "app/resources/page.tsx",
+      "requirement": "Validate keyboard, screen-reader, contrast, focus, errors and print at agreed target.",
+      "approved": false
+    },
+    {
+      "id": "NFR-06",
+      "business": "BR-11",
+      "title": "Language suitability",
+      "implementation_status": "partial",
+      "source": "lib/education/i18n.ts",
+      "requirement": "Confirm locale coverage, language-specific content and separate reading interpretation.",
+      "approved": false
+    },
+    {
+      "id": "NFR-07",
+      "business": "BR-10",
+      "title": "Recovery",
+      "implementation_status": "planned",
+      "source": "docs/education/OPERATIONS.md",
+      "requirement": "Agree RPO/RTO and demonstrate authorized environment restore with verification.",
+      "approved": false
+    },
+    {
+      "id": "NFR-08",
+      "business": "BR-10",
+      "title": "Observability and support",
+      "implementation_status": "planned",
+      "source": "docs/education/OPERATIONS.md",
+      "requirement": "Correlate failures without credentials/learner data and assign incident ownership.",
+      "approved": false
+    },
+    {
+      "id": "NFR-09",
+      "business": "BR-12",
+      "title": "Traceable change control",
+      "implementation_status": "partial",
+      "source": "VALIDATION.md",
+      "requirement": "Keep requirements/design/case/evidence links and review impact without promoting coverage to acceptance.",
+      "approved": false
+    }
+  ],
+  "delivery_metadata": {
+    "branch": "feat/specification-delivery",
+    "documentation_base_commit": "d53adcf",
+    "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
+    "state": "candidate-prepared-from-recorded-parent",
+    "date": "2026-10-06",
+    "note": "source_commit records the recorded documentation-only followup parent23c2d8f of verified source3c664224, not the containing v2.12 commit or a main merge. Source publication, current matching build, mounted procedures and deployment are separately dated coordinator facts. Prior v2.0–v2.11 designs/source/execution remain historical. Focused substituted callback observations imply no next combined build/mounted/hosted or business acceptance.",
+    "candidate_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
+    "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+    "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+    "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
+    "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
+    "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
+    "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "source_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
+    "historical_v2_8_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
+    "historical_v2_8_application_commit": "7ee7c963575916d35cb0dae388833b1345833471",
+    "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
+    "historical_v2_10_source_parent_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
+    "historical_v2_10_containing_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "historical_v2_11_source_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "historical_v2_11_application_commit": "c664224",
+    "historical_v2_11_metadata_followup_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77"
+  }
+}

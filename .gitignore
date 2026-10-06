@@ -1,31 +1,64 @@
-# Dependencies
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
 /node_modules
 /.pnp
-.pnp.js
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Build outputs
-/lib
-/dist
-/build
-
-# Logs
-*.log
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Test coverage
+# testing
 /coverage
-.nyc_output
+
+# next.js
+/.next/
+/.vinext/
+/out/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+next-env.d.ts
+/dist/
+/.wrangler/
+# Checkout-local execution profile and tool state; never publish them.
+/.sites-runtime/
+/.agents/
+/.codex/
+/outputs/
+/work/
+
+!.env.example
+*.tsbuildinfo
+# Recovery artifacts may contain health records; never track them.
+/backups/
+/recovery/
+*.sahabackup
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# test reports (slice 11a): evidence for a slice is copied to tests/evidence/
+/tests/reports/
+/test-results/
+/playwright-report/
+
+# Checkout-local dependency cache
+/.pnpm-store/

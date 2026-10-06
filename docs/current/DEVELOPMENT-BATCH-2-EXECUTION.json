@@ -1,0 +1,1216 @@
+{
+  "date": "2026-10-05",
+  "source_parent": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
+  "branch": "feat/specification-delivery",
+  "source_boundary": "Second-batch candidate tested before its publication commit. Parent is the published first batch, not the commit containing this batch.",
+  "approved": false,
+  "hostedDeployment": false,
+  "mainMerge": false,
+  "externalProviderActivated": false,
+  "realRecordsOrRecipients": false,
+  "freshBuild": {
+    "passed": true,
+    "source": "Final native report navigation, synchronous creation lock and mobile detail fix included; old local server stopped before rebuild and restarted afterwards."
+  },
+  "guardedRun": {
+    "generatedAt": "2026-10-05T08:39:13.289Z",
+    "startedAt": "2026-10-05T08:38:56.439Z",
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "node": "v24.19.0",
+    "layers": [
+      {
+        "layer": "static",
+        "status": "passed",
+        "suites": 3,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1341,
+        "failedSuites": 0
+      },
+      {
+        "layer": "unit",
+        "status": "passed",
+        "suites": 8,
+        "passed": 94,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 2312,
+        "failedSuites": 0
+      },
+      {
+        "layer": "integration",
+        "status": "passed",
+        "suites": 19,
+        "passed": 3408,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 12455,
+        "failedSuites": 0
+      },
+      {
+        "layer": "smoke",
+        "status": "passed",
+        "suites": 1,
+        "passed": 117,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 553,
+        "failedSuites": 0
+      }
+    ],
+    "totals": {
+      "suites": 28,
+      "passed": 3619,
+      "failed": 0,
+      "skipped": 0,
+      "failedSuites": 0,
+      "durationMs": 16850
+    },
+    "guard": {
+      "ok": true,
+      "findings": [],
+      "warnings": [],
+      "evaluated": 28,
+      "newSuites": []
+    },
+    "suites": [
+      {
+        "id": "static/catalogue",
+        "layer": "static",
+        "kind": "step",
+        "file": "node scripts/test.mjs --check-catalogue",
+        "status": "passed",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "durationMs": 0,
+        "exitCode": 0,
+        "note": "41 suites, 0 components classified"
+      },
+      {
+        "id": "static/typecheck",
+        "layer": "static",
+        "kind": "step",
+        "file": "tsc --noEmit",
+        "status": "passed",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "durationMs": 1271,
+        "exitCode": 0,
+        "log": "tests/reports/logs/static__typecheck.log"
+      },
+      {
+        "id": "static/specification",
+        "layer": "static",
+        "kind": "step",
+        "file": "node scripts/check-specification.mjs",
+        "status": "passed",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "durationMs": 70,
+        "exitCode": 0,
+        "log": "tests/reports/logs/static__specification.log"
+      },
+      {
+        "id": "unit/auth-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/auth-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 396,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 8,
+        "reason": null,
+        "log": "tests/reports/logs/unit__auth-contract.log"
+      },
+      {
+        "id": "unit/catalogue-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/catalogue-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 30,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 1,
+        "reason": null,
+        "log": "tests/reports/logs/unit__catalogue-contract.log"
+      },
+      {
+        "id": "unit/http-body-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/http-body-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 481,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 2,
+        "reason": null,
+        "log": "tests/reports/logs/unit__http-body-contract.log"
+      },
+      {
+        "id": "unit/i18n-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/i18n-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 72,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 2,
+        "reason": null,
+        "log": "tests/reports/logs/unit__i18n-contract.log"
+      },
+      {
+        "id": "unit/request-body-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/request-body-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 283,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 0,
+        "reason": null,
+        "log": "tests/reports/logs/unit__request-body-contract.log"
+      },
+      {
+        "id": "unit/roles-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/roles-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 301,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 0,
+        "reason": null,
+        "log": "tests/reports/logs/unit__roles-contract.log"
+      },
+      {
+        "id": "unit/schools-courses-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/schools-courses-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 499,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 0,
+        "reason": null,
+        "log": "tests/reports/logs/unit__schools-courses-contract.log"
+      },
+      {
+        "id": "unit/validation-contract",
+        "layer": "unit",
+        "kind": "suite",
+        "file": "tests/unit/validation-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 27,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 250,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 0,
+        "reason": null,
+        "log": "tests/reports/logs/unit__validation-contract.log"
+      },
+      {
+        "id": "integration/academic-integrity-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/academic-integrity-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 218,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 825,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 8,
+        "reason": null,
+        "log": "tests/reports/logs/integration__academic-integrity-contract.log"
+      },
+      {
+        "id": "integration/api-auth-guards",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/api-auth-guards.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 122,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 344,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 3,
+        "reason": null,
+        "log": "tests/reports/logs/integration__api-auth-guards.log"
+      },
+      {
+        "id": "integration/api-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/api-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 26,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 525,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 13,
+        "reason": null,
+        "log": "tests/reports/logs/integration__api-contract.log"
+      },
+      {
+        "id": "integration/curriculum-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/curriculum-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 131,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 467,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 10,
+        "reason": null,
+        "log": "tests/reports/logs/integration__curriculum-contract.log"
+      },
+      {
+        "id": "integration/development-recovery-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/development-recovery-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 202,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 785,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 14,
+        "reason": null,
+        "log": "tests/reports/logs/integration__development-recovery-contract.log"
+      },
+      {
+        "id": "integration/evidence-access-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/evidence-access-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 58,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 548,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 10,
+        "reason": null,
+        "log": "tests/reports/logs/integration__evidence-access-contract.log"
+      },
+      {
+        "id": "integration/external-apps-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/external-apps-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 70,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 563,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 4,
+        "reason": null,
+        "log": "tests/reports/logs/integration__external-apps-contract.log"
+      },
+      {
+        "id": "integration/identity-admin-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/identity-admin-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 153,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 591,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 10,
+        "reason": null,
+        "log": "tests/reports/logs/integration__identity-admin-contract.log"
+      },
+      {
+        "id": "integration/live-domain-authority-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/live-domain-authority-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 783,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1176,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 16,
+        "reason": null,
+        "log": "tests/reports/logs/integration__live-domain-authority-contract.log"
+      },
+      {
+        "id": "integration/profile-links-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/profile-links-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 236,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 676,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 8,
+        "reason": null,
+        "log": "tests/reports/logs/integration__profile-links-contract.log"
+      },
+      {
+        "id": "integration/reading-checks-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/reading-checks-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 102,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 562,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 8,
+        "reason": null,
+        "log": "tests/reports/logs/integration__reading-checks-contract.log"
+      },
+      {
+        "id": "integration/reading-imports-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/reading-imports-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 86,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 640,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 8,
+        "reason": null,
+        "log": "tests/reports/logs/integration__reading-imports-contract.log"
+      },
+      {
+        "id": "integration/reading-review-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/reading-review-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 177,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 622,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 9,
+        "reason": null,
+        "log": "tests/reports/logs/integration__reading-review-contract.log"
+      },
+      {
+        "id": "integration/report-publication-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/report-publication-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 221,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 839,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 11,
+        "reason": null,
+        "log": "tests/reports/logs/integration__report-publication-contract.log"
+      },
+      {
+        "id": "integration/resource-access-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/resource-access-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 726,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 11,
+        "reason": null,
+        "log": "tests/reports/logs/integration__resource-access-contract.log"
+      },
+      {
+        "id": "integration/resources-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/resources-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 147,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 761,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 12,
+        "reason": null,
+        "log": "tests/reports/logs/integration__resources-contract.log"
+      },
+      {
+        "id": "integration/school-structure-authority-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/school-structure-authority-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 275,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 676,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 9,
+        "reason": null,
+        "log": "tests/reports/logs/integration__school-structure-authority-contract.log"
+      },
+      {
+        "id": "integration/submission-windows-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/submission-windows-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 191,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 569,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 7,
+        "reason": null,
+        "log": "tests/reports/logs/integration__submission-windows-contract.log"
+      },
+      {
+        "id": "integration/submissions-contract",
+        "layer": "integration",
+        "kind": "suite",
+        "file": "tests/integration/submissions-contract.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 137,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 560,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 10,
+        "reason": null,
+        "log": "tests/reports/logs/integration__submissions-contract.log"
+      },
+      {
+        "id": "smoke/basic-smoke",
+        "layer": "smoke",
+        "kind": "suite",
+        "file": "tests/smoke/basic-smoke.mjs",
+        "tier": "pr",
+        "status": "passed",
+        "passed": 117,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 553,
+        "exitCode": 0,
+        "countSource": "stdout",
+        "resultFiles": [],
+        "requirementsCited": 0,
+        "reason": null,
+        "log": "tests/reports/logs/smoke__basic-smoke.log"
+      }
+    ]
+  },
+  "baselineUpdate": {
+    "added": 3,
+    "raised": 2,
+    "lowered": 0,
+    "removed": 0,
+    "unchanged": 23
+  },
+  "affectedLint": {
+    "files": 34,
+    "errors": 0,
+    "warnings": 0
+  },
+  "served": {
+    "newDomain": {
+      "passed": 104,
+      "failed": 0,
+      "skipped": 0
+    },
+    "priorDevelopment": {
+      "passed": 172,
+      "failed": 0,
+      "skipped": 0
+    },
+    "priorSpecification": {
+      "passed": 146,
+      "failed": 0,
+      "skipped": 0
+    },
+    "scope": "Built isolated localhost Worker, real workerd/D1 and injected synthetic sessions."
+  },
+  "browser": {
+    "reportAndNotice": {
+      "executedAt": "2026-10-05T08:39:55.107Z",
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "checks": [
+        "Administrator can create a report draft after learner selection",
+        "Two same-frame native submissions create one request and one durable draft",
+        "Saved report shows supplied details and remains unpublished",
+        "Report summary is escaped and cannot execute markup",
+        "assigned teacher has no draft creation or publication controls",
+        "assigned teacher sees the correct draft boundary",
+        "guardian has no draft creation or publication controls",
+        "guardian sees the correct draft boundary",
+        "learner has no draft creation or publication controls",
+        "learner sees the correct draft boundary",
+        "Lost publication acknowledgement retains the saved card and requires explicit reload",
+        "Explicit reload recovers the same published report and removes publication controls",
+        "Same-record publication recovery preserves first time and one guardian notice",
+        "guardian can view the newly published saved report",
+        "learner can view the newly published saved report",
+        "Family can open the exact published report from its card",
+        "Lost draft acknowledgement keeps entered text and disables duplicate creation",
+        "Explicit reload recovers one original draft without sending another create",
+        "Reloading stored reports clears publication review confirmation",
+        "Changing learner clears former cards while another list is pending",
+        "A slower old learner response cannot replace the current selected list",
+        "Failed learner list shows an alert without former cards or write access",
+        "Explicit report reload restores current evidence after list failure",
+        "Report draft controls support labeled keyboard navigation",
+        "Desktop admin report labels and width",
+        "Lost read acknowledgement retains the exact inbox item and same-record recovery hint",
+        "Same-record read retry recovers status and preserves original read evidence",
+        "Desktop notification width and labels",
+        "Guardian publication notice stays out of learner personal inbox",
+        "Mobile labels and viewport: admin-reports-mobile",
+        "Mobile labels and viewport: teacher-reports-mobile",
+        "Mobile labels and viewport: family-reports-mobile",
+        "Mobile labels and viewport: published-report-mobile",
+        "Mobile labels and viewport: notifications-mobile",
+        "Built scripts and stylesheets load without HTTP failures",
+        "No external browser requests or unhandled application errors"
+      ],
+      "screenshots": [
+        "/private/tmp/saha-domain-ui-reports-desktop.png",
+        "/private/tmp/saha-domain-ui-notifications-desktop.png",
+        "/private/tmp/saha-domain-ui-admin-reports-mobile.png",
+        "/private/tmp/saha-domain-ui-teacher-reports-mobile.png",
+        "/private/tmp/saha-domain-ui-family-reports-mobile.png",
+        "/private/tmp/saha-domain-ui-published-report-mobile.png",
+        "/private/tmp/saha-domain-ui-notifications-mobile.png"
+      ],
+      "limits": [
+        "Built localhost Worker and synthetic accounts/data only.",
+        "Delayed list,503 and lost acknowledgements deliberately injected; committed responses drained before abort.",
+        "No provider activation, deployment, specification acceptance or full accessibility certification."
+      ]
+    },
+    "schoolCourseClass": {
+      "executedAt": "2026-10-05T08:38:33.852Z",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "checks": [
+        "Course creation uses the verified school without a typed school ID",
+        "Administrator creates a real scoped course through the native form",
+        "Saved course HTML is escaped as text and stays inside current school",
+        "Rejected create preserves inputs and focuses a visible error",
+        "Confirmed course save with failed refresh reports success and requires reload",
+        "Lost successful course response retains entries and prevents a blind second create",
+        "An in-flight course save disables controls and ignores a second submit",
+        "Class choices use the current course and eligible teacher with native keyboard labels",
+        "Administrator creates a real class with controlled verified references",
+        "Class conflict preserves text and selections until explicit inventory reload",
+        "School screen edits only the existing school and offers no bootstrap or duplicate shell",
+        "School update rejection retains entries and visible permission feedback",
+        "School confirmed save followed by refresh failure remains a success",
+        "teacher-a sees scoped /classes without administrator controls or account lookups",
+        "teacher-a sees scoped /courses without administrator controls or account lookups",
+        "teacher-a sees scoped /schools without administrator controls or account lookups",
+        "guardian-a sees scoped /classes without administrator controls or account lookups",
+        "guardian-a sees scoped /courses without administrator controls or account lookups",
+        "guardian-a sees scoped /schools without administrator controls or account lookups",
+        "student-user-a sees scoped /classes without administrator controls or account lookups",
+        "student-user-a sees scoped /courses without administrator controls or account lookups",
+        "student-user-a sees scoped /schools without administrator controls or account lookups",
+        "/classes labels and page width remain usable at 390 pixels",
+        "/courses labels and page width remain usable at 390 pixels",
+        "/schools labels and page width remain usable at 390 pixels",
+        "Built scripts and styles load and all browser requests stay local"
+      ],
+      "screenshots": [
+        "/private/tmp/saha-structure-ui-classes-mobile.png",
+        "/private/tmp/saha-structure-ui-courses-mobile.png",
+        "/private/tmp/saha-structure-ui-schools-mobile.png",
+        "/private/tmp/saha-structure-ui-classes-desktop.png"
+      ],
+      "limits": [
+        "Fresh local built Worker and synthetic fixtures only.",
+        "Local response rejection/loss/refresh injections validate UI recovery, not real provider behavior.",
+        "Labels, native keyboard and 390 pixel geometry are smoke checks, not accessibility or UAT certification.",
+        "New synthetic course/class rows remain; the shared school name/address are restored in finally."
+      ]
+    },
+    "priorDevelopment": {
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "externalRequests": 0,
+      "pageErrors": 0
+    },
+    "priorSpecification": {
+      "passed": 38,
+      "failed": 0,
+      "skipped": 0,
+      "externalRequests": 0,
+      "pageErrors": 0
+    }
+  },
+  "accessibilitySample": {
+    "executedAt": "2026-10-05T08:39:18.859Z",
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0,
+    "sampledPages": 54,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "formalAccessibilityAcceptance": false,
+    "limits": "Automated visible resting-page WCAG-rule sample; incomplete checks, keyboard/screen-reader testing and all interactive states require separate review.",
+    "results": [
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/admin/users",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/admin/profile-links",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/schools",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/courses",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/enrolments",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/students",
+        "violations": [],
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/guardians",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/report-cards",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/admin/users",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/admin/profile-links",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/schools",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/courses",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/enrolments",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/students",
+        "violations": [],
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/guardians",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/report-cards",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/resources",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/curriculum",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/external-apps",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/reading-imports",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/reading-review",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/learning",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/assessments",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/resources",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/curriculum",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/external-apps",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/reading-imports",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/reading-review",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/learning",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/assessments",
+        "violations": [],
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/learning",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/report-cards",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/learning",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/report-cards",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/students",
+        "violations": [],
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/report-cards",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/students",
+        "violations": [],
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/report-cards",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": [],
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": [],
+        "incompleteRuleCount": 0
+      }
+    ]
+  },
+  "localEncryptedRecovery": {
+    "passed": 202,
+    "includedInIntegrationTotal": true,
+    "tables": 35,
+    "indexes": 74,
+    "triggers": 24,
+    "publicationReceiptAndNoticePopulated": true,
+    "hostedOperationalRecoveryVerified": false
+  },
+  "prototype": {
+    "passed": 37,
+    "screens": 12,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "scope": "Offline fictional prototype, separate from app/acceptance evidence."
+  },
+  "canonicalInventory": {
+    "version": "2.3-draft",
+    "tables": 35,
+    "fields": 294,
+    "routes": 51,
+    "handlers": 84,
+    "businessRequirements": 12,
+    "functionalNonfunctionalRequirements": 35,
+    "designedCases": 157,
+    "scenarios": 25,
+    "allDesignedCasesUnrun": true,
+    "allApprovalsFalse": true
+  },
+  "findingsFixed": [
+    "Original-domain mutation/read actor and reference authority races",
+    "Publication zero-row notice and removed guardian mapping race",
+    "Report detail long-token mobile overflow",
+    "New report Next Link client-transition failure; full-page anchor used",
+    "Same-frame native duplicate draft submits; synchronous UI lock added"
+  ],
+  "verificationObservations": [
+    "Initial served foreign-origin write returned denied503; unchanged complete rerun and final104 checks passed, no causal application fix attributed.",
+    "Initial accessibility sampling referenced nonexistent /assignments list; corrected to actual /learning before final54-page sample.",
+    "Prior reading-history browser check initially interacted with new served class enrolments for the shared learner. Served test now creates its own roster learner; earlier local enrolment rows retained as withdrawn, base fixture isolation restored, final38 checks passed."
+  ],
+  "remainingLimits": [
+    "Synthetic local data and sessions; no live sign-in callback, ORF/vendor adapter or paid AI.",
+    "Draft creation has no server UUID retry guarantee; UI retains unknown text and requires explicit reload/check.",
+    "Automated resting-page WCAG rule sample does not replace incomplete-rule, keyboard/screen-reader or full-state formal accessibility review.",
+    "Designed TC procedures are not executed by related-suite coverage and business acceptance is not inferred.",
+    "Representative load, educator efficacy/UAT, academic correction/grade/date/retention policy and hosted operational recovery remain separate."
+  ]
+}

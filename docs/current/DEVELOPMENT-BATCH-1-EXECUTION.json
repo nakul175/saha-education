@@ -1,0 +1,437 @@
+{
+  "date": "2026-10-05",
+  "candidate_branch": "feat/specification-delivery",
+  "implementation_parent_commit": "398df9c8bf57659a5fd97718f76fe962011cf7d2",
+  "scope": "First tested batch of four-hour continuation; isolated synthetic SQLite/workerd/browser; no hosted deployment or live provider",
+  "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+  "node": "v24.19.0",
+  "generatedAt": "2026-10-05T08:05:31.683Z",
+  "production_build": {
+    "status": "passed",
+    "command": "node scripts/run-framework.mjs build",
+    "note": "Fresh final source after UI fixes; local Worker fully restarted so code and asset registry agree"
+  },
+  "layers": [
+    {
+      "layer": "static",
+      "status": "passed",
+      "suites": 3,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 1273,
+      "failedSuites": 0
+    },
+    {
+      "layer": "unit",
+      "status": "passed",
+      "suites": 8,
+      "passed": 94,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 1811,
+      "failedSuites": 0
+    },
+    {
+      "layer": "integration",
+      "status": "passed",
+      "suites": 16,
+      "passed": 2115,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 6927,
+      "failedSuites": 0
+    },
+    {
+      "layer": "smoke",
+      "status": "passed",
+      "suites": 1,
+      "passed": 93,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 465,
+      "failedSuites": 0
+    }
+  ],
+  "totals": {
+    "suites": 25,
+    "passed": 2302,
+    "failed": 0,
+    "skipped": 0,
+    "failedSuites": 0,
+    "durationMs": 10622
+  },
+  "suites": [
+    {
+      "id": "static/catalogue",
+      "layer": "static",
+      "file": "node scripts/test.mjs --check-catalogue",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "static/typecheck",
+      "layer": "static",
+      "file": "tsc --noEmit",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "static/specification",
+      "layer": "static",
+      "file": "node scripts/check-specification.mjs",
+      "status": "passed",
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/auth-contract",
+      "layer": "unit",
+      "file": "tests/unit/auth-contract.mjs",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/catalogue-contract",
+      "layer": "unit",
+      "file": "tests/unit/catalogue-contract.mjs",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/http-body-contract",
+      "layer": "unit",
+      "file": "tests/unit/http-body-contract.mjs",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/i18n-contract",
+      "layer": "unit",
+      "file": "tests/unit/i18n-contract.mjs",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/request-body-contract",
+      "layer": "unit",
+      "file": "tests/unit/request-body-contract.mjs",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/roles-contract",
+      "layer": "unit",
+      "file": "tests/unit/roles-contract.mjs",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/schools-courses-contract",
+      "layer": "unit",
+      "file": "tests/unit/schools-courses-contract.mjs",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "unit/validation-contract",
+      "layer": "unit",
+      "file": "tests/unit/validation-contract.mjs",
+      "status": "passed",
+      "passed": 27,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/academic-integrity-contract",
+      "layer": "integration",
+      "file": "tests/integration/academic-integrity-contract.mjs",
+      "status": "passed",
+      "passed": 218,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/api-auth-guards",
+      "layer": "integration",
+      "file": "tests/integration/api-auth-guards.mjs",
+      "status": "passed",
+      "passed": 122,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/api-contract",
+      "layer": "integration",
+      "file": "tests/integration/api-contract.mjs",
+      "status": "passed",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/curriculum-contract",
+      "layer": "integration",
+      "file": "tests/integration/curriculum-contract.mjs",
+      "status": "passed",
+      "passed": 131,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/development-recovery-contract",
+      "layer": "integration",
+      "file": "tests/integration/development-recovery-contract.mjs",
+      "status": "passed",
+      "passed": 188,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/evidence-access-contract",
+      "layer": "integration",
+      "file": "tests/integration/evidence-access-contract.mjs",
+      "status": "passed",
+      "passed": 58,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/external-apps-contract",
+      "layer": "integration",
+      "file": "tests/integration/external-apps-contract.mjs",
+      "status": "passed",
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/identity-admin-contract",
+      "layer": "integration",
+      "file": "tests/integration/identity-admin-contract.mjs",
+      "status": "passed",
+      "passed": 153,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/profile-links-contract",
+      "layer": "integration",
+      "file": "tests/integration/profile-links-contract.mjs",
+      "status": "passed",
+      "passed": 236,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/reading-checks-contract",
+      "layer": "integration",
+      "file": "tests/integration/reading-checks-contract.mjs",
+      "status": "passed",
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/reading-imports-contract",
+      "layer": "integration",
+      "file": "tests/integration/reading-imports-contract.mjs",
+      "status": "passed",
+      "passed": 86,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/reading-review-contract",
+      "layer": "integration",
+      "file": "tests/integration/reading-review-contract.mjs",
+      "status": "passed",
+      "passed": 177,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/resource-access-contract",
+      "layer": "integration",
+      "file": "tests/integration/resource-access-contract.mjs",
+      "status": "passed",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/resources-contract",
+      "layer": "integration",
+      "file": "tests/integration/resources-contract.mjs",
+      "status": "passed",
+      "passed": 147,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/submission-windows-contract",
+      "layer": "integration",
+      "file": "tests/integration/submission-windows-contract.mjs",
+      "status": "passed",
+      "passed": 191,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "integration/submissions-contract",
+      "layer": "integration",
+      "file": "tests/integration/submissions-contract.mjs",
+      "status": "passed",
+      "passed": 137,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "smoke/basic-smoke",
+      "layer": "smoke",
+      "file": "tests/smoke/basic-smoke.mjs",
+      "status": "passed",
+      "passed": 93,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    }
+  ],
+  "guard": {
+    "ok": true,
+    "findings": [],
+    "warnings": [],
+    "evaluated": 25,
+    "newSuites": []
+  },
+  "inventory": {
+    "tables": 34,
+    "fields": 288,
+    "routes": 51,
+    "handlers": 84,
+    "business_requirements": 12,
+    "functional_nonfunctional_requirements": 35,
+    "scenarios": 22,
+    "designed_cases": 133,
+    "approved_requirements": 0,
+    "case_execution_status": "not-run-for-this-specification"
+  },
+  "manual_evidence": {
+    "new_served": {
+      "passed": 172,
+      "failed": 0,
+      "skipped": 0,
+      "file": "tests/worker-development-check.mjs"
+    },
+    "new_browser": {
+      "executedAt": "2026-10-05T08:05:53.052Z",
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "limits": [
+        "Local built Worker and synthetic data/session evidence only.",
+        "No provider activation, external vendor verification, deployment or specification acceptance.",
+        "Label, keyboard and mobile viewport checks are smoke checks, not full accessibility certification."
+      ],
+      "file": "tests/worker-development-ui-check.mjs"
+    },
+    "prior_served_regression": {
+      "passed": 146,
+      "failed": 0,
+      "file": "tests/worker-specification-check.mjs"
+    },
+    "prior_browser_regression": {
+      "passed": 38,
+      "failed": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "file": "tests/worker-specification-ui-check.mjs"
+    },
+    "offline_prototype": {
+      "passed": 37,
+      "failed": 0,
+      "screens": 12,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "file": "tests/worker-wireframes-check.mjs",
+      "note": "Separate prototype evidence, not application acceptance"
+    }
+  },
+  "recovery": {
+    "passed": 188,
+    "included_in_integration_total": true,
+    "file": "tests/integration/development-recovery-contract.mjs",
+    "scope": "Populated disposable local encrypted snapshot/verified restore; 34 tables, 72 indexes and 20 triggers retained; no hosted export/cutover, operational key custody or schedule evidence"
+  },
+  "baseline_update": {
+    "added": 5,
+    "raised": 2,
+    "lowered": 0,
+    "removed": 0,
+    "quarantine_exemptions": 0
+  },
+  "affected_lint": {
+    "files": 57,
+    "errors": 0,
+    "warnings": 1,
+    "warning": "Existing unused setSelectedDate in class attendance page"
+  },
+  "findings_and_fixes": [
+    "Assessment editor now loads saved values, retains zero/grade and saves dirty rows only.",
+    "Controlled enrolment selection; verified-school student creation; blank optional guardian email omitted.",
+    "Lost import responses now explain retained-ID recovery using the same JSON or decision.",
+    "Long profile actions wrap; enrolment rows and actions stack/wrap on mobile.",
+    "Local Worker auto reload retained stale asset registry; full restart loaded rebuilt scripts/CSS.",
+    "Old browser status locators distinguish assignment action messages from submission-window status."
+  ],
+  "remaining_review": "docs/current/REMAINING-DOMAIN-REVIEW.md",
+  "remaining_review_note": "16 unsafe outcomes and 59 diagnostic assertions establish original-domain defects; excluded from passing totals, to be remediated next."
+}

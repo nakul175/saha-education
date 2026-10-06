@@ -1,0 +1,34 @@
+{
+  "recorded_at": "2026-10-05T21:18:42.383266+00:00",
+  "source_revision": "8088b5f88213401ff900506362c227a55120f3c1",
+  "project_id": "appgprj_6ac3f931d31881918ffa33404d3b43a6",
+  "saved_version_id": "appgprj_6ac3f931d31881918ffa33404d3b43a6~appgver_3dd64fe4eeac8191a4fa267613b5b7e0",
+  "version_number": 1,
+  "deployment_id": "appgdep_6ac412c0fdfc81918dcd9440de06e6c7",
+  "status": "failed",
+  "failure_message": "incomplete input: SQLITE_ERROR",
+  "deployment_url": null,
+  "environment_revision": 1,
+  "local_archive_sha256": "82cda77036517ea151255f991667f0db7d32a8ba24c0b156a1b7b68472a6fb28",
+  "native_archive_storage_content_hash": "sha256:2c82062e9f13a3c2a3ce2d697112319d72de1d17329aee98b3e24f882db21825",
+  "archive_storage_size": 3840000,
+  "archive_storage_files": 319,
+  "diagnostics": {
+    "local_sql_files": 17,
+    "complete_top_level_statements": 134,
+    "complete_triggers": 40,
+    "sql_source_archive_bytes_identical": true,
+    "sql_carriage_return_bytes": 0,
+    "production_worker_logs": "unavailable: worker_logs_unavailable409",
+    "database_overview": "bindings/tables empty; does not establish applied migration state",
+    "conditional_runner_mismatch": "Generic newline/semicolon splitting can truncate complete CREATE TABLE/trigger statements. Actual hosted runner and first failed/unapplied migration are unknown; no inferred boundary."
+  },
+  "sources": [
+    "https://developers.cloudflare.com/d1/worker-api/d1-database/",
+    "https://github.com/cloudflare/workerd/blob/main/src/cloudflare/internal/d1-api.ts",
+    "https://github.com/cloudflare/workers-sdk/blob/main/packages/wrangler/src/d1/splitter.ts"
+  ],
+  "decision": "Preserve every original migration/meta file and saved version. Do not rewrite uncertain applied history or retry identical deterministic failing archive; request actual failed file/last applied boundary/runner details. Continue source and local synthetic verification.",
+  "user_input_requested": "Safe failed migration filename and last applied migration from settings/support; no credentials requested.",
+  "formal_case_or_hosted_pass_credit": false
+}

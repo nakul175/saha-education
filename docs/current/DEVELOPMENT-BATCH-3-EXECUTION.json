@@ -1,0 +1,671 @@
+{
+  "date": "2026-10-05",
+  "source_parent": "88205cdce71840066d37ebc3a08d317cea7e3f37",
+  "branch": "feat/specification-delivery",
+  "source_boundary": "Third dashboard candidate tested before its publication commit; parent is the published second batch.",
+  "approved": false,
+  "hostedDeployment": false,
+  "mainMerge": false,
+  "externalProviderActivated": false,
+  "realRecordsOrRecipients": false,
+  "freshBuild": {
+    "passed": true,
+    "source": "Final Enabled teachers wording included. Guarded runner rebuilt the source; local server restarted afterwards before final browser/served/accessibility checks."
+  },
+  "guardedRun": {
+    "generatedAt": "2026-10-05T09:11:24.872Z",
+    "startedAt": "2026-10-05T09:11:07.156Z",
+    "command": "node scripts/test.mjs pr --guard --update-baseline --reason Count all independent dashboard assertions using the standard suite summary; preserve every earlier threshold.",
+    "node": "v24.19.0",
+    "layers": [
+      {
+        "layer": "build",
+        "status": "passed",
+        "suites": 1,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 3368,
+        "failedSuites": 0
+      },
+      {
+        "layer": "static",
+        "status": "passed",
+        "suites": 3,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1411,
+        "failedSuites": 0
+      },
+      {
+        "layer": "unit",
+        "status": "passed",
+        "suites": 8,
+        "passed": 94,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1905,
+        "failedSuites": 0
+      },
+      {
+        "layer": "integration",
+        "status": "passed",
+        "suites": 21,
+        "passed": 3957,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 10354,
+        "failedSuites": 0
+      },
+      {
+        "layer": "resilience",
+        "status": "not present",
+        "suites": 0,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 0,
+        "failedSuites": 0
+      },
+      {
+        "layer": "smoke",
+        "status": "passed",
+        "suites": 1,
+        "passed": 117,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 513,
+        "failedSuites": 0
+      }
+    ],
+    "totals": {
+      "suites": 30,
+      "passed": 4168,
+      "failed": 0,
+      "skipped": 0,
+      "failedSuites": 0,
+      "durationMs": 17716
+    },
+    "guard": {
+      "ok": true,
+      "findings": [],
+      "warnings": [],
+      "evaluated": 30,
+      "newSuites": []
+    }
+  },
+  "baselineUpdate": {
+    "added": 2,
+    "raisedExisting": 0,
+    "lowered": 0,
+    "removed": 0,
+    "newThresholds": {
+      "integration/dashboard-contract": 135,
+      "integration/dashboard-access-contract": 414
+    }
+  },
+  "affectedLint": {
+    "files": 12,
+    "errors": 0,
+    "warnings": 0
+  },
+  "served": {
+    "priorDevelopment": {
+      "passed": 172,
+      "failed": 0,
+      "skipped": 0
+    },
+    "priorSpecification": {
+      "passed": 146,
+      "failed": 0,
+      "skipped": 0
+    },
+    "priorDomain": {
+      "passed": 104,
+      "failed": 0,
+      "skipped": 0
+    },
+    "limits": "Synthetic localhost built Worker/D1 and injected sessions; no provider login or hosted deployment."
+  },
+  "browser": {
+    "executedAt": "2026-10-05T09:12:51.727Z",
+    "passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "capturesReviewed": 8,
+    "checks": [
+      "Administrator counts match actual current school records and mapped teachers",
+      "Administrator dashboard has native useful school navigation",
+      "Teacher sees six assigned fixture classes and five separate assessments",
+      "Complete roster counts a legitimate zero score as recorded",
+      "Partial roster distinguishes recorded zero from a missing result",
+      "Duplicate legacy results are shown as review evidence without choosing a winner",
+      "Invalid legacy score is review evidence rather than a missing or completed result",
+      "No-roster assessment is explicit rather than labelled as needing results",
+      "Teacher can open the exact complete assessment with its saved zero",
+      "Opening an ambiguous result editor fails closed and preserves both legacy rows",
+      "Teacher class attendance link uses the exact assigned class",
+      "Guardian sees four explicitly linked profiles with no invented attendance percentage",
+      "Family no-data state is explicit and does not claim zero-percent attendance",
+      "Excused-only records retain counts and their valid recorded dates",
+      "Mixed attendance counts stored rows while excluding invalid dates from endpoints",
+      "Guardian report snapshot contains published school-entered text and no private draft",
+      "Guardian can open the exact published report through a native link",
+      "Student snapshot is only its own profile with published reports and stored attendance",
+      "Family accounts are denied unpublished report and private assessment results",
+      "Wrong dashboard role resolves to the account dashboard without administrator totals",
+      "Anonymous dashboard redirects to sign-in rather than displaying authorized zero totals",
+      "admin desktop dashboard landmarks, labels and width",
+      "admin mobile dashboard wraps text and supports native refresh navigation",
+      "teacher desktop dashboard landmarks, labels and width",
+      "teacher mobile dashboard wraps text and supports native refresh navigation",
+      "guardian desktop dashboard landmarks, labels and width",
+      "guardian mobile dashboard wraps text and supports native refresh navigation",
+      "student desktop dashboard landmarks, labels and width",
+      "student mobile dashboard wraps text and supports native refresh navigation",
+      "Bounded family report list discloses its limit and full report path",
+      "All browser scripts/styles load and no request leaves localhost"
+    ],
+    "limits": [
+      "Local built Worker and separate synthetic dashboard fixture only.",
+      "Legacy duplicate/invalid results were seeded before the final guards; no confirmed records were deleted or merged.",
+      "Only new fixture-scoped report drafts/publications were added; base roles/profiles were unchanged.",
+      "No provider login, academic rate/grade/norm policy, accessibility certification or acceptance inferred."
+    ]
+  },
+  "accessibilitySample": {
+    "executedAt": "2026-10-05T09:13:59.849Z",
+    "passed": 62,
+    "failed": 0,
+    "skipped": 0,
+    "sampledPages": 62,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "formalAccessibilityAcceptance": false,
+    "limits": "Automated visible resting-page WCAG-rule sample; incomplete checks, keyboard/screen-reader testing and all interactive states require separate review.",
+    "samples": [
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/dashboard/admin",
+        "violations": 0,
+        "incompleteRuleCount": 2
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/admin/users",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/admin/profile-links",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/schools",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/courses",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/enrolments",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/students",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/guardians",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/report-cards",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/dashboard/admin",
+        "violations": 0,
+        "incompleteRuleCount": 2
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/admin/users",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/admin/profile-links",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/schools",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/courses",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/enrolments",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/students",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/guardians",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/report-cards",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "admin-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/dashboard/teacher",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/resources",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/curriculum",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/external-apps",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/reading-imports",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/reading-review",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/learning",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/assessments",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/dashboard/teacher",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/resources",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/curriculum",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/external-apps",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/reading-imports",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/reading-review",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/learning",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/assessments",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "teacher-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/dashboard/student",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/learning",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/report-cards",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/dashboard/student",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/learning",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/report-cards",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "student-user-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/dashboard/guardian",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/students",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/report-cards",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 1280,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/dashboard/guardian",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/students",
+        "violations": 0,
+        "incompleteRuleCount": 1
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/report-cards",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/classes",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      },
+      {
+        "role": "guardian-a",
+        "width": 390,
+        "path": "/notifications",
+        "violations": 0,
+        "incompleteRuleCount": 0
+      }
+    ]
+  },
+  "localEncryptedRecovery": {
+    "passed": 202,
+    "includedInIntegration": true,
+    "limits": "Existing populated synthetic 35-table publication/receipt recovery suite; no hosted export/cutover or newly claimed dashboard-specific recovery procedure."
+  },
+  "prototype": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "screens": 12,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "limits": "Offline fictional desktop/mobile prototype, separate from served app and UAT."
+  },
+  "canonicalInventory": {
+    "version": "2.4",
+    "tables": 35,
+    "fields": 294,
+    "routes": 51,
+    "handlers": 84,
+    "designedCases": 181,
+    "scenarios": 28,
+    "caseExecution": "not-run-for-this-specification",
+    "allRequirementApprovals": false
+  },
+  "diagnostic": {
+    "scenarios": 8,
+    "assertions": 21,
+    "externalCalls": 0,
+    "includedInPassingTotals": false
+  },
+  "verificationObservations": [
+    "Original diagnostic demonstrated misleading coverage/attendance and cached assembled-read authority; fixed-behavior contracts independently exercise the final implementation.",
+    "Initial independent summary field was not recognized by the runner; final standard passed/failed/skipped report counts and guards all414 assertions.",
+    "Browser explicit Cookie header did not survive redirect; actual secure browser cookie preserves authority and verifies correct role redirection. No application redirect fix attributed.",
+    "Guarded runner rebuilt dist during an earlier browser run, invalidating the local static-asset registry. Server was stopped/restarted after build; final browser/accessibility checks passed on stable assets.",
+    "Several parallel served attempts returned503 instead of expected denial/success. Identical-source isolated probes returned eight403 denials and full104-check repeat passed. Cause is not attributed to an application fix; this does not establish hosted load behavior.",
+    "First disposable dashboard fixture import failed foreign-key order. Export now sorts parent tables before child rows; successful fresh state has every final trigger installed before Worker tests."
+  ],
+  "remainingLimits": [
+    "Principal has no session hash; no session-only revocation guarantee after principal resolution.",
+    "Attendance percentages/expected days, academic grades/norms, educator/UAT and formal accessibility/load acceptance remain pending.",
+    "Reviewed attendance recorder is the next independent batch; its diagnostics are not claimed resolved here.",
+    "No main merge, hosted deployment, real provider/ORF/AI activation, real learner data or external messaging."
+  ]
+}

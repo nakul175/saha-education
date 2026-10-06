@@ -1,0 +1,304 @@
+{
+  "stage": "eight-hour-batch-4-final-reconciliation",
+  "generated_at_utc": "2026-10-06T02:58:00Z",
+  "input_revision": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
+  "specification_version": "2.12",
+  "environment": "isolated synthetic local Worker/D1; no external providers or recipients",
+  "build": {
+    "status": "passed",
+    "fresh_build_date": "2026-10-05",
+    "log_sha256": "b3cd396b18a97e5f29c3c2948cdcb69fad6ef7b265a55ebd39bac96e91846e60",
+    "application_unchanged_since_build": true
+  },
+  "automated": {
+    "generatedAt": "2026-10-06T02:53:11.272Z",
+    "startedAt": "2026-10-06T02:52:38.695Z",
+    "node": "v24.19.0",
+    "layers": [
+      {
+        "layer": "static",
+        "status": "passed",
+        "suites": 3,
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 1584,
+        "failedSuites": 0
+      },
+      {
+        "layer": "unit",
+        "status": "passed",
+        "suites": 9,
+        "passed": 119,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 2084,
+        "failedSuites": 0
+      },
+      {
+        "layer": "integration",
+        "status": "passed",
+        "suites": 42,
+        "passed": 20656,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 28221,
+        "failedSuites": 0
+      },
+      {
+        "layer": "smoke",
+        "status": "passed",
+        "suites": 1,
+        "passed": 177,
+        "failed": 0,
+        "skipped": 0,
+        "durationMs": 525,
+        "failedSuites": 0
+      }
+    ],
+    "totals": {
+      "suites": 52,
+      "passed": 20952,
+      "failed": 0,
+      "skipped": 0,
+      "failedSuites": 0,
+      "durationMs": 32577
+    },
+    "guard": {
+      "ok": true,
+      "findings": [],
+      "warnings": [],
+      "evaluated": 52,
+      "newSuites": []
+    }
+  },
+  "command": "node scripts/test.mjs static unit integration smoke --fast --guard --report <local-report.json>",
+  "regression_baseline_changes": {
+    "added": 2,
+    "raised": 0,
+    "lowered": 0,
+    "removed": 0,
+    "unchanged": 50,
+    "evaluated": 52,
+    "quarantine_exemptions": 0
+  },
+  "callback_boundaries": {
+    "school": {
+      "checks": 840,
+      "scenarios": 67,
+      "actual_synthetic_route_sql_requests": 664
+    },
+    "course": {
+      "checks": 925,
+      "scenarios": 62,
+      "actual_synthetic_route_sql_requests": 554
+    },
+    "external_requests": 0,
+    "rendering": "substituted hooks/elements; mounted evidence separately below"
+  },
+  "mounted_school_course": {
+    "recordedAt": "2026-10-05T22:00:37.805Z",
+    "plannedProcedures": 40,
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "fixtureRequests": 47,
+    "browserApiRequests": 222,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "failedAssets": 0,
+    "preservationVerified": true,
+    "restorationVerified": true,
+    "checks": [
+      "administrator current course catalog preserves actual same-school read scope and role controls",
+      "administrator existing school details use current shell and administrator-only edit controls",
+      "administrator 390px native course-school labels and dashboard return are usable",
+      "teacher current course catalog preserves actual same-school read scope and role controls",
+      "teacher existing school details use current shell and administrator-only edit controls",
+      "teacher 390px native course-school labels and dashboard return are usable",
+      "guardian current course catalog preserves actual same-school read scope and role controls",
+      "guardian existing school details use current shell and administrator-only edit controls",
+      "guardian 390px native course-school labels and dashboard return are usable",
+      "learner current course catalog preserves actual same-school read scope and role controls",
+      "learner existing school details use current shell and administrator-only edit controls",
+      "learner 390px native course-school labels and dashboard return are usable",
+      "Initial course503 delivery shows failure rather than no courses and fresh reload recovers",
+      "Current reload hides old course rows and an obsolete administrator delivery cannot replace family scope",
+      "Final current session mismatch hides assembled course data until clean family reload",
+      "Duplicate actual course GET projection gives a controlled error without partial records",
+      "Administrator creates an actual suffix course with correlated201 and plain saved text",
+      "Same-frame native course submit is one actual creation and does not repeat",
+      "Known course201 with failed currentGET retains saved fact and hides stale controls",
+      "Fresh original account recovers known course acknowledgement separately from current catalog",
+      "Lost actual committed course reply clears all old private view and never blind-retries",
+      "Original course comparison loads actual saved records but requires explicit fresh confirmation",
+      "A new course reload resets previously checked comparison without any POST",
+      "Different administrator and family cannot see or resolve retained course creation details",
+      "Reviewed course comparison discards private pending body and opens a blank intentional draft only",
+      "Malformed course201 delivery cannot fabricate a receipt and still needs read-only comparison",
+      "Existing suffix global-code conflict remains generic500 without duplicate or inferred receipt",
+      "Unsaved course drafts remain bound to original administrator after ordinary account switch",
+      "390px current course form has labelled keyboard fields and plain catalog without page overflow",
+      "Actual school name-only save preserves untouched nullable address with exact original payload omission",
+      "Same-frame school native submits produce one actual explicit update only",
+      "Dirty school address draft survives reload while actual saved nullable evidence remains unchanged",
+      "Known school200 then failedGET keeps acknowledgement separate and hides stale current details",
+      "Fresh verified school reload restores current form and original known update evidence without resending",
+      "Unknown actual committed school reply hides protected values and retains privately without PATCH replay",
+      "Different current actors cannot compare or view original unknown school payload",
+      "School comparison rechecks saved context and never confirms or reapplies unknown request",
+      "Malformed school200 delivery needs explicit original-account comparison and keeps saved record untouched",
+      "Initial failed school read has no private form or false saved state and reload is phone-accessible",
+      "Original school name-address are restored and base educational evidence remains unchanged offline"
+    ],
+    "namedTransportFaults": [
+      "Actual course GET200 projected503",
+      "Held actual administrator course GET, then ordinary fixture account switch",
+      "Actual admin school GET then current account switch before final course session",
+      "Duplicate course actual GET projection",
+      "Actual course201 then actualGET projected503",
+      "Actual course201 commit then deliberately lost reply",
+      "Actual course201 body projected incomplete",
+      "Actual school200 then actualGET projected503",
+      "Actual school200 commit then current account switch and projected503",
+      "Comparison saved-context actualGET timestamp projection only",
+      "Actual school200 body projected incomplete",
+      "Actual schoolGET200 projected503"
+    ],
+    "limits": [
+      "Mounted matching localhost fictional fixture only, no provider/UAT/accessibility certification",
+      "Real opaque fixture cookie jar and original-actor route capture normalize local transport; application authorization unchanged",
+      "Only suffix courses and existing fictional school name may change; original name/address restored via ordinary PATCH",
+      "School updatedAt legitimately changes; no timestamp/CAS restoration is claimed",
+      "Nullable address is preserved on actual name writes; dirty address is observed only in unsaved draft because legacy PATCH cannot restore NULL",
+      "Attendance-review history comparison covers date 2026-10-05, not all dates",
+      "Named transport faults/projections disclose actual original responses and do not prove provider behavior",
+      "Course creation has global unique code but no UUID receipt/replay; comparison never sends POST",
+      "School update has no CAS/receipt replay; comparison rechecks current context and never sends PATCH",
+      "Pending state exists in memory and is discarded on hard navigation"
+    ]
+  },
+  "mounted_retained_structure": {
+    "executedAt": "2026-10-06T02:51:48.592Z",
+    "passed": 26,
+    "failed": 0,
+    "skipped": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "checks": [
+      "Course creation uses the verified school without a typed school ID",
+      "Administrator creates a real scoped course through the native form",
+      "Saved course HTML is escaped as text and stays inside current school",
+      "Rejected creation hides private inputs, focuses feedback and permits fresh original-account comparison",
+      "Confirmed course save with failed refresh reports success and requires reload",
+      "Lost successful course response retains entries and prevents a blind second create",
+      "An in-flight course save disables controls and ignores a second submit",
+      "Class choices use the current course and eligible teacher with native keyboard labels",
+      "Administrator creates a real class with controlled verified references",
+      "Class conflict preserves text and selections until explicit inventory reload",
+      "School screen edits only the existing school and offers no bootstrap or duplicate shell",
+      "School update rejection hides entries until fresh original-account reload and retains visible feedback",
+      "School confirmed save followed by refresh failure remains a success",
+      "teacher-a sees scoped /classes without administrator controls or account lookups",
+      "teacher-a sees scoped /courses without administrator controls or account lookups",
+      "teacher-a sees scoped /schools without administrator controls or account lookups",
+      "guardian-a sees scoped /classes without administrator controls or account lookups",
+      "guardian-a sees scoped /courses without administrator controls or account lookups",
+      "guardian-a sees scoped /schools without administrator controls or account lookups",
+      "student-user-a sees scoped /classes without administrator controls or account lookups",
+      "student-user-a sees scoped /courses without administrator controls or account lookups",
+      "student-user-a sees scoped /schools without administrator controls or account lookups",
+      "/classes labels and page width remain usable at 390 pixels",
+      "/courses labels and page width remain usable at 390 pixels",
+      "/schools labels and page width remain usable at 390 pixels",
+      "Built scripts and styles load and all browser requests stay local"
+    ],
+    "limits": [
+      "Fresh local built Worker and synthetic fixtures only.",
+      "Local response rejection/loss/refresh injections validate UI recovery, not real provider behavior.",
+      "Labels, native keyboard and 390 pixel geometry are smoke checks, not accessibility or UAT certification.",
+      "New suffix-owned synthetic course/class rows remain; shared school name/string address are restored in finally. Name-only writes omit nullable addresses; no null address restoration or timestamp rollback is claimed.",
+      "Retained26 procedures now follow intentional private hiding and explicit original-account comparison; known save fact remains separate from a failed current read."
+    ]
+  },
+  "excluded_stopped_attempts": {
+    "school_course_attempt1": "zero completed procedures; required date missing from history probe; corrected to 2026-10-05",
+    "school_course_attempt2": "35 procedures completed with one failing disabled-fieldset assertion; four unrun; strengthened to attribute plus actual controls; not counted as final pass",
+    "retained_structure_attempt1": "six completed procedures followed by premature POST-count assertion before preflight finished; readiness fixed without dropping any of26 final procedures",
+    "read_only_school_probe": "diagnostic only; not mounted credit"
+  },
+  "designed_case_execution": {
+    "cases": 371,
+    "scenarios": 51,
+    "outcome": "all not-run-for-this-specification",
+    "business_approvals": false,
+    "original_349_case_objects_preserved": true
+  },
+  "inventory": {
+    "business_requirements": 12,
+    "functional_nonfunctional_requirements": 35,
+    "cases": 371,
+    "scenarios": 51,
+    "automation": {
+      "existing": 268,
+      "planned": 50,
+      "manual": 53
+    },
+    "tables": 41,
+    "fields": 338,
+    "api_routes": 60,
+    "api_handlers": 96,
+    "offline_fictional_prototype_screens": 12
+  },
+  "source_sha256": {
+    "app/courses/page.tsx": "8f0923f86f6472bc87b4bc3e6acb97ce4c330b515faf15c08cccfd272b631595",
+    "app/schools/page.tsx": "eaed6fae95c1ea9dd9526fc5aca38a05a1545fe9bb11e2cfe4d99588d3943559",
+    "tests/integration/course-catalog-ui-contract.mjs": "d60e0bb9f5de082efcc0c449c55e03868380dd1d28410e77eb62ee3aae957fcc",
+    "tests/integration/school-ui-contract.mjs": "b05e2b64b829ef72066e784d76d88383c8cf94330e27dcaf6b62234dee60bedc",
+    "tests/worker-school-course-ui-check.mjs": "c2fada70db9b2acf0e2d5b821fc7540cddfd6dd6f90c9e60c3579999cec76848",
+    "tests/worker-structure-ui-check.mjs": "bd8eb7928c90f4e78120701c8f03fab0621df65446f1c07576fe756a610e5c66",
+    "scripts/test-catalogue.mjs": "8037c20cabd7db9f221e4aeb18ee74ea04867355f8efd8cc5e6e1963a9b039a6",
+    "tests/regression-baseline.json": "3a265d354bb2479528350e4b05a6b93995c03840b800d010dae74d5a7eefbd61"
+  },
+  "canonical_content_manifest": {
+    "record": "EIGHT-HOUR-BATCH-4-DESIGN-MANIFEST.json",
+    "sha256": "0924fb818b79226c5af587b52e12ce78cab1bfc92ebe5aedc33e5f0086eb44ad",
+    "files": 35,
+    "historical_manual_design_freeze": "UNRUN; later exact manual revision and execution recorded here"
+  },
+  "unfinished_assessment": {
+    "excluded_from_this_source": true,
+    "branch": "handoff/assessment-detail-2026-10-06",
+    "commit": "e1283e78d7d19f6637c0821304e5a4a5cbd438d6",
+    "checks": 1476,
+    "scenarios": 101,
+    "actual_synthetic_requests": 1538,
+    "lint_typecheck": "passed snapshot only",
+    "fresh_build_mounted_combined_release": "not completed"
+  },
+  "hosting": {
+    "status": "failed; no returned URL",
+    "project_id": "appgprj_6ac3f931d31881918ffa33404d3b43a6",
+    "deployment_id": "appgdep_6ac412c0fdfc81918dcd9440de06e6c7",
+    "error": "incomplete input: SQLITE_ERROR",
+    "last_rechecked_utc": "2026-10-06T02:53:00Z",
+    "source": "8088b5f88213401ff900506362c227a55120f3c1",
+    "applied_migration_boundary": "unknown"
+  },
+  "limits": [
+    "No backend/API/schema/migration/assessment-detail change in batch4.",
+    "Course POST is non-idempotent and globally unique code collision remains generic500; never automatic replay.",
+    "School PATCH is last-writer; no CAS, durable receipt or timestamp rollback.",
+    "Name-only school restoration preserves null address by omission; dirty address tested unsaved; date-specific attendance-history preservation only.",
+    "A started mutation may persist after unmount; pending state is memory-only.",
+    "Synthetic browser checks are not full accessibility, educational UAT, real OIDC/ORF, hosted or business acceptance.",
+    "Usage limits stopped two development streams around22:04; no uninterrupted eight-hour development claim."
+  ],
+  "evidence_sha256": {
+    "saha-eight-hour-batch-4-release.json": "37066701a337956a6aa38429b0b334642635eace14f26e0602a55bbd674c0523",
+    "saha-eight-hour-batch-4-guarded.json": "6da520f88fa2b5b2db3289b7419d04b318ec1381cfec5bf4e104b5869f7b3480",
+    "saha-eight-hour-batch-4-post-update-guard.json": "c4d3d5919e859042c66075515550020b41b472e20151387a9add9ec043247a45",
+    "saha-school-course-ui-results.json": "8bb88f626e23563266fe6fc3c8b00345543c17db74c0fc5c8b7c2ed3bc0f45fe",
+    "saha-eight-hour-batch-4-structure-ui-results.json": "855b3a9525b20e84805e99d76053660e54bb72a96383c943d16e86d8de1874ea"
+  }
+}

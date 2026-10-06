@@ -1,0 +1,125 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1791092851146,
+      "tag": "0000_youthful_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791179251146,
+      "tag": "0001_trusted_identity",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791174998130,
+      "tag": "0002_reviewed_reading",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791176345420,
+      "tag": "0003_teacher_resources",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791182763597,
+      "tag": "0004_identity_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791182763598,
+      "tag": "0005_curriculum",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791182763599,
+      "tag": "0006_submissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1791182763600,
+      "tag": "0007_reading_corrections",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1791182763601,
+      "tag": "0008_profile_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1791182763602,
+      "tag": "0009_academic_integrity",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791182763603,
+      "tag": "0010_reading_imports",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1791182763604,
+      "tag": "0011_submission_windows",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1791182763605,
+      "tag": "0012_report_publication_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1791182763606,
+      "tag": "0013_attendance_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1791182763607,
+      "tag": "0014_assessment_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1791228000015,
+      "tag": "0015_registry_creation",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1791228000016,
+      "tag": "0016_synthetic_demo",
+      "breakpoints": true
+    }
+  ]
+}
