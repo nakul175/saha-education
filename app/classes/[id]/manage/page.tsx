@@ -80,7 +80,7 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
     {error && <p role="alert" className="rounded border p-3">{error} <a className="underline" href="/academic">Back to classes</a></p>}
     <SubmissionNotice submission={submission} />
     {cls && data && <>
-      <Card><CardHeader><CardTitle>Class summary</CardTitle></CardHeader><CardContent className="space-y-2 break-words">
+      <Card><CardHeader><CardTitle><h2>Class summary</h2></CardTitle></CardHeader><CardContent className="space-y-2 break-words">
         <p className="flex flex-wrap items-center gap-2"><Badge variant={closed ? 'outline' : 'secondary'}>{closed ? 'Closed' : 'Open'}</Badge>{cls.courseStatus === 'retired' && <Badge variant="outline">Course retired</Badge>}</p>
         <p>Course: {cls.courseTitle ?? 'Unknown course'}{cls.courseCode ? ` (${cls.courseCode})` : ''}</p><p>Term: {cls.term}</p><p>Schedule: {cls.schedule || 'Not specified'}</p>
         <p>Teacher: {cls.teacher?.name ?? 'No teacher available'}</p><p>{seats}</p><p>Dates: {formatDay(cls.settings.startsOn)} to {formatDay(cls.settings.endsOn)}</p>
@@ -89,11 +89,11 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
       </CardContent></Card>
       {!manage && <p role="status">Only a school administrator can change class settings.</p>}
       {manage && <>
-        <Card><CardHeader><CardTitle>Reason for changes</CardTitle></CardHeader><CardContent>
+        <Card><CardHeader><CardTitle><h2>Reason for changes</h2></CardTitle></CardHeader><CardContent>
           <Label htmlFor="class-reason">Reason (required for every change below, at least 5 characters)</Label><Input id="class-reason" value={reason} maxLength={500} onChange={event => setReason(event.target.value)} disabled={locked} aria-describedby="class-reason-help" />
           <p id="class-reason-help" className="text-sm text-muted-foreground">The reason is kept in the class history for administrators.</p>
         </CardContent></Card>
-        <Card><CardHeader><CardTitle>Edit class settings</CardTitle></CardHeader><CardContent>
+        <Card><CardHeader><CardTitle><h2>Edit class settings</h2></CardTitle></CardHeader><CardContent>
           <form onSubmit={saveSettings} className="space-y-4"><fieldset disabled={locked || closed} className="min-w-0 space-y-4">
             <div><Label htmlFor="class-course">Course</Label><select id="class-course" className="h-11 w-full rounded border bg-white px-3" value={form.courseId} onChange={event => setForm({ ...form, courseId: event.target.value })}>
               {data.courses.map(course => <option key={course.id} value={course.id}>{course.title} ({course.code})</option>)}</select></div>
@@ -108,7 +108,7 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
             <Button type="submit" disabled={trimmed.length < 5 || capacityInvalid}>{submission.busy ? 'Saving…' : 'Save class settings'}</Button>
           </fieldset></form>
         </CardContent></Card>
-        <Card><CardHeader><CardTitle>Change the teacher</CardTitle></CardHeader><CardContent className="space-y-4">
+        <Card><CardHeader><CardTitle><h2>Change the teacher</h2></CardTitle></CardHeader><CardContent className="space-y-4">
           <p>Current teacher: {cls.teacher?.name ?? 'None available'}. The teacher assigned now is the one who can see this class and its roster; the previous teacher loses access immediately.</p>
           <fieldset disabled={locked || closed} className="min-w-0 space-y-4">
             <div><Label htmlFor="class-new-teacher">New teacher</Label><select id="class-new-teacher" className="h-11 w-full rounded border bg-white px-3" value={teacherId} onChange={event => setTeacherId(event.target.value)}>
@@ -116,7 +116,7 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
             <Button type="button" variant="outline" disabled={!teacherId || trimmed.length < 5} onClick={() => send('Teacher change', { kind: 'class.teacher', classId: cls.id, expectedUpdatedAt: cls.updatedAt, teacherId })}>Assign this teacher</Button>
           </fieldset>
         </CardContent></Card>
-        <Card><CardHeader><CardTitle>{closed ? 'Reopen class' : 'Close class'}</CardTitle></CardHeader><CardContent className="space-y-4">
+        <Card><CardHeader><CardTitle><h2>{closed ? 'Reopen class' : 'Close class'}</h2></CardTitle></CardHeader><CardContent className="space-y-4">
           {closed ? <p>Reopening lets learners be enrolled, withdrawn and transferred again.</p> : <p>A closed class accepts no new enrolments, re-enrolments or setting changes. Existing enrolment records stay as they are unless you complete them below.</p>}
           <fieldset disabled={locked} className="min-w-0 space-y-4">
             {!closed && <div className="flex items-start gap-2"><input id="class-complete-active" type="checkbox" className="mt-1 size-5" checked={completeActive} onChange={event => setCompleteActive(event.target.checked)} /><Label htmlFor="class-complete-active">Also mark every active learner as completed today</Label></div>}
@@ -125,7 +125,7 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
           </fieldset>
         </CardContent></Card>
       </>}
-      <Card><CardHeader><CardTitle>Class history</CardTitle></CardHeader><CardContent>
+      <Card><CardHeader><CardTitle><h2>Class history</h2></CardTitle></CardHeader><CardContent>
         {data.history.items.length === 0 ? <p>No reviewed changes have been recorded for this class.</p> : <ol className="space-y-3">{data.history.items.map(item => <li key={item.id} className="rounded border p-3 break-words">
           <p className="font-medium">{item.label}</p><p className="text-sm text-muted-foreground">{formatMoment(item.createdAt)}{item.actorName ? ` · ${item.actorName}` : ''}</p>{item.reason && <p>Reason: {item.reason}</p>}</li>)}</ol>}
         {data.history.truncated && <p className="mt-2 text-sm text-muted-foreground">Only the latest {data.history.limit} entries are shown.</p>}

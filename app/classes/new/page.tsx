@@ -67,7 +67,7 @@ export default function NewClassPage() {
     {principal && !admin && <p role="alert" className="rounded border p-3">Only a school administrator can add classes.</p>}
     <SubmissionNotice submission={submission} />
     {created && <p role="status" className="rounded border p-3 break-words">Class {created.name} was added. <a className="underline" href={'/classes/' + encodeURIComponent(created.id) + '/manage'}>Open settings for {created.name}</a></p>}
-    {admin && <Card><CardHeader><CardTitle>Class details</CardTitle></CardHeader><CardContent>
+    {admin && <Card><CardHeader><CardTitle><h2>Class details</h2></CardTitle></CardHeader><CardContent>
       {active.length === 0 && !loading && <p role="status" className="mb-3">No active course is available. <a className="underline" href="/courses/new">Add a course</a> or reinstate a retired one first.</p>}
       {teachers.length === 0 && !loading && <p role="status" className="mb-3">No teacher account is available in your school.</p>}
       <form onSubmit={submit} className="space-y-4"><fieldset disabled={locked} className="min-w-0 space-y-4">

@@ -71,13 +71,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
     {error && <p role="alert" className="rounded border p-3">{error} <a className="underline" href="/academic">Back to courses</a></p>}
     <SubmissionNotice submission={submission} />
     {course && principal && <>
-      <Card><CardHeader><CardTitle>Course details</CardTitle></CardHeader><CardContent className="space-y-2 break-words">
+      <Card><CardHeader><CardTitle><h2>Course details</h2></CardTitle></CardHeader><CardContent className="space-y-2 break-words">
         <p><Badge variant={retired ? 'outline' : 'secondary'}>{retired ? 'Retired' : 'Active'}</Badge></p>
         <p>Code: {course.code}</p><p>Grade level: {course.gradeLevel}</p><p className="whitespace-pre-wrap">{course.description || 'No description.'}</p>
         {admin && <p>Classes using this course: {course.classCount ?? 0}</p>}
         {retired && <p role="status">This course is retired. No new classes can be created for it; existing classes and enrolments are unchanged.{admin && course.statusReason ? ` Reason: ${course.statusReason}` : ''}</p>}
       </CardContent></Card>
-      {admin && <Card><CardHeader><CardTitle>Edit course</CardTitle></CardHeader><CardContent>
+      {admin && <Card><CardHeader><CardTitle><h2>Edit course</h2></CardTitle></CardHeader><CardContent>
         <form onSubmit={edit} className="space-y-4"><fieldset disabled={locked} className="min-w-0 space-y-4">
           <div><Label htmlFor="course-code">Course code</Label><Input id="course-code" value={form.code} required maxLength={60} onChange={event => setForm({ ...form, code: event.target.value })} /></div>
           <div><Label htmlFor="course-title">Course title</Label><Input id="course-title" value={form.title} required maxLength={200} onChange={event => setForm({ ...form, title: event.target.value })} /></div>
@@ -89,7 +89,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             <Button type="button" variant="outline" disabled={trimmed.length < 5 || locked} onClick={toggle}>{retired ? 'Reinstate this course' : 'Retire this course'}</Button></div>
         </fieldset></form>
       </CardContent></Card>}
-      {admin && history && <Card><CardHeader><CardTitle>Course history</CardTitle></CardHeader><CardContent>
+      {admin && history && <Card><CardHeader><CardTitle><h2>Course history</h2></CardTitle></CardHeader><CardContent>
         {history.items.length === 0 ? <p>No reviewed changes have been recorded for this course.</p> : <ol className="space-y-3">{history.items.map(item => <li key={item.id} className="rounded border p-3 break-words">
           <p className="font-medium">{item.label}</p><p className="text-sm text-muted-foreground">{formatMoment(item.createdAt)}{item.actorName ? ` · ${item.actorName}` : ''}</p>{item.reason && <p>Reason: {item.reason}</p>}</li>)}</ol>}
         {history.truncated && <p className="mt-2 text-sm text-muted-foreground">Only the latest {history.limit} entries are shown.</p>}

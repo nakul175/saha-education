@@ -16,7 +16,8 @@ const browser = await chromium.launch({ executablePath, headless: true, args: ['
 const owners = new Map(), contexts = [], pageErrors = [], externalRequests = [], failedResources = [], checks = [], screenshots = [], dialogs = [];
 let passed = 0;
 const suffix = crypto.randomUUID().slice(0, 8), today = new Date().toISOString().slice(0, 10);
-const check = async (name, action) => { await action(); passed++; checks.push(name); console.log('ok - ' + name); };
+const failures = [];
+const check = async (name, action) => { try { await action(); passed++; checks.push(name); console.log('ok - ' + name); } catch (error) { failures.push(name); console.log('not ok - ' + name + ': ' + String(error?.message ?? error).split('\n').slice(0, 8).join(' | ').slice(0, 900)); } };
 async function context(user) {
   if (user && typeof sessions[user] !== 'string') throw new Error('Missing a required synthetic session: ' + user);
   const value = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Pacific/Kiritimati', serviceWorkers: 'block', extraHTTPHeaders: user ? { cookie: sessions[user] } : {} });
@@ -37,7 +38,6 @@ async function api(value, path, method = 'GET', data, expected = 200) {
   catch { throw new Error('Local API transport failed: ' + url.pathname); }
   assert.equal(response.status(), expected, 'Local API status: ' + method + ' ' + path); return response.json();
 }
-const reviewed = (value, changes, reason) => api(value, '/api/academic-changes', 'POST', { clientRequestId: crypto.randomUUID(), ...(reason ? { reason } : {}), changes }, 201);
 async function goto(page, path) {
   const response = await page.goto(base.origin + path, { waitUntil: 'networkidle', timeout: 25000 }); assert.equal(response?.status(), 200); return response;
 }
@@ -257,11 +257,12 @@ try {
   await goto(page, '/classes/' + classId + '/roster'); await shot(page, 'roster-375');
   await page.setViewportSize({ width: 1280, height: 900 }); await goto(page, '/classes/' + classId + '/manage'); await shot(page, 'manage-desktop');
   await check('Browser assets load and all observed requests stay local', async () => { assert.deepEqual(pageErrors, []); assert.deepEqual(externalRequests, []); assert.deepEqual(failedResources, []); });
+  if (failures.length) throw new Error(failures.length + ' check(s) failed: ' + failures.join('; '));
   const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, checks, screenshots,
     limits: ['Built localhost Worker with final migrated synthetic sessions only.', 'Offline: non-local requests are aborted and counted.', 'Lost replies are modelled by dropping a real response; no real recipient, identity provider or paid service.'] };
   writeFileSync(join(outputDir, 'courses-enrolment-results.json'), JSON.stringify(result, null, 2) + '\n');
   console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length }));
 } catch (error) {
   for (const value of contexts) for (const page of value.pages()) if (page.url().startsWith(base.origin)) console.error('Local screen: ' + new URL(page.url()).pathname + '\n' + (await page.locator('body').innerText()).slice(0, 1600));
-  console.log(JSON.stringify({ passed, failed: 1, externalRequests: externalRequests.length, pageErrors: pageErrors.length })); throw error;
+  console.log(JSON.stringify({ passed, failed: failures.length || 1, externalRequests: externalRequests.length, pageErrors: pageErrors.length })); throw error;
 } finally { for (const value of contexts) await value.close(); await browser.close(); }

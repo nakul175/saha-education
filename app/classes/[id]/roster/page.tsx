@@ -93,17 +93,17 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
     {error && <p role="alert" className="rounded border p-3">{error} <a className="underline" href="/academic">Back to classes</a></p>}
     <SubmissionNotice submission={submission} />
     {cls && data && <>
-      <Card><CardHeader><CardTitle>Class summary</CardTitle></CardHeader><CardContent className="space-y-1 break-words">
+      <Card><CardHeader><CardTitle><h2>Class summary</h2></CardTitle></CardHeader><CardContent className="space-y-1 break-words">
         <p className="flex flex-wrap items-center gap-2"><Badge variant={closed ? 'outline' : 'secondary'}>{closed ? 'Closed' : 'Open'}</Badge><span>{cls.courseTitle ?? 'Course'} · Term {cls.term}</span></p>
         <p>Teacher: {cls.teacher?.name ?? 'No teacher available'}</p><p role="status">{seats}</p><p>Dates: {formatDay(cls.settings.startsOn)} to {formatDay(cls.settings.endsOn)}</p>
         {closed && <p role="status">This class is closed. {manage ? 'Reopen it from the class settings to change the roster.' : 'The roster cannot change until an administrator reopens it.'}</p>}
         {manage && <p><a className="underline" href={'/classes/' + encodeURIComponent(cls.id) + '/manage'}>Open settings for {cls.name}</a></p>}
       </CardContent></Card>
-      <Card><CardHeader><CardTitle>Learners ({data.roster.length})</CardTitle></CardHeader><CardContent>
+      <Card><CardHeader><CardTitle><h2>Learners ({data.roster.length})</h2></CardTitle></CardHeader><CardContent>
         {data.roster.length === 0 ? <p>No learner has been enrolled in this class yet.</p> : <ul className="space-y-3">{data.roster.map(row => {
           const name = `${row.firstName} ${row.lastName}`;
           return <li key={row.enrolmentId} className="rounded border p-3 break-words">
-            <div className="flex flex-wrap items-center gap-2"><h2 className="font-medium">{name}</h2><Badge variant={row.status === 'active' ? 'secondary' : 'outline'}>{STATUS_LABELS[row.status] ?? row.status}</Badge></div>
+            <div className="flex flex-wrap items-center gap-2"><h3 className="font-medium">{name}</h3><Badge variant={row.status === 'active' ? 'secondary' : 'outline'}>{STATUS_LABELS[row.status] ?? row.status}</Badge></div>
             <p className="text-sm text-muted-foreground">Admission number {row.admissionNumber} · Grade level {row.gradeLevel}</p>
             <p>Started {formatDay(row.startedOn)}{row.endedOn ? ` · Ended ${formatDay(row.endedOn)}${row.endKind ? ` (${END_LABELS[row.endKind] ?? row.endKind})` : ''}` : ''}</p>
             {manage && <div className="mt-2 flex flex-wrap gap-2">
@@ -112,7 +112,7 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
             </div>}
           </li>; })}</ul>}
       </CardContent></Card>
-      {manage && action && <Card><CardHeader><CardTitle>{ACTION_TEXT[action.kind]} {action.row.firstName} {action.row.lastName}</CardTitle></CardHeader><CardContent>
+      {manage && action && <Card><CardHeader><CardTitle><h2>{ACTION_TEXT[action.kind]} {action.row.firstName} {action.row.lastName}</h2></CardTitle></CardHeader><CardContent>
         <form onSubmit={confirmAction} className="space-y-4"><fieldset disabled={locked} className="min-w-0 space-y-4">
           <div><Label htmlFor="action-date">Effective date</Label><Input id="action-date" type="date" required value={effectiveOn} onChange={event => setEffectiveOn(event.target.value)} aria-describedby="action-date-help" />
             <p id="action-date-help" className="text-sm text-muted-foreground">Withdrawals and completions cannot be dated in the future, or before the enrolment started.</p></div>
@@ -123,7 +123,7 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
             <Button type="button" variant="outline" onClick={() => setAction(null)}>Cancel</Button></div>
         </fieldset></form>
       </CardContent></Card>}
-      {manage && <Card><CardHeader><CardTitle>Enrol learners</CardTitle></CardHeader><CardContent className="space-y-4">
+      {manage && <Card><CardHeader><CardTitle><h2>Enrol learners</h2></CardTitle></CardHeader><CardContent className="space-y-4">
         {closed ? <p>This class is closed, so no learner can be enrolled.</p> : <>
           <p>Choose up to {MAX_BATCH} learners. They are enrolled together: if one cannot be enrolled (for example the class is full), none are.</p>
           <div><Label htmlFor="enrol-search">Find a learner by name or admission number</Label><Input id="enrol-search" value={search} onChange={event => setSearch(event.target.value)} disabled={locked} /></div>

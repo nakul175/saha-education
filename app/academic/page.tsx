@@ -61,17 +61,17 @@ export default function AcademicHubPage() {
         <a className="underline" href="/enrolments/history">Enrolment history</a>
       </nav>
       {isStaff(principal) && <div className="grid min-w-0 gap-6 lg:grid-cols-2">
-        <Card><CardHeader><CardTitle>Courses</CardTitle></CardHeader><CardContent>
+        <Card><CardHeader><CardTitle><h2>Courses</h2></CardTitle></CardHeader><CardContent>
           <p className="mb-3" role="status">{courses.length} {courses.length === 1 ? 'course' : 'courses'} in your school.</p>
           {courses.length === 0 ? <p>No courses have been added yet.</p> : <ul className="space-y-3">{courses.map(course => <li key={course.id} className="rounded border p-3 break-words">
-            <div className="flex flex-wrap items-center gap-2"><h2 className="font-medium">{course.title}</h2><Badge variant={states[course.id] === 'retired' ? 'outline' : 'secondary'}>{states[course.id] === 'retired' ? 'Retired' : 'Active'}</Badge></div>
+            <div className="flex flex-wrap items-center gap-2"><h3 className="font-medium">{course.title}</h3><Badge variant={states[course.id] === 'retired' ? 'outline' : 'secondary'}>{states[course.id] === 'retired' ? 'Retired' : 'Active'}</Badge></div>
             <p>Code: {course.code} · Grade level: {course.gradeLevel}</p>
             <a className="underline" href={'/courses/' + encodeURIComponent(course.id)}>Open course {course.title}</a></li>)}</ul>}
         </CardContent></Card>
-        <Card><CardHeader><CardTitle>Classes</CardTitle></CardHeader><CardContent>
+        <Card><CardHeader><CardTitle><h2>Classes</h2></CardTitle></CardHeader><CardContent>
           <p className="mb-3" role="status">{classes.length} {classes.length === 1 ? 'class' : 'classes'} {admin ? 'in your school' : 'assigned to you'}.</p>
           {classes.length === 0 ? <p>{admin ? 'No classes have been added yet.' : 'No classes are currently assigned to you.'}</p> : <ul className="space-y-3">{classes.map(row => <li key={row.id} className="rounded border p-3 break-words">
-            <h2 className="font-medium">{row.name}</h2><p>{courseTitle(row.courseId)} · Term {row.term}</p>
+            <h3 className="font-medium">{row.name}</h3><p>{courseTitle(row.courseId)} · Term {row.term}</p>
             <p className="flex flex-wrap gap-3"><a className="underline" href={'/classes/' + encodeURIComponent(row.id) + '/roster'}>Roster for {row.name}</a>
               {admin && <a className="underline" href={'/classes/' + encodeURIComponent(row.id) + '/manage'}>Settings for {row.name}</a>}</p></li>)}</ul>}
         </CardContent></Card>

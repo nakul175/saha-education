@@ -69,13 +69,13 @@ export default function EnrolmentHistoryPage() {
       {loadingHistory && <p role="status">Loading enrolment history…</p>}
       {historyError && <p role="alert" className="rounded border p-3">{historyError}</p>}
       {history && <>
-        <Card><CardHeader><CardTitle>Classes for {history.student.name}</CardTitle></CardHeader><CardContent>
+        <Card><CardHeader><CardTitle><h2>Classes for {history.student.name}</h2></CardTitle></CardHeader><CardContent>
           {history.enrolments.length === 0 ? <p>{staff ? 'No enrolment is available for this learner in your classes.' : 'No enrolment has been recorded for this learner.'}</p> : <ul className="space-y-3">{history.enrolments.map(row => <li key={row.enrolmentId} className="rounded border p-3 break-words">
-            <div className="flex flex-wrap items-center gap-2"><h2 className="font-medium">{row.className}</h2><Badge variant={row.status === 'active' ? 'secondary' : 'outline'}>{STATUS_LABELS[row.status] ?? row.status}</Badge></div>
+            <div className="flex flex-wrap items-center gap-2"><h3 className="font-medium">{row.className}</h3><Badge variant={row.status === 'active' ? 'secondary' : 'outline'}>{STATUS_LABELS[row.status] ?? row.status}</Badge></div>
             <p>{row.courseTitle ?? 'Course'} · Term {row.term}</p>
             <p>Started {formatDay(row.startedOn)}{row.endedOn ? ` · Ended ${formatDay(row.endedOn)}${row.endKind ? ` (${END_LABELS[row.endKind] ?? row.endKind})` : ''}` : ''}</p></li>)}</ul>}
         </CardContent></Card>
-        <Card><CardHeader><CardTitle>Recorded changes</CardTitle></CardHeader><CardContent>
+        <Card><CardHeader><CardTitle><h2>Recorded changes</h2></CardTitle></CardHeader><CardContent>
           {history.events.length === 0 ? <p>No enrolment change has been recorded through the reviewed process for this learner.</p> : <ol className="space-y-3">{history.events.map(item => <li key={item.id} className="rounded border p-3 break-words">
             <p className="font-medium">{item.label}</p><p className="text-sm text-muted-foreground">Recorded {formatMoment(item.createdAt)}{item.actorName ? ` · ${item.actorName}` : ''}</p>{item.reason && <p>Reason: {item.reason}</p>}</li>)}</ol>}
           {history.truncated && <p className="mt-2 text-sm text-muted-foreground">Only the latest {history.limit} entries are shown.</p>}

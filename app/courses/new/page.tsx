@@ -47,7 +47,7 @@ export default function NewCoursePage() {
     {principal && !admin && <p role="alert" className="rounded border p-3">Only a school administrator can add courses.</p>}
     <SubmissionNotice submission={submission} />
     {created && <p role="status" className="rounded border p-3 break-words">Course {created.title} was added. <a className="underline" href={'/courses/' + encodeURIComponent(created.id)}>Open course {created.title}</a></p>}
-    {admin && <Card><CardHeader><CardTitle>Course details</CardTitle></CardHeader><CardContent>
+    {admin && <Card><CardHeader><CardTitle><h2>Course details</h2></CardTitle></CardHeader><CardContent>
       <form onSubmit={submit} className="space-y-4"><fieldset disabled={locked} className="min-w-0 space-y-4">
         <div><Label htmlFor="new-course-code">Course code</Label><Input id="new-course-code" value={form.code} required maxLength={60} onChange={event => setForm({ ...form, code: event.target.value })} /></div>
         <div><Label htmlFor="new-course-title">Course title</Label><Input id="new-course-title" value={form.title} required maxLength={200} onChange={event => setForm({ ...form, title: event.target.value })} /></div>
