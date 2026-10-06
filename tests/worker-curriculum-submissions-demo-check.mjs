@@ -300,8 +300,8 @@ try {
   async function reviewWindow(state, reason) {
     await page.goto(origin + '/assignments/' + encodeURIComponent(assignmentId));
     const form = page.getByRole('form', { name: 'Review submission window' });
-    await form.getByLabel('New response access').selectOption(state);
-    await form.getByLabel('Reason for window change').fill(reason);
+    await form.getByRole('combobox', { name: /New response access/ }).selectOption(state);
+    await form.getByRole('textbox', { name: /Reason for window change/ }).fill(reason);
     await form.getByRole('checkbox', { name: /I reviewed this change/ }).check();
     await form.getByRole('button', { name: 'Save reviewed submission window', exact: true }).click();
   }
