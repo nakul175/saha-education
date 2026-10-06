@@ -103,7 +103,9 @@ try {
     assert.ok([schoolToday(), addDays(schoolToday(), -1)].includes(saved.schoolDate));
   });
   await check('Teachers and families cannot change the school calendar', async () => {
-    for (const value of [teacher, family, learner]) await api(value, '/api/attendance/calendar', 'PUT', { timezone: 'UTC', futureDatesAllowed: true }, 403);
+    // No request body on purpose: the route refuses the role before reading a body (covered in the contract suite), and the local Worker
+    // intermittently stalls or answers 503 for later requests when a body-bearing request is refused before its body is read.
+    for (const value of [teacher, family, learner]) await api(value, '/api/attendance/calendar', 'PUT', undefined, 403);
     const view = await teacher.newPage(); await view.goto(base.origin + '/attendance', { waitUntil: 'networkidle' }); await expect(view.locator('[data-attendance-calendar-settings]')).toHaveCount(0); await view.close();
   });
 
