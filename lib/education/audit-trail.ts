@@ -18,20 +18,14 @@ import { assignmentSubmissionWindows } from '@/db/submission-window-schema';
 import { submissionAttempts, submissionFeedback } from '@/db/submission-schema';
 import { AccessError, assertAdmin, livePrincipalScope } from './access';
 import { digest } from './identity';
+import { AUDIT_SOURCES, type AuditSource } from './audit-sources';
 import type { Principal } from './types';
 
 // One read-only, school-scoped timeline over the evidence tables that already
 // record who did what and when. It never writes to those tables; an
 // administrator's reasoned correction is appended beside an entry, not into it.
 
-export const AUDIT_SOURCES = {
-  account: 'Accounts and access', 'profile-link': 'Profile and login links', registry: 'New student and guardian records',
-  attendance: 'Attendance corrections', assessment: 'Assessment result corrections', 'reading-correction': 'Reading corrections',
-  report: 'Report card publication', 'submission-window': 'Submission windows', feedback: 'Learner feedback',
-  'reading-import': 'Reading imports', 'resource-approval': 'Resource approvals', 'curriculum-approval': 'Curriculum approvals',
-  notice: 'Notices sent', 'audit-note': 'Audit correction notes',
-} as const;
-export type AuditSource = keyof typeof AUDIT_SOURCES;
+export { AUDIT_SOURCES, type AuditSource };
 const sourceKeys = Object.keys(AUDIT_SOURCES) as [AuditSource, ...AuditSource[]];
 export const auditSourceSchema = z.enum(sourceKeys);
 const identifier = z.string().min(1).max(200).refine(value => value === value.trim() && !/[\x00-\x1f\x7f]/.test(value));

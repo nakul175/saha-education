@@ -17,6 +17,17 @@ async function responseJson<T>(response: Response): Promise<T> {
   return JSON.parse(body) as T;
 }
 async function read<T>(path: string, signal?: AbortSignal) { return responseJson<T>(await fetch(path, { cache: 'no-store', signal })); }
+// Rows stay a plain array; paging facts arrive in headers so older callers keep working.
+type InboxPage = { rows: Notice[]; next: string | null; total: number | null; unread: number | null };
+function headerNumber(response: Response, name: string) { const value = response.headers.get(name); return value !== null && /^\d+$/.test(value) ? Number(value) : null; }
+async function readInbox(path: string, signal?: AbortSignal): Promise<InboxPage> {
+  const response = await fetch(path, { cache: 'no-store', signal });
+  const rows = await responseJson<Notice[]>(response);
+  const cursor = response.headers.get('x-next-cursor');
+  let next: string | null = null;
+  try { next = cursor ? decodeURIComponent(cursor) : null; } catch { next = null; }
+  return { rows, next, total: headerNumber(response, 'x-total-count'), unread: headerNumber(response, 'x-unread-count') };
+}
 function isUnread(value: unknown) { return value === null || value === undefined; }
 function StoredDate({ value }: { value: unknown }) { return isExactStoredTimestamp(value) ? <time dateTime={value}>{new Date(value).toLocaleString()}</time> : <span>Stored date requires review: {String(value ?? '')}</span>; }
 
@@ -29,13 +40,16 @@ export default function NotificationsPage() {
   const [pendingView, setPendingView] = useState<PendingRead | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [paging, setPaging] = useState<{ next: string | null; total: number | null; unread: number | null; newer: boolean }>({ next: null, total: null, unread: null, newer: false });
+  const [hideRead, setHideRead] = useState(false);
+  const view = useRef<{ cursor: string | null; previous: (string | null)[] }>({ cursor: null, previous: [] });
   const generation = useRef(0), controller = useRef<AbortController | null>(null), mounted = useRef(true);
   const inFlight = useRef(false), currentScope = useRef<string | null>(null), currentRows = useRef<Notice[]>([]);
   const pending = useRef<PendingRead | null>(null), message = useRef<HTMLDivElement>(null);
   const invalidate = useCallback(() => { generation.current++; controller.current?.abort(); }, []);
   const hidePrivate = useCallback(() => {
     currentScope.current = null; currentRows.current = [];
-    setPrincipal(null); setNotifications([]); setReady(false);
+    setPrincipal(null); setNotifications([]); setReady(false); setPaging({ next: null, total: null, unread: null, newer: false });
   }, []);
   const reload = useCallback(async (requiredActor?: string): Promise<{ actor: Principal; rows: Notice[] } | null> => {
     if (!mounted.current) return null;
@@ -47,13 +61,15 @@ export default function NotificationsPage() {
       const actor = await read<Principal>('/api/session', abort.signal);
       if (!current()) return null;
       if (!actor.id || requiredActor && scopeKey(actor) !== requiredActor) throw new ReadFailure(403);
-      const rows = await read<Notice[]>('/api/notifications', abort.signal);
+      const inboxPage = await readInbox('/api/notifications' + (view.current.cursor ? '?' + new URLSearchParams({ cursor: view.current.cursor }) : ''), abort.signal);
+      const rows = inboxPage.rows;
       if (!current()) return null;
       const verified = await read<Principal>('/api/session', abort.signal);
       if (!current()) return null;
       if (scopeKey(actor) !== scopeKey(verified) || !Array.isArray(rows) || rows.some(row => row.userId !== actor.id || typeof row.id !== 'string' || !row.id)) throw new Error('Unconfirmed inbox owner');
       currentScope.current = scopeKey(actor); currentRows.current = rows;
       setPrincipal(actor); setNotifications(rows); setReady(true);
+      setPaging({ next: inboxPage.next, total: inboxPage.total, unread: inboxPage.unread, newer: view.current.previous.length > 0 });
       return { actor, rows };
     } catch (failure) {
       if (!current()) return null;
@@ -121,6 +137,15 @@ export default function NotificationsPage() {
       {originalNotice ? <><p className="break-words">Original notice: {originalNotice.title}. Retrying checks its saved read status and preserves the first saved read time.</p><Button type="button" variant="outline" disabled={saving} onClick={() => { if (pending.current) void execute(pending.current, true); }}>Retry original notice read status</Button></> : originalScope ? <><p>The original notice is no longer available in your current inbox. Its read status has not been confirmed.</p><Button type="button" variant="outline" disabled={saving} onClick={() => { if (!pending.current || currentScope.current !== pending.current.actorKey) return; pending.current = null; setPendingView(null); setNotice('The unavailable notice reminder was dismissed. No read status was changed or confirmed.'); }}>Dismiss unavailable notice reminder</Button></> : <p>Reload with the original account before inspecting or retrying its notice. <a href="/login" target="_blank" rel="noreferrer" className="underline">Sign in in another tab</a> if needed.</p>}
     </section>}
     {error && !pendingView && <p><a href="/login" target="_blank" rel="noreferrer" className="underline">Sign in in another tab</a>, then reload your inbox.</p>}
-    {ready && <Card><CardHeader><CardTitle>Notification Inbox</CardTitle></CardHeader><CardContent>{notifications.length === 0 ? <p className="text-muted-foreground">No notifications found for your current account.</p> : <div className="space-y-4">{notifications.map(row => <article key={row.id} data-notification-id={row.id} aria-labelledby={'notification-title-' + row.id} className={'rounded border p-4 ' + (isUnread(row.readAt) ? 'border-blue-200 bg-blue-50' : '')}><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1 break-words"><h2 id={'notification-title-' + row.id} className="font-medium">{row.title}</h2><p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{row.body}</p><p className="mt-2 text-xs text-muted-foreground">Saved: <StoredDate value={row.createdAt} /></p>{!isUnread(row.readAt) && <p className="mt-1 text-xs text-muted-foreground">Saved read time: <StoredDate value={row.readAt} /></p>}</div>{isUnread(row.readAt) && <Badge variant="secondary">Unread</Badge>}</div>{isUnread(row.readAt) && <div className="mt-3"><Button type="button" size="sm" disabled={blocked} onClick={() => markAsRead(row.id)}>Mark as Read</Button></div>}</article>)}</div>}</CardContent></Card>}
+    {ready && principal && ['admin', 'teacher'].includes(principal.role) && <p className="text-sm"><a href="/notices" className="underline">Send a notice or see notices you sent</a></p>}
+    {ready && <Card><CardHeader><CardTitle>Notification Inbox</CardTitle></CardHeader><CardContent>
+      {paging.total !== null && <p className="mb-3 text-sm text-muted-foreground" role="status">{paging.total === 0 ? 'You have no notices yet.' : `${paging.unread ?? 0} unread of ${paging.total} notices.`}</p>}
+      <label className="mb-3 flex items-center gap-2 text-sm"><input type="checkbox" checked={hideRead} onChange={event => setHideRead(event.target.checked)} />Hide notices I have already read (on this page)</label>
+      {notifications.length === 0 ? <p className="text-muted-foreground">No notifications found for your current account.</p> : hideRead && notifications.every(row => !isUnread(row.readAt)) ? <p className="text-muted-foreground">Every notice on this page has been read. Untick the box above to see them, or open older notices.</p> : <div className="space-y-4">{notifications.filter(row => !hideRead || isUnread(row.readAt)).map(row => <article key={row.id} data-notification-id={row.id} aria-labelledby={'notification-title-' + row.id} className={'rounded border p-4 ' + (isUnread(row.readAt) ? 'border-blue-200 bg-blue-50' : '')}><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1 break-words"><h2 id={'notification-title-' + row.id} className="font-medium">{row.title}</h2><p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{row.body}</p><p className="mt-2 text-xs text-muted-foreground">Saved: <StoredDate value={row.createdAt} /></p>{!isUnread(row.readAt) && <p className="mt-1 text-xs text-muted-foreground">Saved read time: <StoredDate value={row.readAt} /></p>}</div>{isUnread(row.readAt) && <Badge variant="secondary">Unread</Badge>}</div>{isUnread(row.readAt) && <div className="mt-3"><Button type="button" size="sm" disabled={blocked} onClick={() => markAsRead(row.id)}>Mark as Read</Button></div>}</article>)}</div>}
+      {(paging.next || paging.newer) && <nav aria-label="Notice pages" className="mt-4 flex flex-wrap gap-2">
+        <Button type="button" variant="outline" disabled={blocked || !paging.newer} onClick={() => { const earlier = view.current.previous.pop(); view.current.cursor = earlier ?? null; setNotice(null); void reload(); }}>Newer notices</Button>
+        <Button type="button" variant="outline" disabled={blocked || !paging.next} onClick={() => { if (!paging.next) return; view.current.previous.push(view.current.cursor); view.current.cursor = paging.next; setNotice(null); void reload(); }}>Older notices</Button>
+      </nav>}
+    </CardContent></Card>}
   </div>;
 }
