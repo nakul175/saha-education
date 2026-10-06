@@ -1,0 +1,82 @@
+# Change-control gate (NFR-09, docs/RELEASE-CHECKLIST.md). Runs the same commands a contributor runs locally.
+# It uses synthetic data only, needs no secrets, calls no provider and deploys nothing. A green run is a clean-runner
+# build/test/documentation result; it is not a hosted deployment, a provider journey or business acceptance.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CI: "true"
+      # Providers, paid AI and real recipients stay disabled: no SAHA_* provider setting is defined for CI.
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check out the exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js (node:sqlite and module hooks are required by the test harness)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Enable the pinned pnpm (packageManager in package.json)
+        run: corepack enable
+
+      - name: Install dependencies from the lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Original migrations are unmodified (applied history is preserved)
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          base="origin/${{ github.base_ref }}"
+          changed="$(git diff --name-status "$base"...HEAD -- 'drizzle/*.sql' | awk '$1 != "A"')"
+          if [ -n "$changed" ]; then
+            echo "Existing migrations were modified, renamed or deleted:" >&2
+            echo "$changed" >&2
+            exit 1
+          fi
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Guarded test run
+        run: node scripts/test.mjs static unit integration smoke --fast --guard
+
+      - name: Documentation check
+        run: python3 scripts/check-documentation.py
+
+      - name: Requirements audit
+        run: node scripts/audit-requirements.mjs --check
+
+      - name: Specification check
+        run: node scripts/check-specification.mjs
+
+      - name: Keep test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: tests/reports/
+          if-no-files-found: ignore
+          retention-days: 14
