@@ -1,6 +1,6 @@
 # Current student profiles guardian associations and assessment index
 
-Version 2.11 draft, 6 October 2026. Recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`; source_commit identifies that parent, not the containing next-batch commit. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace FR-02, FR-03, FR-06, FR-10, FR-11; NFR-01–NFR-03, NFR-05–NFR-07, NFR-09. SC-47–SC-49 add TC-330–TC-349. All approvals remain false and all designed cases remain `not-run-for-this-specification`.
+Version 2.12 draft, 6 October 2026. Recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`; source_commit identifies that parent, not the containing next-batch commit. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace FR-02, FR-03, FR-06, FR-10, FR-11; NFR-01–NFR-03, NFR-05–NFR-07, NFR-09. SC-47–SC-49 add TC-330–TC-349. All approvals remain false and all designed cases remain `not-run-for-this-specification`.
 
 ## Scope and unchanged services
 

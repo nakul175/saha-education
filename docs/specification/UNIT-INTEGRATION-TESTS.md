@@ -1,8 +1,8 @@
 # Unit and integration design
 
-Version 2.11 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.12 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Existing runnable mappings
 
@@ -134,11 +134,11 @@ The preceding v2.8 comparison language records historical design; current review
 | [Registry callbacks](../../tests/integration/registry-ui-contract.mjs) | Fresh scope, original pending body/UUID/review, uncertain reply hiding, timestamp/replay correlation, exact retry/400409/draft reset and saved-current distinction | Substituted React/RHF/components/native callbacks; not mounted form/dialog/focus evidence |
 | [Synthetic demo](../../tests/integration/synthetic-demo-contract.mjs) | Default-off strict entry, fixed scoped accounts, ordinary secure sessions, pristine marker/seed/no-reset and configuration/isolation closure at SQL | Actual hosted audience/D1/edge headers/multi-viewer capacity and full rate-failure matrix are separate |
 
-SC-38–SC-42 adds 40 design cases; current total 349/49, with 248 existing/50 planned/51 manual mappings. Use current [reviewed registry browser procedures](../../tests/worker-reviewed-registry-ui-check.mjs) for mounted behavior; old v2.8 manual-comparison browser procedures retain historical scope and are not new recovery evidence. Run root-approved matching fresh builds and disposable fixtures; no suite mapping or source count promotes a case outcome or approval.
+SC-38–SC-42 adds 40 design cases; current total 371/51, with 268 existing/50 planned/53 manual mappings. Use current [reviewed registry browser procedures](../../tests/worker-reviewed-registry-ui-check.mjs) for mounted behavior; old v2.8 manual-comparison browser procedures retain historical scope and are not new recovery evidence. Run root-approved matching fresh builds and disposable fixtures; no suite mapping or source count promotes a case outcome or approval.
 
 ## Academic callback integration mapping
 
-[Academic UI contracts](../../tests/integration/academic-ui-contract.mjs) is related current automation for SC-42/TC-286–TC-293: actual sessions/routes/production-D1 SQLite combined with substituted React/component callbacks, delayed selected class/learner replies, current role/private hiding, locks, obsolete control/unmount, original-account non-idempotent comparison and exact report publication retry. Assert actual original persistence/receipt/notice bytes, not just UI status. It is not mounted React/focus or named acceptance. Current pack 349 cases/49 scenarios, 248 existing/50 planned/51 manual mappings; all unrun with approvals false.
+[Academic UI contracts](../../tests/integration/academic-ui-contract.mjs) is related current automation for SC-42/TC-286–TC-293: actual sessions/routes/production-D1 SQLite combined with substituted React/component callbacks, delayed selected class/learner replies, current role/private hiding, locks, obsolete control/unmount, original-account non-idempotent comparison and exact report publication retry. Assert actual original persistence/receipt/notice bytes, not just UI status. It is not mounted React/focus or named acceptance. Current pack 371 cases/51 scenarios, 268 existing/50 planned/53 manual mappings; all unrun with approvals false.
 
 ## Family callback and current persistence mapping
 
@@ -161,3 +161,14 @@ Native placeholder compilation is not actual Worker execution, hosted restore, q
 ## Profile association and role-aware index contracts
 
 [Actual-session profile/index callbacks](../../tests/integration/profile-assessment-ui-contract.mjs) map SC-47–SC-49: permitted/current/empty reads, final actor correlation, stale params/replies/controls, raw DOB/calendar/max values, whole duplicate/incomplete failures, same-frame association lock, known versus lost committed reply, private original actor recovery and exact pair persistence/primary retention. Read assertions compare actual scoped rows; fault injection follows real handler completion and display projections do not claim stored changes. Callback React/elements are substitutions; root-reported 422/44/465 and prior academic 218/lint/tsc are separate qualified observations, not build/mounted/UAT pass. Existing profile ownership/registry/result-editor contracts are preserved.
+
+## School/course current UI contracts
+
+| Related suite | Qualified actual scope | Limit |
+|---|---|---|
+| [School](../../tests/integration/school-ui-contract.mjs) |840  checks/67 scenarios/664 actual opaque-session+route+D1 SQLite requests; exact school/current actor, dirty-field refresh, nullable address intent, fresh save, ordinary ack timestamp/raw creation, known versus private unknown comparison | Hooks/elements substituted; named postcommit status/timestamp projections do not prove rollback. Original 711 meanings retained. |
+| [Course](../../tests/integration/course-catalog-ui-contract.mjs) |925 checks/62 scenarios/554 requests; four roles, whole catalog, original draft/current preflight, one create, exact canonical ack, global code 500, known fact and original-only zero-POST comparison | Hooks/elements substituted; named 409 projects actual committed201 and is branch evidence only. Original 803 retained; no receipt/idempotency. |
+| [Mounted school/course](../../tests/worker-school-course-ui-check.mjs) |40 planned actual-browser procedures, design-freeze hash in focused design | UNRUN at this freeze; matching build/readiness/final source revision and dated outcomes required. |
+| [Retained structure](../../tests/worker-structure-ui-check.mjs) |26 existing mounted procedures retained/adapted by coordinator | Matching next-source execution not yet credited; class behavior unchanged. |
+
+All 371 designed cases remain unrun. Zero external callback requests is an observed test boundary, not real-provider verification. [Exact design](SCHOOL-COURSE-UI-DESIGN.md) preserves server APIs/null/global uniqueness/no-CAS/no-immutable-receipt limits.

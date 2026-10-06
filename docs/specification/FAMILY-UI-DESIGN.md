@@ -1,6 +1,6 @@
 # Current family inbox class views and recovery
 
-Version 2.11 draft, 6 October 2026. Candidate parent `8088b5f88213401ff900506362c227a55120f3c1` is the recorded second-batch revision; the containing publication and main merge remain separately recorded. This design covers current recipient-owned notices and scoped class/student-profile views, preserving the existing APIs, channels and historical records. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace: FR-02, FR-03, FR-07–FR-09, FR-12, FR-26; NFR-01–NFR-03, NFR-05–NFR-09. SC-43–SC-44 add TC-294–TC-313. Every approval is false and every designed case remains `not-run-for-this-specification`.
+Version 2.12 draft, 6 October 2026. Candidate parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77` is the recorded second-batch revision; the containing publication and main merge remain separately recorded. This design covers current recipient-owned notices and scoped class/student-profile views, preserving the existing APIs, channels and historical records. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace: FR-02, FR-03, FR-07–FR-09, FR-12, FR-26; NFR-01–NFR-03, NFR-05–NFR-09. SC-43–SC-44 add TC-294–TC-313. Every approval is false and every designed case remains `not-run-for-this-specification`.
 
 ## Current scope and unchanged interfaces
 

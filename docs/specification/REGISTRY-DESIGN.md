@@ -1,6 +1,6 @@
 # Reviewed registry creation, original receipts and client privacy
 
-Version 2.11 draft, 6 October 2026. Candidate parent `8088b5f88213401ff900506362c227a55120f3c1`; actual frozen source, execution/publication/release are recorded separately by the coordinator. All approvals remain false and all cases remain `not-run-for-this-specification`. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md).
+Version 2.12 draft, 6 October 2026. Candidate parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`; actual frozen source, execution/publication/release are recorded separately by the coordinator. All approvals remain false and all cases remain `not-run-for-this-specification`. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md).
 
 Trace: BR-01, BR-02, BR-10–BR-12; FR-02–FR-06, FR-26; NFR-01–NFR-09. SC-37 retains TC-246–TC-253 with current v2.9 procedures; SC-39–SC-40 add TC-262–TC-277. Historical v2.8 manual comparison recovery and seventh-batch outcomes remain dated history, not current reviewed-screen requirements.
 

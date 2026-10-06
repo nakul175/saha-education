@@ -1,8 +1,8 @@
 # Security and nonfunctional tests
 
-Version 2.11 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.12 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Mandatory boundaries
 
@@ -140,3 +140,9 @@ Inspect posted keys and saved resource fields to prove focus/learner/reading dat
 ## Profile and family index privacy and usability boundaries
 
 Test former-account shell/profile/guardian/index clearing, final actor mismatch, current read denials, obsolete routes/controls and original pending/acknowledged names hidden from changed actors. Direct backend scope remains authoritative; no continuous cross-tab monitor is claimed. Family metadata must not invite/fetch private result editor or expose scores/grades/feedback. Literal malformed DOB/date is plain preserved text; safe maximum/unknown class warnings avoid invented values. Native labels/focus at 390px are bounded samples; screen-reader/representative language/performance/provider/hosted/pilot remain intentional separate gates. Association page memory is disposable and already-started write persistence is explicit.
+
+## School/course ordinary privacy and usability bounds
+
+TC-350–TC-371 design current-account/target checks and former header/row/input clearing around normal reload/save failure, original-only pending/ack disclosure, generation/captured-control suppression and unmounted preflight. Server authorization remains independent; these presentation contracts do not add continuous account monitoring or retract delivered content. Already-sent writes may persist after leave.
+
+TC-360/TC-371 require intentional native keyboard/status/focus at 390px, supported-language and named school-user review. The 40 planned mounted procedures remain UNRUN at design freeze; callback hooks/elements do not prove assistive/browser behavior. No representative capacity, recovery objective, hosted/provider, licensing, privacy-governance or business acceptance is inferred. Inventories and all unrun/false states remain unchanged except 22 added designs.

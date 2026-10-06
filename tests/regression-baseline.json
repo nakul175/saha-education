@@ -53,6 +53,11 @@
       "file": "tests/integration/attendance-summary-contract.mjs",
       "minPassed": 103
     },
+    "integration/course-catalog-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/course-catalog-ui-contract.mjs",
+      "minPassed": 925
+    },
     "integration/curriculum-contract": {
       "layer": "integration",
       "file": "tests/integration/curriculum-contract.mjs",
@@ -182,6 +187,11 @@
       "layer": "integration",
       "file": "tests/integration/school-structure-authority-contract.mjs",
       "minPassed": 275
+    },
+    "integration/school-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/school-ui-contract.mjs",
+      "minPassed": 840
     },
     "integration/session-revocation-contract": {
       "layer": "integration",

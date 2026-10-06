@@ -1,7 +1,7 @@
 {
-  "version": "2.11",
+  "version": "2.12",
   "date": "2026-10-06",
-  "source_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+  "source_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
   "approved": false,
   "business_requirements": [
     "BR-01",
@@ -60,7 +60,7 @@
       "title": "School setup",
       "implementation_status": "partial",
       "source": "lib/education/schools.ts",
-      "requirement": "School-scoped administration with current actor checks in SQL; school bootstrap remains operator provisioned.",
+      "requirement": "School-scoped administration with current actor checks in SQL; current viewer re-verifies exact actor/current school, preserves deliberate dirty-field/null-address intent and separates known update acknowledgement from read-only original-account comparison after uncertain delivery. No automatic resend, immutable school receipt or CAS is added; school bootstrap remains operator provisioned.",
       "approved": false
     },
     {
@@ -78,7 +78,7 @@
       "title": "Courses and classes",
       "implementation_status": "partial",
       "source": "lib/education/classes.ts",
-      "requirement": "Maintain school course/class structure with current course and enabled trusted teacher references checked at persistence. Class viewer consumes one coherently scoped class/profile response and verifies the current account; current availability does not assert absence of other enrolments.",
+      "requirement": "Maintain school course/class structure with current course and enabled trusted teacher references checked at persistence. Current catalog verifies actor/current school and administrator creation, separates ordinary known acknowledgement from original-only non-idempotent saved-list comparison, and preserves existing global course-code uniqueness. Class viewer consumes one coherently scoped class/profile response and verifies the current account; current availability does not assert absence of other enrolments. No immutable course receipt or CAS is added.",
       "approved": false
     },
     {
@@ -340,19 +340,22 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-06",
-    "note": "source_commit records the recorded second-batch parent of this documented v2.11 candidate, not its containing commit. Commit publication, private deployment and main merge are separately dated root-owned facts. Prior v2.0–v2.10 design/source/execution remain historical. No combined build, mounted-browser pass, requirement approval or designed-case execution is inferred from focused source observations.",
-    "candidate_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "note": "source_commit records the recorded documentation-only followup parent23c2d8f of verified source3c664224, not the containing v2.12 commit or a main merge. Source publication, current matching build, mounted procedures and deployment are separately dated coordinator facts. Prior v2.0–v2.11 designs/source/execution remain historical. Focused substituted callback observations imply no next combined build/mounted/hosted or business acceptance.",
+    "candidate_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
     "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
-    "source_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "source_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
     "historical_v2_8_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
     "historical_v2_8_application_commit": "7ee7c963575916d35cb0dae388833b1345833471",
     "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
     "historical_v2_10_source_parent_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
-    "historical_v2_10_containing_commit": "8088b5f88213401ff900506362c227a55120f3c1"
+    "historical_v2_10_containing_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "historical_v2_11_source_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "historical_v2_11_application_commit": "c664224",
+    "historical_v2_11_metadata_followup_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77"
   }
 }

@@ -1,12 +1,12 @@
 # Platform test scenarios
 
-Version 2.11 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
+Version 2.12 draft, 6 October 2026. Historical v2.0 source candidate: `5488bc0d20412a3d4be0c031c99c259c56834d5e`. Case design only; no per-case execution or business acceptance is recorded for this specification. Existing-suite verification is recorded separately. Business requirements and approval state are defined in [BRD](BRD.md) and [requirements register](requirements.json).
 
-The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 The [case JSON](TEST-CASES.json) is authoritative for procedures/data/expected results; [case CSV](TEST-CASES.csv) mirrors every field with full steps and expectations. [Traceability](TRACEABILITY.csv) maps each canonical requirement to cases and its BR. `automation=existing` means a related runnable suite exists; it does not declare exact-case execution or business acceptance. `planned` means automation/interface work is needed; `manual` requires intentional human execution.
 
-This draft contains **349 cases in 49 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
+This draft contains **371 cases in 51 scenarios**, covers all **35 functional/nonfunctional requirements and 12 business requirements**, and leaves every case `not-run-for-this-specification`.
 
 | Scenario | Scope | Cases | Requirement IDs |
 |---|---|---|---|
@@ -59,6 +59,8 @@ This draft contains **349 cases in 49 scenarios**, covers all **35 functional/no
 | SC-47 | Current student profile shell scoped relationships and date evidence | TC-330, TC-331, TC-332, TC-333, TC-334, TC-335 | FR-02, FR-03, FR-06, FR-11, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
 | SC-48 | Exact original guardian association acknowledgement and recovery | TC-336, TC-337, TC-338, TC-339, TC-340, TC-341, TC-342, TC-343 | FR-02, FR-03, FR-06, NFR-01, NFR-02, NFR-03 |
 | SC-49 | Family assessment metadata and native published report navigation | TC-344, TC-345, TC-346, TC-347, TC-348, TC-349 | FR-02, FR-03, FR-10, FR-11, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-50 | Current existing school intent and original comparison | TC-350, TC-351, TC-352, TC-353, TC-354, TC-355, TC-356, TC-357, TC-358, TC-359, TC-360 | FR-02, FR-03, FR-05, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
+| SC-51 | Current course catalog and non-idempotent original comparison | TC-361, TC-362, TC-363, TC-364, TC-365, TC-366, TC-367, TC-368, TC-369, TC-370, TC-371 | FR-02, FR-03, FR-07, FR-26, NFR-01, NFR-02, NFR-03, NFR-05, NFR-06, NFR-07, NFR-09 |
 
 ## Execution boundaries
 
@@ -663,3 +665,35 @@ Cases: TC-344, TC-345, TC-346, TC-347, TC-348, TC-349. All remain unrun for this
 - TC-347 — Assessment class filtering distinguishes verified empty selection and empty inventory (integration, existing).
 - TC-348 — Duplicated or incomplete assessment inventory rejects partial index (integration, existing).
 - TC-349 — Mounted family assessment report navigation and unchanged staff handoff review (uat, manual).
+
+## SC-50: Current existing school intent and original comparison
+
+Cases: TC-350, TC-351, TC-352, TC-353, TC-354, TC-355, TC-356, TC-357, TC-358, TC-359, TC-360. All remain unrun for this specification. Related callback contracts use substituted hooks/elements with actual fictional sessions/routes/production D1 over isolated SQLite; named projections are distinct from persistence proof. New40 mounted procedures await matching built readiness/final revision; acceptance is separate.
+
+- TC-350 — School viewer uses current exact school and administrator-only editing (smoke, existing).
+- TC-351 — School read failure hides former account and details before fresh reload (recovery, existing).
+- TC-352 — Whole school response rejects missing duplicate incomplete or foreign rows (integration, existing).
+- TC-353 — School actor generation and unmount guards reject obsolete reads and controls (regression, existing).
+- TC-354 — School dirty field intent preserves refreshed address and null versus empty (integration, existing).
+- TC-355 — School save locks once and rechecks original current administrator and target (integration, existing).
+- TC-356 — Known school acknowledgement remains separate from failed current refresh (recovery, existing).
+- TC-357 — Rejected school update permits fresh original-account deliberate draft correction (regression, existing).
+- TC-358 — Uncertain school acknowledgement retains exact original privately without resend (recovery, existing).
+- TC-359 — School comparison requires stable freshly reviewed details and sends no update (integration, existing).
+- TC-360 — Mounted school native recovery and educator usability review (uat, manual).
+
+## SC-51: Current course catalog and non-idempotent original comparison
+
+Cases: TC-361, TC-362, TC-363, TC-364, TC-365, TC-366, TC-367, TC-368, TC-369, TC-370, TC-371. All remain unrun for this specification. Related callback contracts use substituted hooks/elements with actual fictional sessions/routes/production D1 over isolated SQLite; named projections are distinct from persistence proof. New40 mounted procedures await matching built readiness/final revision; acceptance is separate.
+
+- TC-361 — Course catalog retains four-role reads and administrator school-derived creation (smoke, existing).
+- TC-362 — Course verified empty differs from failed duplicate incomplete or foreign catalog (integration, existing).
+- TC-363 — Course current actor and draft revision reject obsolete replies and controls (regression, existing).
+- TC-364 — Course same-frame creation rechecks original administrator and sends once (integration, existing).
+- TC-365 — Known course creation survives failed current read with private original acknowledgement (recovery, existing).
+- TC-366 — Course acknowledgement requires exact original fields and canonical UTC creation time (integration, existing).
+- TC-367 — Rejected course creation retains original-account correctable draft after fresh reload (regression, existing).
+- TC-368 — Uncertain course creation completes original comparison into blank draft without POST (recovery, existing).
+- TC-369 — Course changed actor and obsolete comparison controls cannot bypass pending original (regression, existing).
+- TC-370 — Global course code collision and later edits imply no hidden original receipt (integration, existing).
+- TC-371 — Mounted course catalog creation comparison and educator usability review (uat, manual).

@@ -1,8 +1,8 @@
 # Saha business requirements document
 
-Version 2.11 draft, 6 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
+Version 2.12 draft, 6 October 2026. Sponsor: repository owner; named business approvers and pilot schools remain to be nominated. This is the first document in the BRD → FSD → HLD → LLD sequence. It supersedes the older business scope for forward planning; the historical `docs/education` baseline is retained. The current candidate is identified by its parent below; source presence does not establish deployment or acceptance.
 
-The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Business purpose
 
@@ -176,3 +176,11 @@ The educator decides permission, language and suitability; the page declares mis
 ## Current profile clarity and family assessment navigation
 
 BR-01/BR-02 require usable current authorized profiles without a prior account's private details; BR-10–BR-12 require honest saved/uncertain outcomes and separate acceptance evidence. The [profile/index design](PROFILE-ASSESSMENT-UI-DESIGN.md) distinguishes a student–guardian association from reviewed sign-in ownership and registry creation receipts. Families can understand current assessment metadata and reach published reports without being invited into staff-only results. Stored DOB/date evidence is preserved literally; no age, grading or publication policy is invented. Guardian relationships/licensing/identity verification and named school acceptance remain unresolved decisions.
+
+## v2.12 trustworthy existing-school and course setup
+
+Trace BR-01, BR-02, BR-10–BR-12; FR-02/FR-03/FR-05/FR-07/FR-26; NFR-01–NFR-03/NFR-05–NFR-07/NFR-09. Administrators need the current verified school/catalog, deliberate edit intent and a truthful distinction between acknowledged save and uncertain delivery. Families and teachers retain existing current-school reads without administrator controls or an invented historical entitlement.
+
+School reload refreshes untouched values while retaining same-actor deliberate edits, preserving null versus empty address intent. A fresh administrator review can still overwrite later changes; no CAS or immutable school receipt is introduced. Course creation remains non-idempotent with globally unique codes. An unknown save requires original-account read-only comparison and explicit deliberate completion before a newly reviewed edit/blank course draft; no automatic replay or hidden-record inference is allowed.
+
+Private original details appear only after fresh original current scope. A known acknowledgement stays distinct from failed current read; navigation loses in-page recovery and an already-started write can persist. [School/course design](SCHOOL-COURSE-UI-DESIGN.md) records exact bounds. School bootstrap, educator governance, retention, real provider/ORF/AI, hosted/pilot and named acceptance remain open; FR-05/FR-07/FR-26 stay partial and every approval remains false.

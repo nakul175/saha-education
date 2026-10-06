@@ -1,9 +1,9 @@
 {
-  "version": "2.11",
+  "version": "2.12",
   "date": "2026-10-06",
-  "source_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+  "source_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
   "approved": false,
-  "execution_notice": "All 349 designed cases across 49 scenarios remain not-run-for-this-specification. TC-001–TC-329 remain exact unchanged v2.10 objects; SC-47–SC-49 add current student-profile, exact original guardian-association and role-appropriate assessment-index procedures. Historical SC-43–SC-46 family/planner designs remain preserved. Related callback/source/suite/build/browser or deployment observations never imply intentional case execution or business approval; the frozen mounted 36 procedures are UNRUN at this design freeze.",
+  "execution_notice": "All 371 designed cases across 51 scenarios remain not-run-for-this-specification. TC-001–TC-349 remain exact unchanged v2.11 objects; SC-50–SC-51 add 22 current school/course viewing, deliberate intent and non-idempotent original comparison procedures. Prior designs and dated observations stay historical. Related source/callback/build/browser/deployment counts never imply case execution or approval. The new 40 mounted procedures are frozen and UNRUN at this design freeze; retained 26 structure adaptation is coordinator-owned and unrun against this slice.",
   "fixture_notice": "All schools, accounts, content and readings are synthetic. Live provider/adapter/AI/recovery actions require the stated configuration and authorization; no real accounts, records or paid providers are enabled by this specification.",
   "cases": [
     {
@@ -11271,6 +11271,778 @@
         "docs/specification/UAT.md"
       ],
       "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-350",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "NFR-01"
+      ],
+      "title": "School viewer uses current exact school and administrator-only editing",
+      "layer": "smoke",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Four actual roles and exactly one current saved school.",
+      "steps": [
+        "Load each role through session/schools/session and inspect school, native Dashboard and edit controls.",
+        "Compare actual permitted GETs and administrator form authority."
+      ],
+      "expected": [
+        "Only a complete matching current-school record and same final actor authorize presentation; all four permitted roles retain existing server read scope.",
+        "Only current administrator edits existing school. No create-school, tenant override, receipt or provider authority is implied."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-351",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "School read failure hides former account and details before fresh reload",
+      "layer": "recovery",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Initial/reload401/403/404/503, malformed JSON and wrong successful status.",
+      "steps": [
+        "Reload after a verified view while delivering each named failure.",
+        "Restore actual original current session and school, then explicitly reload."
+      ],
+      "expected": [
+        "Loading and failed verification hide old header, saved school and fields; failure is unavailable rather than invented successful empty.",
+        "Reload remains usable without cached principal and restores only freshly verified current details."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-352",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Whole school response rejects missing duplicate incomplete or foreign rows",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Captured actual GET with named empty/duplicate/incomplete/foreign-school delivery projection.",
+      "steps": [
+        "Deliver each invalid inventory under real current session.",
+        "Restore clean response and read actual stored school."
+      ],
+      "expected": [
+        "Exact one complete matching school is required; no partial record/header/form is displayed from ambiguous response.",
+        "Clean reload recovers without changing original saved records; projections are not fabricated SQL persistence."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-353",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "School actor generation and unmount guards reject obsolete reads and controls",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Held actual read, changed final actor, captured prior controls and unmounted preflight.",
+      "steps": [
+        "Complete a newer current-account read before releasing obsolete school delivery.",
+        "Invoke captured prior input/save/comparison and unmount a held preflight before it can send."
+      ],
+      "expected": [
+        "Latest mounted exact actor/school view is required; old replies/controls cannot restore former private fields or save under changed scope.",
+        "Unmounted preflight starts no new PATCH. An already-started PATCH may still persist; aborted mounted requests are not proof of delivered-old callback handling."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-354",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-05",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "School dirty field intent preserves refreshed address and null versus empty",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "SQL null/empty/nonempty address; name-only dirty draft; independent stored address change before reload/preflight.",
+      "steps": [
+        "Edit name only from original null address, change saved address independently, and reload then save.",
+        "Compare untouched null omission with a deliberate address clearing and actual saved values."
+      ],
+      "expected": [
+        "Untouched fields refresh from current saved school while deliberately dirty same-actor/school fields survive; name-only edit cannot silently clear a newly supplied address.",
+        "Untouched null omits address; deliberate empty sends empty string. Display does not repair SQL evidence; current card uses the same no-address label for null/empty. No CAS is introduced."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-355",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "School save locks once and rechecks original current administrator and target",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Same-frame duplicate submit; fresh preflight actor/target change; dirty payload.",
+      "steps": [
+        "Capture current submit and call twice in the same frame.",
+        "For a separate case change original actor/target before fresh snapshot; inspect actual PATCH body/count."
+      ],
+      "expected": [
+        "Synchronous lock permits one original request using existing accepted fields and encoded verified school target.",
+        "Fresh exact original administrator/session/school preflight is required; changed access before send causes no PATCH, hides unverified fields and requires reload."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-356",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Known school acknowledgement remains separate from failed current refresh",
+      "layer": "recovery",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Actual correlated200 then current 401/403/404/503; raw legacy creation date; canonical new update time.",
+      "steps": [
+        "Commit valid original update then fail only the subsequent current read.",
+        "Restore original authorized account and reload; compare original submitted acknowledgement with current saved details."
+      ],
+      "expected": [
+        "Exact target/name/explicit address, raw preflight createdAt equality and canonical UTC millisecond updatedAt establish ordinary known acknowledgement; it is not immutable receipt.",
+        "Generic known-save fact survives failed read while private original details/current form stay hidden; fresh original administrator scope restores acknowledgement with no automatic update. Legacy GET dates remain raw, and omitted address may legitimately change concurrently."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-357",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Rejected school update permits fresh original-account deliberate draft correction",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Actual 400 invalid name/403 current role denial; separately named delivered401/404/409 status boundaries.",
+      "steps": [
+        "Submit actual rejected requests and separately exercise named status-delivery branches.",
+        "Reload with verified original administrator and review retained deliberately dirty fields before a new explicit save."
+      ],
+      "expected": [
+        "Delivered 400/401/403/404/409 clears pending and hides unverified view; correction requires current reload rather than automatic resend.",
+        "Actual 400/403 preserve saved records; other injected status branches are not independent persistence proof.409 is rejection, not an immutable-receipt or uncertain replay contract."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-358",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Uncertain school acknowledgement retains exact original privately without resend",
+      "layer": "recovery",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Real committed PATCH followed by lost/5xx/invalid200/201 or malformed canonical update timestamp delivery.",
+      "steps": [
+        "Lose or alter acknowledgement only after actual persistence; inspect private clearing and mutation count.",
+        "Load another current actor then restore original administrator and reload saved details."
+      ],
+      "expected": [
+        "Original actor/target/endpoint/exact bytes and submitted intent stay privately in mounted memory; old header/details hide, new writes block and no resend is offered.",
+        "Different actor cannot see/clear original submitted fields. Fresh original scope separates submitted values from current school; invalid postcommit timestamp does not mean rollback. Navigation/hard reload discards client memory."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-359",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-03",
+        "FR-05",
+        "NFR-02",
+        "NFR-07"
+      ],
+      "title": "School comparison requires stable freshly reviewed details and sends no update",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Uncertain original update with stable versus independently changed full saved-school key.",
+      "steps": [
+        "Reload original scope, review submitted/current values, then invoke I compared the saved details.",
+        "Change saved school or fail the comparison read; repeat only after fresh intentional review."
+      ],
+      "expected": [
+        "Comparison performs a fresh same-account read sandwich and requires unchanged full ID/name/address/creation/update key; changed/failed current read retains pending.",
+        "Stable completion sends zero PATCH, discards uncertainty and resets form to freshly saved details without asserting original success or restoring an older concurrent edit."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-360",
+      "scenario": "SC-50",
+      "requirements": [
+        "FR-05",
+        "NFR-05",
+        "NFR-06",
+        "NFR-07",
+        "NFR-09"
+      ],
+      "title": "Mounted school native recovery and educator usability review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Matching frozen built local application/private fictional sessions and intentional named reviewer. Wait for matching build/readiness and final procedure revision before execution; preserve base records. Source/procedure observations grant no formal case or business acceptance.",
+      "data": "Matching four roles, actual saved details/dirty address paths, native labels/focus at 390px and named educator/operator reviewers.",
+      "steps": [
+        "After matching build/readiness, execute applicable final school/course mounted procedures and retained structure handoff.",
+        "Intentionally review keyboard/status/mobile, original/current explanation and nullable address wording; record named decisions."
+      ],
+      "expected": [
+        "Planned40 mounted procedures and retained 26 structure procedures remain unrun at this design freeze; actual outcomes belong in dated coordinator records with exact source/procedure hashes.",
+        "No callback count, transport projection, local rendering or private preview approves canonical cases, assistive/language suitability, real provider/hosted/pilot or business acceptance."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/school-ui-contract.mjs",
+        "app/schools/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/schools/route.ts",
+        "app/api/schools/[id]/route.ts",
+        "lib/education/schools.ts",
+        "lib/education/stored-timestamp.ts",
+        "tests/worker-school-course-ui-check.mjs",
+        "docs/specification/WIREFRAMES.md",
+        "docs/specification/UAT.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-361",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "NFR-01"
+      ],
+      "title": "Course catalog retains four-role reads and administrator school-derived creation",
+      "layer": "smoke",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Four actual roles and same-school catalog; administrator exact current school list.",
+      "steps": [
+        "Load role catalog through current session/catalog/admin-school-if-needed/session.",
+        "Inspect rows/native Dashboard and administrator-only create controls/payload."
+      ],
+      "expected": [
+        "Only same final actor and verified current-school complete catalog is displayed; teacher/family existing read entitlement is unchanged.",
+        "Only current administrator creates; school is derived from verified session/current school list, not a typed tenant override. No detail/backend change."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-362",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Course verified empty differs from failed duplicate incomplete or foreign catalog",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Actual zero scoped rows; current 401/403/404/503; named object/duplicate/incomplete/foreign delivered inventory and nullable description.",
+      "steps": [
+        "Compare successful zero catalog with each failed/invalid whole read and restore clean reload.",
+        "Render literal stored title/nullable description while checking source records stay unchanged."
+      ],
+      "expected": [
+        "Verified zero has honest loaded count/empty state; failure hides old shell/rows/create fields and never fabricates successful empty or partial catalog.",
+        "Whole malformed catalog rejects before apply; null descriptions remain compatible and markup-like saved text stays plain without source repair."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-363",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Course current actor and draft revision reject obsolete replies and controls",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Held obsolete catalog, changed final session, same-account newer draft and captured old inputs/submits.",
+      "steps": [
+        "Finish newer family/current load before releasing obsolete administrator reply.",
+        "Edit current draft then invoke captured older input/submit; reload and invoke prior submit."
+      ],
+      "expected": [
+        "Reload hides former catalog/form/header; obsolete generation/final account mismatch cannot restore admin controls.",
+        "Mounted generation/draft-version/current-scope checks prevent old input from overwriting newer intended draft or submitting it. No continuous account watcher is implied."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-364",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Course same-frame creation rechecks original administrator and sends once",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Same-frame submit, actual 201 creation and changed-role/preflight/unmount before send.",
+      "steps": [
+        "Call current creation twice and inspect actual POST count/body/saved row.",
+        "For separate fixture change current actor or unmount during held preflight before send."
+      ],
+      "expected": [
+        "One non-idempotent request contains original entered fields and verified school only; synchronous lock prevents same-frame duplicate.",
+        "Fresh exact original administrator/current scope is required immediately before send; invalid/unmounted preflight sends no POST. An already-sent creation may persist after leaving."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-365",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Known course creation survives failed current read with private original acknowledgement",
+      "layer": "recovery",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Actual correlated201 followed by current 401/403/404/503 or changed current actor.",
+      "steps": [
+        "Create once, then fail only current catalog read or switch actor before follow-up reload.",
+        "Restore original administrator and freshly reload."
+      ],
+      "expected": [
+        "Generic known-save fact remains truthful while current rows/form and original returned details hide on unverified read; no repeated creation occurs.",
+        "Only fresh original administrator scope displays original saved reference/fields separately from current mutable catalog; another actor sees only their normal scoped catalog and generic fact. No immutable receipt is added."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-366",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-07",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Course acknowledgement requires exact original fields and canonical UTC creation time",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Actual committed201; valid leap canonicalUTC milliseconds versus Feb30/nonleapFeb29/hour24/numeric/date-only/offset/whitespace, mismatched update time/status/school/fields.",
+      "steps": [
+        "Deliver named invalid acknowledgement projection after real committed creation.",
+        "Compare actual positive canonical/leap acknowledgement with raw legacy catalog timestamps."
+      ],
+      "expected": [
+        "Known201 requires original school/code/title/grade/description and exact canonicalUTC millisecond createdAt with equal updatedAt; impossible/noncanonical literals cannot establish success.",
+        "Invalid/mismatched acknowledgement stays private uncertain and creates no auto retry. Delivery projections after commit do not prove nonpersistence; legacy catalog timestamp strings remain accepted and unmodified."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-367",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Rejected course creation retains original-account correctable draft after fresh reload",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Actual 400 validation; delivered409 conflict branch and changed current actor.",
+      "steps": [
+        "Submit invalid original payload and separately exercise409 delivered branch.",
+        "Freshly reload same original administrator versus different current actor."
+      ],
+      "expected": [
+        "400/409 clears pending comparison and hides unverified old view; original deliberate input is privately retained for current original-account correction.",
+        "400 actual route persists no new row; named 409 is branch evidence only unless an actual persistence case is separately executed. Different actor receives no original draft; no implicit retry or hidden conflict explanation."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-368",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Uncertain course creation completes original comparison into blank draft without POST",
+      "layer": "recovery",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Real committed creation with lost/403/5xx/malformed/uncorrelated acknowledgement.",
+      "steps": [
+        "Keep tab open, restore fresh original administrator and reload actual current catalog.",
+        "Review original submitted fields, check deliberate comparison box and Finish comparison and start a new draft."
+      ],
+      "expected": [
+        "Original exact actor/endpoint/body and fields remain private mounted memory; uncertain create blocks a new form, offers no resend and preserves one actual creation.",
+        "Explicit checked completion sends zero POST, discards pending uncertainty and starts blank; matching or missing scoped rows never prove original immutable outcome. Hard reload/navigation loses memory."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-369",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-02",
+        "FR-03",
+        "FR-07",
+        "NFR-01",
+        "NFR-02"
+      ],
+      "title": "Course changed actor and obsolete comparison controls cannot bypass pending original",
+      "layer": "regression",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Unknown original request; guardian/different same-school administrator/other-school administrator; captured checkbox/finish before reload.",
+      "steps": [
+        "Reload each changed actor then restore original administrator.",
+        "Capture checked finish/checkbox, reload current saved list and invoke obsolete callbacks."
+      ],
+      "expected": [
+        "Other actor may read normal current scoped catalog but receives no original fields/checkbox/new create bypass; original scope restoration requires fresh deliberate confirmation.",
+        "Reload resets comparison and captured callbacks cannot approve or discard newer context; no additional course POST or automatic request rebasing occurs."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-370",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-03",
+        "FR-07",
+        "FR-26",
+        "NFR-02",
+        "NFR-03"
+      ],
+      "title": "Global course code collision and later edits imply no hidden original receipt",
+      "layer": "integration",
+      "priority": "P1",
+      "preconditions": "Disposable fictional schools A/B and four enabled mapped roles, real opaque sessions and migrations through 0016. Execute actual page callbacks with substituted hooks/elements and unchanged routes/production Drizzle D1 over isolated SQLite. Named delivery projections remain distinct from saved evidence. No real data, mounted rendering, provider or acceptance is implied.",
+      "data": "Existing other-school globally unique code causes actual generic500; later legitimate title edit after lost original acknowledgement.",
+      "steps": [
+        "Submit globally colliding code and reload current scoped catalog without resend.",
+        "For independent saved original edit current row after lost reply, then compare and finish."
+      ],
+      "expected": [
+        "Existing global uniqueness/generic SQL 500 remain unchanged; current catalog does not disclose foreign records or invent a precise hidden cause/noncommit proof.",
+        "Original submitted fields and later saved row remain separate; completion never restores old text or establishes immutable actor receipt. No backend policy/UUID/CAS or migration changes."
+      ],
+      "automation": "existing",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts"
+      ],
+      "execution_status": "not-run-for-this-specification"
+    },
+    {
+      "id": "TC-371",
+      "scenario": "SC-51",
+      "requirements": [
+        "FR-07",
+        "NFR-05",
+        "NFR-06",
+        "NFR-07",
+        "NFR-09"
+      ],
+      "title": "Mounted course catalog creation comparison and educator usability review",
+      "layer": "uat",
+      "priority": "P1",
+      "preconditions": "Matching frozen built local application/private fictional sessions and intentional named reviewer. Wait for matching build/readiness and final procedure revision before execution; preserve base records. Source/procedure observations grant no formal case or business acceptance.",
+      "data": "Matching four roles, original/current catalog, native required labels/focus at 390px and named educator/operator reviewers.",
+      "steps": [
+        "After matching build/readiness, run applicable final40 school/course mounted procedures and retained 26 structure procedures.",
+        "Intentionally review native labels/keyboard/mobile/current-role navigation and unknown-save global-code explanation; record named decisions."
+      ],
+      "expected": [
+        "Mounted procedures remain unrun at this design freeze and their final revision/hash and outcomes must be recorded separately; private source observations do not execute canonical cases.",
+        "No inferred screen-reader/language/hosted/provider/pilot or business acceptance; no existing detail route or educational policy is changed."
+      ],
+      "automation": "manual",
+      "evidenceFiles": [
+        "tests/integration/course-catalog-ui-contract.mjs",
+        "app/courses/page.tsx",
+        "components/app-shell.tsx",
+        "docs/specification/SCHOOL-COURSE-UI-DESIGN.md",
+        "app/api/courses/route.ts",
+        "lib/education/courses.ts",
+        "lib/education/stored-timestamp.ts",
+        "tests/worker-school-course-ui-check.mjs",
+        "docs/specification/WIREFRAMES.md",
+        "docs/specification/UAT.md"
+      ],
+      "execution_status": "not-run-for-this-specification"
     }
   ],
   "delivery_metadata": {
@@ -11279,20 +12051,23 @@
     "application_baseline_commit": "5488bc0d20412a3d4be0c031c99c259c56834d5e",
     "state": "candidate-prepared-from-recorded-parent",
     "date": "2026-10-06",
-    "note": "source_commit records the recorded second-batch parent of this documented v2.11 candidate, not its containing commit. Commit publication, private deployment and main merge are separately dated root-owned facts. Prior v2.0–v2.10 design/source/execution remain historical. No combined build, mounted-browser pass, requirement approval or designed-case execution is inferred from focused source observations.",
-    "candidate_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "note": "source_commit records the recorded documentation-only followup parent23c2d8f of verified source3c664224, not the containing v2.12 commit or a main merge. Source publication, current matching build, mounted procedures and deployment are separately dated coordinator facts. Prior v2.0–v2.11 designs/source/execution remain historical. Focused substituted callback observations imply no next combined build/mounted/hosted or business acceptance.",
+    "candidate_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
     "historical_v2_2_commit": "82f20ce9ae023bdb78d53aecc229331b57bce5eb",
     "historical_v2_3_commit": "88205cdce71840066d37ebc3a08d317cea7e3f37",
     "historical_v2_4_commit": "85e85d054afe039d6c633aa215d900b5881eb911",
     "historical_v2_5_commit": "f31288162e1f55ec28ad710ab990ec56ac37ce3c",
     "historical_v2_6_commit": "61f0751b5c38384783f56823a07964421a18c0bf",
     "historical_v2_7_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
-    "source_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "source_parent_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
     "historical_v2_8_parent_commit": "e813af2f43f6d7c707f084c4472e5a6da8e50125",
     "historical_v2_8_application_commit": "7ee7c963575916d35cb0dae388833b1345833471",
     "historical_v2_8_documentation_commit": "053ab13af9dcd6fbb81e436769aefa6e29f00a20",
     "historical_v2_10_source_parent_commit": "a418ee4132bfc05d24748ad1d25c5fa5b91b7d69",
-    "historical_v2_10_containing_commit": "8088b5f88213401ff900506362c227a55120f3c1"
+    "historical_v2_10_containing_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "historical_v2_11_source_parent_commit": "8088b5f88213401ff900506362c227a55120f3c1",
+    "historical_v2_11_application_commit": "c664224",
+    "historical_v2_11_metadata_followup_commit": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77"
   },
   "historical_ui_design_notes": [
     {

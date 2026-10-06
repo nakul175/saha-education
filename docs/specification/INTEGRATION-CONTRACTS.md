@@ -1,8 +1,8 @@
 # Integration contracts and activation boundaries
 
-Version 2.11 draft, 6 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
+Version 2.12 draft, 6 October 2026. The current candidate is identified by its parent below; the earlier baseline is retained as history. The [BRD](BRD.md) defines business intent; [requirements.json](requirements.json) is canonical for FR/NFR IDs. An available code path, vendor comparison or documented URL does not prove a live supported integration.
 
-The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Current boundary matrix
 
@@ -172,3 +172,7 @@ The synthetic demo entry has no external provider/vendor/AI request: bounded sou
 The current [planner](READING-PRACTICE-DESIGN.md) composes authorized original/effective reading evidence with manually reviewed exact curriculum snapshots and the existing UUID source-copy operation. Only source version/type/resource UUID are submitted; selected focus, learner and observation context remain private page memory. Its output is an original source-bound provisional resource, followed by separate editor review/assignment. Original-copy recovery is not an ORF result adapter or an authenticated vendor result and never personalizes source text.
 
 No new API, export/SSO, external destination fetch, AmplifiU licensed component, AI model or message channel is added. Current guardian/private-key/publication rules remain unchanged. Actual provider/ORF URL, source permissions/pilot languages, efficacy, retention and operational acceptance remain unresolved inputs.
+
+## School/course local client boundary
+
+[School/course UI](SCHOOL-COURSE-UI-DESIGN.md) consumes existing same-origin session/school/course endpoints only. No external provider, message channel, ORF, AI, new DTO/route/schema or safe replay service is introduced. Fresh original-account verification gates private original details, not broader server scope. Read-only comparison sends zero mutation; no current row match proves an immutable original receipt. Private memory is lost on navigation and an already-started request may persist. Identity/real-school/provider and hosted/operator acceptance remain separately configured and evidenced.

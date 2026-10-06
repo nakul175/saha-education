@@ -1,8 +1,8 @@
 # Saha decisions assumptions and risks
 
-Draft decision register, 5 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
+Version 2.12 draft decision register, 6 October 2026. Role owners below are proposed responsibilities; no named owner or deadline has been approved. Confirmed decisions come from the sponsor’s messages, not inferred source code.
 
-The v2.11 candidate is prepared on `feat/specification-delivery` from recorded second-batch parent `8088b5f88213401ff900506362c227a55120f3c1`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
+The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
 ## Decisions
 
@@ -163,3 +163,9 @@ Unknown copies retain private original UUID/bytes; recovery400/409 keeps uncerta
 ## Profile and assessment index residual choices
 
 Current scoped student–guardian association does not establish legal relationship or reviewed sign-in ownership. Composite-pair replay preserves existing primary; public projection omits it. Known generic acknowledgement may remain across account changes while original names/retry remain original-admin-private. Pending/acknowledged details are mounted memory, lost on hard reload/navigation, and already-started write may persist after unmount. Named operator recovery/audit/retention policy remains open; no immutable association receipt exists. Family assessment index metadata/report invitation does not approve raw-result publication, grading or educational suitability. Frozen source observations/mounted procedure design do not establish combined build, hosted success or acceptance.
+
+## School/course current recovery limitations
+
+FR-05/FR-07/FR-26 remain partial. No immutable update/create receipt, school/course CAS, durable pending queue, operator bootstrap or tenant/global-code policy change is added. An unknown ordinary write has no safe blind replay: original-only read-only comparison releases uncertainty deliberately and proves neither exact original commit nor noncommit. A matching scoped row is not an attributable receipt; an absent row/generic 500 cannot expose a hidden global collision.
+
+Dirty school fields preserve intent while untouched fields refresh; later explicit save can still overwrite another administrator's changes. Address null/empty remain distinct in storage, shared display label and no restore-to-null endpoint remain limitations. Navigation loses in-page original details; started writes can persist. Generated ACK timestamp correlation is stricter than accepted raw legacy GET values and does not repair evidence. Planned mounted/native/assistive/language/hosted/provider/pilot/operator acceptance must be recorded separately; none is inferred from840/925 callback totals.

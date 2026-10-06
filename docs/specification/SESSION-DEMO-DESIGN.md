@@ -1,6 +1,6 @@
 # Original session execution authority and isolated synthetic demo
 
-Version 2.11 draft, 6 October 2026. Candidate parent `8088b5f88213401ff900506362c227a55120f3c1`; actual frozen source, execution/publication/release are recorded separately by the coordinator. All approvals remain false and all cases remain `not-run-for-this-specification`. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md).
+Version 2.12 draft, 6 October 2026. Candidate parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`; actual frozen source, execution/publication/release are recorded separately by the coordinator. All approvals remain false and all cases remain `not-run-for-this-specification`. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md).
 
 Trace: BR-01, BR-02, BR-10–BR-12; FR-01–FR-06; NFR-01–NFR-09. SC-38 covers TC-254–TC-261; SC-41 covers TC-278–TC-285. The current trusted-provider path remains separate from optional default-off synthetic sign-in.
 

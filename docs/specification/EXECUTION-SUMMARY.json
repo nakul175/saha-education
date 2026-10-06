@@ -197,6 +197,20 @@
       "designed_scenarios": 49,
       "all_case_statuses": "not-run-for-this-specification",
       "approved_requirements": 0
+    },
+    {
+      "stage": "eight-hour-batch-4-final-reconciliation",
+      "record": "../current/EIGHT-HOUR-BATCH-4-EXECUTION.json",
+      "specification_version": "2.12",
+      "designed_cases": 371,
+      "designed_scenarios": 51,
+      "all_case_statuses": "not-run-for-this-specification",
+      "approved_requirements": 0,
+      "automated_assertions": 20952,
+      "meaningful_suites": 52,
+      "mounted_school_course": 40,
+      "mounted_retained_structure": 26,
+      "unfinished_assessment_excluded": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Current academic selections, private actions and recovery
 
-Version 2.11 draft, 6 October 2026. Candidate parent `8088b5f88213401ff900506362c227a55120f3c1`; actual frozen source/build/runs/publication/release are coordinator-maintained separately. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace: BR-01, BR-02, BR-10–BR-12; FR-02, FR-03, FR-06–FR-08, FR-11, FR-12, FR-26; NFR-01–NFR-03, NFR-05–NFR-09. SC-42 adds TC-286–TC-293. All approvals remain false and all cases remain `not-run-for-this-specification`.
+Version 2.12 draft, 6 October 2026. Candidate parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`; actual frozen source/build/runs/publication/release are coordinator-maintained separately. Read [BRD](BRD.md) → [FSD](FSD.md) → [HLD](HLD.md) → [LLD](LLD.md). Trace: BR-01, BR-02, BR-10–BR-12; FR-02, FR-03, FR-06–FR-08, FR-11, FR-12, FR-26; NFR-01–NFR-03, NFR-05–NFR-09. SC-42 adds TC-286–TC-293. All approvals remain false and all cases remain `not-run-for-this-specification`.
 
 ## Scope and unchanged contracts
 
