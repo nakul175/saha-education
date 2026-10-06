@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Principal } from '@/lib/education/types';
 import type { AttendanceEditorSnapshot, AttendanceReviewHistory, AttendanceReviewInput, AttendanceReviewResult, AttendanceRecordSnapshot } from '@/lib/education/attendance-reviews';
+import type { AttendanceCalendar } from '@/lib/education/attendance-calendar';
+import type { AttendanceChanges } from '@/lib/education/attendance-changes';
 
 type Mark = { status: string; note: string };
 type Pending = { classId: string; input: AttendanceReviewInput };
@@ -26,6 +28,9 @@ function calendarDate(value: string) {
 }
 function initialMark(record: AttendanceRecordSnapshot | null): Mark { return { status: record?.status ?? '', note: record?.note ?? '' }; }
 function changed(mark: Mark, record: AttendanceRecordSnapshot | null) { return mark.status !== (record?.status ?? '') || mark.note !== (record?.note ?? ''); }
+const label = (status: string) => status ? status[0].toUpperCase() + status.slice(1) : 'Not recorded';
+type Names = { self: string; byId: Record<string, string> };
+function who(names: Names, id: string) { return id === names.self ? 'you' : names.byId[id] ?? 'another staff account'; }
 function validStatus(value: string): value is typeof statuses[number] { return statuses.some(status => status === value); }
 class ReadFailure extends Error { constructor(message: string, readonly status: number) { super(message); } }
 async function read<T>(path: string, signal?: AbortSignal, retainPending = false): Promise<T> {
@@ -35,16 +40,16 @@ async function read<T>(path: string, signal?: AbortSignal, retainPending = false
   if (!response.ok) throw new ReadFailure(response.status === 403 ? 'Your account does not have permission to record attendance for this class.' : response.status === 404 ? 'This class is unavailable in your current school or teaching scope.' : 'Saved attendance could not be loaded. Try reloading the current records.', response.status);
   return response.json() as Promise<T>;
 }
-function RecordEvidence({ record }: { record: AttendanceRecordSnapshot | null }) {
+function RecordEvidence({ record, names }: { record: AttendanceRecordSnapshot | null; names: Names }) {
   return record ? <dl className="grid gap-x-3 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
     <dt>Status</dt><dd>{record.status}</dd><dt>Note</dt><dd className="whitespace-pre-wrap break-words">{record.note == null ? 'No note' : record.note === '' ? 'Empty note' : record.note}</dd>
-    <dt>Recorded by account</dt><dd className="break-all">{record.recordedBy}</dd><dt>Last saved</dt><dd className="break-words">{record.updatedAt}</dd>
+    <dt>Recorded by</dt><dd className="break-words">{who(names, record.recordedBy)}</dd><dt>Last saved</dt><dd className="break-words">{record.updatedAt}</dd>
   </dl> : <p className="text-sm">No attendance record.</p>;
 }
-function ReviewEvidence({ review, snapshot }: { review: AttendanceReviewResult['review']; snapshot: AttendanceEditorSnapshot }) {
-  return <div className="space-y-3 break-words"><p className="whitespace-pre-wrap">Reason: {review.reason}</p><p className="text-sm break-all">Reviewed by account: {review.reviewedBy}</p><p className="text-sm">Saved: {review.createdAt}. Date: {review.date}.</p>{review.changes.map(change => {
+function ReviewEvidence({ review, snapshot, names }: { review: AttendanceReviewResult['review']; snapshot: AttendanceEditorSnapshot; names: Names }) {
+  return <div className="space-y-3 break-words"><p className="whitespace-pre-wrap">Reason: {review.reason}</p><p className="text-sm break-words">Reviewed by: {who(names, review.reviewedBy)}</p><p className="text-sm">Saved: {review.createdAt}. Date: {review.date}.</p>{review.changes.map(change => {
     const student = snapshot.roster.items.find(row => row.student.id === change.studentId)?.student;
-    return <div key={change.studentId} className="space-y-2 rounded border p-2"><h3 className="font-semibold">{student ? `${student.firstName} ${student.lastName}` : change.studentId}</h3><div><h4 className="font-medium">Before this review</h4><RecordEvidence record={change.beforeRecord} /></div><div><h4 className="font-medium">After this review</h4><RecordEvidence record={change.afterRecord} /></div></div>;
+    return <div key={change.studentId} className="space-y-2 rounded border p-2"><h3 className="font-semibold">{student ? `${student.firstName} ${student.lastName}` : change.studentId}</h3><div><h4 className="font-medium">Before this review</h4><RecordEvidence record={change.beforeRecord} names={names} /></div><div><h4 className="font-medium">After this review</h4><RecordEvidence record={change.afterRecord} names={names} /></div></div>;
   })}</div>;
 }
 
@@ -67,6 +72,9 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [calendar, setCalendar] = useState<AttendanceCalendar | null>(null);
+  const [changes, setChanges] = useState<AttendanceChanges | null>(null);
+  const [changesError, setChangesError] = useState<string | null>(null);
   const generation = useRef(0), controller = useRef<AbortController | null>(null);
   const snapshotRef = useRef<AttendanceEditorSnapshot | null>(null), marksRef = useRef<Record<string, Mark>>({});
   const classRef = useRef(''), dateRef = useRef(date), pending = useRef<Pending | null>(null), inFlight = useRef(false);
@@ -81,12 +89,22 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
     void (async () => {
       await Promise.resolve();
       if (!active) return;
-      setClassId(''); setPrincipal(null); setSnapshot(null); setMarks({}); setHistory(null); setConfirmed(null); setReviewed(false); setReason(''); setLoading(true); setError(null); setNotice(null); setUncertain(false); setPendingAccessDenied(false); setSigninRequired(false); pending.current = null; savedNeedsRefresh.current = false;
+      setClassId(''); setPrincipal(null); setSnapshot(null); setMarks({}); setHistory(null); setChanges(null); setConfirmed(null); setReviewed(false); setReason(''); setLoading(true); setError(null); setNotice(null); setUncertain(false); setPendingAccessDenied(false); setSigninRequired(false); pending.current = null; savedNeedsRefresh.current = false;
       try {
         const { id } = await params;
         const account = await read<Principal>('/api/session');
         if (!active) return;
-        classRef.current = id; setClassId(id); setPrincipal(account);
+        // The school calendar (not this device clock) decides what "today" is. A failed read falls back to the device date.
+        let school: AttendanceCalendar | null = null;
+        if (account.role === 'admin' || account.role === 'teacher') {
+          school = await read<AttendanceCalendar>('/api/attendance/calendar').catch(() => null);
+          const requested = new URLSearchParams(window.location.search).get('date') ?? '';
+          const chosen = calendarDate(requested) ? requested : school?.schoolDate ?? today();
+          if (!active) return;
+          dateRef.current = chosen; setDate(chosen);
+        }
+        if (!active) return;
+        classRef.current = id; setClassId(id); setPrincipal(account); setCalendar(school);
         if (account.role !== 'admin' && account.role !== 'teacher') { setError('Attendance recording is available to authorised school staff. Use Attendance to view the records available to your account.'); setLoading(false); }
       } catch (failure) { if (active) { setError(failure instanceof Error ? failure.message : 'The class could not be loaded.'); setLoading(false); } }
     })();
@@ -98,7 +116,7 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
     controller.current?.abort(); const abort = new AbortController(); controller.current = abort;
     const ticket = ++generation.current;
     const intended = pending.current ? Object.fromEntries(pending.current.input.entries.map(entry => [entry.studentId, { status: entry.status, note: entry.note ?? '' }])) : Object.fromEntries((snapshotRef.current?.roster.items ?? []).filter(row => marksRef.current[row.student.id] && changed(marksRef.current[row.student.id], row.record)).map(row => [row.student.id, marksRef.current[row.student.id]]));
-    setLoading(true); setNeedsReload(true); setReviewed(false); setError(null); setHistory(null); setHistoryError(null);
+    setLoading(true); setNeedsReload(true); setReviewed(false); setError(null); setHistory(null); setChanges(null); setHistoryError(null); setChangesError(null);
     if (!calendarDate(date)) { setError('Choose a real calendar date in YYYY-MM-DD format.'); setLoading(false); return; }
     const path = '/api/classes/' + encodeURIComponent(classId) + '/attendance-editor';
     try {
@@ -118,16 +136,25 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
       } catch (failure) {
         if (ticket !== generation.current || abort.signal.aborted) return;
         if (failure instanceof ReadFailure && [401, 403, 404].includes(failure.status)) {
-          snapshotRef.current = null; setSnapshot(null); setHistory(null); setConfirmed(null); setNeedsReload(true); setReviewed(false); setError(failure.message);
+          snapshotRef.current = null; setSnapshot(null); setHistory(null); setChanges(null); setConfirmed(null); setNeedsReload(true); setReviewed(false); setError(failure.message);
           setNotice(afterSave ? 'Attendance review saved. Current access could not be verified. Reload current records after access is restored.' : pending.current ? 'The original reviewed request remains pending. Current access could not be verified. Reload current records after access is restored before retrying.' : null);
           if (pending.current) { setPendingAccessDenied(true); setSigninRequired(failure.status === 401); }
         } else setHistoryError(failure instanceof Error ? failure.message : 'Review history could not be loaded.');
+        return;
+      }
+      // The change log shows overwrites that never had a review. It is supporting evidence, so its failure is not fatal.
+      try {
+        const log = await read<AttendanceChanges>('/api/classes/' + encodeURIComponent(classId) + '/attendance-changes?date=' + encodeURIComponent(date), abort.signal, Boolean(pending.current));
+        if (ticket === generation.current) { setChanges(log); setChangesError(null); }
+      } catch (failure) {
+        if (ticket !== generation.current || abort.signal.aborted) return;
+        setChanges(null); setChangesError(failure instanceof Error ? failure.message : 'The change log could not be loaded.');
       }
     } catch (failure) {
       if (ticket !== generation.current || abort.signal.aborted) return;
       setLoading(false); setNeedsReload(true);
       if (failure instanceof ReadFailure && [401, 403, 404].includes(failure.status)) {
-        snapshotRef.current = null; setSnapshot(null); setHistory(null); setConfirmed(null);
+        snapshotRef.current = null; setSnapshot(null); setHistory(null); setChanges(null); setConfirmed(null);
         if (pending.current) { setPendingAccessDenied(true); setSigninRequired(failure.status === 401); }
       }
       if (afterSave) setNotice(previous => (previous ?? 'Attendance review saved.') + ' Current records could not be refreshed. Reload them before another save.');
@@ -146,7 +173,7 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
     if (inFlight.current || pending.current) return;
     dateRef.current = value; generation.current++; controller.current?.abort(); snapshotRef.current = null; marksRef.current = {};
     savedNeedsRefresh.current = false;
-    setDate(value); setSnapshot(null); setMarks({}); setHistory(null); setConfirmed(null); setReason(''); setReviewed(false); setNotice(null); setError(null); setHistoryError(null); setNeedsReload(true);
+    setDate(value); setSnapshot(null); setMarks({}); setHistory(null); setChanges(null); setConfirmed(null); setReason(''); setReviewed(false); setNotice(null); setError(null); setHistoryError(null); setNeedsReload(true);
   }
   function edit(studentId: string, value: Partial<Mark>) {
     if (inFlight.current || pending.current) return;
@@ -157,7 +184,17 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
   const invalidDirty = dirty.some(row => !validStatus(marks[row.student.id].status) || (marks[row.student.id].note !== (row.record?.note ?? '') && Array.from(marks[row.student.id].note).length > 2000));
   const reasonLength = Array.from(reason.trim()).length;
   const validReason = reasonLength >= 10 && reasonLength <= 500 && !/[\x00-\x1f\x7f]/.test(reason.trim());
-  const blocked = loading || saving || needsReload || uncertain || !snapshot?.canReview;
+  const futureDate = Boolean(calendar && calendarDate(date) && date > calendar.schoolDate);
+  const futureBlocked = futureDate && calendar?.futureDatesAllowed === false;
+  const blocked = loading || saving || needsReload || uncertain || !snapshot?.canReview || futureBlocked;
+  const names: Names = { self: principal?.id ?? '', byId: Object.fromEntries((changes?.actors ?? []).map(actor => [actor.id, actor.name])) };
+  const unrecorded = snapshot?.roster.items.filter(row => row.record === null && (marks[row.student.id]?.status ?? '') === '') ?? [];
+  function markAllPresent() {
+    if (inFlight.current || pending.current) return;
+    const next = { ...marksRef.current };
+    for (const row of unrecorded) next[row.student.id] = { status: 'present', note: next[row.student.id]?.note ?? '' };
+    marksRef.current = next; setMarks(next); setReviewed(false); setNotice(null);
+  }
 
   async function save(event: React.FormEvent, retry = false) {
     event.preventDefault();
@@ -183,7 +220,7 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
         if (response.status >= 500) throw new Error('Unconfirmed save');
         if ([401, 403, 404].includes(response.status)) {
           setUncertain(true); setPendingAccessDenied(true); setSigninRequired(response.status === 401); setNeedsReload(true); setReviewed(false);
-          snapshotRef.current = null; setSnapshot(null); setHistory(null); setConfirmed(null);
+          snapshotRef.current = null; setSnapshot(null); setHistory(null); setChanges(null); setConfirmed(null);
           setError(response.status === 401 ? 'Your session is no longer available. The save outcome is not confirmed and the original request is retained. Sign in again in another tab, then reload current records.' : 'Attendance access is no longer available. The save outcome is not confirmed and the original request is retained. Reload current records after access is restored before retrying.');
           return;
         }
@@ -206,10 +243,15 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
   }
 
   return <AppShell principal={principal}><div className="mx-auto max-w-6xl space-y-6 p-4 min-w-0">
-    <div className="space-y-2 break-words"><a href="/classes" className="underline">Classes</a><h1>Take Attendance</h1><p>Review changes to saved attendance for the current active roster.</p>{snapshot && <p className="font-semibold">{snapshot.class.name}</p>}<a href="/attendance" className="inline-block underline">Attendance records</a></div>
+    <div className="space-y-2 break-words"><a href="/classes" className="underline">Classes</a><h1>Take Attendance</h1><p>Review changes to saved attendance for the current active roster.</p>{snapshot && <p className="font-semibold">{snapshot.class.name}</p>}<a href="/attendance" className="inline-block underline">Attendance records</a>{classId && <a href={'/attendance/classes/' + encodeURIComponent(classId)} className="ml-4 inline-block underline">Class attendance report</a>}</div>
     {(error || notice) && <div ref={message} tabIndex={-1} className="space-y-2 rounded border p-3 break-words">{error && <p role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}</div>}
     {signinRequired && <a href="/login" target="_blank" rel="noopener noreferrer" className="inline-block underline">Sign in again in another tab</a>}
-    {staff && <div className="flex min-w-0 flex-wrap items-end gap-3"><div><Label htmlFor="attendance-date">Attendance date</Label><Input id="attendance-date" type="date" value={date} disabled={saving || uncertain} onChange={event => changeDate(event.target.value)} className="max-w-full" /></div><Button type="button" variant="outline" className="whitespace-normal" disabled={loading || saving || (uncertain && !pendingAccessDenied) || !classId} onClick={() => void loadCurrent(!savedNeedsRefresh.current, savedNeedsRefresh.current)}>Reload current records</Button></div>}
+    {staff && <div className="flex min-w-0 flex-wrap items-end gap-3"><div><Label htmlFor="attendance-date">Attendance date</Label><Input id="attendance-date" type="date" value={date} disabled={saving || uncertain} onChange={event => changeDate(event.target.value)} className="max-w-full" /></div>{calendar && <Button type="button" variant="outline" className="whitespace-normal" disabled={saving || uncertain || date === calendar.schoolDate} onClick={() => changeDate(calendar.schoolDate)}>Go to today at the school</Button>}<Button type="button" variant="outline" className="whitespace-normal" disabled={loading || saving || (uncertain && !pendingAccessDenied) || !classId} onClick={() => void loadCurrent(!savedNeedsRefresh.current, savedNeedsRefresh.current)}>Reload current records</Button></div>}
+    {staff && calendar && <div className="space-y-1 text-sm break-words" data-school-calendar>
+      <p>Today at the school is <time dateTime={calendar.schoolDate}>{calendar.schoolDate}</time> ({calendar.timezone}).{!calendar.configured && ' A school administrator has not set the school timezone, so UTC dates are used.'}</p>
+      {futureDate && !futureBlocked && <p role="status">This date is after today at the school.</p>}
+      {futureBlocked && <p role="alert">This school does not allow attendance to be recorded for a future date, so saving is unavailable for this date.</p>}
+    </div>}
     {loading && <p role="status">Loading saved attendance and current roster…</p>}
     {staff && snapshot && <>
       <Card className="min-w-0"><CardHeader><CardTitle>Current saved records and intended changes</CardTitle><p className="text-sm text-muted-foreground">Date: {snapshot.date}. Unrecorded learners remain blank. Only explicit changes are submitted.</p></CardHeader><CardContent className="space-y-4">
@@ -218,18 +260,20 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
         {snapshot.roster.total === 0 && <p>No active learners are available for this class.</p>}
         <form onSubmit={event => void save(event)} className="space-y-5">
           <fieldset disabled={blocked} className="min-w-0 space-y-4">
+            {snapshot.roster.items.length > 0 && <div className="space-y-1"><Button type="button" variant="outline" className="whitespace-normal" disabled={unrecorded.length === 0} onClick={markAllPresent}>Mark all unrecorded learners present</Button><p className="text-sm text-muted-foreground">This only fills learners with no saved record and nothing is saved until you review it. Change anyone who was not present before saving.</p></div>}
             {snapshot.roster.items.map(row => {
               const mark = marks[row.student.id] ?? initialMark(row.record), name = `${row.student.firstName} ${row.student.lastName}`;
               return <article key={row.student.id} data-attendance-student={row.student.id} className="min-w-0 rounded border p-3 space-y-3 break-words">
                 <h2 className="font-semibold">{name}</h2><p className="text-sm">Admission number: {row.student.admissionNumber}</p>
-                <div className="rounded bg-muted/30 p-2"><h3 className="font-medium">Loaded saved record</h3><RecordEvidence record={row.record} /></div>
+                <div className="rounded bg-muted/30 p-2"><h3 className="font-medium">Loaded saved record</h3><RecordEvidence record={row.record} names={names} /></div>
                 {row.needsReview && <p role="alert">This learner has stored records requiring review; changes are unavailable.</p>}
                 <div className="grid min-w-0 gap-3 sm:grid-cols-2"><div className="min-w-0"><Label htmlFor={'status-' + row.student.id}>Attendance status for {name}</Label><select id={'status-' + row.student.id} value={mark.status} onChange={event => edit(row.student.id, { status: event.target.value })} className="mt-1 w-full min-w-0 rounded border bg-background p-2"><option value="" disabled={row.record !== null}>Choose a status</option>{!validStatus(mark.status) && mark.status !== '' && <option value={mark.status}>{mark.status} (stored status requires review)</option>}{statuses.map(status => <option key={status} value={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}</select></div>
                 <div className="min-w-0"><Label htmlFor={'note-' + row.student.id}>Attendance note for {name}</Label><textarea id={'note-' + row.student.id} value={mark.note} rows={3} aria-describedby={'note-guidance-' + row.student.id} onChange={event => edit(row.student.id, { note: event.target.value })} className="mt-1 w-full min-w-0 rounded border bg-background p-2" /><p id={'note-guidance-' + row.student.id} className="text-sm text-muted-foreground">New or replacement notes: up to 2,000 characters. An unchanged saved note is retained.</p></div></div>
                 {changed(mark, row.record) && <p className="text-sm font-medium">Intended change</p>}
               </article>;
             })}
-            <div><Label htmlFor="attendance-reason">Reason for attendance changes</Label><textarea id="attendance-reason" value={reason} rows={3} aria-describedby="attendance-reason-guidance" onChange={event => { setReason(event.target.value); setReviewed(false); setNotice(null); }} className="mt-1 w-full min-w-0 rounded border bg-background p-2" /><p id="attendance-reason-guidance" className="text-sm text-muted-foreground">Enter a single-line explanation of 10–500 characters. Current length: {reasonLength}.</p></div>
+            {dirty.length > 0 && <div data-intended-changes className="space-y-1"><h3 className="font-medium">Changes to be saved</h3><ul className="list-disc space-y-1 pl-5 text-sm">{dirty.map(row => { const mark = marks[row.student.id]; return <li key={row.student.id}>{row.student.firstName} {row.student.lastName}: {label(row.record?.status ?? '')} to {label(mark.status)}{row.record ? ' (correction of a saved mark)' : ' (new mark)'}{mark.note !== (row.record?.note ?? '') ? ', note changed' : ''}</li>; })}</ul></div>}
+            <div><Label htmlFor="attendance-reason">Reason for attendance changes</Label><textarea id="attendance-reason" value={reason} rows={3} aria-describedby="attendance-reason-guidance" onChange={event => { setReason(event.target.value); setReviewed(false); setNotice(null); }} className="mt-1 w-full min-w-0 rounded border bg-background p-2" /><p id="attendance-reason-guidance" className="text-sm text-muted-foreground">Enter a single-line explanation of 10–500 characters. For a correction, say what was wrong and why it changed. Current length: {reasonLength}.</p>{dirty.length > 0 && dirty.every(row => row.record === null) && reason.trim() === '' && <Button type="button" variant="outline" className="mt-2 whitespace-normal" onClick={() => { setReason('Initial roll call for ' + date); setReviewed(false); setNotice(null); }}>Use &quot;Initial roll call for {date}&quot;</Button>}</div>
             <label className="flex items-start gap-2"><input type="checkbox" checked={reviewed} onChange={event => setReviewed(event.target.checked)} className="mt-1" /><span>I reviewed the loaded records and these intended attendance changes.</span></label>
             <p>{dirty.length} learner{dirty.length === 1 ? '' : 's'} with intended changes.</p>
             {invalidDirty && <p role="alert">Choose a status for every changed learner and keep new notes within 2,000 characters.</p>}
@@ -239,14 +283,20 @@ export default function TakeAttendancePage({ params }: { params: Promise<{ id: s
         {uncertain && !pendingAccessDenied && <form onSubmit={event => void save(event, true)}><Button type="submit" disabled={saving} className="max-w-full whitespace-normal">{saving ? 'Confirming pending save…' : 'Retry pending save'}</Button><p className="mt-2 text-sm">This retries the original reviewed request, including its original date and saved-record expectations.</p></form>}
         <p className="text-sm text-muted-foreground break-words">Loaded snapshot: {snapshot.asOf}</p>
       </CardContent></Card>
-      {confirmed && <Card className="min-w-0" data-confirmed-attendance-review={confirmed.id}><CardHeader><CardTitle>Confirmed saved review</CardTitle><p className="text-sm text-muted-foreground">This is the immutable original save receipt. It does not assert that these marks remain current.</p></CardHeader><CardContent><ReviewEvidence review={confirmed} snapshot={snapshot} /></CardContent></Card>}
+      {confirmed && <Card className="min-w-0" data-confirmed-attendance-review={confirmed.id}><CardHeader><CardTitle>Confirmed saved review</CardTitle><p className="text-sm text-muted-foreground">This is the immutable original save receipt. It does not assert that these marks remain current.</p></CardHeader><CardContent><ReviewEvidence review={confirmed} snapshot={snapshot} names={names} /></CardContent></Card>}
+      {(changes || changesError) && <Card className="min-w-0" data-unreviewed-changes><CardHeader><CardTitle>Changes made without a review</CardTitle><p className="text-sm text-muted-foreground">Saved marks for {snapshot.date} that were replaced or removed without a review receipt. No reason was recorded for these.</p></CardHeader><CardContent className="space-y-3">
+        {changesError && <p role="alert">The change log could not be loaded. Reload current records to try again.</p>}
+        {changes && changes.items.filter(item => !item.reviewed).length === 0 && !changesError && <p>No changes without a review for this date.</p>}
+        {changes?.truncated && <p role="status">Showing {changes.items.length} of {changes.total} logged changes (limit {changes.limit}).</p>}
+        {changes?.items.filter(item => !item.reviewed).map(item => <div key={item.id} data-unreviewed-change={item.id} className="rounded border p-3 text-sm break-words"><p className="font-medium">{item.studentName}: {item.kind === 'delete' ? 'mark removed' : 'mark replaced'}</p><p>Before: {label(item.beforeRecord.status)}{item.beforeRecord.note ? ', note: ' + item.beforeRecord.note : ''} (recorded by {who(names, item.beforeRecord.recordedBy)})</p><p>{item.afterRecord ? 'After: ' + label(item.afterRecord.status) + (item.afterRecord.note ? ', note: ' + item.afterRecord.note : '') + ' (recorded by ' + who(names, item.afterRecord.recordedBy) + ')' : 'After: no record'}</p><p>Logged: {item.changedAt}</p></div>)}
+      </CardContent></Card>}
       <Card className="min-w-0"><CardHeader><CardTitle>Saved attendance review history</CardTitle><p className="text-sm text-muted-foreground">Immutable before-and-after evidence for {snapshot.date}. Current records are shown above.</p></CardHeader><CardContent className="space-y-3">
         {historyError && <p role="alert">Review history could not be loaded. Reload current records to try again.</p>}
         {!history && !historyError && <p role="status">Loading review history…</p>}
         {history?.total === 0 && <p>No saved attendance reviews for this date.</p>}
         {history?.truncated && <p role="status">Showing {history.items.length} of {history.total} saved reviews (limit {history.limit}). Earlier evidence is not loaded here.</p>}
         {history && !history.truncated && history.total > 0 && <p>{history.total} saved review{history.total === 1 ? '' : 's'}.</p>}
-        {history?.items.map(review => <details key={review.id} data-attendance-review={review.id} className="min-w-0 rounded border p-3 break-words"><summary className="cursor-pointer font-medium">Review saved {review.createdAt}</summary><div className="mt-3"><ReviewEvidence review={review} snapshot={snapshot} /></div></details>)}
+        {history?.items.map(review => <details key={review.id} data-attendance-review={review.id} className="min-w-0 rounded border p-3 break-words"><summary className="cursor-pointer font-medium">Review saved {review.createdAt}</summary><div className="mt-3"><ReviewEvidence review={review} snapshot={snapshot} names={names} /></div></details>)}
       </CardContent></Card>
     </>}
   </div></AppShell>;
