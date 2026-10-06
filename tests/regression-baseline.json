@@ -1,6 +1,6 @@
 {
   "description": "Minimum passed-assertion count per suite, from a real run. Changed only by node scripts/test.mjs --update-baseline.",
-  "updatedAt": "2026-10-05",
+  "updatedAt": "2026-10-06",
   "node": "v24.19.0",
   "suites": {
     "integration/academic-integrity-contract": {
@@ -22,6 +22,11 @@
       "layer": "integration",
       "file": "tests/integration/api-contract.mjs",
       "minPassed": 26
+    },
+    "integration/assessment-detail-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/assessment-detail-ui-contract.mjs",
+      "minPassed": 1476
     },
     "integration/assessment-review-access-contract": {
       "layer": "integration",

@@ -31,6 +31,8 @@ Fast mode reuses the build; rebuild after application changes. Mounted tests in 
 
 [Branch handoff/assessment-detail-2026-10-06](https://github.com/nakul175/saha-education/tree/handoff/assessment-detail-2026-10-06) contains focused commit **e1283e78d7d19f6637c0821304e5a4a5cbd438d6**, based on23c2. It preserves the assessment-detail page, new callback suite and two WIP records. Snapshot evidence passes1476 checks/101 scenarios/1538 actual synthetic route/SQL requests plus focused lint/typecheck, but lacks a fresh build, mounted final review, combined release run and final author freeze. It is intentionally excluded from main's verified application.
 
+**Update, 6 October 2026 (continuation):** the preserved commit was cherry-picked onto main, finished and verified without changing application source; it is no longer unfinished. See [assessment detail completion](docs/current/ASSESSMENT-DETAIL-COMPLETION.md): 53 suites/22,428 assertions on Node 22.22 and 24.19, the mounted procedure 43/43 with 0 external requests and 0 page errors, and mutation checks. Explicit discard sends zero POSTs and does not claim cancellation. The statements above are the original hand-off and are kept for history.
+
 ```sh
 git show --stat e1283e78d7d19f6637c0821304e5a4a5cbd438d6
 git cherry-pick e1283e78d7d19f6637c0821304e5a4a5cbd438d6
@@ -41,7 +43,7 @@ Run these only on the new continuation branch after inspecting the exact diff. R
 ## Concrete blockers and next priorities
 
 1. **Private hosting:** saved version1 of source8088 failed with `incomplete input: SQLITE_ERROR`. Project `appgprj_6ac3f931d31881918ffa33404d3b43a6`; deployment `appgdep_6ac412c0fdfc81918dcd9440de06e6c7`; no returned URL. Status remained failed at02:53 UTC6 October. [Failure evidence](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) preserves source/archive/migration diagnostics. Obtain the failed migration filename and last applied boundary from hosting settings/support. Do not rewrite applied SQL, infer missing triggers, remove constraints or retry the unchanged failed archive blindly. After the boundary/runner issue is resolved, publish the exact verified main source using retained .openai/hosting.json, private synthetic settings and the Sites workflow; verify the returned URL. Git merge does not deploy the app.
-2. **Finish preserved assessment UI** with the checks above; publish a focused PR to main.
+2. **Finish preserved assessment UI** with the checks above; publish a focused PR to main. *(Completed 6 October 2026 on a continuation branch; see the update above. Merge status is recorded by the pull request.)*
 3. **Real identity and external ORF:** sponsor chose an existing sign-in provider but has not named its issuer/tenant/configuration; real login remains fail-closed. ORF destination/SSO/result-sync configuration remains unprovided. Confirm the actual provider/destination through the credential workflow before connecting. AmplifiU-inspired manual teacher workflows exist; paid AI drafting and vendor curriculum imports remain unimplemented.
 4. **Product acceptance:** resolve curriculum/pilot rights, grading/date/publication/correction/retention policy, legacy API bypass boundaries, representative accessibility/performance/recovery and educational UAT. Preserve synthetic-only and no real-recipient constraints.
 
