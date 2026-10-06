@@ -4,6 +4,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Class, Student } from '@/lib/education/types';
 import type { ReadingCorrection, ReadingCorrectionInput, ReadingMetrics, ReadingReview, ReadingReviewObservation } from '@/lib/education/reading-review';
+import { ReadingTrendChart } from '@/components/reading-trend-chart';
+import { formatReadingDate, summariseSeries } from '@/lib/education/reading-trends';
 
 class ReviewRequestError extends Error {
   constructor(readonly status: number) { super('Reading review request failed'); }
@@ -19,6 +21,10 @@ function failureMessage(error: unknown): string {
   if (error instanceof ReviewRequestError && error.status === 403) return 'You no longer have permission to review these readings.';
   if (error instanceof ReviewRequestError && error.status === 404) return 'This class or reading is no longer available to your account.';
   return 'Could not load reading history. Please refresh to try again.';
+}
+function formatStamp(value: string): string {
+  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(value);
+  return match ? formatReadingDate(match[1]) + ', ' + match[2] + ' UTC' : value;
 }
 async function loadView(classId: string, studentId: string, signal: AbortSignal) {
   const query = new URLSearchParams({ classId });
@@ -123,7 +129,7 @@ function CorrectionEditor({ observation, onSaved, onAccessLost, onSaving }: {
   const valid = validCorrection(values);
   return <form onSubmit={save} className="space-y-4 rounded border bg-muted/20 p-4" aria-labelledby="correction-heading">
     <h2 id="correction-heading" className="text-xl font-semibold">Append a reviewed correction</h2>
-    <p className="text-sm">Original observation: <span className="break-all">{observation.original.id}</span> · Current revision {observation.revision}.</p>
+    <p className="text-sm">Current revision {observation.revision}. Reading date {formatReadingDate(observation.original.readingDate)}.</p>
     <p className="text-sm">The original reading and earlier corrections are retained. Review all replacement values before confirming.</p>
     <fieldset disabled={saving || conflict} className="grid gap-4 sm:grid-cols-2">
       <legend className="sr-only">Replacement reading values</legend>
@@ -207,10 +213,23 @@ export default function ReadingReviewPage() {
     setData(null); setAllReview(null); setStudents([]); setSelectedCheckId('');
     savingRef.current = false; setSaving(false); setError(failureMessage(error));
   }
-  const studentNames = new Map(students.map(student => [student.id, [student.firstName, student.lastName].join(' ')]));
+  const names = { students: { ...(data?.names.students ?? {}), ...(allReview?.names.students ?? {}) }, staff: { ...(data?.names.staff ?? {}), ...(allReview?.names.staff ?? {}) } };
+  const studentNames = new Map([...Object.entries(names.students), ...students.map(student => [student.id, [student.firstName, student.lastName].join(' ')] as const)]);
+  const currentIds = new Set(students.map(student => student.id));
   const studentIds = [...new Set([...students.map(student => student.id), ...(allReview?.observations.map(observation => observation.original.studentId) ?? [])])];
   studentIds.sort((a, b) => (studentNames.get(a) ?? a).localeCompare(studentNames.get(b) ?? b));
-  const studentLabel = (id: string) => studentNames.get(id) ?? 'Student ID ' + id + ' (retained reading history)';
+  const studentLabel = (id: string) => {
+    const name = studentNames.get(id);
+    if (!name) return 'Learner (name unavailable)';
+    return currentIds.has(id) || !students.length ? name : name + ' (not currently enrolled; retained reading history)';
+  };
+  const staffLabel = (id: string) => names.staff[id] ?? 'Staff member (name unavailable)';
+  const overview = studentIds.map(id => {
+    const own = (allReview?.observations ?? []).filter(observation => observation.original.studentId === id);
+    const own_series = (allReview?.series ?? []).filter(series => series.studentId === id);
+    return { id, readings: own.length, latest: own.reduce((latest, observation) => observation.effective.readingDate > latest ? observation.effective.readingDate : latest, ''),
+      tasks: own_series.length, repeated: own_series.filter(series => series.points.length >= 2).length };
+  });
   const selected = data?.observations.find(observation => observation.original.id === selectedCheckId);
   return <main className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
     <nav aria-label="Reading review navigation" className="flex flex-wrap gap-4 text-sm"><a className="underline" href="/">← Dashboard</a><a className="underline" href="/external-apps">Reading apps and new checks</a></nav>
@@ -224,49 +243,65 @@ export default function ReadingReviewPage() {
     <section className="grid gap-4 rounded border p-4 sm:grid-cols-2" aria-label="Reading history filters">
       <label className="block">Class<select className={inputStyle} value={classId} disabled={loadingClasses || saving} onChange={event => chooseClass(event.target.value)}><option value="">{loadingClasses ? 'Loading classes…' : 'Select a class'}</option>{classes.map(value => <option key={value.id} value={value.id}>{value.name}</option>)}</select></label>
       <label className="block">Student<select className={inputStyle} value={studentId} disabled={!classId || loading || saving} onChange={event => chooseStudent(event.target.value)}><option value="">All students with authorized readings</option>{studentIds.map(id => <option key={id} value={id}>{studentLabel(id)}</option>)}</select></label>
-      <p className="text-sm text-muted-foreground sm:col-span-2">Historical learners remain selectable by student ID when their name is absent from the current roster.</p>
+      <p className="text-sm text-muted-foreground sm:col-span-2">Learners who have left this class stay in the list so their earlier readings can still be reviewed.</p>
       {classId && <button type="button" className={buttonStyle + ' justify-self-start'} disabled={loading || saving} onClick={startReload}>Refresh history</button>}
     </section>
     {loading && <p role="status" aria-live="polite">Loading reading history…</p>}
     {rosterWarning && <p role="status">{rosterWarning}</p>}
     {saved && <section className="space-y-3 rounded border border-green-700 p-4" aria-labelledby="reading-saved-heading">
       <h2 id="reading-saved-heading" className="font-semibold" role="status">Correction saved · revision {saved.revision}</h2>
-      <p className="break-words text-sm">Reviewer {saved.correctedBy} · <time dateTime={saved.correctedAt}>{saved.correctedAt}</time></p><p className="break-words">{saved.reason}</p><Metrics value={saved}/>
+      <p className="break-words text-sm">Reviewer {staffLabel(saved.correctedBy)} · <time dateTime={saved.correctedAt}>{formatStamp(saved.correctedAt)}</time></p><p className="break-words">{saved.reason}</p><Metrics value={saved}/>
     </section>}
     {!classId && !loadingClasses && <p>{classes.length ? 'Select a class to review its reading observations.' : 'No authorized classes are available to your account.'}</p>}
     {data && !loading && <>
-      <section className="space-y-4" aria-labelledby="reading-observations-heading">
-        <h2 id="reading-observations-heading" className="text-2xl font-semibold">Original observations and effective readings</h2>
-        {!data.observations.length && <p>No reading observations match these filters. New reviewed checks can be entered from <a href="/external-apps" className="underline">Reading apps</a>.</p>}
-        {data.observations.map(observation => <article key={observation.original.id} className="space-y-4 rounded border p-4">
-          <h3 className="font-semibold break-words">{studentLabel(observation.original.studentId)} · {observation.effective.readingDate}</h3>
-          <p className="text-sm break-all">Observation ID {observation.original.id}</p>
-          <div className="grid gap-6 lg:grid-cols-2"><section className="space-y-2" aria-label="Original manually recorded evidence"><h4 className="font-semibold">Original observation</h4><Metrics value={observation.original}/>
-            <p className="break-words text-sm text-muted-foreground">Recorded by {observation.original.recordedBy} · <time dateTime={observation.original.createdAt}>{observation.original.createdAt}</time></p>
-            <p className="text-sm text-muted-foreground">Source: manual-reviewed-external · {observation.original.sourceAppId}. No automatic external verification.</p>
-          </section><section className="space-y-2" aria-label="Effective reviewed reading"><h4 className="font-semibold">Effective reading · {observation.revision ? 'correction revision ' + observation.revision : 'original, no corrections'}</h4><Metrics value={observation.effective}/></section></div>
-          <details className="rounded border p-3"><summary className="cursor-pointer font-medium">Correction history ({observation.corrections.length})</summary>
-            {!observation.corrections.length ? <p className="pt-3">No corrections have been added.</p> : <ol className="space-y-4 pt-3">{observation.corrections.map(correction => <li key={correction.id} className="space-y-2 border-t pt-3">
-              <h5 className="font-semibold">Revision {correction.revision}</h5><p className="text-sm break-words">Reviewer {correction.correctedBy} · <time dateTime={correction.correctedAt}>{correction.correctedAt}</time></p><p className="break-words">Reason: {correction.reason}</p><Metrics value={correction}/>
-            </li>)}</ol>}
-          </details>
-          <button type="button" className={buttonStyle} disabled={saving} onClick={() => { if (!savingRef.current) setSelectedCheckId(previous => previous === observation.original.id ? '' : observation.original.id); }} aria-expanded={selectedCheckId === observation.original.id}>{selectedCheckId === observation.original.id ? 'Close correction editor' : 'Review a correction'}</button>
-          {selected?.original.id === observation.original.id && <CorrectionEditor key={observation.original.id + ':' + observation.revision} observation={observation} onSaved={correctionSaved} onAccessLost={accessLost} onSaving={value => { savingRef.current = value; setSaving(value); }}/>}</article>)}
+      <section className="space-y-3" aria-labelledby="reading-overview-heading"><h2 id="reading-overview-heading" className="text-2xl font-semibold">Reading overview by learner</h2>
+        <p className="text-sm text-muted-foreground">Counts of recorded readings only. Learners are listed by name, not by score; no class average or ranking is calculated.</p>
+        <div className="max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Reading overview table; scroll horizontally on small screens">
+          <table className="w-full text-left text-sm"><caption className="sr-only">Number of recorded readings, latest reading date and comparable tasks for each learner.</caption>
+            <thead className="bg-muted"><tr><th scope="col" className="p-3">Learner</th><th scope="col" className="p-3">Readings</th><th scope="col" className="p-3">Latest reading</th><th scope="col" className="p-3">Exact tasks</th><th scope="col" className="p-3">Tasks with 2 or more readings</th><th scope="col" className="p-3"><span className="sr-only">Action</span></th></tr></thead>
+            <tbody>{overview.map(row => <tr key={row.id} className="border-t" aria-current={studentId === row.id ? 'true' : undefined}>
+              <th scope="row" className="p-3 font-normal break-words">{studentLabel(row.id)}</th>
+              <td className="p-3">{row.readings}</td><td className="p-3 whitespace-nowrap">{row.latest ? formatReadingDate(row.latest) : 'No readings yet'}</td><td className="p-3">{row.tasks}</td><td className="p-3">{row.repeated}</td>
+              <td className="p-3">{row.readings > 0 && <button type="button" className={buttonStyle} disabled={loading || saving || studentId === row.id} onClick={() => chooseStudent(row.id)}>{studentId === row.id ? 'Showing' : 'Show readings'}<span className="sr-only"> for {studentLabel(row.id)}</span></button>}</td></tr>)}</tbody>
+          </table>
+        </div>
+        {overview.some(row => row.readings === 0) && <p className="text-sm" data-reading-gaps>{overview.every(row => row.readings === 0)
+          ? (overview.length === 1 ? 'This learner has no recorded reading yet.' : 'None of the ' + overview.length + ' learners has a recorded reading yet.')
+          : overview.filter(row => row.readings === 0).length + ' of ' + overview.length + ' learners ' + (overview.filter(row => row.readings === 0).length === 1 ? 'has' : 'have') + ' no recorded readings yet.'}</p>}
       </section>
-      <section className="space-y-4" aria-labelledby="reading-series-heading"><h2 id="reading-series-heading" className="text-2xl font-semibold">Comparable reading observations</h2>
-        <p>Each table keeps the same student, class, language, passage reference and recorded duration. Points use the latest reviewed correction, if present. Passage references alone do not establish equivalent difficulty or scoring reliability.</p>
-        <p className="text-sm text-muted-foreground">Rates describe these observations; they do not assign grades, diagnose learning difficulties or demonstrate a product&apos;s effectiveness.</p>
+      <section className="space-y-4" aria-labelledby="reading-series-heading"><h2 id="reading-series-heading" className="text-2xl font-semibold">Reading trends for exact tasks</h2>
+        <p>Each chart and table keeps the same learner, class, language, passage reference and recorded duration. Points use the latest reviewed correction, if present. Passage references alone do not establish equivalent difficulty or scoring reliability.</p>
+        <p className="text-sm text-muted-foreground">Rates describe these observations; they do not assign grades, diagnose learning difficulties, compare learners or demonstrate a product&apos;s effectiveness. No average, ranking, benchmark or target is calculated. Dates are the calendar dates staff entered (UTC); your school has not yet set a school-date policy.</p>
         {!data.series.length && <p>No comparable reading observations are available for these filters.</p>}
-        {data.series.map(series => <section key={JSON.stringify([series.studentId, series.classId, series.language, series.passageReference, series.durationMs])} className="space-y-3 rounded border p-4">
+        {data.series.map(series => { const summary = summariseSeries(series.points); return <section key={JSON.stringify([series.studentId, series.classId, series.language, series.passageReference, series.durationMs])} className="space-y-3 rounded border p-4" data-series-kind={summary.kind}>
           <h3 className="font-semibold break-words">{studentLabel(series.studentId)} · {series.language} · {series.durationMs / 1000} seconds</h3><p className="break-words">Passage reference: {series.passageReference}</p>
-          {series.points.length === 1 && <p className="text-sm text-muted-foreground">One observation is available for this exact task and duration.</p>}
+          <p className="text-sm" data-series-statement>{summary.statement}</p>
+          <div className="grid gap-4 md:grid-cols-2"><ReadingTrendChart points={series.points} metric="wcpm"/><ReadingTrendChart points={series.points} metric="accuracy"/></div>
           <div className="max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Comparable observations table; scroll horizontally on small screens">
-            <table className="w-full text-left text-sm"><caption className="p-3 text-left text-muted-foreground">Chronological observations for class {classes.find(value => value.id === series.classId)?.name ?? series.classId}.</caption>
+            <table className="w-full text-left text-sm"><caption className="p-3 text-left text-muted-foreground">All values for the charts above, in date order, for class {classes.find(value => value.id === series.classId)?.name ?? 'name unavailable'}.</caption>
               <thead className="bg-muted"><tr><th scope="col" className="p-3">Reading date</th><th scope="col" className="p-3">Words correct / attempted</th><th scope="col" className="p-3">Correct words per minute</th><th scope="col" className="p-3">Accuracy</th><th scope="col" className="p-3">Revision</th></tr></thead>
               <tbody>{series.points.map(point => <tr key={point.checkId} className="border-t"><th scope="row" className="p-3 font-normal whitespace-nowrap">{point.readingDate}</th><td className="p-3">{point.wordsCorrect} / {point.wordsAttempted}</td><td className="p-3">{point.wcpm}</td><td className="p-3">{point.accuracy}%</td><td className="p-3">{point.revision || 'Original'}</td></tr>)}</tbody>
             </table>
           </div>
-        </section>)}
+        </section>; })}
+      </section>
+      <section className="space-y-4" aria-labelledby="reading-observations-heading">
+        <h2 id="reading-observations-heading" className="text-2xl font-semibold">Original observations and effective readings</h2>
+        {!data.observations.length && <p>No reading observations match these filters. New reviewed checks can be entered from <a href="/external-apps" className="underline">Reading apps</a>.</p>}
+        {data.observations.map(observation => <article key={observation.original.id} className="space-y-4 rounded border p-4">
+          <h3 className="font-semibold break-words">{studentLabel(observation.original.studentId)} · {formatReadingDate(observation.effective.readingDate)}</h3>
+          <p className="text-xs text-muted-foreground break-all">Observation ID {observation.original.id} (quote this if you contact support)</p>
+          <div className="grid gap-6 lg:grid-cols-2"><section className="space-y-2" aria-label="Original manually recorded evidence"><h4 className="font-semibold">Original observation</h4><Metrics value={observation.original}/>
+            <p className="break-words text-sm text-muted-foreground">Recorded by {staffLabel(observation.original.recordedBy)} · <time dateTime={observation.original.createdAt}>{formatStamp(observation.original.createdAt)}</time></p>
+            <p className="text-sm text-muted-foreground">Source: counts entered by staff from the oral reading fluency app after adult review. The app did not send or verify them.</p>
+          </section><section className="space-y-2" aria-label="Effective reviewed reading"><h4 className="font-semibold">Effective reading · {observation.revision ? 'correction revision ' + observation.revision : 'original, no corrections'}</h4><Metrics value={observation.effective}/></section></div>
+          <details className="rounded border p-3"><summary className="cursor-pointer font-medium">Correction history ({observation.corrections.length})</summary>
+            {!observation.corrections.length ? <p className="pt-3">No corrections have been added.</p> : <ol className="space-y-4 pt-3">{observation.corrections.map(correction => <li key={correction.id} className="space-y-2 border-t pt-3">
+              <h5 className="font-semibold">Revision {correction.revision}</h5><p className="text-sm break-words">Reviewer {staffLabel(correction.correctedBy)} · <time dateTime={correction.correctedAt}>{formatStamp(correction.correctedAt)}</time></p><p className="break-words">Reason: {correction.reason}</p><Metrics value={correction}/>
+            </li>)}</ol>}
+          </details>
+          <button type="button" className={buttonStyle} disabled={saving} onClick={() => { if (!savingRef.current) setSelectedCheckId(previous => previous === observation.original.id ? '' : observation.original.id); }} aria-expanded={selectedCheckId === observation.original.id}>{selectedCheckId === observation.original.id ? 'Close correction editor' : 'Review a correction'}</button>
+          {selected?.original.id === observation.original.id && <CorrectionEditor key={observation.original.id + ':' + observation.revision} observation={observation} onSaved={correctionSaved} onAccessLost={accessLost} onSaving={value => { savingRef.current = value; setSaving(value); }}/>}</article>)}
       </section>
     </>}
   </main>;
