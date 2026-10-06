@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-06T02:53:32.836883+00:00",
+  "status": "preserved-in-progress; excluded from main release",
+  "parent_revision": "23c2d8f3e8bc3d6e9154f138992a66ce456c0b77",
+  "source_sha256": {
+    "app/assessments/[id]/page.tsx": "31c06041123387808203b52d13d12f0ec02a4e44223b33f419fd4abaaf37e83f",
+    "tests/integration/assessment-detail-ui-contract.mjs": "9516a2ba4b78289d6077882e76dbf12bb4109d05807a2127ec80e674b4eef1c2"
+  },
+  "focused_callback_execution": {
+    "passed": 1476,
+    "failed": 0,
+    "skipped": 0,
+    "scenarios": 101,
+    "actual_requests": 1538,
+    "external_requests": 0,
+    "scope": "Actual synthetic opaque sessions/routes/production D1-shaped SQLite with substituted React hooks/elements/AppShell; no mounted browser or full-shell claim."
+  },
+  "lint": "passed for both owned files",
+  "typescript": "isolated noEmit passed",
+  "remaining": [
+    "Independent final source review and source freeze",
+    "Fresh build and full combined regression against current main",
+    "Update and run all retained assessment browser procedures",
+    "Current requirement/design/case documentation for this slice",
+    "No hosted/acceptance/business approval is established"
+  ]
+}
