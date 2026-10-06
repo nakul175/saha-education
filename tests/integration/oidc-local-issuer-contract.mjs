@@ -306,10 +306,10 @@ try {
   // ---- Sign-in replaces the previous session and logout revokes ---------------------------------------------------------------
   {
     const jar = new CookieJar();
-    let first = await signIn(jar, 'sub-oidc-teacher');
+    await signIn(jar, 'sub-oidc-teacher');
     const oldToken = jar.get('__Host-saha_session');
     check((await whoami(jar)).body.id, 'oidc-teacher', 'First account signs in');
-    first = await signIn(jar, 'sub-oidc-guardian');
+    await signIn(jar, 'sub-oidc-guardian');
     check([(await whoami(jar)).body.id, await session.principalForToken(oldToken)], ['oidc-guardian', null], 'Signing in as another account revokes the earlier session of this browser');
     const crossSite = await sessionRoute.DELETE(new Request(origin + '/api/session', { method: 'DELETE', headers: { origin: 'https://attacker.test.invalid', ...cookieHeader(jar) } }));
     check([crossSite.status, (await whoami(jar)).status], [403, 200], 'A cross-origin sign-out is refused and leaves the session');
