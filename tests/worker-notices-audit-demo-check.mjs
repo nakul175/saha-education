@@ -36,7 +36,7 @@ async function context(user, viewport = { width: 1280, height: 900 }) {
     // Local API calls from the pages go through the same bounded exact-retry as the direct calls below.
     for (let attempt = 1; ; attempt++) {
       try {
-        const response = await route.fetch({ timeout: LOCAL_ATTEMPT_MS });
+        const response = await route.fetch({ timeout: LOCAL_ATTEMPT_MS, headers: user ? { ...route.request().headers(), cookie: sessions[user] } : route.request().headers() });
         if (attempt < LOCAL_ATTEMPTS && await restartedMidRequest(response)) { workerRestartRetries++; continue; }
         return route.fulfill({ response });
       } catch {
