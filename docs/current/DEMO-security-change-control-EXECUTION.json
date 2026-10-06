@@ -64,7 +64,8 @@
     "redirected": 22,
     "freshRunsAtTip": 1,
     "earlierRuns": "three earlier runs failed or hung for faults in the script (redirect cookie, CSP eval probe, frame evaluation), fixed; one recorded an unexplained 503 without headers on the denied-role request that did not recur",
-    "notMutationChecked": true
+    "notMutationChecked": true,
+    "mountedAtCommit": "0b56d5b"
   },
   "mutations": [
     {
@@ -360,5 +361,29 @@
     "the CI workflow has not been executed by GitHub from here",
     "hosted migration failure remains unresolved; nothing here changes an original migration",
     "execution does not imply business acceptance"
-  ]
+  ],
+  "integrationProbe": {
+    "localOnly": true,
+    "pushed": false,
+    "mainMovedSinceBase": false,
+    "merged": [
+      "security-change-control",
+      "identity",
+      "school-records",
+      "attendance",
+      "assessments-reports",
+      "reading-review"
+    ],
+    "skippedForSourceConflicts": [
+      "courses-enrolment",
+      "curriculum-submissions",
+      "experience",
+      "notices-audit"
+    ],
+    "migrationGovernanceChecks": 913,
+    "migrationGovernanceFailed": 0,
+    "authorizationMatrix": "fails by design: 81 route files, 12 new pages vs the pinned 60/35 inventory; new handlers not yet tested",
+    "atomicityTriggerInventory": "fails by design: 26 new triggers beyond the documented 56",
+    "hardeningSecretCompareScan": "flags a request-hash comparison in assessment-lifecycle.ts (not a secret; to be allowlisted)"
+  }
 }
