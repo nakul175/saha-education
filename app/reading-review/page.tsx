@@ -256,7 +256,7 @@ export default function ReadingReviewPage() {
     {data && !loading && <>
       <section className="space-y-3" aria-labelledby="reading-overview-heading"><h2 id="reading-overview-heading" className="text-2xl font-semibold">Reading overview by learner</h2>
         <p className="text-sm text-muted-foreground">Counts of recorded readings only. Learners are listed by name, not by score; no class average or ranking is calculated.</p>
-        <div className="max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Reading overview table; scroll horizontally on small screens">
+        <div className="relative max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Reading overview table; scroll horizontally on small screens">
           <table className="w-full text-left text-sm"><caption className="sr-only">Number of recorded readings, latest reading date and comparable tasks for each learner.</caption>
             <thead className="bg-muted"><tr><th scope="col" className="p-3">Learner</th><th scope="col" className="p-3">Readings</th><th scope="col" className="p-3">Latest reading</th><th scope="col" className="p-3">Exact tasks</th><th scope="col" className="p-3">Tasks with 2 or more readings</th><th scope="col" className="p-3"><span className="sr-only">Action</span></th></tr></thead>
             <tbody>{overview.map(row => <tr key={row.id} className="border-t" aria-current={studentId === row.id ? 'true' : undefined}>
@@ -277,7 +277,7 @@ export default function ReadingReviewPage() {
           <h3 className="font-semibold break-words">{studentLabel(series.studentId)} · {series.language} · {series.durationMs / 1000} seconds</h3><p className="break-words">Passage reference: {series.passageReference}</p>
           <p className="text-sm" data-series-statement>{summary.statement}</p>
           <div className="grid gap-4 md:grid-cols-2"><ReadingTrendChart points={series.points} metric="wcpm"/><ReadingTrendChart points={series.points} metric="accuracy"/></div>
-          <div className="max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Comparable observations table; scroll horizontally on small screens">
+          <div className="relative max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Comparable observations table; scroll horizontally on small screens">
             <table className="w-full text-left text-sm"><caption className="p-3 text-left text-muted-foreground">All values for the charts above, in date order, for class {classes.find(value => value.id === series.classId)?.name ?? 'name unavailable'}.</caption>
               <thead className="bg-muted"><tr><th scope="col" className="p-3">Reading date</th><th scope="col" className="p-3">Words correct / attempted</th><th scope="col" className="p-3">Correct words per minute</th><th scope="col" className="p-3">Accuracy</th><th scope="col" className="p-3">Revision</th></tr></thead>
               <tbody>{series.points.map(point => <tr key={point.checkId} className="border-t"><th scope="row" className="p-3 font-normal whitespace-nowrap">{point.readingDate}</th><td className="p-3">{point.wordsCorrect} / {point.wordsAttempted}</td><td className="p-3">{point.wcpm}</td><td className="p-3">{point.accuracy}%</td><td className="p-3">{point.revision || 'Original'}</td></tr>)}</tbody>

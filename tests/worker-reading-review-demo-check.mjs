@@ -51,10 +51,12 @@ async function api(value, path, method = 'GET', data, expected = 200) {
 async function labelsAndOverflow(page) {
   const invalid = await page.locator('main input:not([type=hidden]), main select, main textarea').evaluateAll(items => items.filter(item => !item.labels?.length && !item.getAttribute('aria-label') && !item.getAttribute('aria-labelledby')).length);
   assert.equal(invalid, 0, 'Native form controls have accessible labels');
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1 ? [] : [...document.querySelectorAll('main *')]
-    .filter(item => item.getBoundingClientRect().right > window.innerWidth + 1 && !item.closest('[role=region][tabindex="0"]')).slice(0, 5)
-    .map(item => item.tagName.toLowerCase() + '.' + String(item.className).slice(0, 60) + ' right=' + Math.round(item.getBoundingClientRect().right)));
-  assert.deepEqual(overflow, [], 'Viewport has no horizontal page overflow');
+  // The page itself must never scroll sideways. Anything wider than the screen has to scroll inside its own labelled region;
+  // absolutely positioned screen-reader text inside such a region still counts, so the strict page measurement is the assertion.
+  const overflow = await page.evaluate(() => ({ fits: document.documentElement.scrollWidth <= window.innerWidth + 1,
+    widest: [...document.querySelectorAll('main *')].filter(item => item.getBoundingClientRect().right > window.innerWidth + 1)
+      .slice(0, 5).map(item => item.tagName.toLowerCase() + '.' + String(item.className).slice(0, 60) + ' right=' + Math.round(item.getBoundingClientRect().right)) }));
+  assert.equal(overflow.fits, true, 'Viewport has no horizontal page overflow; elements past the edge: ' + JSON.stringify(overflow.widest));
 }
 async function axe(page, label) {
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
