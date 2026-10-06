@@ -2,7 +2,7 @@
 
 ## Start here
 
-The sponsor requested reconciliation, merge to Git and documentation so Claude can continue. The verified combined Next.js/Worker application and v2.12 documentation are the main release candidate through [PR6](https://github.com/nakul175/saha-education/pull/6). Final publication details are recorded below after the merge. Do not replace main with an older agent branch.
+The sponsor requested reconciliation, merge to Git and documentation so Claude can continue. The verified combined Next.js/Worker application and v2.12 documentation were merged into main through [PR6](https://github.com/nakul175/saha-education/pull/6). Actual publication details are recorded below. Do not replace main with an older agent branch.
 
 Read [HANDOVER.md](HANDOVER.md), [AGENTS.md](AGENTS.md), the [specification index](docs/specification/README.md), [validation](VALIDATION.md) and [last batch execution](docs/current/EIGHT-HOUR-BATCH-4-EXECUTION.json). BRD→FSD→HLD→LLD, wireframes, data dictionary, API/integration contracts and smoke/unit/integration/regression/security/UAT plans are in docs/specification. All371 designed cases remain unrun and business approvalsfalse; executable evidence is a separate record. Existing historical documents and reference files under sources/ must be preserved.
 
@@ -47,10 +47,16 @@ Run these only on the new continuation branch after inspecting the exact diff. R
 
 ## Continuity and publication
 
-Earlier work and original migrations are retained in the consolidated branch history. Auth/literacy/teacher/specification PR heads are included; earlier PR1 documentation was adapted in the consolidated history, with its original branch retained. No new features were started during reconciliation. Two agent streams hit a usage limit around22:04; queued heartbeats do not represent uninterrupted development. The scheduled development run is being paused for this handover; inspect its final recorded status below before restarting any work.
+Earlier work and original migrations are retained in the consolidated branch history. Auth/literacy/teacher/specification PR heads are included; earlier PR1 documentation was adapted in the consolidated history, with its original branch retained. No new features were started during reconciliation. Two agent streams hit a usage limit around22:04; queued heartbeats do not represent uninterrupted development. The scheduled development run is paused for this handover; its saved prompt and schedule were preserved.
 
 Local checkouts and private temporary artifacts are convenience copies; the remote branches and committed sanitized evidence are the portable handover. The previous local demo at http://127.0.0.1:8798/login used sourcec664; it is local only, may not survive the session and is not the final hosted demo. No externally usable demo URL exists yet.
 
 ### Final publication record
 
-Pending the immediately following verified Git merge and documentation closure; this section will be updated with actual source/main revisions and heartbeat state.
+- Verified application source: `426a49d4c218e0033087669e3fb98b22c52605ed`; [PR6](https://github.com/nakul175/saha-education/pull/6) merged into main as `bdeea544c8fc8d208f4391bac24e506082ea81f7` within the authorized final-hour window.
+- Exact main tree matched the verified isolated source: `5efc15472891846f1b14ddff8c716e0a5da8f819`. Earlier PR2–5 heads are ancestors and GitHub automatically marked them merged. PR1 was closed as superseded after independently verifying its adapted documentation; original branch retained.
+- Unfinished assessment branch/commit is remotely verified; an additional local stash preserves its exact original page/test bytes. Root working tree was clean before this documentation-only closure.
+- Automation `saha-education-development-for-four-hours` is **PAUSED**, verified from saved settings. No additional automatic feature work is planned.
+- Hosted status remains failed with no URL. [Sanitized publication evidence](docs/current/CLAUDE-HANDOVER-PUBLICATION.json) records the complete boundary. This documentation-only followup adds no application behavior; current main may include its later closure commit above the application merge.
+
+Claude can start with: “Read CLAUDE-HANDOVER.md and AGENTS.md. Continue from current main, review and finish the preserved assessment commit on a new branch, and retain exact verification/acceptance boundaries. Resolve the documented hosting migration boundary before deployment.”
