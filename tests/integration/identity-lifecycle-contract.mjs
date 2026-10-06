@@ -271,6 +271,10 @@ try {
   db.batch = async queries => { sqlite.prepare("INSERT INTO classes(id,school_id,course_id,teacher_id,name,term,created_at,updated_at) VALUES ('late-class','a','course-a',?,'Late assignment','T1','x','x')").run(guardUser.id); return originalBatch(queries); };
   check((await role('admin-a', guardUser.id, roleBody({ role: 'student' }))).status, 409, 'A class assigned during the request blocks the role change at the actual write');
   db.batch = originalBatch; sqlite.prepare("DELETE FROM classes WHERE id='late-class'").run();
+  db.batch = async queries => { sqlite.prepare("UPDATE users SET school_id='b' WHERE id=?").run(guardUser.id); return originalBatch(queries); };
+  check((await role('admin-a', guardUser.id, roleBody({ role: 'student' }))).status, 409, 'A target moved to another school during the request is refused at the actual write');
+  db.batch = originalBatch; sqlite.prepare("UPDATE users SET school_id='a' WHERE id=?").run(guardUser.id);
+  check([events(), sqlite.prepare('SELECT role FROM users WHERE id=?').get(guardUser.id).role], [beforeFailure, 'teacher'], 'The school-move race wrote no evidence and changed no role');
   db.batch = async queries => { sqlite.prepare("UPDATE users SET identity_issuer=?, identity_subject='raced-subject' WHERE id='legacy-b'").run(provider); return originalBatch(queries); };
   const unmappedLate = await identity('admin-a', 'legacy-unmapped', unlinkBody({ expectedVersion: 1 }));
   db.batch = originalBatch;
@@ -284,6 +288,12 @@ try {
   // ---- Administrator continuity under mutual demotion ---------------------------------------------------------------------
   const peer = await provision('admin-a', 'Reviewed peer administrator', 'peer-subject', { role: 'admin' });
   sessions.peer = (await createSession(peer.id)).split(';')[0];
+  const versionOf = id => sqlite.prepare('SELECT coalesce((SELECT version FROM identity_admin_user_versions WHERE user_id=?),0) AS v').get(id).v;
+  response = await role('admin-a', 'admin-a', roleBody({ expectedVersion: versionOf('admin-a'), role: 'teacher' }));
+  check([response.status, (await response.json()).reason], [409, 'self'], 'Even with another administrator available, nobody changes their own role');
+  response = await identity('admin-a', 'admin-a', unlinkBody({ expectedVersion: versionOf('admin-a') }));
+  check([response.status, (await response.json()).reason], [409, 'self'], 'Even with another administrator available, nobody unlinks their own identity');
+  check(sqlite.prepare("SELECT role, identity_subject FROM users WHERE id='admin-a'").get().role, 'admin', 'The acting administrator is unchanged');
   const mutual = await Promise.all([
     role('admin-a', peer.id, roleBody({ expectedVersion: 1, role: 'teacher' })),
     role('peer', 'admin-a', roleBody({ expectedVersion: sqlite.prepare("SELECT coalesce((SELECT version FROM identity_admin_user_versions WHERE user_id='admin-a'),0) AS v").get().v, role: 'teacher' })),
