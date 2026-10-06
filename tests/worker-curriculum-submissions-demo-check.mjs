@@ -243,7 +243,7 @@ try {
   await page.goto(origin + '/assignments/' + encodeURIComponent(assignmentId));
   await check('FR-24 teacher reviews the saved response and publishes reviewed feedback', async () => {
     await expect(page.getByText(firstResponse, { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('student-a Synthetic', { exact: false }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: /student-a Synthetic/ }).first()).toBeVisible();
     await page.getByRole('textbox', { name: /ormative feedback/ }).fill(firstFeedback);
     await page.getByRole('checkbox', { name: /I reviewed this feedback/ }).check();
     await page.getByRole('button', { name: 'Save reviewed feedback revision 1', exact: true }).click();
