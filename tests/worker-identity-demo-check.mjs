@@ -73,7 +73,7 @@ async function labelsAndWidth(page, scope = 'main') {
 const alertLine = page => page.locator('p[role=alert]');
 async function api(context, path, method = 'GET', data) {
   // The request jar does not send a Secure host cookie to http://127.0.0.1, so the browser context's cookie is passed explicitly.
-  const stored = (await context.cookies(base.href)).filter(cookie => cookie.name === '__Host-saha_session');
+  const stored = (await context.cookies()).filter(cookie => cookie.name === '__Host-saha_session');
   const response = await context.request.fetch(new URL(path, base).href, { method, maxRedirects: 0, headers: { ...(stored.length ? { cookie: `${stored[0].name}=${stored[0].value}` } : {}), ...(method === 'GET' ? {} : { Origin: base.origin, 'Content-Type': 'application/json' }) }, ...(data === undefined ? {} : { data: JSON.stringify(data) }), timeout: 15000 });
   const text = await response.text(); let body = null; try { body = JSON.parse(text); } catch { /* Not JSON. */ }
   return { status: response.status(), body, headers: response.headers() };
@@ -267,7 +267,7 @@ async function realSuite() {
     await go(visitor, '/api/auth/callback?code=forged-code&state=forged-state');
     await expect(visitor).toHaveURL(/\/login\?error=signin_failed$/);
     await expect(alertLine(visitor)).toContainText('School sign-in could not be completed');
-    assert.equal((await anonymous.cookies(base.href)).some(cookie => cookie.name === '__Host-saha_session'), false, 'No session cookie on failure');
+    assert.equal((await anonymous.cookies()).some(cookie => cookie.name === '__Host-saha_session'), false, 'No session cookie on failure');
     assert.equal((await whoami(visitor)).status, 401);
     await go(visitor, '/login?reason=expired');
     await expect(visitor.getByText('Your session ended. Sign in again to continue.', { exact: true })).toBeVisible();
