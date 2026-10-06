@@ -125,3 +125,17 @@ The private hosted deployment still has no URL and the failing file and last app
 - Pages are client shells whose authority is enforced by the APIs; the page matrix checks redirects, error-free rendering, no leak markers, CSP and external-request behaviour, not every control.
 - The CI workflow and the release checklist are process artifacts; they do not establish deployment readiness.
 - The regression baseline, specification exports and traceability files were not edited (integrator-owned). The data dictionary should gain a line for migration 0025.
+
+## 9. Integration probe against the other open demo branches (local, nothing pushed)
+
+At the time of writing `main` had not moved, so there was no regression on `main` itself. As an early signal the open branches (`demo/identity`, `school-records`, `courses-enrolment`, `attendance`, `assessments-reports`, `reading-review`, `curriculum-submissions`, `experience`, `notices-audit`) were merged one by one into a scratch clone of `origin/main` plus this branch. Append-only files (`drizzle/meta/_journal.json`, `scripts/test-catalogue.mjs`, the specification exports) were reconciled by union; any branch with a source-file conflict was skipped.
+
+| Merged cleanly or with append-only reconciliation | Skipped (source conflicts, integrator must merge by hand) |
+|---|---|
+| security-change-control, identity, school-records, attendance, assessments-reports, reading-review | courses-enrolment, curriculum-submissions, experience, notices-audit (all conflict in `components/app-shell.tsx`; curriculum-submissions also in `db/schema.ts`; experience also in the attendance page) |
+
+Results on that partial combination:
+
+- **Migration governance: 913 checks passed.** The chain (0017-0021, 0024, 0025 with the reserved numbers) replays, numbers and timestamps are unique, journal order is monotonic, and every new piece is one statement. One rule needed a fix: the single-trigger rule rejected a legitimate trigger body containing `CASE ... END` (0020); it now requires exactly one closing `END` per trigger (fix committed here, mutation-checked).
+- **Authorization matrix, hardening and atomicity suites fail by design**, as drift alarms: the tree has 81 route files (21 new route handlers files, 12 new pages) instead of 60, 40+ new immutability/authority triggers instead of the documented 56, and one new `!==` on an idempotency request hash (`assessment-lifecycle.ts`; a fingerprint of an already authenticated actor's own request, not a secret comparison, to be allowlisted). They must be extended with rows, fixtures and trigger names for the new surface **after** the branches are merged; until then a guarded run of the integrated tree will fail these three suites. This is the intended behaviour of an inventory guard, not a defect in the other branches.
+- Whether the new handlers keep the role gate, Origin check, `no-store` and school scope is therefore **not yet tested**.
