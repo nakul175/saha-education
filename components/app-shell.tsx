@@ -199,6 +199,7 @@ export function AppShell({
                   <p className="text-xs text-muted-foreground capitalize">
                     {principal.role}
                   </p>
+                  <a className="text-xs underline underline-offset-4" href="/account">Your account</a>
                 </div>
               </div>
               <Button 

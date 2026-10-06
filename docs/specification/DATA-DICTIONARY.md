@@ -285,6 +285,30 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; drizzle/0009_aca
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql; drizzle/0008_profile_links.sql.
 
+## `identity_admin_changes`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Client review UUID and idempotency key for one role or identity decision; exact retries return the original decision. | Restricted attributable account administration evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_changes_school_reviewed (school_id, reviewed_at) | Actor-fixed school of the decision. | Restricted attributable account administration evidence |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current enabled school administrator who explicitly reviewed the decision. | Restricted attributable account administration evidence |
+| user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_changes_user (user_id) | Account whose role or sign-in identity was changed; profile ownership is not remapped. | Restricted attributable account administration evidence |
+| action | TEXT | no | none | CHECK action IN ('change_role', 'link_identity', 'unlink_identity') | Decision kind: change_role, link_identity or unlink_identity. | Restricted attributable account administration evidence |
+| reason | TEXT | no | none | CHECK length(reason) BETWEEN 10 AND 500 | Explicit one-line review reason/reference; avoid secrets and unnecessary personal data. | Restricted attributable account administration evidence |
+| reviewed_at | TEXT | no | none | INDEX identity_admin_changes_school_reviewed (school_id, reviewed_at) | Server ISO review/decision timestamp. | Restricted attributable account administration evidence |
+| previous_role | TEXT | no | none | CHECK previous_role and next_role IN ('admin', 'teacher', 'guardian', 'student') | Account role before the decision. | Restricted attributable account administration evidence |
+| next_role | TEXT | no | none | CHECK previous_role and next_role IN ('admin', 'teacher', 'guardian', 'student') | Account role after the decision; equals previous_role for identity decisions. | Restricted attributable account administration evidence |
+| previous_issuer | TEXT | yes | none | No additional DB constraint | Exact provider issuer before the decision; NULL when the account had none. | Restricted attributable account administration evidence |
+| previous_subject | TEXT | yes | none | No additional DB constraint | Exact provider subject before the decision; NULL when the account had none. | Restricted attributable account administration evidence |
+| next_issuer | TEXT | yes | none | No additional DB constraint | Exact provider issuer after the decision; NULL after unlink or role change decisions. | Restricted attributable account administration evidence |
+| next_subject | TEXT | yes | none | No additional DB constraint | Exact provider subject after the decision; NULL after unlink or role change decisions. | Restricted attributable account administration evidence |
+| expected_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version = expected_version + 1 | Supplied shared account-administration revision. | Restricted attributable account administration evidence |
+| resulting_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version = expected_version + 1 | Committed expected revision plus 1. | Restricted attributable account administration evidence |
+| request_hash | TEXT | no | none | No additional DB constraint | Private SHA-256 digest of the canonical reviewed operation; not exposed in responses. | Restricted attributable account administration evidence |
+| attempt_id | TEXT | no | none | No additional DB constraint | Private server attempt UUID gating one transaction so an old retry cannot apply its decision again. | Restricted attributable account administration evidence |
+
+Source: db/identity-admin-schema.ts; drizzle/0024_identity_admin_changes.sql.
+
 ## `identity_admin_events`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
