@@ -139,12 +139,12 @@ export default function AuditTrailPage() {
       <form className="space-y-4 rounded border p-4" aria-label="Filter the audit trail" onSubmit={event => { event.preventDefault(); void search(draft); }}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block space-y-1"><span>Area</span>
-            <select className={inputStyle} value={draft.source} onChange={event => setDraft(previous => ({ ...previous, source: event.target.value as Filters['source'] }))}>
+            <select className={inputStyle} aria-label="Area" value={draft.source} onChange={event => setDraft(previous => ({ ...previous, source: event.target.value as Filters['source'] }))}>
               <option value="">All areas</option>
               {(Object.keys(AUDIT_SOURCES) as AuditSource[]).map(key => <option key={key} value={key}>{AUDIT_SOURCES[key]}</option>)}
             </select></label>
           <label className="block space-y-1"><span>Done by</span>
-            <select className={inputStyle} value={draft.actorId} onChange={event => setDraft(previous => ({ ...previous, actorId: event.target.value }))}>
+            <select className={inputStyle} aria-label="Done by" value={draft.actorId} onChange={event => setDraft(previous => ({ ...previous, actorId: event.target.value }))}>
               <option value="">Anyone</option>
               {people.map(person => <option key={person.id} value={person.id}>{person.name} ({roleLabel(person.role)})</option>)}
             </select></label>

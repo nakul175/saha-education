@@ -159,6 +159,16 @@ try {
   for (const table of immutable) for (const statement of [`UPDATE ${table} SET rowid=rowid`, `DELETE FROM ${table}`]) { assert.throws(() => sqlite.exec(statement), /immutable/i, `${table}: ${statement}`); checks++; }
   check(dump(), before, 'Mutation attempts changed nothing');
 
+  // ---- TC-085: approval evidence stays reproducible after a later version and a retried earlier approval ----
+  const firstApproval = (await list('?source=resource-approval&limit=50')).body.items.find(item => item.subject === 'Audit synthetic task (version 1)');
+  ok(firstApproval, 'The first approval is in the trail');
+  const revised = await resources.reviseResource(principals['teacher-a'], resource.id, { expectedVersion: 1, content: { ...content, body: 'Compare one half and one third.' } });
+  await resources.approveResource(principals['teacher-a'], resource.id, revised.latest.id);
+  await resources.approveResource(principals['teacher-a'], resource.id, resource.latest.id);
+  const afterEdit = (await list('?source=resource-approval&limit=50')).body.items;
+  check(afterEdit.find(item => item.id === firstApproval.id), firstApproval, 'The first approval entry (who, when, subject) is unchanged by a later version and a retried approval');
+  ok(afterEdit.some(item => item.subject === 'Audit synthetic task (version 2)' && item.id !== firstApproval.id), 'The later version is its own entry');
+
   // ---- ties: identical timestamps across areas must still page without skipping or repeating ----
   const tie = '2026-10-05T12:00:00.000Z';
   for (const trigger of sqlite.prepare("SELECT name FROM sqlite_schema WHERE type='trigger' AND name LIKE '%no_update'").all()) sqlite.exec(`DROP TRIGGER ${trigger.name}`);

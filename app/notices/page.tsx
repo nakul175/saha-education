@@ -65,11 +65,11 @@ export default function NoticesPage() {
         const actor = await apiJson<Principal>('/api/session', undefined);
         if (!active) return;
         if (actor.role !== 'admin' && actor.role !== 'teacher') { setError('Sending notices is available to teachers and school administrators.'); return; }
-        setPrincipal(actor);
         const [classRows, page] = await Promise.all([
           apiJson<ClassOption[]>('/api/classes', undefined), apiJson<NoticeList>('/api/notices?limit=10', undefined),
         ]);
         if (!active) return;
+        setPrincipal(actor);
         setClasses(classRows.map(row => ({ id: row.id, name: row.name, term: row.term })).sort((a, b) => a.name.localeCompare(b.name)));
         setList(page);
       } catch (failure) {
@@ -168,12 +168,12 @@ export default function NoticesPage() {
             {mode === 'class' ? <div className="space-y-3">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block space-y-1"><span>Class</span>
-                  <select className={inputStyle} value={classId} onChange={event => { setClassId(event.target.value); setConfirmed(false); }}>
+                  <select className={inputStyle} aria-label="Class" value={classId} onChange={event => { setClassId(event.target.value); setConfirmed(false); }}>
                     <option value="">Choose a class</option>
                     {classes.map(row => <option key={row.id} value={row.id}>{row.name} ({row.term})</option>)}
                   </select></label>
                 <label className="block space-y-1"><span>Send to</span>
-                  <select className={inputStyle} value={roles} onChange={event => { setRoles(event.target.value as Roles); setConfirmed(false); }}>
+                  <select className={inputStyle} aria-label="Send to" value={roles} onChange={event => { setRoles(event.target.value as Roles); setConfirmed(false); }}>
                     {(Object.keys(rolesText) as Roles[]).map(key => <option key={key} value={key}>{rolesText[key]}</option>)}
                   </select></label>
               </div>
