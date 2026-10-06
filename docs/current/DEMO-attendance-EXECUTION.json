@@ -4,6 +4,7 @@
   "branch": "demo/attendance",
   "workstream": "FR-09 attendance",
   "synthetic": true,
+  "sourceCommitForGuardedRun": "2c7769d31090981998826ba8a4472aa7c42d4374",
   "migration": "0019_attendance_workflow",
   "node": "24.19.0",
   "newContractSuite": {
@@ -33,28 +34,60 @@
     "development-recovery-contract": 254
   },
   "guardedRun": {
-    "status": "pending"
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "node": "24.19.0",
+    "suites": 54,
+    "assertions": 22798,
+    "unit": 119,
+    "integration": 22502,
+    "smoke": 177,
+    "failed": 0,
+    "regressionGuard": "passed (53 baselined suites checked, 0 excused by quarantine)",
+    "note": "attendance-workflow-contract is not in tests/regression-baseline.json (the file is protected, so it was not updated); the guard reports it as a new suite"
   },
   "mounted": {
     "ui": {
+      "file": "tests/worker-attendance-ui-check.mjs",
       "passed": 31,
-      "failed": 0
+      "failed": 0,
+      "freshRuns": 3,
+      "externalRequests": 0,
+      "pageErrors": 0
     },
     "summary_ui": {
+      "file": "tests/worker-attendance-summary-ui-check.mjs",
       "passed": 23,
-      "failed": 0
+      "failed": 0,
+      "freshRuns": 3,
+      "externalRequests": 0,
+      "pageErrors": 0
     },
     "api": {
+      "file": "tests/worker-attendance-check.mjs",
       "passed": 257,
-      "failed": 1
+      "failed": 1,
+      "requests": 97,
+      "externalRequests": 0,
+      "note": "stops at check 258 with a client-side 20 s timeout in every run (4 of 4 on this branch with Node 24, 1 of 1 with Node 22) and identically on unmodified origin/main (257 passed, 1 failed). See the defects list."
     },
     "demo": {
+      "file": "tests/worker-attendance-demo-check.mjs",
       "passed": 25,
-      "failed": 0
+      "failed": 0,
+      "checks": 25,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "freshRunsAtTip": 3,
+      "history": "Earlier runs: a keyboard-check mistake in the test (fixed), then two runs failed because the local Worker stalled or answered 503 after refused body-bearing requests (the test now sends no body on the refused role check). Since that change: 3 of 3 fresh runs 25/25."
     }
   },
   "staticChecks": {
-    "status": "pending"
+    "documentation": "78 Markdown files passed",
+    "specification": "43 tables, 352 fields, 64 route files, 371 designed cases passed",
+    "requirements": "20 draft requirements passed",
+    "catalogue": "passed",
+    "eslint": "every changed and new .ts/.tsx/.mjs file: exit 0",
+    "tsc": "tsc --noEmit whole repository: exit 0 (run at 476dd15; later commits changed only .mjs test files and the catalogue)"
   },
   "mutations": [
     {
@@ -101,6 +134,16 @@
       "name": "deletion not logged",
       "detected": true,
       "by": "workflow contract: TypeError reading the missing delete-log row (fails, but less specifically than the others)"
+    },
+    {
+      "name": "recorder opens on the device date instead of the school date (built into the Worker)",
+      "detected": true,
+      "by": "mounted demo procedure, roll call stage: the school date must differ from the device date (4 passed, 1 failed)"
+    },
+    {
+      "name": "learner page shows the Note column to families (built into the Worker)",
+      "detected": true,
+      "by": "mounted demo procedure, family stage: Note column header count (19 passed, 1 failed)"
     }
   ],
   "designedCases": {
@@ -152,6 +195,10 @@
       "TC-313": "blocked"
     }
   },
+  "defectsOutsideScope": [
+    "Local Worker (wrangler/workerd) stalls after a request is refused before its body is read. Reproduced with a diagnostic script on this build, 25 rounds each: a refused PUT with a small body followed by a page request stalled 3 of 100 requests under Node 24 and 1 of 100 under Node 22 (8 s probe timeout); a refused 128 KiB body stalled 21 of 75 (Node 24) and 22 of 75 (Node 22); the control with no refused request had 0 of 25. One 503 was also seen. It makes the existing tests/worker-attendance-check.mjs stop after 257 checks on unmodified origin/main. This is a property of the local runtime or of refusing before reading the body (which TC-115 requires), not of the attendance change; it has not been tried on hosted Cloudflare. Any mounted procedure that sends a body-bearing request refused early is exposed to it.",
+    "The test catalogue needs an explicit line for every new mounted worker-*-check procedure, otherwise the guarded run refuses to start (exit 2). This is easy to miss and the brief does not mention it."
+  ],
   "limits": [
     "Local Chromium on one machine, local D1 emulation, fictional synthetic data. Not cross-browser, not assistive-technology, not performance, not hosted.",
     "The new triggers run in node:sqlite and the local Worker D1 emulation. They have not run on a hosted D1 database; the hosted deployment blocker from the handover is unchanged and untouched.",

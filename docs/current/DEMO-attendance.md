@@ -29,11 +29,21 @@ Synthetic data only. This is an execution record for the FR-09 attendance workfl
 
 ## Evidence
 
-All numbers are from runs in this worktree at the commit named in the JSON record. Node 24 was used.
+Numbers are from runs in this worktree on Node 24.19.0. The guarded run was made at source commit `2c7769d`; the typecheck at `476dd15` (later commits changed only .mjs test files and the test catalogue).
 
 | Check | Command | Result |
 |---|---|---|
-| Provisional | `pending` | pending |
+| Clean build | `node scripts/run-framework.mjs build` | exit 0 |
+| Guarded run, Node 24.19.0 (origin/main had no new commits, so there was nothing to merge) | `node scripts/test.mjs static unit integration smoke --fast --guard` | 54 suites, 22,798 assertions (119 unit, 22,502 integration, 177 smoke), 0 failed; regression guard passed. The first attempt exited 2 because the demo procedure was not in the test catalogue; that was fixed and the whole run repeated |
+| New contract suite | `node tests/integration/attendance-workflow-contract.mjs` | 362 checks, 10 scenarios, 0 failed, 0 network calls |
+| Existing attendance and related suites | `node tests/integration/<suite>.mjs` | attendance-review-contract 390, attendance-review-access-contract 3,782, attendance-summary-contract 103, attendance-summary-access-contract 279, d1-attendance-portability-contract 186, academic-integrity-contract 218, family-ui-contract 307, dashboard-contract 137; no assertion changed, all green |
+| Mounted: existing recorder procedure against the modified recorder page | `tests/worker-attendance-ui-check.mjs` | 31 passed, 0 failed, 0 external requests, 0 page errors (3 fresh runs) |
+| Mounted: existing summary procedure against the modified /attendance page | `tests/worker-attendance-summary-ui-check.mjs` | 23 passed, 0 failed, 0 external requests, 0 page errors (3 fresh runs) |
+| Mounted: new demo procedure | `tests/worker-attendance-demo-check.mjs` | 25 passed, 0 failed, 0 external requests, 0 page errors; 3 of 3 fresh runs after the last change |
+| Mounted: existing API procedure | `tests/worker-attendance-check.mjs` | 257 passed, 1 failed (client timeout at check 258); identical on unmodified origin/main and under Node 22, see the defects list |
+| Whole-repository typecheck | `node node_modules/typescript/bin/tsc --noEmit` | exit 0 |
+| ESLint on every changed or new .ts, .tsx and .mjs file | `node node_modules/eslint/bin/eslint.js <files>` | exit 0, no warnings |
+| Documentation, specification, requirements and catalogue checks | `python3 scripts/check-documentation.py; node scripts/check-specification.mjs; node scripts/audit-requirements.mjs --check; node scripts/test.mjs --check-catalogue` | all passed (78 Markdown files; 43 tables / 352 fields, 64 route files, 371 cases; 20 requirements) |
 
 ### Mutation checks
 
@@ -50,6 +60,8 @@ Each mutation was applied to the source, the named suite run, and the source res
 | change-log update-immutability trigger disabled | workflow contract: "Missing expected exception" |
 | replacement not logged (update trigger never fires) | workflow contract: "The correction produced one change-log row" |
 | deletion not logged | workflow contract: TypeError reading the missing delete-log row (fails, but less specifically than the others) |
+| recorder opens on the device date instead of the school date (built into the Worker) | mounted demo procedure, roll call stage: the school date must differ from the device date (4 passed, 1 failed) |
+| learner page shows the Note column to families (built into the Worker) | mounted demo procedure, family stage: Note column header count (19 passed, 1 failed) |
 
 ## Designed-case execution
 
@@ -105,6 +117,11 @@ Each mutation was applied to the source, the named suite run, and the source res
 - Families and learners see status and date only. Teacher notes and recorder names are hidden from them. Whether families should ever see notes is an open policy question.
 - The school timezone default is UTC when nothing is set, which is wrong for most schools until an administrator sets it. The settings page says so.
 - Reports show counts of saved marks. They never infer an absence from a missing mark and show no percentage.
+
+## Defects found outside the attendance change
+
+- Local Worker (wrangler/workerd) stalls after a request is refused before its body is read. Reproduced with a diagnostic script on this build, 25 rounds each: a refused PUT with a small body followed by a page request stalled 3 of 100 requests under Node 24 and 1 of 100 under Node 22 (8 s probe timeout); a refused 128 KiB body stalled 21 of 75 (Node 24) and 22 of 75 (Node 22); the control with no refused request had 0 of 25. One 503 was also seen. It makes the existing tests/worker-attendance-check.mjs stop after 257 checks on unmodified origin/main. This is a property of the local runtime or of refusing before reading the body (which TC-115 requires), not of the attendance change; it has not been tried on hosted Cloudflare. Any mounted procedure that sends a body-bearing request refused early is exposed to it.
+- The test catalogue needs an explicit line for every new mounted worker-*-check procedure, otherwise the guarded run refuses to start (exit 2). This is easy to miss and the brief does not mention it.
 
 ## Limits
 
