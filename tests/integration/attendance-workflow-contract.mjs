@@ -373,6 +373,6 @@ try {
   });
   // The same suite proves the reviewed path still works with the new triggers present.
 
-  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, networkCalls, limits: 'Real routes, opaque sessions and migrated SQLite; synthetic only; no browser, provider, hosted D1 or acceptance.' }));
   check(networkCalls, 0, 'No network calls');
+  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, networkCalls, limits: 'Real routes, opaque sessions and migrated SQLite; synthetic only; no browser, provider, hosted D1 or acceptance.' }));
 } finally { globalThis.fetch = oldFetch; }
