@@ -3,7 +3,6 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- native navigation avoids the observed client transition failure. */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -102,7 +101,7 @@ export default function CompileReportPage() {
 
   const invalid = (field: Field) => problems[field] ? { 'aria-invalid': true, 'aria-describedby': 'problem-' + field } : {};
   const note = (field: Field) => problems[field] && <p id={'problem-' + field} className="mt-1 text-sm text-red-700 dark:text-red-400">{problems[field]}</p>;
-  return <AppShell principal={session.principal}><div className="mx-auto max-w-3xl min-w-0 space-y-6 p-4">
+  return <div className="mx-auto max-w-3xl min-w-0 space-y-6 p-4">
     <h1 className="text-2xl font-bold">Compile a report card</h1>
     <p>Choose a learner, pick from their published assessment results, then add the grade and summary your school has decided. The draft stays private until you review and publish it.</p>
     <div className="flex flex-wrap items-center gap-4"><a href="/report-cards" className="underline">Back to report cards</a><a href="/assessments/manage" className="underline">Manage assessments</a></div>
@@ -149,5 +148,5 @@ export default function CompileReportPage() {
         </fieldset>
       </form>}
     </>}
-  </div></AppShell>;
+  </div>;
 }

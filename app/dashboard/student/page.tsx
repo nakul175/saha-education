@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getServerPrincipal } from '@/lib/education/auth';
 import { getRoleDashboard } from '@/lib/education/dashboard';
 import { AppShell } from '@/components/app-shell';
+import { RoleGuide } from '@/components/role-guide';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function StudentDashboard() {
@@ -12,6 +13,7 @@ export default async function StudentDashboard() {
   if (!snapshot || snapshot.role !== 'student') redirect('/');
   return <AppShell principal={principal}><div className="space-y-6 p-4">
     <div className="min-w-0 space-y-2 break-words"><h1>My progress</h1><p className="text-muted-foreground">Attendance records and published reports currently available to your account.</p><a href="/dashboard/student" className="inline-block underline">Refresh dashboard</a></div>
+    <RoleGuide role="student" />
     {snapshot.profiles.total === 0 && <p role="status">No linked student profile is available for this account.</p>}
     {snapshot.profiles.truncated && <p role="status">Showing {snapshot.profiles.items.length} of {snapshot.profiles.total} linked profiles. Open <a href="/students" className="underline">Students</a> for the available list.</p>}
     <div className="grid gap-4 lg:grid-cols-2">{snapshot.profiles.items.map(profile => {

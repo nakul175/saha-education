@@ -99,7 +99,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
       <ResourceSourcePanel resourceId={resource.id} />
       <section className="border rounded p-4 space-y-4">
         <h2 className="text-xl font-semibold">Edit latest draft</h2>
-        <p>Saving creates an immutable revision. Editing an approved resource creates a new draft; existing assignments keep their approved version.</p>
+        <p>Saving creates a new revision; earlier ones are kept. Editing an approved resource creates a new draft; existing assignments keep their approved version.</p>
         <p>Editing version {resource.latest.version}{dirty ? ' · Unsaved edits' : ''}</p>
         <form onSubmit={event => { event.preventDefault(); void mutate('save'); }} className="space-y-4">
           <fieldset disabled={busy} className="space-y-4">

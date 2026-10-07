@@ -3,7 +3,6 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- native navigation avoids the observed client transition failure. */
 
 import { use, useCallback, useEffect, useRef, useState } from 'react';
-import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,7 +68,7 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
 
   const report = detail?.report;
   const published = !!report?.publishedAt;
-  return <AppShell principal={principal}><div className="mx-auto max-w-3xl min-w-0 space-y-6 p-4">
+  return <div className="mx-auto max-w-3xl min-w-0 space-y-6 p-4">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h1 className="text-3xl font-bold">Report Card</h1>
       {detail && <Button type="button" onClick={() => window.print()}>Print Report</Button>}
@@ -121,5 +120,5 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
         {admin && published && detail.resultsChanged && <p role="note" data-results-changed className="break-words rounded border border-amber-600 p-3">Some results changed after this report was published. The report still shows what families were told. To correct it, <a className="underline" href="/report-cards/compile">compile a replacement report</a> and choose this report as the one it replaces.</p>}
       </>}
     </>}
-  </div></AppShell>;
+  </div>;
 }

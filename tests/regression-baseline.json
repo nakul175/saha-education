@@ -128,6 +128,11 @@
       "file": "tests/integration/demo-login-ui-contract.mjs",
       "minPassed": 249
     },
+    "integration/demo-seed-contract": {
+      "layer": "integration",
+      "file": "tests/integration/demo-seed-contract.mjs",
+      "minPassed": 67
+    },
     "integration/demo-session-lifecycle-contract": {
       "layer": "integration",
       "file": "tests/integration/demo-session-lifecycle-contract.mjs",
@@ -177,6 +182,11 @@
       "layer": "integration",
       "file": "tests/integration/identity-ui-contract.mjs",
       "minPassed": 128
+    },
+    "integration/language-suitability-contract": {
+      "layer": "integration",
+      "file": "tests/integration/language-suitability-contract.mjs",
+      "minPassed": 127
     },
     "integration/learner-recovery-ui-contract": {
       "layer": "integration",

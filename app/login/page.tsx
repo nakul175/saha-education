@@ -89,15 +89,20 @@ export default function LoginPage() {
           <label className="flex items-start gap-3 text-sm" htmlFor="demo-acknowledgement">
             <input className="mt-1 size-4 shrink-0" id="demo-acknowledgement" type="checkbox" checked={acknowledged}
               disabled={loading} onChange={event => setAcknowledged(event.target.checked)} />
-            <span>I’m exploring fictional records and won’t enter real learner details.</span>
+            <span>I’m exploring fictional records and won’t enter real student details.</span>
           </label>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Demo roles">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Demo roles">
             {([
-              ['admin', 'Administrator'], ['teacher', 'Teacher'], ['guardian', 'Guardian'], ['student', 'Learner'],
-            ] as const).map(([role, label]) => <Button key={role} variant="outline" disabled={loading || !acknowledged}
-              onClick={() => explore(role)}>Explore as {label.toLowerCase()}</Button>)}
+              ['admin', 'Administrator', 'See school totals, share reports with families and link accounts to profiles.'],
+              ['teacher', 'Teacher', 'Take attendance, enter results, record reading checks and share class resources.'],
+              ['guardian', 'Guardian', 'See your children\'s attendance, shared reports and notices from the school.'],
+              ['student', 'Student', 'Open class resources, write answers and read your teacher\'s feedback.'],
+            ] as const).map(([role, label, description]) => <div key={role} className="flex min-w-0 flex-col gap-1">
+              <Button variant="outline" disabled={loading || !acknowledged} onClick={() => explore(role)}>Explore as {label.toLowerCase()}</Button>
+              <p className="text-xs text-muted-foreground">{description}</p>
+            </div>)}
           </div>
-          <p className="text-xs text-muted-foreground">Switching roles ends your current demo session. Real school sign-in and external reading apps require separate setup.</p>
+          <p className="text-xs text-muted-foreground">Switching roles signs you out of the role you are in now. School sign-in and reading apps are not connected in this demo.</p>
           {loading && <p role="status">Opening your demo view…</p>}
         </> : <Button onClick={signIn} disabled={loading}>{loading ? 'Opening sign-in…' : 'Continue with school sign-in'}</Button>}
         {notice && <p role="note" className="text-sm">{notice}</p>}

@@ -160,7 +160,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
     {reference && content && <>
       {reference.canManage ? <section className="border rounded p-4 space-y-4" aria-labelledby="curriculum-edit-title">
         <h2 id="curriculum-edit-title" className="text-xl font-semibold">Edit latest reference</h2>
-        <p>Editing version {reference.latest.version}{dirty ? ' · Unsaved edits' : ''}. Saving appends an immutable revision. Other staff continue to see the latest reviewed version until the new revision is reviewed.</p>
+        <p>Editing version {reference.latest.version}{dirty ? ' · Unsaved edits' : ''}. Saving adds a new revision; earlier ones are kept. Other staff continue to see the latest reviewed version until the new revision is reviewed.</p>
         <p className="text-sm">The permission statement is your declaration, not an independent licensing check. Only include content you have permission to use.</p>
         <form onSubmit={save} className="space-y-4"><fieldset disabled={busy} className="space-y-4"><legend className="sr-only">Edit reference content and permission</legend>
           {fields.map(field => <label className="block space-y-1" key={field.key}><span>{field.label} *</span>
