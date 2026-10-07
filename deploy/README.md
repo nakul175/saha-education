@@ -16,8 +16,9 @@ Status: deployment kit, not yet run on a droplet. Synthetic data only. Real iden
 2. Create the droplet. Create a GitHub fine-grained token with read-only "Contents" access to this repository only.
 3. On the droplet, as root:
 
+The repository is private, so copy `deploy/provision.sh` to the droplet first (scp, or paste it into a file). Then:
+
 ```bash
-curl -fsSL https://raw.githubusercontent.com/nakul175/saha-education/main/deploy/provision.sh -o provision.sh   # private repo: copy the file over instead
 SAHA_GIT_TOKEN=<token> SAHA_HOST=education.<ip-with-dashes>.sslip.io bash provision.sh
 ```
 
