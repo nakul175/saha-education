@@ -1,0 +1,891 @@
+# DERIVED, INCOMPLETE. Generated 2026-10-08 from app/api/**/route.ts export names only.
+# It lists paths and HTTP methods that exist in source. It does NOT describe request bodies, response bodies
+# or status codes: those are in docs/specification/API-CONTRACTS.md (and its CSV), which remains the canonical contract.
+# Not a tested contract; not validated against a running Worker.
+openapi: 3.0.3
+info:
+  title: Saha Education API (derived skeleton)
+  version: "0.0.0-derived"
+  description: Paths and methods only, extracted from route source. See docs/governance/API-CONTRACT.md.
+servers:
+  - url: https://TBD-owner-Nakul-Jain.invalid
+    description: No public hosted URL exists. The droplet host is not recorded here.
+x-note: "Authentication differs per route (for example sign-in and demo routes are pre-session); this skeleton does not state per-route security."
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: __Host-saha_session
+paths:
+  /api/academic-changes:
+    post:
+      summary: "derived from app/api/academic-changes/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/academic-changes/{id}:
+    get:
+      summary: "derived from app/api/academic-changes/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/account:
+    get:
+      summary: "derived from app/api/account/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/audit:
+    get:
+      summary: "derived from app/api/admin/audit/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/audit/{source}/{sourceId}:
+    get:
+      summary: "derived from app/api/admin/audit/[source]/[sourceId]/route.ts"
+      parameters:
+        - {name: source, in: path, required: true, schema: {type: string}}
+        - {name: sourceId, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/audit/annotations:
+    post:
+      summary: "derived from app/api/admin/audit/annotations/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/profile-links:
+    get:
+      summary: "derived from app/api/admin/profile-links/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/admin/profile-links/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/profile-links/history:
+    get:
+      summary: "derived from app/api/admin/profile-links/history/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/users:
+    get:
+      summary: "derived from app/api/admin/users/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/admin/users/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/users/{id}:
+    get:
+      summary: "derived from app/api/admin/users/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/admin/users/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/users/{id}/identity:
+    patch:
+      summary: "derived from app/api/admin/users/[id]/identity/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/users/{id}/role:
+    patch:
+      summary: "derived from app/api/admin/users/[id]/role/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/users/changes:
+    get:
+      summary: "derived from app/api/admin/users/changes/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/admin/users/events:
+    get:
+      summary: "derived from app/api/admin/users/events/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments:
+    get:
+      summary: "derived from app/api/assessments/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assessments/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments/{id}:
+    get:
+      summary: "derived from app/api/assessments/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/assessments/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments/{id}/lifecycle:
+    get:
+      summary: "derived from app/api/assessments/[id]/lifecycle/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assessments/[id]/lifecycle/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments/{id}/result-editor:
+    get:
+      summary: "derived from app/api/assessments/[id]/result-editor/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assessments/[id]/result-editor/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments/{id}/result-editor/history:
+    get:
+      summary: "derived from app/api/assessments/[id]/result-editor/history/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments/{id}/results:
+    get:
+      summary: "derived from app/api/assessments/[id]/results/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assessments/[id]/results/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assessments/overview:
+    get:
+      summary: "derived from app/api/assessments/overview/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assignment-progress:
+    get:
+      summary: "derived from app/api/assignment-progress/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assignments/{id}/progress:
+    get:
+      summary: "derived from app/api/assignments/[id]/progress/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assignments/{id}/submission-window:
+    get:
+      summary: "derived from app/api/assignments/[id]/submission-window/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assignments/[id]/submission-window/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assignments/{id}/submission-window/history:
+    get:
+      summary: "derived from app/api/assignments/[id]/submission-window/history/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assignments/{id}/submissions:
+    get:
+      summary: "derived from app/api/assignments/[id]/submissions/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assignments/[id]/submissions/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/assignments/{id}/submissions/{submissionId}/feedback:
+    get:
+      summary: "derived from app/api/assignments/[id]/submissions/[submissionId]/feedback/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: submissionId, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/assignments/[id]/submissions/[submissionId]/feedback/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: submissionId, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/attendance:
+    get:
+      summary: "derived from app/api/attendance/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/attendance/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/attendance/calendar:
+    get:
+      summary: "derived from app/api/attendance/calendar/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    put:
+      summary: "derived from app/api/attendance/calendar/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/auth/callback:
+    get:
+      summary: "derived from app/api/auth/callback/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/auth/login:
+    get:
+      summary: "derived from app/api/auth/login/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/auth/login/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes:
+    get:
+      summary: "derived from app/api/classes/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/classes/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}:
+    get:
+      summary: "derived from app/api/classes/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/classes/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/attendance-changes:
+    get:
+      summary: "derived from app/api/classes/[id]/attendance-changes/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/attendance-editor:
+    get:
+      summary: "derived from app/api/classes/[id]/attendance-editor/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/classes/[id]/attendance-editor/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/attendance-editor/history:
+    get:
+      summary: "derived from app/api/classes/[id]/attendance-editor/history/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/attendance-report:
+    get:
+      summary: "derived from app/api/classes/[id]/attendance-report/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/attendance-summary:
+    get:
+      summary: "derived from app/api/classes/[id]/attendance-summary/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/history:
+    get:
+      summary: "derived from app/api/classes/[id]/history/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/lifecycle:
+    get:
+      summary: "derived from app/api/classes/[id]/lifecycle/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/classes/{id}/roster:
+    get:
+      summary: "derived from app/api/classes/[id]/roster/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/course-lifecycles:
+    get:
+      summary: "derived from app/api/course-lifecycles/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/courses:
+    get:
+      summary: "derived from app/api/courses/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/courses/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/courses/{id}:
+    get:
+      summary: "derived from app/api/courses/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/courses/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/courses/{id}/history:
+    get:
+      summary: "derived from app/api/courses/[id]/history/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/courses/{id}/lifecycle:
+    get:
+      summary: "derived from app/api/courses/[id]/lifecycle/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum:
+    get:
+      summary: "derived from app/api/curriculum/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/curriculum/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}:
+    get:
+      summary: "derived from app/api/curriculum/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/curriculum/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}/approve:
+    post:
+      summary: "derived from app/api/curriculum/[id]/approve/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}/draft:
+    post:
+      summary: "derived from app/api/curriculum/[id]/draft/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}/snapshot:
+    get:
+      summary: "derived from app/api/curriculum/[id]/snapshot/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}/status:
+    get:
+      summary: "derived from app/api/curriculum/[id]/status/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/curriculum/[id]/status/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}/usage:
+    get:
+      summary: "derived from app/api/curriculum/[id]/usage/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/curriculum/{id}/versions:
+    get:
+      summary: "derived from app/api/curriculum/[id]/versions/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/demo:
+    get:
+      summary: "derived from app/api/demo/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/demo/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/enrolments:
+    get:
+      summary: "derived from app/api/enrolments/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/enrolments/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/enrolments/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/enrolments/history:
+    get:
+      summary: "derived from app/api/enrolments/history/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/external-apps:
+    get:
+      summary: "derived from app/api/external-apps/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/external-apps/{id}/launch:
+    post:
+      summary: "derived from app/api/external-apps/[id]/launch/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/guardians:
+    get:
+      summary: "derived from app/api/guardians/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/guardians/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/notices:
+    get:
+      summary: "derived from app/api/notices/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/notices/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/notices/{id}:
+    get:
+      summary: "derived from app/api/notices/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/notices/{id}/corrections:
+    post:
+      summary: "derived from app/api/notices/[id]/corrections/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/notices/audience:
+    get:
+      summary: "derived from app/api/notices/audience/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/notices/recipients:
+    get:
+      summary: "derived from app/api/notices/recipients/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/notifications:
+    get:
+      summary: "derived from app/api/notifications/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/notifications/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/notifications/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/reading-checks:
+    get:
+      summary: "derived from app/api/reading-checks/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/reading-checks/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/reading-checks/{id}/corrections:
+    get:
+      summary: "derived from app/api/reading-checks/[id]/corrections/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/reading-checks/[id]/corrections/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/reading-imports:
+    get:
+      summary: "derived from app/api/reading-imports/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/reading-imports/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/reading-imports/{id}:
+    get:
+      summary: "derived from app/api/reading-imports/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/reading-imports/{id}/decision:
+    post:
+      summary: "derived from app/api/reading-imports/[id]/decision/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/reading-review:
+    get:
+      summary: "derived from app/api/reading-review/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/records/guardians:
+    get:
+      summary: "derived from app/api/records/guardians/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/records/guardians/{id}:
+    get:
+      summary: "derived from app/api/records/guardians/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/records/guardians/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/records/students:
+    get:
+      summary: "derived from app/api/records/students/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/records/students/{id}:
+    get:
+      summary: "derived from app/api/records/students/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/records/students/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/records/students/{id}/guardian-links:
+    get:
+      summary: "derived from app/api/records/students/[id]/guardian-links/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/records/students/[id]/guardian-links/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/records/students/{id}/status:
+    post:
+      summary: "derived from app/api/records/students/[id]/status/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/registry/creations/{requestId}:
+    get:
+      summary: "derived from app/api/registry/creations/[requestId]/route.ts"
+      parameters:
+        - {name: requestId, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/registry/guardians:
+    post:
+      summary: "derived from app/api/registry/guardians/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/registry/students:
+    post:
+      summary: "derived from app/api/registry/students/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/report-cards:
+    get:
+      summary: "derived from app/api/report-cards/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/report-cards/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/report-cards/{id}:
+    get:
+      summary: "derived from app/api/report-cards/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/report-cards/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/report-cards/{id}/detail:
+    get:
+      summary: "derived from app/api/report-cards/[id]/detail/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/report-cards/eligible:
+    get:
+      summary: "derived from app/api/report-cards/eligible/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resource-assignments:
+    get:
+      summary: "derived from app/api/resource-assignments/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resources:
+    get:
+      summary: "derived from app/api/resources/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/resources/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resources/{id}:
+    get:
+      summary: "derived from app/api/resources/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/resources/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resources/{id}/approve:
+    post:
+      summary: "derived from app/api/resources/[id]/approve/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resources/{id}/assign:
+    post:
+      summary: "derived from app/api/resources/[id]/assign/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resources/{id}/source:
+    get:
+      summary: "derived from app/api/resources/[id]/source/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/resources/{id}/versions:
+    get:
+      summary: "derived from app/api/resources/[id]/versions/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/schools:
+    get:
+      summary: "derived from app/api/schools/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/schools/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/schools/{id}:
+    get:
+      summary: "derived from app/api/schools/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/schools/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/schools/{id}/setup:
+    get:
+      summary: "derived from app/api/schools/[id]/setup/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/schools/[id]/setup/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/schools/{id}/terms:
+    post:
+      summary: "derived from app/api/schools/[id]/terms/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/schools/{id}/terms/{termId}:
+    patch:
+      summary: "derived from app/api/schools/[id]/terms/[termId]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+        - {name: termId, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/session:
+    delete:
+      summary: "derived from app/api/session/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    get:
+      summary: "derived from app/api/session/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/session/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/students:
+    get:
+      summary: "derived from app/api/students/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/students/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/students/{id}:
+    get:
+      summary: "derived from app/api/students/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    patch:
+      summary: "derived from app/api/students/[id]/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/students/{id}/attendance:
+    get:
+      summary: "derived from app/api/students/[id]/attendance/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/students/{id}/guardians:
+    get:
+      summary: "derived from app/api/students/[id]/guardians/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+    post:
+      summary: "derived from app/api/students/[id]/guardians/route.ts"
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: string}}
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
+  /api/users:
+    get:
+      summary: "derived from app/api/users/route.ts"
+      responses:
+        default: {description: "see docs/specification/API-CONTRACTS.md"}
