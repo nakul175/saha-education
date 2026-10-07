@@ -142,6 +142,9 @@ export default function ReportCardsPage() {
     <div><h1 className="text-2xl font-bold">Report Cards</h1><p className="text-muted-foreground">{isAdmin ? 'Create a draft, review the saved details and publish to linked families.' : 'View reports available for your linked or assigned students.'}</p></div>
     {(error || notice) && <div ref={message} tabIndex={-1} role={error ? 'alert' : 'status'} className="rounded border p-3 break-words">{error || notice}</div>}
     <Button type="button" variant="outline" disabled={saving} onClick={() => { setNotice(null); void reload(pending.current?.studentId ?? selectedStudent.current); }}>Reload current reports</Button>
+    {isAdmin && <p>
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- native navigation avoids the observed client transition failure. */}
+      <a className="underline" href="/report-cards/compile">Compile a report from published results</a></p>}
     {loading && <p role="status">Loading current reports…</p>}
     {pendingView && <section aria-label="Unconfirmed report action" className="space-y-3 rounded border p-3">
       <p>The previous report action is unconfirmed. Keep this tab open; a hard reload discards its in-page reminder. This screen never retries an action automatically.</p>

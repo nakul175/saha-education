@@ -1,6 +1,6 @@
 import { authenticated, body, query } from '@/lib/education/http';
 import { listAssessments, createAssessment } from '@/lib/education/assessments';
-import { assessmentSchema } from '@/lib/education/validation';
+import { newAssessmentSchema } from '@/lib/education/assessment-lifecycle';
 import { assertAcademicStaff } from '@/lib/education/academic-integrity';
 
 export async function GET(request: Request) {
@@ -12,6 +12,6 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   return authenticated(request, true, async principal => {
     assertAcademicStaff(principal);
-    return Response.json(await createAssessment(principal, await body(request, assessmentSchema)), { status: 201 });
+    return Response.json(await createAssessment(principal, await body(request, newAssessmentSchema)), { status: 201 });
   });
 }

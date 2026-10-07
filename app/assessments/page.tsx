@@ -73,7 +73,7 @@ export default function AssessmentsPage() {
   return <AppShell principal={principal}><div className="mx-auto max-w-6xl min-w-0 space-y-6 p-4">
     <h1 className="text-2xl font-bold">Assessments</h1>
     <p>{staff ? 'View current assessments and review saved results for your authorised classes.' : principal ? 'View assessment details for your current classes. Individual assessment results are private staff records.' : 'Reload to view assessments available to your current account.'}</p>
-    <div className="flex flex-wrap items-center gap-4"><a href="/" className="underline">Return to dashboard</a>{principal && <a href="/report-cards" className="underline">{staff ? 'Report cards' : 'Published report cards'}</a>}<Button type="button" variant="outline" onClick={() => void reload()}>Reload assessments</Button></div>
+    <div className="flex flex-wrap items-center gap-4"><a href="/" className="underline">Return to dashboard</a>{staff && <a href="/assessments/manage" className="underline">Manage and publish assessments</a>}{principal && <a href="/report-cards" className="underline">{staff ? 'Report cards' : 'Published report cards'}</a>}<Button type="button" variant="outline" onClick={() => void reload()}>Reload assessments</Button></div>
     {loading && <p role="status">Loading current assessments…</p>}
     {error && <p role="alert" className="break-words text-red-600">{error}</p>}
     {!loading && !error && principal && <Card><CardHeader><CardTitle>Assessment List</CardTitle><CardDescription>Filter the current list available to your account. Dates are stored calendar days.</CardDescription></CardHeader><CardContent className="min-w-0 space-y-4">
