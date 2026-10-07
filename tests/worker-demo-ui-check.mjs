@@ -33,10 +33,10 @@ await context.route('**/*', route => {
   return route.abort();
 });
 const roles = [
-  { role: 'admin', label: 'administrator', title: 'Admin Dashboard', paths: ['/', '/admin/users', '/admin/profile-links', '/curriculum', '/reading-practice', '/reading-review', '/reading-imports', '/resources', '/learning', '/external-apps', '/students', '/guardians', '/schools', '/classes', '/courses', '/enrolments', '/attendance', '/assessments', '/report-cards', '/notifications'] },
-  { role: 'teacher', label: 'teacher', title: 'Teacher Dashboard', paths: ['/', '/curriculum', '/reading-practice', '/reading-review', '/reading-imports', '/resources', '/learning', '/external-apps', '/students', '/classes', '/courses', '/enrolments', '/attendance', '/assessments', '/report-cards', '/notifications'] },
-  { role: 'guardian', label: 'guardian', title: 'Guardian Dashboard', paths: ['/', '/students', '/classes', '/attendance', '/assessments', '/report-cards', '/notifications'] },
-  { role: 'student', label: 'student', title: 'My progress', paths: ['/', '/learning', '/students', '/classes', '/attendance', '/assessments', '/report-cards', '/notifications'] },
+  { role: 'admin', label: 'administrator', title: 'Admin Dashboard', paths: ['/', '/academic', '/admin/audit', '/admin/profile-links', '/admin/users', '/assessments', '/attendance', '/classes', '/courses', '/curriculum', '/enrolments', '/enrolments/history', '/external-apps', '/guardians', '/learning', '/notices', '/notifications', '/reading-imports', '/reading-practice', '/reading-review', '/records', '/report-cards', '/resources', '/schools', '/schools/setup', '/students', '/submissions'] },
+  { role: 'teacher', label: 'teacher', title: 'Teacher Dashboard', paths: ['/', '/academic', '/assessments', '/attendance', '/classes', '/courses', '/curriculum', '/enrolments', '/enrolments/history', '/external-apps', '/learning', '/notices', '/notifications', '/reading-imports', '/reading-practice', '/reading-review', '/records', '/report-cards', '/resources', '/schools/setup', '/students', '/submissions'] },
+  { role: 'guardian', label: 'guardian', title: 'Guardian Dashboard', paths: ['/', '/assessments', '/attendance', '/classes', '/enrolments/history', '/notifications', '/records', '/report-cards', '/students'] },
+  { role: 'student', label: 'student', title: 'My progress', paths: ['/', '/assessments', '/attendance', '/classes', '/enrolments/history', '/learning', '/notifications', '/records', '/report-cards', '/students', '/submissions'] },
 ];
 async function check(name, action) {
   activeProcedure = name; checkpoint('procedure start'); await action();
