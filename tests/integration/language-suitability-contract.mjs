@@ -10,7 +10,7 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { allStrings, readingGrade } from '../support/ui-strings.mjs';
+import { allStrings, readingGrade, wordLiterals, wordLiteralsIn } from '../support/ui-strings.mjs';
 
 // SAHA_LANGUAGE_ROOT points the report mode at another checkout (for example an older tree, to measure before and after).
 const root = process.env.SAHA_LANGUAGE_ROOT ?? join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -40,78 +40,26 @@ export const RULES = {
 // Components copied from a UI kit and never shown with their own words.
 const SKIPPED = /^components\/(carousel|chart|form|sidebar|spinner|table|pagination|breadcrumb|dialog|sheet|message-scroller)/;
 
-// file -> rule -> [maximum count, reason]. Reasons are specific; "pinned" means an existing contract or mounted
-// test asserts the exact wording, so changing it is a spec-level decision for that test's owner.
+// file -> rule -> [maximum count, reason]. Reasons are specific. Every entry left is either an administrator-only or
+// school-IT screen where the exact value is the data (an identity issuer, a stored ID, an import file field name), or a
+// fixed rule the author must type exactly (an HTTPS link, a format identifier). All wording that only explains something
+// to a teacher, family or student has been reworded to plain words, and the checks that pinned the old wording follow it.
 const KNOWN = {
   'app/admin/profile-links/page.tsx': { rawIdLabel: [3, 'administrator-only exact identifiers (Profile, Linked account and Decision) that an auditor must quote; no plain name exists for them'] },
-  'app/admin/users/page.tsx': { issuer: [5, 'administrator-only identity-provider fields; the exact issuer and subject are the data being entered'] },
-  'app/assessments/[id]/page.tsx': { learner: [2, 'pinned: assessment-detail-ui-contract asserts "No active learners are available" and "Multiple saved results exist for a learner"'] },
-  'app/assignments/[id]/page.tsx': { uuid: [3, 'one sentence is pinned (worker-specification-ui-check asserts "exact original request and UUID are retained"); the other two are in a page the curriculum and submissions workstream is rewriting, so they are listed in the record instead of edited here'] },
-  'app/attendance/page.tsx': { learner: [4, 'pinned: worker-attendance-summary-ui-check and the attendance contracts assert these learner sentences'] },
-  'app/classes/[id]/attendance/page.tsx': {
-    learner: [5, 'two sentences are pinned by the attendance editor contract ("Unrecorded learners remain blank", "No active learners are available for this class"); the rest sit in a page the attendance workstream is rewriting, so they are listed in the record instead of edited here'],
-    immutable: [2, 'in a page the attendance workstream is rewriting; listed in the record ("immutable original save receipt", "Immutable before-and-after evidence")'],
-    snapshot: [1, 'in a page the attendance workstream is rewriting; listed in the record ("Loaded snapshot")'],
-  },
+  'app/admin/users/page.tsx': { issuer: [8, 'administrator-only identity-provider fields (issuer and subject); the exact values are the data being entered, compared or linked'] },
   'app/classes/[id]/page.tsx': { rawIdLabel: [2, 'finding: the page prints the stored Course ID and Teacher ID because it does not load their names; owned by the class workstream, listed in the record'] },
   'app/curriculum/[id]/page.tsx': { protocol: [3, 'HTTPS is the rule the author must follow when adding a source link; label pinned by the curriculum tests'] },
   'app/curriculum/page.tsx': { protocol: [2, 'HTTPS is the rule the author must follow when adding a source link; label pinned by the curriculum tests'] },
   'app/reading-imports/page.tsx': {
     camelCase: [3, 'import file field names shown so school IT staff can build the file; owned by the reading workstream, listed in the record'],
-    envelope: [5, 'import file format heading; same owner and reason'],
-    json: [7, 'import file format; the page is for local result files in JSON'],
-    learner: [5, 'learner wording on the import page; owned by the reading workstream, listed in the record'],
-    normalized: [3, 'import file format; same reason'],
-    rawIdLabel: [6, 'the import file names students by their exact ID, so the page shows it; listed in the record'],
-    staging: [2, 'preview wording on the import page; listed in the record'],
-    usEnroll: [1, 'US spelling "enrollment" on the import page; listed in the record'],
+    envelope: [5, 'import file format heading and its errors; school IT staff build this file'],
+    json: [6, 'import file format; the page is for local result files in JSON'],
+    normalized: [1, 'import file format heading; same reason'],
+    rawIdLabel: [5, 'the import file names students by their exact ID, so the page shows it; listed in the record'],
     versionId: [1, 'the exact import format identifier users must type'],
   },
-  'app/reading-practice/page.tsx': { learner: [3, 'pinned or owned by the reading workstream; listed in the record'] },
-  'app/reading-review/page.tsx': { learner: [2, 'pinned or owned by the reading workstream; listed in the record'], rawIdLabel: [3, 'Observation ID is pinned by worker-specification-ui-check'] },
-  'app/report-cards/[id]/page.tsx': { rawIdLabel: [1, 'finding: the report card prints the stored Student ID instead of a name; owned by the reports workstream, listed in the record'] },
-  'components/assignment-submission-window.tsx': { rawIdLabel: [1, 'finding: shows the reviewing staff member by stored Staff ID; window revision wording is pinned'] },
+  'app/reading-review/page.tsx': { rawIdLabel: [1, 'Observation ID is pinned by worker-specification-ui-check'] },
 };
-
-// Follow-up debt from workstreams merged after the language pass (recorded, not accepted). Each entry is the real hit count at
-// merge time; the 'learner' wording must become 'student' (and plain words for the rest) in the same change that updates the
-// contracts and mounted checks pinning it. The ratchet still blocks any increase and requires the cap to equal the real count.
-const FOLLOW_UP_REASON = 'new or extended page from a workstream merged after the language pass; reword with the tests that pin it (follow-up listed in docs/current/DEMO-experience.md)';
-const FOLLOW_UP = {
-  'app/academic/page.tsx': { learner: 1 },
-  'app/admin/users/page.tsx': { issuer: 11, learner: 3 },
-  'app/assignments/[id]/page.tsx': { learner: 2 },
-  'app/assignments/[id]/progress/page.tsx': { learner: 12 },
-  'app/attendance/classes/[id]/page.tsx': { learner: 8 },
-  'app/attendance/learners/[id]/page.tsx': { learner: 4 },
-  'app/classes/[id]/attendance/page.tsx': { learner: 7 },
-  'app/classes/[id]/manage/page.tsx': { learner: 3 },
-  'app/classes/[id]/roster/page.tsx': { learner: 13 },
-  'app/enrolments/history/page.tsx': { learner: 10 },
-  'app/external-apps/page.tsx': { learner: 3 },
-  'app/notices/page.tsx': { learner: 3 },
-  'app/reading-imports/page.tsx': { learner: 6, staging: 3 },
-  'app/reading-review/layout.tsx': { learner: 1 },
-  'app/reading-review/page.tsx': { learner: 12 },
-  'app/report-cards/[id]/page.tsx': { learner: 3, snapshot: 1 },
-  'app/report-cards/compile/page.tsx': { learner: 11 },
-  'app/submissions/page.tsx': { learner: 3 },
-};
-for (const [file, rules] of Object.entries(FOLLOW_UP)) for (const [rule, count] of Object.entries(rules)) {
-  KNOWN[file] ??= {};
-  KNOWN[file][rule] = [count, KNOWN[file][rule]?.[1] ?? FOLLOW_UP_REASON];
-}
-// Hits other workstreams already removed after the language pass: caps lowered (0 removes the entry), so the list keeps shrinking.
-const LOWERED = {
-  'app/reading-review/page.tsx': { rawIdLabel: 1 },
-  'app/report-cards/[id]/page.tsx': { rawIdLabel: 0 },
-  'components/assignment-submission-window.tsx': { rawIdLabel: 0 },
-};
-for (const [file, rules] of Object.entries(LOWERED)) for (const [rule, count] of Object.entries(rules)) {
-  if (!KNOWN[file]?.[rule]) continue;
-  if (count === 0) delete KNOWN[file][rule]; else KNOWN[file][rule][0] = count;
-  if (Object.keys(KNOWN[file]).length === 0) delete KNOWN[file];
-}
 
 export function findHits(strings = allStrings(root)) {
   const hits = [];
@@ -178,6 +126,33 @@ for (const [key, count] of counts) { const max = known.get(key) ?? 0; if (count 
 for (const [key, max] of known) if ((counts.get(key) ?? 0) < max) slack.push({ key: key.replace('\u0000', ' / '), count: counts.get(key) ?? 0, max });
 check(over, [], 'No new or additional forbidden wording (fix the wording, or add a reasoned entry to KNOWN)');
 check(slack, [], 'The known list is tight: lower or remove entries whose wording has been fixed');
+
+// Pages this language pass cleaned. Each must stay at zero hits for the rule it was cleaned of; a page can only leave this
+// list by being rewritten, and a hit that returns here fails by name even if someone adds a KNOWN entry for it.
+const CLEARED = [
+  ['app/academic/page.tsx', 'learner'], ['app/admin/users/page.tsx', 'learner'], ['app/assessments/[id]/page.tsx', 'learner'],
+  ['app/assignments/[id]/page.tsx', 'uuid'], ['app/assignments/[id]/page.tsx', 'learner'], ['app/assignments/[id]/progress/page.tsx', 'learner'],
+  ['app/attendance/classes/[id]/page.tsx', 'learner'], ['app/attendance/learners/[id]/page.tsx', 'learner'], ['app/attendance/page.tsx', 'learner'],
+  ['app/classes/[id]/attendance/page.tsx', 'learner'], ['app/classes/[id]/attendance/page.tsx', 'immutable'], ['app/classes/[id]/attendance/page.tsx', 'snapshot'],
+  ['app/classes/[id]/manage/page.tsx', 'learner'], ['app/classes/[id]/roster/page.tsx', 'learner'], ['app/enrolments/history/page.tsx', 'learner'],
+  ['app/external-apps/page.tsx', 'learner'], ['app/notices/page.tsx', 'learner'], ['app/reading-imports/page.tsx', 'learner'],
+  ['app/reading-imports/page.tsx', 'staging'], ['app/reading-imports/page.tsx', 'usEnroll'], ['app/reading-practice/page.tsx', 'learner'],
+  ['app/reading-review/layout.tsx', 'learner'], ['app/reading-review/page.tsx', 'learner'], ['app/report-cards/[id]/page.tsx', 'learner'],
+  ['app/report-cards/[id]/page.tsx', 'snapshot'], ['app/report-cards/[id]/page.tsx', 'rawIdLabel'], ['app/report-cards/compile/page.tsx', 'learner'],
+  ['app/submissions/page.tsx', 'learner'], ['components/assignment-submission-window.tsx', 'rawIdLabel'],
+];
+for (const [file, rule] of CLEARED) {
+  okay(RULES[rule] && strings.some(entry => entry.file === file) && !known.has(`${file}\u0000${rule}`), `Cleared entry ${file}/${rule} names a real rule and a page the extractor reads, and has no KNOWN entry`);
+  check(counts.get(`${file}\u0000${rule}`) ?? 0, 0, `${file} stays free of ${RULES[rule][1]} wording`);
+}
+
+// 2b. The product word is "student". The sentence scan above skips single words (a plural switch, a "Learner:" label), so
+// this scan reads every piece of text. The only text still allowed to say "learner" is a route path such as /attendance/learners/.
+const learnerPattern = /\blearners?\b/i;
+const sampleSource = "const a = <p>Each learner</p>; const b = n === 1 ? 'learner' : 'learners'; const c = `${n} learner`; const d = <label id=\"learner-id\" htmlFor=\"learners\">Name</label>; type T = 'learners'; const e = 'Student';";
+check(wordLiteralsIn(sampleSource, learnerPattern).map(entry => entry.text), ['Each learner', 'learner', 'learners', 'learner'], 'The whole-text scan finds a sentence, single words in a plural switch and a template piece, and ignores ids and type values');
+const learnerWords = wordLiterals(root, learnerPattern).filter(entry => !entry.text.startsWith('/'));
+check(learnerWords, [], 'No text a person reads says "learner" (use "student"), including single words and plural switches');
 
 // 3. Reading level of the strings families and first-time visitors read first.
 const measured = grades(strings);

@@ -64,7 +64,7 @@ try {
   let response = await send('teacher-a', first); check(response.status, 201, 'Assigned teacher sends to the own class');
   let result = await response.json(); check(result.replayed, false, 'First save is not a replay');
   check(result.notice.recipientCount, 2, 'Active learner and linked guardian receive it'); check(recipientsOf(first.clientRequestId), ['guardian-a', 'student-user-a'], 'Exact recipient set');
-  check(result.notice.audienceLabel, 'class-a (T1): guardians and learners', 'Plain-language audience label'); check(result.notice.senderLabel, 'Sent by teacher-a (teacher)', 'Sender label comes from the server');
+  check(result.notice.audienceLabel, 'class-a (T1): guardians and students', 'Plain-language audience label'); check(result.notice.senderLabel, 'Sent by teacher-a (teacher)', 'Sender label comes from the server');
   check(count('notifications'), seededInbox + 2, 'One in-app row per recipient'); check(sqlite.prepare("SELECT count(*) n FROM notifications WHERE id LIKE 'notice:%' AND channel='in_app'").get().n, 2, 'Only the in-app channel is used');
   ok(!('requestHash' in result.notice) && !('attemptId' in result.notice), 'Private retry markers are not returned');
   for (const [user, expected] of [['guardian-a', 1], ['student-user-a', 1], ['guardian-other', 0], ['student-user-other', 0], ['guardian-b', 0], ['teacher-a', 0], ['admin-a', 0]]) {
@@ -191,7 +191,7 @@ try {
 
   // ---- picker and audience preview ----
   response = await routes.audience.GET(request('teacher-a', 'GET', undefined, '/api/notices/audience?classId=class-a&roles=both')); let preview = await response.json();
-  check([preview.count, preview.label, preview.sample.map(row => row.name)], [2, 'class-a (T1): guardians and learners', ['guardian-a', 'student-user-a']], 'Preview shows who would receive a class notice');
+  check([preview.count, preview.label, preview.sample.map(row => row.name)], [2, 'class-a (T1): guardians and students', ['guardian-a', 'student-user-a']], 'Preview shows who would receive a class notice');
   await denied(await routes.audience.GET(request('teacher-a', 'GET', undefined, '/api/notices/audience?classId=class-other&roles=both')), 404, 'Preview respects class scope');
   await denied(await routes.audience.GET(request('teacher-a', 'GET', undefined, '/api/notices/audience?classId=class-a&roles=both&extra=1')), 400, 'Preview rejects unknown parameters');
   response = await routes.people.GET(request('teacher-a', 'GET', undefined, '/api/notices/recipients')); let people = await response.json();

@@ -16,9 +16,9 @@ export const conflictMessages: Record<ConflictCode, string> = {
   below_saved_scores: 'The new maximum is below a score that is already saved. Correct those scores first or choose a higher maximum.',
   reason_required: 'Saved results exist for this assessment, so a reason of at least 10 characters is required for the change.',
   request_reused: 'This request identifier was already used for a different change. Reload and start the change again.',
-  result_unavailable: 'One of the selected assessments has no published result for this learner. Reload the list and choose again.',
+  result_unavailable: 'One of the selected assessments has no published result for this student. Reload the list and choose again.',
   result_changed: 'A selected result, its publication or its assessment details changed after the list loaded. Reload the list and choose again.',
   duplicate_assessment: 'An assessment was selected twice. Reload the list and choose each assessment once.',
-  correction_invalid: 'The report being corrected is not a published, current report for this learner. Reload and choose the latest published report.',
+  correction_invalid: 'The report being corrected is not a published, current report for this student. Reload and choose the latest published report.',
   results_changed: 'Results in this report changed after it was compiled, or are no longer published. Compile a replacement report from the current published results.',
 };

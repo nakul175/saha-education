@@ -132,9 +132,9 @@ try {
     await expect(page.locator('[data-attendance-student]')).toHaveCount(5);
     for (const pupil of everyone) await expect(status(page, pupil)).toHaveValue('');
     await expect(saveButton(page)).toBeDisabled();
-    await page.getByRole('button', { name: 'Mark all unrecorded learners present' }).click();
+    await page.getByRole('button', { name: 'Mark all unrecorded students present' }).click();
     for (const pupil of everyone) await expect(status(page, pupil)).toHaveValue('present');
-    await expect(page.getByRole('button', { name: 'Mark all unrecorded learners present' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Mark all unrecorded students present' })).toBeDisabled();
   });
   await check('Changing individual marks lists every intended change before saving', async () => {
     await status(page, brian).selectOption('absent'); await note(page, brian).fill('Parent reported illness');
@@ -220,7 +220,7 @@ try {
     for (const key of ['present', 'absent', 'late', 'excused', 'other']) assert.equal(await report.locator('[data-total=' + key + ']').innerText(), String(api1.totals[key]));
     assert.equal(api1.totals.recordedRows, 5); assert.equal(api1.totals.present, 3 + 0); assert.equal(api1.totals.late, 1);
     await expect(report.locator('[data-report-day=' + JSON.stringify(day) + ']')).toContainText('5');
-    await expect(report.getByRole('region', { name: 'Attendance by date' })).toBeVisible(); await expect(report.getByRole('region', { name: 'Attendance by learner' })).toBeVisible();
+    await expect(report.getByRole('region', { name: 'Attendance by date' })).toBeVisible(); await expect(report.getByRole('region', { name: 'Attendance by student' })).toBeVisible();
     await expect(report.getByText('no percentage is shown', { exact: false })).toBeVisible();
   });
   await check('Choosing dates narrows the report and an impossible range is refused before any request', async () => {
@@ -235,7 +235,7 @@ try {
     } finally { report.off('request', watch); }
   });
   await check('Each learner row opens that learner day-by-day record, with staff notes visible to staff', async () => {
-    await report.getByRole('link', { name: name(brian) }).click(); await expect(report.getByRole('heading', { name: 'Learner attendance', level: 1 })).toBeVisible();
+    await report.getByRole('link', { name: name(brian) }).click(); await expect(report.getByRole('heading', { name: 'Student attendance', level: 1 })).toBeVisible();
     await expect(report.locator('[data-learner-name]')).toHaveText(name(brian)); await expect(report.getByRole('columnheader', { name: 'Note' })).toBeVisible();
     await expect(report.locator('[data-learner-record]')).toHaveCount(1); await expect(report.getByRole('cell', { name: 'Arrived after the register closed' })).toBeVisible();
     await expect(report.getByRole('cell', { name: 'Present', exact: true })).toBeVisible();
@@ -250,7 +250,7 @@ try {
     await familyPage.getByLabel('Select Class').selectOption(classroom.id);
     await expect(familyPage.locator('[data-attendance-pupil]')).toHaveCount(1); await expect(familyPage.getByRole('link', { name: 'Class attendance report' })).toHaveCount(0);
     await familyPage.getByRole('link', { name: 'Day-by-day attendance for ' + name(linked) }).click();
-    await expect(familyPage.getByRole('heading', { name: 'Learner attendance', level: 1 })).toBeVisible(); await expect(familyPage.locator('[data-learner-name]')).toHaveText(name(linked));
+    await expect(familyPage.getByRole('heading', { name: 'Student attendance', level: 1 })).toBeVisible(); await expect(familyPage.locator('[data-learner-name]')).toHaveText(name(linked));
     await expect(familyPage.locator('[data-learner-record]')).toHaveCount(1); await expect(familyPage.getByRole('cell', { name: 'Present', exact: true })).toBeVisible();
     await expect(familyPage.getByText('Present or late on 1 of 1 saved mark.')).toBeVisible();
   });
@@ -271,7 +271,7 @@ try {
   await check('A change to the family view range is validated and applied', async () => {
     await familyPage.goto(base.origin + '/attendance/learners/student-a', { waitUntil: 'networkidle' });
     await familyPage.getByLabel('From date').fill(addDays(day, 2)); await familyPage.getByLabel('To date').fill(addDays(day, 4)); await familyPage.getByRole('button', { name: 'Show attendance' }).click();
-    await expect(familyPage.getByText('No attendance has been saved for this learner in these dates.')).toBeVisible();
+    await expect(familyPage.getByText('No attendance has been saved for this student in these dates.')).toBeVisible();
     await familyPage.getByRole('button', { name: 'All saved dates' }).click(); await expect(familyPage.locator('[data-learner-record]')).toHaveCount(1);
   });
 

@@ -32,7 +32,7 @@ export default function LearnerAttendancePage({ params }: { params: Promise<{ id
     try {
       const value = await readAttendanceJson<StudentAttendanceReport>('/api/students/' + encodeURIComponent(id) + '/attendance' + rangeQuery(rangeFrom, rangeTo), abort.signal);
       if (ticket !== generation.current) return;
-      if (value.student.id !== id) throw new AttendanceReadFailure('The record did not match this learner. Reload the page.', 500);
+      if (value.student.id !== id) throw new AttendanceReadFailure('The record did not match this student. Reload the page.', 500);
       setReport(value);
     } catch (failure) {
       if (ticket !== generation.current || abort.signal.aborted) return;
@@ -63,7 +63,7 @@ export default function LearnerAttendancePage({ params }: { params: Promise<{ id
     <div className="mx-auto min-w-0 max-w-5xl space-y-6 p-4">
       <div className="space-y-2 break-words">
         <a href="/attendance" className="underline">Attendance records</a>
-        <h1>Learner attendance</h1>
+        <h1>Student attendance</h1>
         {report && <p className="text-lg font-semibold" data-learner-name>{report.student.firstName} {report.student.lastName}</p>}
         {report && <p className="text-sm text-muted-foreground">Admission number: {report.student.admissionNumber}</p>}
         <p className="text-sm text-muted-foreground">These are the marks teachers saved for the classes your account can see. A date with no mark is not shown, and no percentage is calculated.</p>
@@ -79,7 +79,7 @@ export default function LearnerAttendancePage({ params }: { params: Promise<{ id
       {report && !loading && <div className="space-y-6" data-learner-attendance>
         <section aria-labelledby="learner-totals" className="space-y-3">
           <h2 id="learner-totals" className="text-xl font-semibold">Totals for {report.range.from || report.range.to ? (report.range.from ?? 'the first saved date') + ' to ' + (report.range.to ?? 'the last saved date') : 'all saved dates'}</h2>
-          {marked === 0 ? <p>No attendance has been saved for this learner in these dates.</p> : <>
+          {marked === 0 ? <p>No attendance has been saved for this student in these dates.</p> : <>
             <p>Present or late on {attended} of {marked} saved {marked === 1 ? 'mark' : 'marks'}.</p>
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-5">{statuses.map(status => <div key={status} className="rounded border p-3"><dt className="text-sm text-muted-foreground">{statusLabel(status)}</dt><dd className="text-2xl font-semibold" data-total={status}>{report.totals[status]}</dd></div>)}</dl></>}
           {report.invalidDateRows > 0 && <p role="status">{report.invalidDateRows} saved {report.invalidDateRows === 1 ? 'mark has' : 'marks have'} a date that is not a real calendar date. {report.range.from || report.range.to ? 'Those marks are left out when dates are chosen.' : 'They are shown below without being changed.'}</p>}
@@ -89,7 +89,7 @@ export default function LearnerAttendancePage({ params }: { params: Promise<{ id
           <h2 id="learner-days" className="text-xl font-semibold">Day by day</h2>
           {report.records.truncated && <p role="status">Showing the latest {report.records.items.length} of {report.records.total} saved marks. Choose dates to see earlier ones.</p>}
           {report.records.total === 0 ? <p>There are no saved marks to list.</p> : <div className="overflow-x-auto" role="region" aria-label="Saved marks by date" tabIndex={0}>
-            <table className="w-full min-w-[22rem] text-left text-sm"><caption className="sr-only">Saved attendance marks for this learner, newest first</caption>
+            <table className="w-full min-w-[22rem] text-left text-sm"><caption className="sr-only">Saved attendance marks for this student, newest first</caption>
               <thead><tr><th scope="col" className="p-2">Date</th><th scope="col" className="p-2">Class</th><th scope="col" className="p-2">Status</th>{staff && <th scope="col" className="p-2">Note</th>}{staff && <th scope="col" className="p-2">Recorded by</th>}</tr></thead>
               <tbody>{report.records.items.map(item => <tr key={item.id} data-learner-record={item.id} className="border-t"><th scope="row" className="p-2 font-medium">{item.dateValid ? <time dateTime={item.date}>{item.date}</time> : <>{item.date} <span className="text-xs font-normal">(not a real date)</span></>}</th>
                 <td className="p-2 break-words">{item.className}</td><td className="p-2">{statusLabel(item.status)}</td>{staff && <td className="p-2 whitespace-pre-wrap break-words">{item.note ?? ''}</td>}{staff && <td className="p-2 break-words">{item.recordedByName ?? ''}</td>}</tr>)}</tbody>

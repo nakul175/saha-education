@@ -82,9 +82,9 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
   };
   const enrolPicked = () => {
     if (!cls || picked.length === 0 || picked.length > MAX_BATCH) return;
-    void submission.submit(picked.length === 1 ? 'Enrolment' : `Enrolment of ${picked.length} learners`, picked.map(studentId => ({ kind: 'enrolment.enrol' as const, studentId, classId: cls.id, effectiveOn: enrolOn })));
+    void submission.submit(picked.length === 1 ? 'Enrolment' : `Enrolment of ${picked.length} students`, picked.map(studentId => ({ kind: 'enrolment.enrol' as const, studentId, classId: cls.id, effectiveOn: enrolOn })));
   };
-  const seats = !cls ? '' : cls.settings.capacity === null ? `${cls.activeCount ?? 0} active learners, no capacity limit` : `${cls.activeCount ?? 0} of ${cls.settings.capacity} places used`;
+  const seats = !cls ? '' : cls.settings.capacity === null ? `${cls.activeCount ?? 0} active students, no capacity limit` : `${cls.activeCount ?? 0} of ${cls.settings.capacity} places used`;
   return <AppShell principal={data?.principal ?? null}><div className="mx-auto max-w-4xl min-w-0 space-y-6 p-4">
     <div><a href="/academic" className="text-sm underline">Courses, classes and enrolments</a><h1 className="text-2xl font-bold break-words">{cls ? `Roster for ${cls.name}` : 'Class roster'}</h1>
       <p className="text-muted-foreground">Everyone who is or was enrolled in this class, with the dates of each enrolment.</p></div>
@@ -99,8 +99,8 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
         {closed && <p role="status">This class is closed. {manage ? 'Reopen it from the class settings to change the roster.' : 'The roster cannot change until an administrator reopens it.'}</p>}
         {manage && <p><a className="underline" href={'/classes/' + encodeURIComponent(cls.id) + '/manage'}>Open settings for {cls.name}</a></p>}
       </CardContent></Card>
-      <Card><CardHeader><CardTitle><h2>Learners ({data.roster.length})</h2></CardTitle></CardHeader><CardContent>
-        {data.roster.length === 0 ? <p>No learner has been enrolled in this class yet.</p> : <ul className="space-y-3">{data.roster.map(row => {
+      <Card><CardHeader><CardTitle><h2>Students ({data.roster.length})</h2></CardTitle></CardHeader><CardContent>
+        {data.roster.length === 0 ? <p>No student has been enrolled in this class yet.</p> : <ul className="space-y-3">{data.roster.map(row => {
           const name = `${row.firstName} ${row.lastName}`;
           return <li key={row.enrolmentId} className="rounded border p-3 break-words">
             <div className="flex flex-wrap items-center gap-2"><h3 className="font-medium">{name}</h3><Badge variant={row.status === 'active' ? 'secondary' : 'outline'}>{STATUS_LABELS[row.status] ?? row.status}</Badge></div>
@@ -123,20 +123,20 @@ export default function ClassRosterPage({ params }: { params: Promise<{ id: stri
             <Button type="button" variant="outline" onClick={() => setAction(null)}>Cancel</Button></div>
         </fieldset></form>
       </CardContent></Card>}
-      {manage && <Card><CardHeader><CardTitle><h2>Enrol learners</h2></CardTitle></CardHeader><CardContent className="space-y-4">
-        {closed ? <p>This class is closed, so no learner can be enrolled.</p> : <>
-          <p>Choose up to {MAX_BATCH} learners. They are enrolled together: if one cannot be enrolled (for example the class is full), none are.</p>
-          <div><Label htmlFor="enrol-search">Find a learner by name or admission number</Label><Input id="enrol-search" value={search} onChange={event => setSearch(event.target.value)} disabled={locked} /></div>
-          <fieldset disabled={locked} className="min-w-0 space-y-2"><legend className="font-medium">Learners not yet on this roster</legend>
-            {candidates.length === 0 ? <p>{search.trim() ? 'No learner matches your search.' : 'Every learner in your school is already on this roster.'}</p> : <ul className="max-h-72 space-y-1 overflow-y-auto rounded border p-2">{candidates.slice(0, 50).map(student => <li key={student.id} className="flex items-start gap-2">
+      {manage && <Card><CardHeader><CardTitle><h2>Enrol students</h2></CardTitle></CardHeader><CardContent className="space-y-4">
+        {closed ? <p>This class is closed, so no student can be enrolled.</p> : <>
+          <p>Choose up to {MAX_BATCH} students. They are enrolled together: if one cannot be enrolled (for example the class is full), none are.</p>
+          <div><Label htmlFor="enrol-search">Find a student by name or admission number</Label><Input id="enrol-search" value={search} onChange={event => setSearch(event.target.value)} disabled={locked} /></div>
+          <fieldset disabled={locked} className="min-w-0 space-y-2"><legend className="font-medium">Students not yet on this roster</legend>
+            {candidates.length === 0 ? <p>{search.trim() ? 'No student matches your search.' : 'Every student in your school is already on this roster.'}</p> : <ul className="max-h-72 space-y-1 overflow-y-auto rounded border p-2">{candidates.slice(0, 50).map(student => <li key={student.id} className="flex items-start gap-2">
               <input id={'pick-' + student.id} type="checkbox" className="mt-1 size-5" checked={picked.includes(student.id)} onChange={event => setPicked(previous => event.target.checked ? [...previous, student.id] : previous.filter(id => id !== student.id))} />
               <Label htmlFor={'pick-' + student.id}>{student.firstName} {student.lastName} · {student.admissionNumber}</Label></li>)}</ul>}
             {candidates.length > 50 && <p className="text-sm text-muted-foreground">Showing the first 50 matches. Use the search box to narrow the list.</p>}
           </fieldset>
           <div><Label htmlFor="enrol-date">Enrolment start date</Label><Input id="enrol-date" type="date" value={enrolOn} onChange={event => setEnrolOn(event.target.value)} disabled={locked} aria-describedby="enrol-date-help" />
             <p id="enrol-date-help" className="text-sm text-muted-foreground">Use today, or the class start date to enrol ahead of a class that has not begun.</p></div>
-          {picked.length > MAX_BATCH && <p role="alert">Choose at most {MAX_BATCH} learners at a time.</p>}
-          <Button type="button" disabled={locked || picked.length === 0 || picked.length > MAX_BATCH || !enrolOn} onClick={enrolPicked}>{submission.busy ? 'Saving…' : picked.length === 1 ? 'Enrol 1 learner' : `Enrol ${picked.length} learners`}</Button>
+          {picked.length > MAX_BATCH && <p role="alert">Choose at most {MAX_BATCH} students at a time.</p>}
+          <Button type="button" disabled={locked || picked.length === 0 || picked.length > MAX_BATCH || !enrolOn} onClick={enrolPicked}>{submission.busy ? 'Saving…' : picked.length === 1 ? 'Enrol 1 student' : `Enrol ${picked.length} students`}</Button>
         </>}
       </CardContent></Card>}
     </>}

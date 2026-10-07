@@ -34,4 +34,4 @@ export function whenText(value: string): string {
   const date = new Date(value);
   return Number.isFinite(date.getTime()) ? date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Date unavailable';
 }
-export const roleLabel = (role: string) => role === 'student' ? 'Learner' : role === 'guardian' ? 'Guardian' : role === 'teacher' ? 'Teacher' : role === 'admin' ? 'Administrator' : role;
+export const roleLabel = (role: string) => role === 'student' ? 'Student' : role === 'guardian' ? 'Guardian' : role === 'teacher' ? 'Teacher' : role === 'admin' ? 'Administrator' : role;

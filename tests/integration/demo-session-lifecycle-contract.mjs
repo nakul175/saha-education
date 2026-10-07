@@ -47,7 +47,7 @@ try {
   // ---- Role choice and entry -----------------------------------------------------------------------------------------------
   check(await (await demo.GET()).json(), { available: true, synthetic: true }, 'Demo availability is reported for the isolated installation');
   const cookies = {};
-  const labels = { admin: 'Demo administrator', teacher: 'Demo teacher', guardian: 'Demo guardian', student: 'Demo learner' };
+  const labels = { admin: 'Demo administrator', teacher: 'Demo teacher', guardian: 'Demo guardian', student: 'Demo student' };
   for (const role of ['admin', 'teacher', 'guardian', 'student']) {
     const entered = await enter(role);
     check([entered.response.status, await entered.response.json()], [200, { destination: '/', synthetic: true }], 'Role entry succeeds: ' + role);

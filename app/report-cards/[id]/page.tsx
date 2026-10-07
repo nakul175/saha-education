@@ -39,7 +39,7 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
     } catch (cause) {
       if (ticket !== generation.current) return;
       setDetail(null);
-      setLoadError(cause instanceof LifecycleRequestError && [403, 404].includes(cause.status) ? 'This report card is not available to your account. Published report cards for your linked learners are listed under Report Cards.' : failureMessage(cause, 'loading the report card'));
+      setLoadError(cause instanceof LifecycleRequestError && [403, 404].includes(cause.status) ? 'This report card is not available to your account. Published report cards for your linked students are listed under Report Cards.' : failureMessage(cause, 'loading the report card'));
     } finally { if (ticket === generation.current) setLoading(false); }
   }, [id]);
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
     try {
       const { body } = await lifecycleRequest<{ id: string; publishedAt: string | null }>('/api/report-cards/' + encodeURIComponent(id), jsonInit('PATCH', { publish: true }));
       if (!body || body.id !== id || !body.publishedAt) throw new LifecycleRequestError(200, null, true);
-      setNotice('Report published. Linked guardians and the learner can now read it. Publishing again never sends duplicate notices.');
+      setNotice('Report published. Linked guardians and the student can now read it. Publishing again never sends duplicate notices.');
       await load(true);
     } catch (cause) {
       const lost = cause instanceof LifecycleRequestError && cause.unconfirmed;
@@ -90,7 +90,7 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
         <Card><CardHeader><CardTitle>Report Card Details</CardTitle></CardHeader>
           <CardContent className="min-w-0 break-words">
             <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 [&>div]:min-w-0">
-              <div><p><span className="font-medium">Learner:</span> {detail.studentName}</p></div>
+              <div><p><span className="font-medium">Student:</span> {detail.studentName}</p></div>
               <div><p><span className="font-medium">Term:</span> {report.term}</p></div>
               <div><p><span className="font-medium">Overall Grade:</span> {report.overallGrade}</p></div>
               <div><p><span className="font-medium">Published:</span> {report.publishedAt ? formatStamp(report.publishedAt) : staff ? 'Not published. Only staff can see this draft.' : 'Not published'}</p></div>
@@ -98,7 +98,7 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
             </div>
           </CardContent></Card>
 
-        <Card><CardHeader><CardTitle>Assessment results in this report</CardTitle><CardDescription>Published results as they were when the report was compiled. They are a snapshot and do not change.</CardDescription></CardHeader>
+        <Card><CardHeader><CardTitle>Assessment results in this report</CardTitle><CardDescription>Published results as they were when the report was compiled. They are a fixed copy and do not change.</CardDescription></CardHeader>
           <CardContent className="min-w-0">
             {detail.lines.length === 0 ? <p data-lines-empty>No assessment results are attached to this report. The grade and summary were entered by the school.</p>
               : <ul className="space-y-2">{detail.lines.map(line => <li key={line.assessmentId} data-report-line={line.assessmentId} className="min-w-0 break-words rounded border p-3 text-sm">
@@ -109,7 +109,7 @@ export default function ReportCardPage({ params }: { params: Promise<{ id: strin
               </li>)}</ul>}
           </CardContent></Card>
 
-        {admin && !published && <Card><CardHeader><CardTitle>Publish</CardTitle><CardDescription>Publishing makes this report readable by linked guardians and the learner, and sends each eligible guardian an in-app notice.</CardDescription></CardHeader>
+        {admin && !published && <Card><CardHeader><CardTitle>Publish</CardTitle><CardDescription>Publishing makes this report readable by linked guardians and the student, and sends each eligible guardian an in-app notice.</CardDescription></CardHeader>
           <CardContent className="min-w-0 space-y-4">
             {detail.resultsChanged ? <p role="alert" data-publish-blocked>Results in this draft changed after it was compiled, so it cannot be published. Compile a replacement report from the current published results.</p>
               : <>

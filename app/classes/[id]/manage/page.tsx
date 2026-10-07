@@ -72,7 +72,7 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
     send('Class settings', { kind: 'class.edit', classId: cls.id, expectedUpdatedAt: cls.updatedAt, courseId: form.courseId, name: form.name.trim(), term: form.term.trim(), schedule: form.schedule.trim() || null,
       capacity: capacityText ? Number(capacityText) : null, startsOn: form.startsOn || null, endsOn: form.endsOn || null });
   };
-  const seats = !cls ? '' : cls.settings.capacity === null ? `${cls.activeCount ?? 0} learners enrolled, no capacity limit` : `${cls.activeCount ?? 0} of ${cls.settings.capacity} places used`;
+  const seats = !cls ? '' : cls.settings.capacity === null ? `${cls.activeCount ?? 0} students enrolled, no capacity limit` : `${cls.activeCount ?? 0} of ${cls.settings.capacity} places used`;
   return <AppShell principal={data?.principal ?? null}><div className="mx-auto max-w-4xl min-w-0 space-y-6 p-4">
     <div><a href="/academic" className="text-sm underline">Courses, classes and enrolments</a><h1 className="text-2xl font-bold break-words">{cls ? `Settings for ${cls.name}` : 'Class settings'}</h1></div>
     <Button type="button" variant="outline" onClick={() => void reload()} disabled={locked}>Reload this class</Button>
@@ -101,7 +101,7 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
             <div><Label htmlFor="class-term">Term</Label><Input id="class-term" value={form.term} required maxLength={80} onChange={event => setForm({ ...form, term: event.target.value })} /></div>
             <div><Label htmlFor="class-schedule">Schedule (optional)</Label><Input id="class-schedule" value={form.schedule} maxLength={200} onChange={event => setForm({ ...form, schedule: event.target.value })} /></div>
             <div><Label htmlFor="class-capacity">Capacity (1 to 500, blank for no limit)</Label><Input id="class-capacity" inputMode="numeric" value={form.capacity} aria-invalid={capacityInvalid} aria-describedby="class-capacity-help" onChange={event => setForm({ ...form, capacity: event.target.value })} />
-              <p id="class-capacity-help" className={capacityInvalid ? 'text-sm text-red-700' : 'text-sm text-muted-foreground'}>{capacityInvalid ? 'Enter a whole number from 1 to 500, or leave blank for no limit.' : 'Capacity cannot be lower than the learners currently enrolled.'}</p></div>
+              <p id="class-capacity-help" className={capacityInvalid ? 'text-sm text-red-700' : 'text-sm text-muted-foreground'}>{capacityInvalid ? 'Enter a whole number from 1 to 500, or leave blank for no limit.' : 'Capacity cannot be lower than the students currently enrolled.'}</p></div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div><Label htmlFor="class-starts">Start date</Label><Input id="class-starts" type="date" value={form.startsOn} onChange={event => setForm({ ...form, startsOn: event.target.value })} /></div>
               <div><Label htmlFor="class-ends">End date</Label><Input id="class-ends" type="date" value={form.endsOn} onChange={event => setForm({ ...form, endsOn: event.target.value })} /></div></div>
@@ -117,9 +117,9 @@ export default function ManageClassPage({ params }: { params: Promise<{ id: stri
           </fieldset>
         </CardContent></Card>
         <Card><CardHeader><CardTitle><h2>{closed ? 'Reopen class' : 'Close class'}</h2></CardTitle></CardHeader><CardContent className="space-y-4">
-          {closed ? <p>Reopening lets learners be enrolled, withdrawn and transferred again.</p> : <p>A closed class accepts no new enrolments, re-enrolments or setting changes. Existing enrolment records stay as they are unless you complete them below.</p>}
+          {closed ? <p>Reopening lets students be enrolled, withdrawn and transferred again.</p> : <p>A closed class accepts no new enrolments, re-enrolments or setting changes. Existing enrolment records stay as they are unless you complete them below.</p>}
           <fieldset disabled={locked} className="min-w-0 space-y-4">
-            {!closed && <div className="flex items-start gap-2"><input id="class-complete-active" type="checkbox" className="mt-1 size-5" checked={completeActive} onChange={event => setCompleteActive(event.target.checked)} /><Label htmlFor="class-complete-active">Also mark every active learner as completed today</Label></div>}
+            {!closed && <div className="flex items-start gap-2"><input id="class-complete-active" type="checkbox" className="mt-1 size-5" checked={completeActive} onChange={event => setCompleteActive(event.target.checked)} /><Label htmlFor="class-complete-active">Also mark every active student as completed today</Label></div>}
             <Button type="button" variant="outline" disabled={trimmed.length < 5}
               onClick={() => send(closed ? 'Class reopening' : 'Class closure', closed ? { kind: 'class.reopen', classId: cls.id, expectedUpdatedAt: cls.updatedAt } : { kind: 'class.close', classId: cls.id, expectedUpdatedAt: cls.updatedAt, completeActive })}>{closed ? 'Reopen this class' : 'Close this class'}</Button>
           </fieldset>

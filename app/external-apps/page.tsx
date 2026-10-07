@@ -73,7 +73,7 @@ export default function ReadingAppsPage() {
     <a className="underline" href="/">← Dashboard</a><h1 className="text-2xl font-bold">Reading apps and reviewed checks</h1>
     <p role="status">{message}</p>
     {family && <section className="border rounded p-4 space-y-2" aria-labelledby="family-reading-heading"><h2 id="family-reading-heading" className="text-xl font-semibold">Reading checks are private to school staff</h2>
-      <p>Reading check results are not shown to learners or families yet. Your school has not published any reading results, so nothing is available on this page. Reports your school publishes appear under Reports.</p>
+      <p>Reading check results are not shown to students or families yet. Your school has not published any reading results, so nothing is available on this page. Reports your school publishes appear under Reports.</p>
       <p><a className="underline" href="/report-cards">View published reports</a></p></section>}
     {staff && <>
       <section className="border rounded p-4 space-y-3" aria-labelledby="orf-heading"><h2 id="orf-heading" className="text-xl font-semibold">Oral reading fluency app</h2>
@@ -85,7 +85,7 @@ export default function ReadingAppsPage() {
         <div className="rounded border bg-muted/30 p-3 space-y-2 text-sm" aria-labelledby="orf-boundary-heading" role="group"><h3 id="orf-boundary-heading" className="font-semibold">What opening the app does</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>It opens the school&apos;s fixed reading app address in a separate tab, without telling the app which page you came from.</li>
-            <li>Saha sends no learner names, learner numbers, class details or Saha sign-in to the app.</li>
+            <li>Saha sends no student names, student numbers, class details or Saha sign-in to the app.</li>
             <li>The app is a separate service with its own sign-in. Signing in to Saha does not sign you in there.</li>
             <li>Results do not come back automatically. They appear in Saha only after an adult reviews them and records or imports them.</li>
           </ul></div>
@@ -111,7 +111,7 @@ export default function ReadingAppsPage() {
       <section><h2 className="text-xl font-semibold">Reviewed checks</h2><p>Entered by staff from an adult-reviewed reading. The reading app has not verified these results.</p>
         {!classId && <p>Select a class to see its reviewed checks.</p>}
         {classId && !checks.length && <p>No checks to display.</p>}
-        <ul className="space-y-3">{checks.map(c => <li key={c.id} className="border rounded p-3">{names.get(c.studentId) ?? 'Learner not currently enrolled'} · {c.readingDate} · {c.language}<br/>{c.passageReference}: {c.wcpm} correct words/minute · {c.accuracy}% accuracy</li>)}</ul>
+        <ul className="space-y-3">{checks.map(c => <li key={c.id} className="border rounded p-3">{names.get(c.studentId) ?? 'Student not currently enrolled'} · {c.readingDate} · {c.language}<br/>{c.passageReference}: {c.wcpm} correct words/minute · {c.accuracy}% accuracy</li>)}</ul>
         {classId && <p className="pt-2"><a className="underline" href="/reading-review">Review history, corrections and trends</a></p>}
       </section>
     </>}

@@ -72,7 +72,7 @@ try {
     await expect(staff.getByText('Current active enrolment', { exact: true })).toHaveCount(3);
   });
   await check('Unrecorded learner is explicit without an invented mark or percentage', async () => {
-    await expect(pupil(staff, 'none')).toContainText('No attendance has been recorded for this learner in this class.');
+    await expect(pupil(staff, 'none')).toContainText('No attendance has been recorded for this student in this class.');
     await expect(pupil(staff, 'none').locator('dl')).toHaveCount(0);
     assert.equal(/\d(?:\.\d+)?%/.test(await staff.locator('body').innerText()), false);
   });
@@ -113,7 +113,7 @@ try {
   });
   await check('An actual no-roster class is displayed as an empty available class', async () => {
     await choose(staff, 'dashboard-class-no-roster');
-    await expect(staff.getByText('No learner profiles or saved attendance rows are currently available for this class.', { exact: true })).toBeVisible();
+    await expect(staff.getByText('No student profiles or saved attendance rows are currently available for this class.', { exact: true })).toBeVisible();
   });
   await check('A failed summary request clears old rows and exposes a focused retry message', async () => {
     await staff.route('**/api/classes/dashboard-class-family/attendance-summary', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Synthetic unavailable"}' }), { times: 1 });
@@ -165,8 +165,8 @@ try {
   await open(capped); await choose(capped, 'attendance-review-cap-class');
   await check('Large roster discloses exact total and display cap without false empty claims', async () => {
     await expect(capped.locator('[data-attendance-pupil]')).toHaveCount(100);
-    await expect(capped.getByText(/Showing 100 of 101 available learners/)).toBeVisible();
-    await expect(capped.getByText(/omitted learners are not counted as having no records/)).toBeVisible();
+    await expect(capped.getByText(/Showing 100 of 101 available students/)).toBeVisible();
+    await expect(capped.getByText(/omitted students are not counted as having no records/)).toBeVisible();
   });
   for (const [page, role] of [[staff, 'teacher'], [family, 'guardian'], [learner, 'student']]) {
     await check(role + ' desktop controls have names and fit the viewport', async () => { await widthAndLabels(page); await capture(page, role + '-desktop'); });

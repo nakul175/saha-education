@@ -161,18 +161,18 @@ try {
   const roster = await admin.newPage();
   await goto(roster, '/classes/' + classId + '/roster');
   await check('Batch enrolment is atomic: three learners into a two-place class changes nothing and explains why', async () => {
-    await expect(roster.getByRole('heading', { name: 'Roster for ' + className, level: 1 })).toBeVisible(); await expect(roster.getByText('No learner has been enrolled in this class yet.')).toBeVisible();
+    await expect(roster.getByRole('heading', { name: 'Roster for ' + className, level: 1 })).toBeVisible(); await expect(roster.getByText('No student has been enrolled in this class yet.')).toBeVisible();
     for (const name of ['Alpha', 'Bravo', 'Charlie']) await roster.getByLabel('Synthetic ' + name + ' · CE-' + name.toLowerCase()).check();
-    await expect(roster.getByRole('button', { name: 'Enrol 3 learners' })).toBeEnabled(); await roster.getByRole('button', { name: 'Enrol 3 learners' }).click();
+    await expect(roster.getByRole('button', { name: 'Enrol 3 students' })).toBeEnabled(); await roster.getByRole('button', { name: 'Enrol 3 students' }).click();
     await expect(roster.getByRole('alert')).toContainText('This class is full'); await expect(roster.getByRole('alert')).toContainText('Nothing was saved');
     assert.equal((await adminApi.get('/api/classes/' + classId + '/roster')).length, 0, 'No learner was enrolled');
   });
   await check('Two learners enrol together and the roster and capacity update', async () => {
     await roster.reload({ waitUntil: 'networkidle' });
     for (const name of ['Alpha', 'Bravo']) await roster.getByLabel('Synthetic ' + name + ' · CE-' + name.toLowerCase()).check();
-    await roster.getByRole('button', { name: 'Enrol 2 learners' }).click(); await status(roster, 'Enrolment of 2 learners saved');
+    await roster.getByRole('button', { name: 'Enrol 2 students' }).click(); await status(roster, 'Enrolment of 2 students saved');
     await expect(roster.getByText('2 of 2 places used')).toBeVisible(); await expect(roster.getByRole('heading', { name: 'Synthetic Alpha' })).toBeVisible(); await noRawIds(roster);
-    await roster.getByLabel('Find a learner by name or admission number').fill('Charlie'); await roster.getByLabel('Synthetic Charlie · CE-charlie').check(); await roster.getByRole('button', { name: 'Enrol 1 learner' }).click();
+    await roster.getByLabel('Find a student by name or admission number').fill('Charlie'); await roster.getByLabel('Synthetic Charlie · CE-charlie').check(); await roster.getByRole('button', { name: 'Enrol 1 student' }).click();
     await expect(roster.getByRole('alert')).toContainText('This class is full');
   });
   await check('Withdrawal needs a reason and a real date; a future date is refused in plain language', async () => {
@@ -225,9 +225,9 @@ try {
   });
   await check('Closing a class with completion marks active learners completed and blocks further enrolment', async () => {
     const manage = await admin.newPage(); await goto(manage, '/classes/' + classId + '/manage');
-    await reasonField(manage).fill('End of term'); await manage.getByLabel('Also mark every active learner as completed today').check(); await manage.getByRole('button', { name: 'Close this class' }).click();
+    await reasonField(manage).fill('End of term'); await manage.getByLabel('Also mark every active student as completed today').check(); await manage.getByRole('button', { name: 'Close this class' }).click();
     await status(manage, 'Class closure saved'); await expect(manage.getByText('This class is closed')).toBeVisible(); await expect(manage.getByRole('button', { name: 'Save class settings' })).toBeDisabled();
-    await roster.reload({ waitUntil: 'networkidle' }); await expect(roster.getByText('This class is closed, so no learner can be enrolled.')).toBeVisible();
+    await roster.reload({ waitUntil: 'networkidle' }); await expect(roster.getByText('This class is closed, so no student can be enrolled.')).toBeVisible();
     assert.ok((await adminApi.get('/api/classes/' + classId + '/roster')).every(row => row.status !== 'active'));
     await reasonField(manage).fill('More teaching needed'); await manage.getByRole('button', { name: 'Reopen this class' }).click(); await status(manage, 'Class reopening saved'); await settled(manage);
   });
@@ -236,7 +236,7 @@ try {
   await check('A teacher sees only assigned classes; the roster is read-only and history hides reasons', async () => {
     const view = await newTeacher.newPage(); await goto(view, '/classes/' + classId + '/roster');
     await expect(view.getByRole('heading', { name: 'Roster for ' + className, level: 1 })).toBeVisible(); assert.equal(await view.getByRole('button', { name: /^(Withdraw|Complete|Transfer|Re-enrol) / }).count(), 0, 'No change controls for a teacher');
-    assert.equal(await view.getByRole('heading', { name: 'Enrol learners' }).count(), 0); await noRawIds(view);
+    assert.equal(await view.getByRole('heading', { name: 'Enrol students' }).count(), 0); await noRawIds(view);
     const log = await view.request.fetch(new URL('/api/classes/' + classId + '/history', base).href, { headers: { cookie: sessions['teacher-new'] } }); const data = await log.json();
     assert.ok(data.items.length > 0 && data.items.every(item => item.reason === null && item.actorName === null), 'Teacher history carries no reasons or actors');
     const sourceLabel = data.items.find(item => item.kind === 'enrolment.transfer'); assert.ok(!sourceLabel || !sourceLabel.label.includes('Destination'), 'Teacher of the source never learns the destination name');
@@ -244,7 +244,7 @@ try {
     const manageView = await newTeacher.newPage(); await goto(manageView, '/classes/' + classId + '/manage'); await expect(manageView.getByText('Only a school administrator can change class settings.')).toBeVisible(); assert.equal(await manageView.getByRole('button', { name: 'Save class settings' }).count(), 0); await settled(manageView);
   });
   await check('The former teacher and an unrelated teacher are told the class is unavailable and receive no roster', async () => {
-    for (const value of [teacher, otherTeacher]) { const view = await value.newPage(); await goto(view, '/classes/' + classId + '/roster'); await expect(view.getByRole('alert')).toContainText('unavailable to your current account'); assert.equal(await view.getByRole('heading', { name: 'Learners (0)' }).count(), 0); await settled(view); }
+    for (const value of [teacher, otherTeacher]) { const view = await value.newPage(); await goto(view, '/classes/' + classId + '/roster'); await expect(view.getByRole('alert')).toContainText('unavailable to your current account'); assert.equal(await view.getByRole('heading', { name: 'Students (0)' }).count(), 0); await settled(view); }
   });
   await check('A guardian and a learner see only their own enrolment history, with no administrator reasons', async () => {
     for (const value of [family, learner]) {

@@ -41,7 +41,7 @@ async function loadView(classId: string, studentId: string, signal: AbortSignal)
     (rosterResult.reason.status === 401 || rosterResult.reason.status === 403)) throw rosterResult.reason;
   return { all: allResult.value, filtered: filteredResult.value,
     students: rosterResult.status === 'fulfilled' ? rosterResult.value.enrolledStudents ?? [] : [],
-    rosterWarning: rosterResult.status === 'rejected' ? 'Current roster names could not be loaded. Historical learners remain available.' : '' };
+    rosterWarning: rosterResult.status === 'rejected' ? 'Current roster names could not be loaded. Historical students remain available.' : '' };
 }
 const inputStyle = 'w-full min-w-0 rounded border bg-background p-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
 const buttonStyle = 'rounded border px-3 py-2 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
@@ -220,7 +220,7 @@ export default function ReadingReviewPage() {
   studentIds.sort((a, b) => (studentNames.get(a) ?? a).localeCompare(studentNames.get(b) ?? b));
   const studentLabel = (id: string) => {
     const name = studentNames.get(id);
-    if (!name) return 'Learner (name unavailable)';
+    if (!name) return 'Student (name unavailable)';
     return currentIds.has(id) || rosterWarning ? name : name + ' (not currently enrolled; retained reading history)';
   };
   const staffLabel = (id: string) => names.staff[id] ?? 'Staff member (name unavailable)';
@@ -235,7 +235,7 @@ export default function ReadingReviewPage() {
     <nav aria-label="Reading review navigation" className="flex flex-wrap gap-4 text-sm"><a className="underline" href="/">← Dashboard</a><a className="underline" href="/external-apps">Reading apps and new checks</a></nav>
     <header className="space-y-2"><h1 className="text-3xl font-bold">Reading review and history</h1>
       <p>Review manually entered reading observations and append attributable corrections. Original evidence is retained.</p>
-      <p className="text-sm text-muted-foreground">Current assigned staff can review a class&apos;s historical readings after a learner withdraws, while the class and learner remain in this school. These observations are private to staff.</p>
+      <p className="text-sm text-muted-foreground">Current assigned staff can review a class&apos;s historical readings after a student withdraws, while the class and student remain in this school. These observations are private to staff.</p>
     </header>
     {error && <div role="alert" className="space-y-2 rounded border p-4"><p>{error}</p>
       {!classId && <button className={buttonStyle} disabled={loadingClasses} onClick={() => { setLoadingClasses(true); setError(''); setClassesRefresh(previous => previous + 1); }}>Reload classes</button>}
@@ -243,7 +243,7 @@ export default function ReadingReviewPage() {
     <section className="grid gap-4 rounded border p-4 sm:grid-cols-2" aria-label="Reading history filters">
       <label className="block">Class<select className={inputStyle} value={classId} disabled={loadingClasses || saving} onChange={event => chooseClass(event.target.value)}><option value="">{loadingClasses ? 'Loading classes…' : 'Select a class'}</option>{classes.map(value => <option key={value.id} value={value.id}>{value.name}</option>)}</select></label>
       <label className="block">Student<select className={inputStyle} value={studentId} disabled={!classId || loading || saving} onChange={event => chooseStudent(event.target.value)}><option value="">All students with authorized readings</option>{studentIds.map(id => <option key={id} value={id}>{studentLabel(id)}</option>)}</select></label>
-      <p className="text-sm text-muted-foreground sm:col-span-2">Learners who have left this class stay in the list so their earlier readings can still be reviewed.</p>
+      <p className="text-sm text-muted-foreground sm:col-span-2">Students who have left this class stay in the list so their earlier readings can still be reviewed.</p>
       {classId && <button type="button" className={buttonStyle + ' justify-self-start'} disabled={loading || saving} onClick={startReload}>Refresh history</button>}
     </section>
     {loading && <p role="status" aria-live="polite">Loading reading history…</p>}
@@ -254,11 +254,11 @@ export default function ReadingReviewPage() {
     </section>}
     {!classId && !loadingClasses && <p>{classes.length ? 'Select a class to review its reading observations.' : 'No authorized classes are available to your account.'}</p>}
     {data && !loading && <>
-      <section className="space-y-3" aria-labelledby="reading-overview-heading"><h2 id="reading-overview-heading" className="text-2xl font-semibold">Reading overview by learner</h2>
-        <p className="text-sm text-muted-foreground">Counts of recorded readings only. Learners are listed by name, not by score; no class average or ranking is calculated.</p>
+      <section className="space-y-3" aria-labelledby="reading-overview-heading"><h2 id="reading-overview-heading" className="text-2xl font-semibold">Reading overview by student</h2>
+        <p className="text-sm text-muted-foreground">Counts of recorded readings only. Students are listed by name, not by score; no class average or ranking is calculated.</p>
         <div className="relative max-w-full overflow-x-auto rounded border" tabIndex={0} role="region" aria-label="Reading overview table; scroll horizontally on small screens">
-          <table className="w-full text-left text-sm"><caption className="sr-only">Number of recorded readings, latest reading date and comparable tasks for each learner.</caption>
-            <thead className="bg-muted"><tr><th scope="col" className="p-3">Learner</th><th scope="col" className="p-3">Readings</th><th scope="col" className="p-3">Latest reading</th><th scope="col" className="p-3">Exact tasks</th><th scope="col" className="p-3">Tasks with 2 or more readings</th><th scope="col" className="p-3"><span className="sr-only">Action</span></th></tr></thead>
+          <table className="w-full text-left text-sm"><caption className="sr-only">Number of recorded readings, latest reading date and comparable tasks for each student.</caption>
+            <thead className="bg-muted"><tr><th scope="col" className="p-3">Student</th><th scope="col" className="p-3">Readings</th><th scope="col" className="p-3">Latest reading</th><th scope="col" className="p-3">Exact tasks</th><th scope="col" className="p-3">Tasks with 2 or more readings</th><th scope="col" className="p-3"><span className="sr-only">Action</span></th></tr></thead>
             <tbody>{overview.map(row => <tr key={row.id} className="border-t" aria-current={studentId === row.id ? 'true' : undefined}>
               <th scope="row" className="p-3 font-normal break-words">{studentLabel(row.id)}</th>
               <td className="p-3">{row.readings}</td><td className="p-3 whitespace-nowrap">{row.latest ? formatReadingDate(row.latest) : 'No readings yet'}</td><td className="p-3">{row.tasks}</td><td className="p-3">{row.repeated}</td>
@@ -266,12 +266,12 @@ export default function ReadingReviewPage() {
           </table>
         </div>
         {overview.some(row => row.readings === 0) && <p className="text-sm" data-reading-gaps>{overview.every(row => row.readings === 0)
-          ? (overview.length === 1 ? 'This learner has no recorded reading yet.' : 'None of the ' + overview.length + ' learners has a recorded reading yet.')
-          : overview.filter(row => row.readings === 0).length + ' of ' + overview.length + ' learners ' + (overview.filter(row => row.readings === 0).length === 1 ? 'has' : 'have') + ' no recorded readings yet.'}</p>}
+          ? (overview.length === 1 ? 'This student has no recorded reading yet.' : 'None of the ' + overview.length + ' students has a recorded reading yet.')
+          : overview.filter(row => row.readings === 0).length + ' of ' + overview.length + ' students ' + (overview.filter(row => row.readings === 0).length === 1 ? 'has' : 'have') + ' no recorded readings yet.'}</p>}
       </section>
       <section className="space-y-4" aria-labelledby="reading-series-heading"><h2 id="reading-series-heading" className="text-2xl font-semibold">Reading trends for exact tasks</h2>
-        <p>Each chart and table keeps the same learner, class, language, passage reference and recorded duration. Points use the latest reviewed correction, if present. Passage references alone do not establish equivalent difficulty or scoring reliability.</p>
-        <p className="text-sm text-muted-foreground">Rates describe these observations; they do not assign grades, diagnose learning difficulties, compare learners or demonstrate a product&apos;s effectiveness. No average, ranking, benchmark or target is calculated. Dates are the calendar dates staff entered (UTC); your school has not yet set a school-date policy.</p>
+        <p>Each chart and table keeps the same student, class, language, passage reference and recorded duration. Points use the latest reviewed correction, if present. Passage references alone do not establish equivalent difficulty or scoring reliability.</p>
+        <p className="text-sm text-muted-foreground">Rates describe these observations; they do not assign grades, diagnose learning difficulties, compare students or demonstrate a product&apos;s effectiveness. No average, ranking, benchmark or target is calculated. Dates are the calendar dates staff entered (UTC); your school has not yet set a school-date policy.</p>
         {!data.series.length && <p>No comparable reading observations are available for these filters.</p>}
         {data.series.map(series => { const summary = summariseSeries(series.points); return <section key={JSON.stringify([series.studentId, series.classId, series.language, series.passageReference, series.durationMs])} className="space-y-3 rounded border p-4" data-series-kind={summary.kind}>
           <h3 className="font-semibold break-words">{studentLabel(series.studentId)} · {series.language} · {series.durationMs / 1000} seconds</h3><p className="break-words">Passage reference: {series.passageReference}</p>

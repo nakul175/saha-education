@@ -128,7 +128,7 @@ try {
   });
   await learner.getByRole('textbox', { name: /^Your response/ }).fill('Synthetic browser response: one half has fewer equal parts than one quarter.');
   await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
-  await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('exact original request and UUID are retained'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toBeDisabled(); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
+  await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('original request is kept exactly as it was'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toBeDisabled(); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
   await learner.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await expect(learner.getByRole('button', { name: 'Retry pending response', exact: true })).toBeEnabled();
   await learner.getByRole('button', { name: 'Retry pending response', exact: true }).click();
@@ -186,7 +186,7 @@ try {
   await api(admin, '/api/enrolments', 'PATCH', { id: 'student-a-enrolment', status: 'withdrawn' });
   await page.goto(base.origin + '/reading-review');
   await page.getByLabel('Class', { exact: false }).selectOption('class-a');
-  await check('Withdrawn learner remains selectable in authorized reading history', async () => { await expect(page.getByLabel('Student', { exact: false }).getByRole('option', { name: 'student-a Synthetic (not currently enrolled; retained reading history)', exact: true })).toHaveCount(1); await page.getByLabel('Student', { exact: false }).selectOption('student-a'); await expect(page.locator('article').filter({ hasText: 'Observation ID ' + reading.id })).toBeVisible(); });
+  await check('Withdrawn learner remains selectable in authorized reading history', async () => { await expect(page.getByRole('combobox', { name: /^Student/ }).getByRole('option', { name: 'student-a Synthetic (not currently enrolled; retained reading history)', exact: true })).toHaveCount(1); await page.getByRole('combobox', { name: /^Student/ }).selectOption('student-a'); await expect(page.locator('article').filter({ hasText: 'Observation ID ' + reading.id })).toBeVisible(); });
   await api(admin, '/api/enrolments', 'PATCH', { id: 'student-a-enrolment', status: 'active' }); withdrawn = false;
 
   await page.setViewportSize({ width: 390, height: 844 });

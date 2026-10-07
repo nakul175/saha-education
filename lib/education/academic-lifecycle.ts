@@ -93,11 +93,11 @@ function eventLabel(kind: ChangeKind, payload: Record<string, unknown>, effectiv
     case 'class.teacher': return `Teacher for ${text('className', 'class')} changed from ${text('fromTeacherName', 'previous teacher')} to ${text('toTeacherName', 'new teacher')}`;
     case 'class.close': return `Closed class ${text('className', 'class')}${payload.completeActive === true ? ' and completed active enrolments' : ''}`;
     case 'class.reopen': return `Reopened class ${text('className', 'class')}`;
-    case 'enrolment.enrol': return `Enrolled ${text('studentName', 'learner')} in ${text('className', 'class')}${on}`;
-    case 'enrolment.withdraw': return `Withdrew ${text('studentName', 'learner')} from ${text('className', 'class')}${on}`;
-    case 'enrolment.complete': return `Completed ${text('className', 'class')} for ${text('studentName', 'learner')}${on}${payload.cause === 'class-close' ? ' (class closed)' : ''}`;
-    case 'enrolment.reenrol': return `Re-enrolled ${text('studentName', 'learner')} in ${text('className', 'class')}${on}`;
-    case 'enrolment.transfer': return `Transferred ${text('studentName', 'learner')} from ${text('className', 'class')} to ${text('toClassName', 'another class')}${on}`;
+    case 'enrolment.enrol': return `Enrolled ${text('studentName', 'student')} in ${text('className', 'class')}${on}`;
+    case 'enrolment.withdraw': return `Withdrew ${text('studentName', 'student')} from ${text('className', 'class')}${on}`;
+    case 'enrolment.complete': return `Completed ${text('className', 'class')} for ${text('studentName', 'student')}${on}${payload.cause === 'class-close' ? ' (class closed)' : ''}`;
+    case 'enrolment.reenrol': return `Re-enrolled ${text('studentName', 'student')} in ${text('className', 'class')}${on}`;
+    case 'enrolment.transfer': return `Transferred ${text('studentName', 'student')} from ${text('className', 'class')} to ${text('toClassName', 'another class')}${on}`;
   }
 }
 const parsePayload = (value: string): Record<string, unknown> => { try { const parsed = JSON.parse(value); return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}; } catch { return {}; } };
@@ -361,8 +361,8 @@ function historyEvent(row: EventRow & { reason: string | null; actorName: string
   if (mine && row.kind === 'enrolment.transfer') {
     const fromMine = !!row.classId && mine.has(row.classId), toMine = !!row.relatedClassId && mine.has(row.relatedClassId);
     label = fromMine && toMine ? eventLabel(row.kind as ChangeKind, payload, row.effectiveOn)
-      : toMine ? `Transferred ${text('studentName', 'learner')} into ${text('toClassName', 'the class')}${on}`
-      : `Transferred ${text('studentName', 'learner')} out of ${text('className', 'the class')}${on}`;
+      : toMine ? `Transferred ${text('studentName', 'student')} into ${text('toClassName', 'the class')}${on}`
+      : `Transferred ${text('studentName', 'student')} out of ${text('className', 'the class')}${on}`;
   } else label = eventLabel(row.kind as ChangeKind, payload, row.effectiveOn);
   return { id: row.id, requestId: row.requestId, kind: row.kind as ChangeKind, effectiveOn: row.effectiveOn, createdAt: row.createdAt, label, reason: admin ? row.reason : null, actorName: admin ? row.actorName : null };
 }

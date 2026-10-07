@@ -98,7 +98,7 @@ export default function ClassAttendanceReportPage({ params }: { params: Promise<
       {report && staff && !loading && <div className="space-y-6" data-class-attendance-report>
         <section aria-labelledby="report-totals" className="space-y-3">
           <h2 id="report-totals" className="text-xl font-semibold">Totals for {report.range.from || report.range.to ? (report.range.from ?? 'the first saved date') + ' to ' + (report.range.to ?? 'the last saved date') : 'all saved dates'}</h2>
-          <p>{report.totals.recordedRows} saved {report.totals.recordedRows === 1 ? 'mark' : 'marks'} for {report.rosterActive} current {report.rosterActive === 1 ? 'learner' : 'learners'}.</p>
+          <p>{report.totals.recordedRows} saved {report.totals.recordedRows === 1 ? 'mark' : 'marks'} for {report.rosterActive} current {report.rosterActive === 1 ? 'student' : 'students'}.</p>
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-5">{statuses.map(status => <div key={status} className="rounded border p-3"><dt className="text-sm text-muted-foreground">{heading[status]}</dt><dd className="text-2xl font-semibold" data-total={status}>{report.totals[status]}</dd></div>)}</dl>
           {report.invalidDateRows > 0 && <p role="status">{report.invalidDateRows} saved {report.invalidDateRows === 1 ? 'mark has' : 'marks have'} a date that is not a real calendar date. {report.invalidDateRows === 1 ? 'It is' : 'They are'} kept but left out of these dates and totals.</p>}
         </section>
@@ -107,16 +107,16 @@ export default function ClassAttendanceReportPage({ params }: { params: Promise<
           {report.days.truncated && <p role="status">Showing the latest {report.days.items.length} of {report.days.total} dates.</p>}
           {report.days.total === 0 ? <p>No attendance marks were saved in this range.</p> : <div className="overflow-x-auto" role="region" aria-label="Attendance by date" tabIndex={0}>
             <table className="w-full min-w-[34rem] text-left text-sm"><caption className="sr-only">Saved attendance marks for each date</caption>
-              <thead><tr><th scope="col" className="p-2">Date</th><th scope="col" className="p-2">Saved marks</th>{statuses.map(status => <th key={status} scope="col" className="p-2">{heading[status]}</th>)}<th scope="col" className="p-2">Current learners with no mark</th></tr></thead>
+              <thead><tr><th scope="col" className="p-2">Date</th><th scope="col" className="p-2">Saved marks</th>{statuses.map(status => <th key={status} scope="col" className="p-2">{heading[status]}</th>)}<th scope="col" className="p-2">Current students with no mark</th></tr></thead>
               <tbody>{report.days.items.map(day => <tr key={day.date} data-report-day={day.date} className="border-t"><th scope="row" className="p-2 font-medium"><time dateTime={day.date}>{day.date}</time></th><td className="p-2">{day.recordedRows}</td>{statuses.map(status => <td key={status} className="p-2">{day[status]}</td>)}<td className="p-2">{day.unmarkedCurrentPupils}</td></tr>)}</tbody>
             </table></div>}
         </section>
         <section aria-labelledby="report-learners" className="space-y-3">
-          <h2 id="report-learners" className="text-xl font-semibold">By learner</h2>
-          {report.pupils.truncated && <p role="status">Showing {report.pupils.items.length} of {report.pupils.total} learners. The list is limited to {report.pupils.limit}; totals above include every learner.</p>}
-          {report.pupils.total === 0 ? <p>No current learners or saved marks for this class.</p> : <div className="overflow-x-auto" role="region" aria-label="Attendance by learner" tabIndex={0}>
-            <table className="w-full min-w-[34rem] text-left text-sm"><caption className="sr-only">Saved attendance marks for each learner in the selected dates</caption>
-              <thead><tr><th scope="col" className="p-2">Learner</th><th scope="col" className="p-2">Saved marks</th>{statuses.map(status => <th key={status} scope="col" className="p-2">{heading[status]}</th>)}</tr></thead>
+          <h2 id="report-learners" className="text-xl font-semibold">By student</h2>
+          {report.pupils.truncated && <p role="status">Showing {report.pupils.items.length} of {report.pupils.total} students. The list is limited to {report.pupils.limit}; totals above include every student.</p>}
+          {report.pupils.total === 0 ? <p>No current students or saved marks for this class.</p> : <div className="overflow-x-auto" role="region" aria-label="Attendance by student" tabIndex={0}>
+            <table className="w-full min-w-[34rem] text-left text-sm"><caption className="sr-only">Saved attendance marks for each student in the selected dates</caption>
+              <thead><tr><th scope="col" className="p-2">Student</th><th scope="col" className="p-2">Saved marks</th>{statuses.map(status => <th key={status} scope="col" className="p-2">{heading[status]}</th>)}</tr></thead>
               <tbody>{report.pupils.items.map(pupil => <tr key={pupil.id} data-report-pupil={pupil.id} className="border-t"><th scope="row" className="p-2 font-medium">
                 <a className="underline" href={'/attendance/learners/' + encodeURIComponent(pupil.id)}>{pupil.firstName} {pupil.lastName}</a>
                 <span className="block text-xs font-normal text-muted-foreground">Admission {pupil.admissionNumber}{pupil.currentActive ? '' : ' (no longer in this class)'}</span></th>

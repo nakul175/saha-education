@@ -110,3 +110,29 @@ export function readingGrade(texts) {
   if (!words || !sentences) return 0;
   return 0.39 * (words / sentences) + 11.8 * (syllables / words) - 15.59;
 }
+
+/**
+ * Every piece of text in the sources that mentions a word, whether or not it looks like a sentence. The sentence
+ * extractor above skips single words such as the 'learner' / 'learners' of a plural switch or a "Learner:" label,
+ * so this scan reads every JSX text, string and template piece and skips only import paths, type literals and
+ * attributes a person never reads (ids, class names, keys). Returns [{file, line, text}].
+ */
+export function wordLiteralsIn(sourceText, pattern, name = 'source.tsx') {
+  const found = [];
+  const source = ts.createSourceFile(name, sourceText, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX);
+  const visit = node => {
+    const textual = ts.isJsxText(node) || ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node);
+    if (textual && pattern.test(node.text)) {
+      const parent = node.parent;
+      const unread = ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent) || ts.isLiteralTypeNode(parent) || (ts.isJsxAttribute(parent) && !READABLE_ATTRIBUTES.has(parent.name.getText()));
+      if (!unread) found.push({ line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1, text: node.text.replace(/\s+/g, ' ').trim() });
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return found;
+}
+
+export function wordLiterals(root, pattern, directories) {
+  return listSources(root, directories).flatMap(file => wordLiteralsIn(readFileSync(file, 'utf8'), pattern, file).map(entry => ({ file: relative(root, file), ...entry })));
+}

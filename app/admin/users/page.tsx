@@ -13,7 +13,7 @@ type PendingRequest = { payload: string; id: string };
 type RoleForm = { role: Role; reason: string; reviewConfirmed: boolean };
 type SignInForm = { identityIssuer: string; identitySubject: string; reason: string; reviewConfirmed: boolean };
 type HistoryItem = { id: string; at: string; title: string; reason: string; actorId: string; userId: string; version: number };
-const ROLE_LABEL: Record<Role, string> = { admin: 'School administrator', teacher: 'Teacher', student: 'Learner', guardian: 'Guardian' };
+const ROLE_LABEL: Record<Role, string> = { admin: 'School administrator', teacher: 'Teacher', student: 'Student', guardian: 'Guardian' };
 const SYNTHETIC_ISSUER = 'https://saha-demo.example.invalid';
 /** Plain-language explanation for each reason the server can refuse a role or sign-in change. */
 const CONFLICT: Record<ConflictReason, string> = {
@@ -23,12 +23,12 @@ const CONFLICT: Record<ConflictReason, string> = {
   last_admin: 'This would leave the school without an enabled administrator who can sign in. Provision or link another administrator first.',
   profile_linked: 'This account is linked to a student or guardian profile. Remove that link under reviewed profile links before changing the role.',
   class_assigned: 'This teacher still has classes. Move those classes to another teacher before changing the role.',
-  identity_in_use: 'Another account in the system already uses that exact issuer and subject.',
+  identity_in_use: 'Another account in the system already uses that sign-in identity.',
   already_mapped: 'This account already has a sign-in link. Remove it before linking a different identity.',
   not_mapped: 'This account has no sign-in link to remove.',
   fixed_demo_account: 'This is a fixed synthetic demo account and keeps its sign-in identity.',
   demo_unlink: 'Sign-in links cannot be removed on a synthetic demo installation.',
-  demo_issuer: 'A synthetic demo installation accepts only the synthetic demo issuer.',
+  demo_issuer: 'A synthetic demo installation accepts only the synthetic demo sign-in provider.',
   request_reused: 'That review was already used for a different change. Close the panel and start a new review.',
 };
 const emptyRoleForm = (role: Role): RoleForm => ({ role, reason: '', reviewConfirmed: false });
@@ -291,7 +291,7 @@ export default function AdminUsersPage() {
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="block space-y-1"><span>Search accounts by name or email</span><input className={inputStyle} type="search" maxLength={120} autoComplete="off" value={search} onChange={event => setSearch(event.target.value)} /></label>
           <label className="block space-y-1"><span>Filter by role</span><select className={inputStyle} value={roleFilter} onChange={event => setRoleFilter(event.target.value)}>
-            <option value="all">All roles</option><option value="admin">School administrators</option><option value="teacher">Teachers</option><option value="guardian">Guardians</option><option value="student">Learners</option>
+            <option value="all">All roles</option><option value="admin">School administrators</option><option value="teacher">Teachers</option><option value="guardian">Guardians</option><option value="student">Students</option>
           </select></label>
           <label className="block space-y-1"><span>Filter by status</span><select className={inputStyle} value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
             <option value="all">Enabled and disabled</option><option value="enabled">Enabled only</option><option value="disabled">Disabled only</option>
@@ -321,7 +321,7 @@ export default function AdminUsersPage() {
         <p className="break-words">{managed.user.name} · {ROLE_LABEL[managed.user.role]} · {managed.user.disabledAt ? 'Disabled' : 'Enabled'} · Account version {managed.user.version}</p>
         {managed.demoRuntime && <p className="rounded border bg-amber-50 p-3 text-sm text-amber-950" data-synthetic="true"><strong>Synthetic demo.</strong> Only the synthetic demo sign-in identity is accepted here, and sign-in links cannot be removed. These accounts and records are fictional.</p>}
         <dl className="grid gap-3 text-sm sm:grid-cols-3">
-          <div><dt className="font-medium">Linked profile</dt><dd>{managed.profile ? `${managed.profile.kind === 'student' ? 'Learner' : 'Guardian'}: ${managed.profile.name}` : 'None'}</dd></div>
+          <div><dt className="font-medium">Linked profile</dt><dd>{managed.profile ? `${managed.profile.kind === 'student' ? 'Student' : 'Guardian'}: ${managed.profile.name}` : 'None'}</dd></div>
           <div><dt className="font-medium">Classes taught</dt><dd>{managed.classCount}</dd></div>
           <div><dt className="font-medium">School sign-in</dt><dd className="break-all">{managed.user.identityIssuer && managed.user.identitySubject ? issuerLabel(managed.user.identityIssuer) : 'Not linked'}</dd></div>
         </dl>
@@ -329,10 +329,10 @@ export default function AdminUsersPage() {
         {managed.lastEnabledAdministrator && managed.user.id !== principal.id && <p className="text-sm">This is the only enabled administrator who can sign in, so it cannot be demoted, disabled or unlinked.</p>}
         <form onSubmit={submitRole} className="space-y-4 rounded border p-4" aria-labelledby="role-change-title">
           <h3 id="role-change-title" className="font-semibold">Change role</h3>
-          <p className="text-sm text-muted-foreground">Changing a role ends this account’s open sessions. A teacher with classes, or a learner or guardian with a linked profile, must be moved first.</p>
+          <p className="text-sm text-muted-foreground">Changing a role ends this account’s open sessions. A teacher with classes, or a student or guardian with a linked profile, must be moved first.</p>
           <fieldset disabled={saving || loading || managed.user.id === principal.id} className="space-y-4">
             <label className="block space-y-1"><span>New role for this account</span><select className={inputStyle} value={roleForm.role} onChange={event => setRoleForm(previous => ({ ...previous, reviewConfirmed: false, role: event.target.value as Role }))}>
-              <option value="teacher">Teacher</option><option value="student">Learner</option><option value="guardian">Guardian</option><option value="admin">School administrator</option>
+              <option value="teacher">Teacher</option><option value="student">Student</option><option value="guardian">Guardian</option><option value="admin">School administrator</option>
             </select></label>
             <label className="block space-y-1"><span>Reason for the role change</span><textarea className={inputStyle} rows={3} required minLength={10} maxLength={500} value={roleForm.reason} onChange={event => setRoleForm(previous => ({ ...previous, reviewConfirmed: false, reason: event.target.value }))} /></label>
             <label className="flex items-start gap-2"><input type="checkbox" required checked={roleForm.reviewConfirmed} onChange={event => setRoleForm(previous => ({ ...previous, reviewConfirmed: event.target.checked }))} />
@@ -346,7 +346,7 @@ export default function AdminUsersPage() {
             <p className="text-sm text-muted-foreground">Removing the link ends this account’s open sessions and stops school sign-in for it until a new link is reviewed. The account and its records are kept.</p>
             {(managed.demoRuntime || managed.fixedDemoAccount) && <p className="text-sm">Synthetic demo accounts keep their sign-in link, so removal is unavailable here.</p>}
           </> : <>
-            <p className="text-sm text-muted-foreground">Enter the exact issuer and subject supplied by the trusted provider. An email match never links an identity.{managed.demoRuntime ? ' On this synthetic installation only the synthetic demo issuer is accepted.' : ''}</p>
+            <p className="text-sm text-muted-foreground">Enter the exact issuer and subject supplied by the trusted provider. An email match never links an identity.{managed.demoRuntime ? ' On this synthetic installation only the synthetic demo sign-in provider is accepted.' : ''}</p>
           </>}
           <fieldset disabled={saving || loading || managed.user.id === principal.id || (Boolean(managed.user.identityIssuer && managed.user.identitySubject) && (managed.demoRuntime || managed.fixedDemoAccount))} className="space-y-4">
             {!(managed.user.identityIssuer && managed.user.identitySubject) && <div className="grid gap-4 sm:grid-cols-2">

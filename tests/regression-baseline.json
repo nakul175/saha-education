@@ -196,7 +196,7 @@
     "integration/language-suitability-contract": {
       "layer": "integration",
       "file": "tests/integration/language-suitability-contract.mjs",
-      "minPassed": 127
+      "minPassed": 133
     },
     "integration/learner-recovery-ui-contract": {
       "layer": "integration",

@@ -177,7 +177,7 @@ try {
   await check('Manual suitability and unvalidated educational limits are disclosed', async () => {
     await expect(page.getByText(/no validated screening, scoring, diagnosis, adaptive placement or personalized learning/)).toBeVisible();
     await expect(selectedSource(page)).toContainText('not independent educational or licensing certification');
-    await expect(page.getByText(/never inserts this focus, learner identity or reading evidence/)).toBeVisible();
+    await expect(page.getByText(/never inserts this focus, student identity or reading evidence/)).toBeVisible();
   });
   await check('Copy requires explicit review of manual practice focus and source', async () => { await expect(confirmation(page)).not.toBeChecked(); await expect(create(page)).toBeDisabled(); });
   await confirmation(page).check(); await field(page, 'Teacher-selected practice focus').fill(privateFocus + ' revised');
