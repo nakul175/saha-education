@@ -53,6 +53,11 @@
       "file": "tests/integration/assessment-review-contract.mjs",
       "minPassed": 479
     },
+    "integration/atomicity-concurrency-contract": {
+      "layer": "integration",
+      "file": "tests/integration/atomicity-concurrency-contract.mjs",
+      "minPassed": 1193
+    },
     "integration/attendance-review-access-contract": {
       "layer": "integration",
       "file": "tests/integration/attendance-review-access-contract.mjs",
@@ -82,6 +87,11 @@
       "layer": "integration",
       "file": "tests/integration/audit-trail-contract.mjs",
       "minPassed": 224
+    },
+    "integration/authorization-matrix-contract": {
+      "layer": "integration",
+      "file": "tests/integration/authorization-matrix-contract.mjs",
+      "minPassed": 33310
     },
     "integration/course-catalog-ui-contract": {
       "layer": "integration",
@@ -198,6 +208,11 @@
       "file": "tests/integration/live-domain-authority-contract.mjs",
       "minPassed": 783
     },
+    "integration/migration-governance-contract": {
+      "layer": "integration",
+      "file": "tests/integration/migration-governance-contract.mjs",
+      "minPassed": 1429
+    },
     "integration/notices-contract": {
       "layer": "integration",
       "file": "tests/integration/notices-contract.mjs",
@@ -287,6 +302,11 @@
       "layer": "integration",
       "file": "tests/integration/school-ui-contract.mjs",
       "minPassed": 840
+    },
+    "integration/security-hardening-contract": {
+      "layer": "integration",
+      "file": "tests/integration/security-hardening-contract.mjs",
+      "minPassed": 322
     },
     "integration/session-revocation-contract": {
       "layer": "integration",
