@@ -186,7 +186,7 @@ try {
   await api(admin, '/api/enrolments', 'PATCH', { id: 'student-a-enrolment', status: 'withdrawn' });
   await page.goto(base.origin + '/reading-review');
   await page.getByLabel('Class', { exact: false }).selectOption('class-a');
-  await check('Withdrawn learner remains selectable in authorized reading history', async () => { await expect(page.getByLabel('Student', { exact: false }).getByRole('option', { name: 'student-a Synthetic (not currently enrolled; retained reading history)', exact: true })).toHaveCount(1); await page.getByLabel('Student', { exact: false }).selectOption('student-a'); await expect(page.locator('article').filter({ hasText: 'Observation ID ' + reading.id })).toBeVisible(); });
+  await check('Withdrawn learner remains selectable in authorized reading history', async () => { await expect(page.getByRole('combobox', { name: /^Student/ }).getByRole('option', { name: 'student-a Synthetic (not currently enrolled; retained reading history)', exact: true })).toHaveCount(1); await page.getByRole('combobox', { name: /^Student/ }).selectOption('student-a'); await expect(page.locator('article').filter({ hasText: 'Observation ID ' + reading.id })).toBeVisible(); });
   await api(admin, '/api/enrolments', 'PATCH', { id: 'student-a-enrolment', status: 'active' }); withdrawn = false;
 
   await page.setViewportSize({ width: 390, height: 844 });

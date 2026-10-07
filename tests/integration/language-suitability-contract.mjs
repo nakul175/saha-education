@@ -127,6 +127,25 @@ for (const [key, max] of known) if ((counts.get(key) ?? 0) < max) slack.push({ k
 check(over, [], 'No new or additional forbidden wording (fix the wording, or add a reasoned entry to KNOWN)');
 check(slack, [], 'The known list is tight: lower or remove entries whose wording has been fixed');
 
+// Pages this language pass cleaned. Each must stay at zero hits for the rule it was cleaned of; a page can only leave this
+// list by being rewritten, and a hit that returns here fails by name even if someone adds a KNOWN entry for it.
+const CLEARED = [
+  ['app/academic/page.tsx', 'learner'], ['app/admin/users/page.tsx', 'learner'], ['app/assessments/[id]/page.tsx', 'learner'],
+  ['app/assignments/[id]/page.tsx', 'uuid'], ['app/assignments/[id]/page.tsx', 'learner'], ['app/assignments/[id]/progress/page.tsx', 'learner'],
+  ['app/attendance/classes/[id]/page.tsx', 'learner'], ['app/attendance/learners/[id]/page.tsx', 'learner'], ['app/attendance/page.tsx', 'learner'],
+  ['app/classes/[id]/attendance/page.tsx', 'learner'], ['app/classes/[id]/attendance/page.tsx', 'immutable'], ['app/classes/[id]/attendance/page.tsx', 'snapshot'],
+  ['app/classes/[id]/manage/page.tsx', 'learner'], ['app/classes/[id]/roster/page.tsx', 'learner'], ['app/enrolments/history/page.tsx', 'learner'],
+  ['app/external-apps/page.tsx', 'learner'], ['app/notices/page.tsx', 'learner'], ['app/reading-imports/page.tsx', 'learner'],
+  ['app/reading-imports/page.tsx', 'staging'], ['app/reading-imports/page.tsx', 'usEnroll'], ['app/reading-practice/page.tsx', 'learner'],
+  ['app/reading-review/layout.tsx', 'learner'], ['app/reading-review/page.tsx', 'learner'], ['app/report-cards/[id]/page.tsx', 'learner'],
+  ['app/report-cards/[id]/page.tsx', 'snapshot'], ['app/report-cards/[id]/page.tsx', 'rawIdLabel'], ['app/report-cards/compile/page.tsx', 'learner'],
+  ['app/submissions/page.tsx', 'learner'], ['components/assignment-submission-window.tsx', 'rawIdLabel'],
+];
+for (const [file, rule] of CLEARED) {
+  okay(RULES[rule] && strings.some(entry => entry.file === file) && !known.has(`${file}\u0000${rule}`), `Cleared entry ${file}/${rule} names a real rule and a page the extractor reads, and has no KNOWN entry`);
+  check(counts.get(`${file}\u0000${rule}`) ?? 0, 0, `${file} stays free of ${RULES[rule][1]} wording`);
+}
+
 // 2b. The product word is "student". The sentence scan above skips single words (a plural switch, a "Learner:" label), so
 // this scan reads every piece of text. The only text still allowed to say "learner" is a route path such as /attendance/learners/.
 const learnerPattern = /\blearners?\b/i;

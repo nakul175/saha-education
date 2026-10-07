@@ -280,7 +280,7 @@ try {
       await expect(page.locator('section[data-series-kind]')).toHaveCount(1);
       await expect(overview.getByRole('button', { name: 'Showing' })).toBeDisabled();
     });
-    await page.getByLabel('Student', { exact: false }).selectOption('');
+    await page.getByRole('combobox', { name: /^Student/ }).selectOption('');
     await expect(page.locator('section[data-series-kind]')).toHaveCount(6);
     await shot(page, 'reading-review-desktop');
     await axe(page, 'reading-review with trends');

@@ -85,7 +85,7 @@ async function demoSuite() {
     { role: 'admin', label: 'administrator', title: 'Admin Dashboard', roleLabel: 'School administrator' },
     { role: 'teacher', label: 'teacher', title: 'Teacher Dashboard', roleLabel: 'Teacher' },
     { role: 'guardian', label: 'guardian', title: 'Guardian Dashboard', roleLabel: 'Guardian' },
-    { role: 'student', label: 'learner', title: 'My progress', roleLabel: 'Student' },
+    { role: 'student', label: 'student', title: 'My progress', roleLabel: 'Student' },
   ];
   async function loginPage(page) {
     const response = await go(page, '/login');
@@ -225,7 +225,7 @@ async function demoSuite() {
     assert.equal((await whoami(learner)).status, 401, 'The disabled account’s open session ended at once');
     await loginPage(learner);
     await learner.getByRole('checkbox', { name: /exploring fictional records/ }).check();
-    await learner.getByRole('button', { name: 'Explore as learner', exact: true }).click();
+    await learner.getByRole('button', { name: 'Explore as student', exact: true }).click();
     await expect(alertLine(learner)).toContainText('This demo account is switched off'); await shot(learner, 'disabled-entry');
     assert.equal((await whoami(learner)).status, 401, 'No session was issued');
     await page.getByRole('button', { name: 'Enable access for Demo student', exact: true }).click();
@@ -234,7 +234,7 @@ async function demoSuite() {
     await page.getByRole('button', { name: 'Enable reviewed account', exact: true }).click();
     await expect(page.getByRole('status')).toContainText('currently enabled');
     assert.equal((await whoami(learner)).status, 401, 'Re-enabling never revives the earlier session');
-    await learner.getByRole('button', { name: 'Explore as learner', exact: true }).click();
+    await learner.getByRole('button', { name: 'Explore as student', exact: true }).click();
     await expect(learner).toHaveURL(/\/dashboard\/student$/);
     assert.equal((await whoami(learner)).body.id, 'saha-demo-student');
   });
@@ -281,7 +281,7 @@ async function realSuite() {
     assert.equal(forged.status(), 401);
     await go(visitor, '/account'); await expect(visitor).toHaveURL(/\/login$/);
   });
-  for (const [id, label, school, home] of [['teacher-a', 'Teacher', 'Synthetic school a', 'teacher'], ['guardian-a', 'Guardian', 'Synthetic school a', 'guardian'], ['student-user-a', 'Learner', 'Synthetic school a', 'student'], ['admin-a', 'School administrator', 'Synthetic school a', 'admin']]) {
+  for (const [id, label, school, home] of [['teacher-a', 'Teacher', 'Synthetic school a', 'teacher'], ['guardian-a', 'Guardian', 'Synthetic school a', 'guardian'], ['student-user-a', 'Student', 'Synthetic school a', 'student'], ['admin-a', 'School administrator', 'Synthetic school a', 'admin']]) {
     await proc(`${label}: account page shows school sign-in, role and school without any synthetic-demo claim`, async () => {
       const context = await asRole(id); const page = await context.newPage();
       await go(page, '/dashboard/' + home);
