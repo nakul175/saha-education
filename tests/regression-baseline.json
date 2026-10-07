@@ -26,7 +26,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 194
+      "minPassed": 206
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -77,6 +77,11 @@
       "layer": "integration",
       "file": "tests/integration/attendance-workflow-contract.mjs",
       "minPassed": 362
+    },
+    "integration/audit-trail-contract": {
+      "layer": "integration",
+      "file": "tests/integration/audit-trail-contract.mjs",
+      "minPassed": 224
     },
     "integration/course-catalog-ui-contract": {
       "layer": "integration",
@@ -131,7 +136,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 271
+      "minPassed": 274
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -151,7 +156,7 @@
     "integration/family-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/family-ui-contract.mjs",
-      "minPassed": 307
+      "minPassed": 320
     },
     "integration/guardian-records-contract": {
       "layer": "integration",
@@ -182,6 +187,11 @@
       "layer": "integration",
       "file": "tests/integration/live-domain-authority-contract.mjs",
       "minPassed": 783
+    },
+    "integration/notices-contract": {
+      "layer": "integration",
+      "file": "tests/integration/notices-contract.mjs",
+      "minPassed": 256
     },
     "integration/oidc-local-issuer-contract": {
       "layer": "integration",
