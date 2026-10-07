@@ -73,6 +73,46 @@ const KNOWN = {
   'components/assignment-submission-window.tsx': { rawIdLabel: [1, 'finding: shows the reviewing staff member by stored Staff ID; window revision wording is pinned'] },
 };
 
+// Follow-up debt from workstreams merged after the language pass (recorded, not accepted). Each entry is the real hit count at
+// merge time; the 'learner' wording must become 'student' (and plain words for the rest) in the same change that updates the
+// contracts and mounted checks pinning it. The ratchet still blocks any increase and requires the cap to equal the real count.
+const FOLLOW_UP_REASON = 'new or extended page from a workstream merged after the language pass; reword with the tests that pin it (follow-up listed in docs/current/DEMO-experience.md)';
+const FOLLOW_UP = {
+  'app/academic/page.tsx': { learner: 1 },
+  'app/admin/users/page.tsx': { issuer: 11, learner: 3 },
+  'app/assignments/[id]/page.tsx': { learner: 2 },
+  'app/assignments/[id]/progress/page.tsx': { learner: 12 },
+  'app/attendance/classes/[id]/page.tsx': { learner: 8 },
+  'app/attendance/learners/[id]/page.tsx': { learner: 4 },
+  'app/classes/[id]/attendance/page.tsx': { learner: 7 },
+  'app/classes/[id]/manage/page.tsx': { learner: 3 },
+  'app/classes/[id]/roster/page.tsx': { learner: 13 },
+  'app/enrolments/history/page.tsx': { learner: 10 },
+  'app/external-apps/page.tsx': { learner: 3 },
+  'app/notices/page.tsx': { learner: 3 },
+  'app/reading-imports/page.tsx': { learner: 6, staging: 3 },
+  'app/reading-review/layout.tsx': { learner: 1 },
+  'app/reading-review/page.tsx': { learner: 12 },
+  'app/report-cards/[id]/page.tsx': { learner: 3, snapshot: 1 },
+  'app/report-cards/compile/page.tsx': { learner: 11 },
+  'app/submissions/page.tsx': { learner: 3 },
+};
+for (const [file, rules] of Object.entries(FOLLOW_UP)) for (const [rule, count] of Object.entries(rules)) {
+  KNOWN[file] ??= {};
+  KNOWN[file][rule] = [count, KNOWN[file][rule]?.[1] ?? FOLLOW_UP_REASON];
+}
+// Hits other workstreams already removed after the language pass: caps lowered (0 removes the entry), so the list keeps shrinking.
+const LOWERED = {
+  'app/reading-review/page.tsx': { rawIdLabel: 1 },
+  'app/report-cards/[id]/page.tsx': { rawIdLabel: 0 },
+  'components/assignment-submission-window.tsx': { rawIdLabel: 0 },
+};
+for (const [file, rules] of Object.entries(LOWERED)) for (const [rule, count] of Object.entries(rules)) {
+  if (!KNOWN[file]?.[rule]) continue;
+  if (count === 0) delete KNOWN[file][rule]; else KNOWN[file][rule][0] = count;
+  if (Object.keys(KNOWN[file]).length === 0) delete KNOWN[file];
+}
+
 export function findHits(strings = allStrings(root)) {
   const hits = [];
   for (const entry of strings) {
