@@ -81,8 +81,18 @@ const serverSources = [...listFiles('app', ['.ts', '.tsx']), ...listFiles('lib',
   const comparisons = listFiles('lib/education', ['.ts']).flatMap(file => readFileSync(join(root, file), 'utf8').split('\n')
     .map((line, index) => ({ file, line: index + 1, text: line.trim() }))
     .filter(({ text }) => /(===|!==)/.test(text) && /\b(token|secret|password|nonce|verifier|digest|codeChallenge|sessionHash)\b/i.test(text) && (/payload\.nonce !== nonce/.test(text) || !/typeof|tokenAuthMethod|\.length|clientSecret\b.*(!tokenAuth|\?)|id_token|\.protocol\b|\.(username|password)\b/.test(text))));
-  equal(comparisons.map(({ file, text }) => `${file}: ${text.slice(0, 30)}`), ['lib/education/oidc.ts: if (payload.nonce !== nonce ||'],
-    'Only the post-signature OIDC nonce check compares a secret-like value directly (documented, not remotely timing-exploitable)');
+  // Reviewed allowlist. Each entry is an exact flagged line plus the reason it is not a credential comparison. The set of flagged
+  // lines must equal this list exactly, so a new direct comparison fails and a stale entry fails too.
+  const reviewedComparisons = {
+    'lib/education/oidc.ts: if (payload.nonce !== nonce ||': 'post-signature OIDC nonce check (documented, not remotely timing-exploitable)',
+    // The line is `const hash = await digest(JSON.stringify({... partial: data.partialConfirmed === true }))`. The `===` is a boolean test
+    // inside the object literal and `digest` is the name of the hashing helper. The hash is an idempotency fingerprint of the request
+    // (actor, school, assessment, action, reason). It is compared with the stored request_hash only to tell an exact replay from a reused
+    // client request id (409 request_reused). It contains no credential and is never compared on the strength of secrecy.
+    'lib/education/assessment-lifecycle.ts: const hash = await digest(JSON': 'request fingerprint for idempotent replay, not a credential'
+  };
+  equal(comparisons.map(({ file, text }) => `${file}: ${text.slice(0, 30)}`).sort(), Object.keys(reviewedComparisons).sort(),
+    'Only the post-signature OIDC nonce check and the reviewed idempotent-replay request fingerprint are flagged by the secret-comparison scan');
 }
 
 // ---------------------------------------------------------------------------------------------------------------

@@ -114,6 +114,54 @@ const before = objects(original), after = objects(upgraded);
 for (const object of before) check(after.some(candidate => candidate.type === object.type && candidate.name === object.name), `upgrade keeps ${object.type} ${object.name}`);
 const originalColumns = columns(original), upgradedColumns = columns(upgraded);
 for (const [table, list] of Object.entries(originalColumns)) equal(upgradedColumns[table].slice(0, list.length), list, `${table}: original columns keep name, type, nullability and order (additive only)`);
+// The hosted runner executes ONE statement per breakpoint piece. Replay the whole chain on an empty database in journal order,
+// each piece prepared and run on its own. SQLite's prepare() compiles only the first statement of a string and silently drops
+// the rest, so a piece that hid a second statement would leave a different schema or different seed rows than the whole-file
+// replay. Recorded limitation: six ORIGINAL migrations (0005, 0010, 0012-0015) are single pieces holding several statements and
+// can never be edited (applied history), so they are replayed whole, exactly as they were first applied; every new migration
+// (0017 onward) must replay piece by piece.
+const ORIGINAL_MULTI_STATEMENT = ['0005_curriculum', '0010_reading_imports', '0012_report_publication_receipts', '0013_attendance_reviews', '0014_assessment_reviews', '0015_registry_creation'];
+{
+  const rowCounts = database => Object.fromEntries(database.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all()
+    .map(table => [table.name, database.prepare(`SELECT count(*) AS n FROM "${table.name}"`).get().n]));
+  const byPiece = new DatabaseSync(':memory:'); byPiece.exec('PRAGMA foreign_keys=ON');
+  let executed = 0, wholeFile = 0;
+  const multiStatementOriginals = [];
+  for (const entry of ordered) {
+    const parts = readFileSync(join(dir, `${entry.tag}.sql`), 'utf8').split(BREAK).map(part => part.trim()).filter(Boolean);
+    if (entry.idx <= 16) {
+      // Originals: detect (not hide) the multi-statement pieces, then replay the file as first applied.
+      if (parts.some(part => { const code = strip(part); return !/^CREATE\s+(TEMP\s+)?TRIGGER\b/i.test(code) && code.replace(/;$/, '').includes(';'); })) multiStatementOriginals.push(entry.tag);
+      byPiece.exec(parts.join('\n')); wholeFile++;
+      continue;
+    }
+    for (const [index, part] of parts.entries()) {
+      try { byPiece.prepare(part).run(); } catch (error) { check(false, `${entry.tag} piece ${index + 1} failed on the empty-database replay: ${error.message}`); }
+      executed++;
+    }
+  }
+  equal(multiStatementOriginals, ORIGINAL_MULTI_STATEMENT, 'exactly the six known original migrations hold multi-statement pieces; none of the new ones does');
+  equal(wholeFile, 17, 'the 17 original migrations were replayed whole, as first applied');
+  equal(executed, 127, 'every one of the 127 pieces of the new migrations ran on its own, in journal order');
+  equal(ordered.map(entry => entry.tag), files.map(name => name.replace(/\.sql$/, '')), 'journal order equals file order (every migration applied once, in sequence)');
+  equal(byPiece.prepare('PRAGMA integrity_check').get().integrity_check, 'ok', 'the piece-by-piece replay passes integrity_check');
+  equal(byPiece.prepare('PRAGMA foreign_key_check').all().length, 0, 'the piece-by-piece replay has no dangling foreign key');
+  equal(objects(byPiece), objects(full), 'one-statement-per-piece replay yields exactly the schema of the whole-file replay (no piece hid a second statement)');
+  equal(columns(byPiece), columns(full), 'one-statement-per-piece replay yields exactly the same columns');
+  equal(rowCounts(byPiece), rowCounts(full), 'one-statement-per-piece replay seeds exactly the same rows');
+  equal(byPiece.prepare("SELECT count(*) n FROM sqlite_master WHERE type='trigger'").get().n, full.prepare("SELECT count(*) n FROM sqlite_master WHERE type='trigger'").get().n, 'trigger count matches the whole-file replay');
+}
+// 0025 adds guards for older evidence tables but deliberately does NOT re-create the six guards 0021 already creates (a second
+// CREATE TRIGGER with the same name would fail the chain). Each of the six must therefore be defined exactly once, in 0021.
+{
+  const sixGuards = ['submission_attempts_no_update', 'submission_attempts_no_delete', 'submission_feedback_no_update', 'submission_feedback_no_delete', 'identity_admin_events_no_update', 'identity_admin_events_no_delete'];
+  const text = name => readFileSync(join(dir, files.find(file => file.startsWith(name))), 'utf8');
+  for (const guard of sixGuards) {
+    equal([...files].filter(file => new RegExp(`CREATE TRIGGER ${guard}\\b`).test(readFileSync(join(dir, file), 'utf8'))), files.filter(file => file.startsWith('0021')), `${guard} is created by 0021 and by no other migration (0025 does not duplicate it)`);
+    check(!text('0025').includes(guard), `0025 does not re-create ${guard}`);
+  }
+  equal(full.prepare("SELECT count(*) n FROM sqlite_master WHERE type='trigger' AND name IN (" + sixGuards.map(() => '?').join(',') + ')').get(...sixGuards).n, 6, 'all six guards exist on the fully migrated database');
+}
 console.log(`Schema: ${full.prepare("SELECT count(*) n FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").get().n} tables, ${full.prepare("SELECT count(*) n FROM sqlite_master WHERE type='trigger'").get().n} triggers after ${files.length} migrations.`);
 
 // Release documents exist and carry the rules (TC change-control cases).

@@ -108,6 +108,72 @@ export const rows = [
   { method: 'POST', route: '/api/registry/students', roles: 'A', order: 'before', clause: 'strict role-before-body/origin/128KiB enforcement' },
   { method: 'POST', route: '/api/registry/guardians', roles: 'A', order: 'before', clause: 'strict role-before-body/origin/128KiB enforcement' },
   { method: 'GET', route: '/api/registry/creations/[requestId]', roles: 'A', param: 'registryRequest', clause: 'Current same-school original A only' },
+  // ---- Rows added for the v2.13 merged inventory (103 route files). Every row is transcribed from the matching
+  // docs/specification/API-CONTRACTS.csv "role_scope" and "additional_behavior" columns, never from the handler code.
+  // Public sign-in start (GET reports whether school sign-in settings are complete; no session needed).
+  { method: 'GET', route: '/api/auth/login', kind: 'public-config', clause: 'GET only reports whether school sign-in settings are complete (no provider detail); no prior session required' },
+  // Account, school setup, terms, attendance calendar.
+  { method: 'GET', route: '/api/account', roles: 'ATGS', clause: 'Any signed-in role; own account' },
+  { method: 'GET', route: '/api/schools/[id]/setup', roles: 'ATGS', param: 'schoolA', foreign: 'schoolB', clause: 'GET all roles of that school' },
+  { method: 'PATCH', route: '/api/schools/[id]/setup', roles: 'A', param: 'schoolA', order: 'unspecified', clause: 'PATCH A of that school' },
+  { method: 'POST', route: '/api/schools/[id]/terms', roles: 'A', param: 'schoolA', order: 'unspecified', clause: 'A of that school' },
+  { method: 'PATCH', route: '/api/schools/[id]/terms/[termId]', roles: 'A', param: 'schoolA', param3: 'term', order: 'unspecified', clause: 'A of that school' },
+  { method: 'GET', route: '/api/attendance/calendar', roles: 'ATGS', clause: 'GET any current member of the school' },
+  { method: 'PUT', route: '/api/attendance/calendar', roles: 'A', order: 'before', clause: 'PUT school administrator only (role checked before body)' },
+  // Records registry (reviewed edits, links, status).
+  { method: 'GET', route: '/api/records/students', roles: 'ATGS', clause: 'Existing student scope: A school, T assigned classes, G linked children, S self' },
+  { method: 'GET', route: '/api/records/students/[id]', roles: 'A', param: 'studentA', foreign: 'studentB', clause: 'A of that school' },
+  { method: 'PATCH', route: '/api/records/students/[id]', roles: 'A', param: 'studentA', order: 'unspecified', clause: 'A of that school' },
+  { method: 'GET', route: '/api/records/students/[id]/guardian-links', roles: 'A', param: 'studentA', foreign: 'studentB', clause: 'A of that school' },
+  { method: 'POST', route: '/api/records/students/[id]/guardian-links', roles: 'A', param: 'studentA', order: 'unspecified', clause: 'A of that school' },
+  { method: 'POST', route: '/api/records/students/[id]/status', roles: 'A', param: 'studentA', order: 'unspecified', clause: 'A of that school' },
+  { method: 'GET', route: '/api/records/guardians', roles: 'ATGS', clause: 'A school profiles; G own profile; T/S guardians of children they already see' },
+  { method: 'GET', route: '/api/records/guardians/[id]', roles: 'ATGS', param: 'guardianA', foreign: 'guardianB', clause: 'GET scoped' },
+  { method: 'PATCH', route: '/api/records/guardians/[id]', roles: 'A', param: 'guardianA', order: 'unspecified', clause: 'PATCH A of that school' },
+  { method: 'GET', route: '/api/students/[id]/attendance', roles: 'ATGS', param: 'studentA', foreign: 'studentB', clause: 'Current student scope intersected with current class scope for A/T/G/S' },
+  // Course, class and enrolment lifecycle.
+  { method: 'POST', route: '/api/academic-changes', roles: 'A', order: 'before', clause: 'A only; role and origin are checked before the body is read' },
+  { method: 'GET', route: '/api/academic-changes/[id]', roles: 'A', param: 'academicChange', clause: 'A who submitted the request, same school; non-administrators 403' },
+  { method: 'GET', route: '/api/course-lifecycles', roles: 'ATGS', clause: 'All authenticated roles, own school' },
+  { method: 'GET', route: '/api/courses/[id]/history', roles: 'A', param: 'courseA', foreign: 'courseB', clause: 'A only, own school' },
+  { method: 'GET', route: '/api/courses/[id]/lifecycle', roles: 'ATGS', param: 'courseA', foreign: 'courseB', clause: 'Own-school course for every role' },
+  { method: 'GET', route: '/api/classes/[id]/history', roles: 'AT', param: 'classA', foreign: 'classB', clause: 'A school; T assigned class; G/S denied 403' },
+  { method: 'GET', route: '/api/classes/[id]/lifecycle', roles: 'ATGS', param: 'classA', foreign: 'classB', clause: 'Class scope: A school, T assigned class, G/S linked learner' },
+  { method: 'GET', route: '/api/classes/[id]/roster', roles: 'AT', param: 'classA', foreign: 'classB', clause: 'A school; T assigned class; G/S denied 403' },
+  { method: 'GET', route: '/api/enrolments/history', roles: 'ATGS', query: '?studentId=student-a', clause: 'Learner scope: A school, T learners in assigned classes, G linked learner, S own learner' },
+  // Attendance reports.
+  { method: 'GET', route: '/api/classes/[id]/attendance-changes', roles: 'AT', param: 'classA', foreign: 'classB', query: '?date=2026-10-02', clause: 'A school or current assigned T; G/S 403' },
+  { method: 'GET', route: '/api/classes/[id]/attendance-report', roles: 'AT', param: 'classA', foreign: 'classB', clause: 'A school or current assigned T; G/S 403' },
+  // Assessments and report cards.
+  { method: 'GET', route: '/api/assessments/overview', roles: 'AT', clause: 'A or assigned T; G/S 403' },
+  { method: 'PATCH', route: '/api/assessments/[id]', roles: 'AT', param: 'assessmentA', foreign: 'assessmentB', order: 'unspecified', clause: 'PATCH A or assigned T' },
+  { method: 'GET', route: '/api/assessments/[id]/lifecycle', roles: 'AT', param: 'assessmentA', foreign: 'assessmentB', clause: 'A or assigned T; G/S 403; other staff 404' },
+  { method: 'POST', route: '/api/assessments/[id]/lifecycle', roles: 'AT', param: 'assessmentA', order: 'unspecified', clause: 'A or assigned T; G/S 403; other staff 404' },
+  { method: 'GET', route: '/api/report-cards/[id]/detail', roles: 'ATGS', param: 'reportA', foreign: 'reportB', clause: 'GET scoped; G/S published only for a linked learner' },
+  { method: 'GET', route: '/api/report-cards/eligible', roles: 'A', query: '?studentId=student-a', clause: 'A in the same school; others 403' },
+  // Assignments.
+  { method: 'GET', route: '/api/assignment-progress', roles: 'ATS', clause: 'A school; T assigned classes; S own active classes; G 403' },
+  { method: 'GET', route: '/api/assignments/[id]/progress', roles: 'AT', param: 'assignment', clause: 'Current A/assigned T class staff; S/G 403' },
+  // Curriculum and resources.
+  { method: 'GET', route: '/api/curriculum/[id]/status', roles: 'AT', param: 'curriculum', clause: 'A school or T original author; peers 404' },
+  { method: 'POST', route: '/api/curriculum/[id]/status', roles: 'AT', param: 'curriculum', order: 'unspecified', clause: 'A school or T original author; peers 404' },
+  { method: 'GET', route: '/api/curriculum/[id]/usage', roles: 'AT', param: 'curriculum', clause: 'A/T same-school visible reference; G/S 403' },
+  { method: 'GET', route: '/api/resources/[id]/source', roles: 'AT', param: 'resource', foreign: 'resourceOther', teacherScoped: true, clause: 'A school; T author; G/S 403' },
+  // Notices (in-app only).
+  { method: 'GET', route: '/api/notices', roles: 'AT', order: 'before', queryOrder: 'before', clause: 'A or T only; role checked before query/body' },
+  { method: 'POST', route: '/api/notices', roles: 'AT', order: 'before', clause: 'A or T only; role checked before query/body' },
+  { method: 'GET', route: '/api/notices/[id]', roles: 'AT', param: 'notice', clause: 'A school or T author; other schools/authors 404' },
+  { method: 'POST', route: '/api/notices/[id]/corrections', roles: 'AT', param: 'notice', order: 'before', clause: 'A school or T author; role before body' },
+  { method: 'GET', route: '/api/notices/audience', roles: 'AT', query: '?classId=class-a&roles=guardians', clause: 'A or T within class scope' },
+  { method: 'GET', route: '/api/notices/recipients', roles: 'AT', clause: 'A or T; only people in the sender own class scope' },
+  // Administration: identity detail/changes, audit trail.
+  { method: 'GET', route: '/api/admin/users/[id]', roles: 'A', param: 'userTeacher', clause: 'A; same-school target' },
+  { method: 'PATCH', route: '/api/admin/users/[id]/identity', roles: 'A', param: 'userTeacher', order: 'unspecified', clause: 'A; same-school target, never self' },
+  { method: 'PATCH', route: '/api/admin/users/[id]/role', roles: 'A', param: 'userTeacher', order: 'unspecified', clause: 'A; same-school target, never self' },
+  { method: 'GET', route: '/api/admin/users/changes', roles: 'A', clause: 'A current school' },
+  { method: 'GET', route: '/api/admin/audit', roles: 'A', queryOrder: 'before', clause: 'A current school only; T/G/S 403 before filters' },
+  { method: 'GET', route: '/api/admin/audit/[source]/[sourceId]', roles: 'A', param: 'auditEntry', clause: 'A current school only' },
+  { method: 'POST', route: '/api/admin/audit/annotations', roles: 'A', order: 'before', clause: 'A current school; role before body' },
 ];
 
 export const roleLetter = { admin: 'A', teacher: 'T', guardian: 'G', student: 'S' };

@@ -148,6 +148,51 @@ const scenarios = [
   { name: 'report draft create (POST /api/report-cards)', ok: [201], retry: [201], retryRewritesRows: true, retryAddsRows: true,
     setup: async () => ({ term: 'Atomic ' + uid().slice(0, 8) }),
     req: ctx => ({ actor: 'admin-a', method: 'POST', path: '/api/report-cards', body: { studentId: 'student-a', term: ctx.term, overallGrade: 'B', summary: 'Synthetic.' } }) },
+  // ---- Write paths added after v2.9 (migrations 0017-0024), each with fault injection at every written table, exact replay, key clash and contention.
+  { name: 'reviewed course creation (POST /api/academic-changes)', ok: [201], retry: [200],
+    setup: async () => ({ key: uid(), code: 'ATOMIC-' + uid().slice(0, 10) }),
+    req: (ctx, key = ctx.key) => ({ actor: 'admin-a', method: 'POST', path: '/api/academic-changes', body: { clientRequestId: key, changes: [{ kind: 'course.create', code: ctx.code, title: 'Atomic lifecycle course', description: null, gradeLevel: '8' }] } }),
+    mismatch: ctx => ({ actor: 'admin-a', method: 'POST', path: '/api/academic-changes', body: { clientRequestId: ctx.key, changes: [{ kind: 'course.create', code: ctx.code, title: 'Changed lifecycle course', description: null, gradeLevel: '8' }] } }), race: 'one-winner' },
+  { name: 'notice send (POST /api/notices)', ok: [201], retry: [200],
+    setup: async () => ({ key: uid(), title: 'Atomic notice ' + serial++ }),
+    req: (ctx, key = ctx.key) => ({ actor: 'teacher-a', method: 'POST', path: '/api/notices', body: { clientRequestId: key, title: ctx.title, body: 'Synthetic atomic notice body.', audience: { kind: 'class', classId: 'class-a', roles: 'both' }, reviewConfirmed: true } }),
+    mismatch: ctx => ({ actor: 'teacher-a', method: 'POST', path: '/api/notices', body: { clientRequestId: ctx.key, title: ctx.title + ' changed', body: 'Synthetic atomic notice body.', audience: { kind: 'class', classId: 'class-a', roles: 'both' }, reviewConfirmed: true } }) },
+  { name: 'notice correction (POST /api/notices/[id]/corrections)', ok: [201], retry: [200],
+    setup: async () => { const sent = await f.must('teacher-a', 'POST', '/api/notices', { body: { clientRequestId: uid(), title: 'Atomic original ' + serial++, body: 'Synthetic original.', audience: { kind: 'class', classId: 'class-a', roles: 'guardians' }, reviewConfirmed: true } }); return { key: uid(), noticeId: sent.notice.id }; },
+    req: (ctx, key = ctx.key) => ({ actor: 'teacher-a', method: 'POST', path: `/api/notices/${ctx.noticeId}/corrections`, body: { clientRequestId: key, title: 'Atomic corrected', body: 'Synthetic corrected body.', reason: 'Synthetic reviewed correction reason.', reviewConfirmed: true } }),
+    mismatch: ctx => ({ actor: 'teacher-a', method: 'POST', path: `/api/notices/${ctx.noticeId}/corrections`, body: { clientRequestId: ctx.key, title: 'Atomic corrected', body: 'A different corrected body.', reason: 'Synthetic reviewed correction reason.', reviewConfirmed: true } }) },
+  { name: 'audit correction note (POST /api/admin/audit/annotations)', ok: [201], retry: [200],
+    setup: async () => ({ key: uid() }),
+    req: (ctx, key = ctx.key) => ({ actor: 'admin-a', method: 'POST', path: '/api/admin/audit/annotations', body: { clientRequestId: key, source: 'attendance', sourceId: f.ids.auditEntry, note: 'Synthetic atomic audit note.', reviewConfirmed: true } }),
+    mismatch: ctx => ({ actor: 'admin-a', method: 'POST', path: '/api/admin/audit/annotations', body: { clientRequestId: ctx.key, source: 'attendance', sourceId: f.ids.auditEntry, note: 'A different atomic audit note.', reviewConfirmed: true } }) },
+  { name: 'assessment publication (POST /api/assessments/[id]/lifecycle)', ok: [201], retry: [200],
+    setup: async () => { const assessment = await newAssessment(); await f.must('teacher-a', 'POST', `/api/assessments/${assessment.id}/results`, { body: { results: [{ studentId: 'student-a', score: 7, grade: 'B' }, { studentId: 'student-peer', score: 5, grade: 'C' }] } }); return { key: uid(), assessment }; },
+    req: (ctx, key = ctx.key) => ({ actor: 'teacher-a', method: 'POST', path: `/api/assessments/${ctx.assessment.id}/lifecycle`, body: { clientRequestId: key, action: 'publish', partialConfirmed: true } }),
+    mismatch: ctx => ({ actor: 'teacher-a', method: 'POST', path: `/api/assessments/${ctx.assessment.id}/lifecycle`, body: { clientRequestId: ctx.key, action: 'publish', partialConfirmed: false } }), race: 'one-winner' },
+  { name: 'assessment details revision (PATCH /api/assessments/[id])', ok: [201], retry: [200],
+    setup: async () => { const assessment = await newAssessment(); return { key: uid(), assessment }; },
+    req: (ctx, key = ctx.key) => ({ actor: 'teacher-a', method: 'PATCH', path: `/api/assessments/${ctx.assessment.id}`, body: { clientRequestId: key, expected: { title: ctx.assessment.title, kind: ctx.assessment.kind, maxScore: ctx.assessment.maxScore, date: ctx.assessment.date, updatedAt: ctx.assessment.updatedAt }, details: { title: 'Atomic revised ' + ctx.assessment.id.slice(0, 6), kind: 'quiz', maxScore: 10, date: '2026-10-06' } } }),
+    mismatch: ctx => ({ actor: 'teacher-a', method: 'PATCH', path: `/api/assessments/${ctx.assessment.id}`, body: { clientRequestId: ctx.key, expected: { title: ctx.assessment.title, kind: ctx.assessment.kind, maxScore: ctx.assessment.maxScore, date: ctx.assessment.date, updatedAt: ctx.assessment.updatedAt }, details: { title: 'A different title', kind: 'quiz', maxScore: 10, date: '2026-10-06' } } }), race: 'one-winner' },
+  { name: 'pupil status change (POST /api/records/students/[id]/status)', ok: [201], retry: [200],
+    setup: async () => ({ key: uid(), pupil: await eligibleStudent(serial++) }),
+    req: (ctx, key = ctx.key) => ({ actor: 'admin-a', method: 'POST', path: `/api/records/students/${ctx.pupil.id}/status`, body: { action: 'deactivate', reason: 'Synthetic atomic deactivation.', expectedVersion: 0, clientRequestId: key } }),
+    mismatch: ctx => ({ actor: 'admin-a', method: 'POST', path: `/api/records/students/${ctx.pupil.id}/status`, body: { action: 'deactivate', reason: 'A different atomic reason.', expectedVersion: 0, clientRequestId: ctx.key } }), race: 'one-winner' },
+  { name: 'guardian link (POST /api/records/students/[id]/guardian-links)', ok: [201], retry: [200],
+    setup: async () => ({ key: uid(), pupil: await eligibleStudent(serial++) }),
+    req: (ctx, key = ctx.key) => ({ actor: 'admin-a', method: 'POST', path: `/api/records/students/${ctx.pupil.id}/guardian-links`, body: { action: 'link', guardianId: 'guardian-profile-other', relationship: 'aunt', isPrimary: false, reason: 'Synthetic atomic link.', clientRequestId: key, expectedVersion: 0 } }),
+    mismatch: ctx => ({ actor: 'admin-a', method: 'POST', path: `/api/records/students/${ctx.pupil.id}/guardian-links`, body: { action: 'link', guardianId: 'guardian-profile-other', relationship: 'uncle', isPrimary: false, reason: 'Synthetic atomic link.', clientRequestId: ctx.key, expectedVersion: 0 } }), race: 'one-winner' },
+  { name: 'account role change (PATCH /api/admin/users/[id]/role)', ok: [200], retry: [200],
+    setup: async () => { const created = await provision('teacher', serial++); return { key: uid(), userId: created.user.id }; },
+    req: (ctx, key = ctx.key) => ({ actor: 'admin-a', method: 'PATCH', path: `/api/admin/users/${ctx.userId}/role`, body: { clientRequestId: key, reviewConfirmed: true, reason: 'Synthetic atomic role change.', expectedVersion: 1, role: 'admin' } }),
+    mismatch: ctx => ({ actor: 'admin-a', method: 'PATCH', path: `/api/admin/users/${ctx.userId}/role`, body: { clientRequestId: ctx.key, reviewConfirmed: true, reason: 'Synthetic atomic role change.', expectedVersion: 1, role: 'guardian' } }), race: 'one-winner' },
+  { name: 'school term creation (POST /api/schools/[id]/terms)', ok: [201], retry: [200],
+    setup: async () => { const n = serial++; return { key: uid(), year: `${2100 + n}-${String(101 + n).slice(-2)}`, start: `${2100 + n}-04-01`, end: `${2100 + n}-09-30` }; },
+    req: (ctx, key = ctx.key) => ({ actor: 'admin-a', method: 'POST', path: '/api/schools/a/terms', body: { clientRequestId: key, academicYear: ctx.year, name: 'Atomic term', startsOn: ctx.start, endsOn: ctx.end } }),
+    mismatch: ctx => ({ actor: 'admin-a', method: 'POST', path: '/api/schools/a/terms', body: { clientRequestId: ctx.key, academicYear: ctx.year, name: 'Atomic term changed', startsOn: ctx.start, endsOn: ctx.end } }), race: 'one-winner' },
+  { name: 'curriculum retirement (POST /api/curriculum/[id]/status)', ok: [201], retry: [200, 201],
+    setup: async () => { const reference = await f.must('teacher-a', 'POST', '/api/curriculum', { body: { clientReferenceId: uid(), content: curriculumContent('status ' + serial++) } }); return { key: uid(), referenceId: reference.id }; },
+    req: (ctx, key = ctx.key) => ({ actor: 'teacher-a', method: 'POST', path: `/api/curriculum/${ctx.referenceId}/status`, body: { clientEventId: key, expectedRevision: 0, status: 'retired', reason: 'Synthetic atomic retirement.' } }),
+    mismatch: ctx => ({ actor: 'teacher-a', method: 'POST', path: `/api/curriculum/${ctx.referenceId}/status`, body: { clientEventId: ctx.key, expectedRevision: 0, status: 'retired', reason: 'A different atomic reason.' } }), race: 'one-winner' },
   // Learner recovery paths last: the window scenario changes whether learners may submit.
   { name: 'learner submission (POST /api/assignments/[id]/submissions)', ok: [201], retry: [200, 201, 409],
     setup: async () => ({ key: uid(), attempt: sqlite.prepare("SELECT count(*) n FROM submission_attempts WHERE assignment_id=? AND student_id='student-a'").get(f.ids.assignment).n }),
@@ -169,23 +214,50 @@ const scenarios = [
     stale: ctx => ({ actor: 'teacher-a', method: 'POST', path: `/api/assignments/${f.ids.assignment}/submission-window`, body: { clientPolicyId: uid(), expectedRevision: ctx.revision + 5, state: ctx.state, closesAt: null, reviewConfirmed: true, reason: 'Synthetic stale window policy.' } }), race: 'one-winner' },
 ];
 
+
+// Real evidence for every append-only table added after 0016 (the fixture already holds notices, a term and an academic change).
+let evidence = null;
+async function createV213Evidence() {
+  const assessment = await newAssessment();
+  await f.must('teacher-a', 'POST', `/api/assessments/${assessment.id}/results`, { body: { results: [{ studentId: 'student-a', score: 7, grade: 'B' }, { studentId: 'student-peer', score: 5, grade: 'C' }] } });
+  const current = await f.must('teacher-a', 'GET', `/api/assessments/${assessment.id}`);
+  await f.must('teacher-a', 'PATCH', `/api/assessments/${assessment.id}`, { body: { clientRequestId: uid(), expected: { title: current.title, kind: current.kind, maxScore: current.maxScore, date: current.date, updatedAt: current.updatedAt }, details: { title: 'Atomic evidence quiz', kind: 'quiz', maxScore: 10, date: '2026-10-06' }, reason: 'Synthetic reviewed metadata change.' } });
+  await f.must('teacher-a', 'POST', `/api/assessments/${assessment.id}/lifecycle`, { body: { clientRequestId: uid(), action: 'publish' } });
+  const report = await f.must('admin-a', 'POST', '/api/report-cards', { body: { studentId: 'student-a', term: 'Atomic evidence', overallGrade: 'B', assessmentIds: [assessment.id] } });
+  await f.must('admin-a', 'PATCH', `/api/report-cards/${report.id}`, { body: { publish: true } });
+  const replacement = await f.must('admin-a', 'POST', '/api/report-cards', { body: { studentId: 'student-a', term: 'Atomic evidence corrected', overallGrade: 'B', assessmentIds: [assessment.id], correction: { reportId: report.id, reason: 'Marks corrected after a recheck of the paper.' } } });
+  await f.must('admin-a', 'POST', '/api/admin/audit/annotations', { body: { clientRequestId: uid(), source: 'attendance', sourceId: f.ids.auditEntry, note: 'Synthetic reviewed audit correction note.', reviewConfirmed: true } });
+  const reference = await f.must('teacher-a', 'POST', '/api/curriculum', { body: { clientReferenceId: uid(), content: curriculumContent('status evidence') } });
+  await f.must('teacher-a', 'POST', `/api/curriculum/${reference.id}/status`, { body: { clientEventId: uid(), expectedRevision: 0, status: 'retired', reason: 'Synthetic retirement for evidence.' } });
+  await f.must('admin-a', 'PATCH', '/api/admin/users/teacher-disabled/role', { body: { clientRequestId: uid(), reviewConfirmed: true, reason: 'Synthetic reviewed role change.', expectedVersion: 0, role: 'admin' } });
+  const pupil = await eligibleStudent('evidence');
+  await f.must('admin-a', 'POST', `/api/records/students/${pupil.id}/guardian-links`, { body: { action: 'link', guardianId: 'guardian-profile-other', relationship: 'aunt', isPrimary: true, reason: 'Synthetic reviewed guardian link.', clientRequestId: uid(), expectedVersion: 0 } });
+  await f.must('admin-a', 'POST', `/api/records/students/${pupil.id}/status`, { body: { action: 'deactivate', reason: 'Synthetic reviewed deactivation.', expectedVersion: 0, clientRequestId: uid() } });
+  // Attendance log rows come from the AFTER UPDATE trigger on the attendance table itself.
+  const mark = sqlite.prepare("SELECT id FROM attendance WHERE class_id='class-a' AND student_id='student-a' LIMIT 1").get();
+  sqlite.prepare("UPDATE attendance SET status = CASE status WHEN 'present' THEN 'absent' ELSE 'present' END WHERE id = ?").run(mark.id);
+  return { assessment, report, replacement, pupil, reference };
+}
+
 // ---------------------------------------------------------------------------------------------------------------
-// Section 1: the immutable-evidence triggers (existing migrations 0007-0015 plus 0025) are listed and attacked.
+// Section 1: the immutable-evidence triggers (migrations 0007-0025; 0025 deliberately does not re-create the six 0021 guards) are listed and attacked.
 // ---------------------------------------------------------------------------------------------------------------
-const EXPECTED_TRIGGERS = ['assessment_results_pair_insert_guard', 'assessment_results_pair_update_guard', 'assessment_review_authority', 'assessment_review_commit', 'assessment_review_entries_no_delete', 'assessment_review_entries_no_update', 'assessment_reviews_no_delete', 'assessment_reviews_no_update', 'assignment_submission_windows_no_delete', 'assignment_submission_windows_no_update', 'attendance_review_authority', 'attendance_review_commit', 'attendance_review_entries_no_delete', 'attendance_review_entries_no_update', 'attendance_reviews_no_delete', 'attendance_reviews_no_update', 'curriculum_reference_versions_content_immutable', 'curriculum_reference_versions_no_delete', 'enrolments_pair_insert_guard', 'enrolments_pair_update_guard', 'guardians_unique_login_change', 'guardians_unique_login_insert', 'identity_admin_events_no_delete', 'identity_admin_events_no_update', 'profile_link_events_no_delete', 'profile_link_events_no_update', 'reading_checks_no_delete', 'reading_checks_no_update', 'reading_corrections_no_delete', 'reading_corrections_no_update', 'reading_import_confirm', 'reading_import_item_no_delete', 'reading_import_item_no_update', 'reading_import_no_delete', 'reading_import_preserve_draft', 'reading_import_receipt_no_delete', 'reading_import_receipt_no_update', 'reading_import_stage_items', 'registry_creation_authority', 'registry_creation_commit', 'registry_creation_receipts_no_delete', 'registry_creation_receipts_no_update', 'report_publication_authority', 'report_publication_commit', 'report_publication_no_delete', 'report_publication_no_update', 'resource_assignments_no_delete', 'resource_assignments_no_update', 'resource_reference_bindings_no_delete', 'resource_reference_bindings_no_update', 'resource_versions_content_immutable', 'resource_versions_no_delete', 'submission_attempts_no_delete', 'submission_attempts_no_update', 'submission_feedback_no_delete', 'submission_feedback_no_update'];
+const EXPECTED_TRIGGERS = ['academic_change_requests_expand', 'academic_change_requests_guard', 'academic_change_requests_no_delete', 'academic_change_requests_no_update', 'academic_event_class_close', 'academic_event_class_create', 'academic_event_class_edit', 'academic_event_class_reopen', 'academic_event_class_teacher', 'academic_event_course_create', 'academic_event_course_edit', 'academic_event_course_reinstate', 'academic_event_course_retire', 'academic_event_enrolment_complete', 'academic_event_enrolment_enrol', 'academic_event_enrolment_reenrol', 'academic_event_enrolment_transfer', 'academic_event_enrolment_withdraw', 'academic_events_no_delete', 'academic_events_no_update', 'assessment_metadata_edit_authority', 'assessment_metadata_edits_no_delete', 'assessment_metadata_edits_no_update', 'assessment_publication_authority', 'assessment_publications_no_delete', 'assessment_publications_no_update', 'assessment_results_pair_insert_guard', 'assessment_results_pair_update_guard', 'assessment_results_published_insert_lock', 'assessment_results_published_update_lock', 'assessment_review_authority', 'assessment_review_commit', 'assessment_review_entries_no_delete', 'assessment_review_entries_no_update', 'assessment_reviews_no_delete', 'assessment_reviews_no_update', 'assessments_published_lock', 'assignment_submission_windows_no_delete', 'assignment_submission_windows_no_update', 'attendance_changes_no_delete', 'attendance_changes_no_update', 'attendance_changes_on_delete', 'attendance_changes_on_update', 'attendance_review_authority', 'attendance_review_commit', 'attendance_review_entries_no_delete', 'attendance_review_entries_no_update', 'attendance_reviews_no_delete', 'attendance_reviews_no_update', 'audit_annotations_no_delete', 'audit_annotations_no_update', 'classes_course_rules_insert', 'classes_course_rules_update', 'curriculum_reference_versions_content_immutable', 'curriculum_reference_versions_no_delete', 'curriculum_status_no_delete', 'curriculum_status_no_update', 'enrolments_class_rules_insert', 'enrolments_class_rules_status', 'enrolments_pair_insert_guard', 'enrolments_pair_update_guard', 'guardians_unique_login_change', 'guardians_unique_login_insert', 'identity_admin_changes_no_delete', 'identity_admin_changes_no_update', 'identity_admin_events_no_delete', 'identity_admin_events_no_update', 'notice_recipients_no_delete', 'notice_recipients_no_update', 'notices_no_delete', 'notices_no_update', 'profile_link_events_no_delete', 'profile_link_events_no_update', 'reading_checks_no_delete', 'reading_checks_no_update', 'reading_corrections_no_delete', 'reading_corrections_no_update', 'reading_import_confirm', 'reading_import_item_no_delete', 'reading_import_item_no_update', 'reading_import_no_delete', 'reading_import_preserve_draft', 'reading_import_receipt_no_delete', 'reading_import_receipt_no_update', 'reading_import_stage_items', 'registry_creation_authority', 'registry_creation_commit', 'registry_creation_receipts_no_delete', 'registry_creation_receipts_no_update', 'report_card_correction_authority', 'report_card_corrections_no_delete', 'report_card_corrections_no_update', 'report_card_line_authority', 'report_card_lines_no_delete', 'report_card_lines_no_update', 'report_publication_authority', 'report_publication_commit', 'report_publication_current_lines', 'report_publication_no_delete', 'report_publication_no_update', 'resource_assignments_no_delete', 'resource_assignments_no_update', 'resource_reference_bindings_no_delete', 'resource_reference_bindings_no_update', 'resource_versions_content_immutable', 'resource_versions_no_delete', 'student_guardian_events_no_delete', 'student_guardian_events_no_update', 'student_status_events_no_delete', 'student_status_events_no_update', 'submission_attempts_no_delete', 'submission_attempts_no_update', 'submission_feedback_no_delete', 'submission_feedback_no_update'];
 {
   const triggers = sqlite.prepare("SELECT name, tbl_name, sql FROM sqlite_master WHERE type='trigger' ORDER BY name").all();
-  equal(triggers.map(trigger => trigger.name), EXPECTED_TRIGGERS, 'The complete trigger inventory (56) matches the documented list: no guard silently dropped or added');
+  equal(triggers.map(trigger => trigger.name), EXPECTED_TRIGGERS, 'The complete trigger inventory (114 on the merged tree) matches the documented list: no guard silently dropped or added');
   // Reach the states that create rows in the remaining evidence tables.
   await f.must('teacher-a', 'POST', `/api/reading-imports/${f.ids.import}/decision`, { body: { clientDecisionId: uid(), expectedRevision: 0, action: 'confirm', confirmReviewed: true, reason: 'Synthetic reviewed confirmation.' } });
   await f.must('teacher-a', 'POST', `/api/curriculum/${f.ids.curriculum}/draft`, { body: { versionId: f.ids.curriculumVersion, type: 'worksheet', clientResourceId: uid() } });
+  // Evidence for the tables added by migrations 0017-0024, each created through its real handler so the attacks below hit real rows.
+  evidence = await createV213Evidence();
   const unconditional = triggers.map(trigger => ({ ...trigger, match: /^CREATE TRIGGER\s+`?(\w+)`?\s+BEFORE (UPDATE|DELETE) ON\s+`?(\w+)`?\s+BEGIN\s+SELECT RAISE\(ABORT,\s*'([^']+)'\)/i.exec(trigger.sql.replace(/\s+/g, ' ')) }))
     .filter(trigger => trigger.match);
   const kinds = new Map();
   for (const trigger of unconditional) kinds.set(trigger.match[3], new Set([...(kinds.get(trigger.match[3]) ?? []), trigger.match[2].toUpperCase()]));
   const immutable = [...kinds.keys()].sort();
-  equal(immutable, ['assessment_review_entries', 'assessment_reviews', 'assignment_submission_windows', 'attendance_review_entries', 'attendance_reviews', 'curriculum_reference_versions', 'identity_admin_events', 'profile_link_events', 'reading_checks', 'reading_corrections', 'reading_import_drafts', 'reading_import_items', 'reading_import_receipts', 'registry_creation_receipts', 'report_publication_receipts', 'resource_assignments', 'resource_reference_bindings', 'resource_versions', 'submission_attempts', 'submission_feedback'],
-    'Twenty evidence tables carry unconditional guards (versions and import drafts block DELETE only; their guarded content/review transitions are tested separately)');
+  equal(immutable, ['academic_change_requests', 'academic_events', 'assessment_metadata_edits', 'assessment_publications', 'assessment_review_entries', 'assessment_reviews', 'assignment_submission_windows', 'attendance_changes', 'attendance_review_entries', 'attendance_reviews', 'audit_annotations', 'curriculum_reference_status_events', 'curriculum_reference_versions', 'identity_admin_changes', 'identity_admin_events', 'notice_recipients', 'notices', 'profile_link_events', 'reading_checks', 'reading_corrections', 'reading_import_drafts', 'reading_import_items', 'reading_import_receipts', 'registry_creation_receipts', 'report_card_corrections', 'report_card_lines', 'report_publication_receipts', 'resource_assignments', 'resource_reference_bindings', 'resource_versions', 'student_guardian_events', 'student_status_events', 'submission_attempts', 'submission_feedback'],
+    'Thirty-four evidence tables carry unconditional guards (versions and import drafts block DELETE only; their guarded content/review transitions are tested separately)');
   let attacks = 0;
   for (const trigger of unconditional) {
     const [, , kind, table, message] = trigger.match;
@@ -240,6 +312,98 @@ const EXPECTED_TRIGGERS = ['assessment_results_pair_insert_guard', 'assessment_r
   sqlite.prepare("UPDATE classes SET term = term WHERE id = ?").run(classRow.id);
   sqlite.prepare("UPDATE teaching_resources SET created_at = created_at WHERE id = ?").run(f.ids.resource);
   check(true, 'operational tables remain updatable');
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Section 1b: the guard, authority and lifecycle triggers added by migrations 0017-0024 (not unconditional): each is attacked with
+// direct SQL that bypasses every service, must be refused with its own documented code, and must write nothing. Insert guards are
+// attacked by cloning a real evidence row and changing one authority field, so the only thing wrong with the row is that field.
+// ---------------------------------------------------------------------------------------------------------------
+{
+  let guardAttacks = 0;
+  const attack = (label, run, pattern, tables) => {
+    const before = f.fingerprint(tables);
+    assert.throws(run, error => pattern.test(error.message), label);
+    equal(f.fingerprint(tables), before, `${label}: nothing was written`);
+    guardAttacks++;
+  };
+  const cloneInto = (table, overrides) => {
+    const template = sqlite.prepare(`SELECT * FROM "${table}" ORDER BY rowid LIMIT 1`).get();
+    check(template !== undefined, `${table}: a real evidence row exists to clone`);
+    const next = { ...template, id: uid(), ...overrides };
+    const columns = Object.keys(next);
+    return () => sqlite.prepare(`INSERT INTO "${table}" (${columns.map(column => `"${column}"`).join(',')}) VALUES (${columns.map(() => '?').join(',')})`).run(...columns.map(column => next[column]));
+  };
+  const published = evidence.assessment.id;
+  // Publication authority (assessment_publication_authority): only the class teacher or school admin, never a repeat of the latest state.
+  attack('publication by a guardian', cloneInto('assessment_publications', { actor_id: 'guardian-a', action: 'unpublish', reason: 'Hostile unpublish reason.' }), /saha_assessment_publication_conflict/, ['assessment_publications']);
+  attack('publication by a teacher of another class', cloneInto('assessment_publications', { actor_id: 'teacher-other', action: 'unpublish', reason: 'Hostile unpublish reason.' }), /saha_assessment_publication_conflict/, ['assessment_publications']);
+  attack('publication by an administrator of another school', cloneInto('assessment_publications', { actor_id: 'admin-b', action: 'unpublish', reason: 'Hostile unpublish reason.' }), /saha_assessment_publication_conflict/, ['assessment_publications']);
+  attack('publish of an already published assessment', cloneInto('assessment_publications', { action: 'publish' }), /saha_assessment_publication_conflict/, ['assessment_publications']);
+  attack('unpublish without a reason', cloneInto('assessment_publications', { action: 'unpublish', reason: null }), /saha_assessment_publication_conflict/, ['assessment_publications']);
+  attack('unpublish of results used by a published report', cloneInto('assessment_publications', { action: 'unpublish', reason: 'Withdraw results already in a report.' }), /saha_assessment_publication_in_use/, ['assessment_publications']);
+  // Published results are frozen (assessments_published_lock, assessment_results_published_*_lock).
+  attack('edit of the metadata of published results', () => sqlite.prepare('UPDATE assessments SET title = ? WHERE id = ?').run('Hijacked', published), /saha_assessment_published_lock/, ['assessments']);
+  attack('edit of a published score', () => sqlite.prepare('UPDATE assessment_results SET score = score + 1 WHERE assessment_id = ?').run(published), /saha_assessment_published_lock/, ['assessment_results']);
+  attack('new result for a published assessment', () => sqlite.prepare("INSERT INTO assessment_results (id, assessment_id, student_id, score, grade, feedback, created_at, updated_at) VALUES (?, ?, 'student-other', 1, 'D', NULL, '2026-10-06T00:00:00.000Z', '2026-10-06T00:00:00.000Z')").run(uid(), published), /saha_assessment_published_lock/, ['assessment_results']);
+  // Metadata edit authority.
+  attack('metadata edit by a guardian', cloneInto('assessment_metadata_edits', { actor_id: 'guardian-a' }), /saha_assessment_edit_conflict/, ['assessment_metadata_edits']);
+  attack('metadata edit by an unassigned teacher', cloneInto('assessment_metadata_edits', { actor_id: 'teacher-other' }), /saha_assessment_edit_conflict/, ['assessment_metadata_edits']);
+  // Report line and correction authority (report_card_line_authority, report_card_correction_authority).
+  attack('result line added to an already published report', cloneInto('report_card_lines', {}), /saha_report_line_conflict/, ['report_card_lines']);
+  attack('result line whose frozen score differs from the saved result', cloneInto('report_card_lines', { report_id: evidence.replacement.id, score: 9 }), /saha_report_line_conflict/, ['report_card_lines']);
+  attack('report correction by a teacher', cloneInto('report_card_corrections', { created_by: 'teacher-a', replacement_report_id: uid() }), /saha_report_correction_conflict/, ['report_card_corrections']);
+  attack('report correction of a pupil of another school', cloneInto('report_card_corrections', { student_id: 'student-b', replacement_report_id: uid() }), /saha_report_correction_conflict/, ['report_card_corrections']);
+  // Whole-request authority and atomic expansion of academic changes (academic_change_requests_guard / _expand / academic_event_*).
+  attack('academic change recorded by a teacher', cloneInto('academic_change_requests', { actor_id: 'teacher-a' }), /saha_academic_conflict:authority/, ['academic_change_requests', 'academic_events', 'courses']);
+  attack('academic change recorded for another school', cloneInto('academic_change_requests', { actor_id: 'admin-b' }), /saha_academic_conflict:authority/, ['academic_change_requests', 'academic_events', 'courses']);
+  {
+    const before = f.fingerprint();
+    const mixed = await f.call('admin-a', 'POST', '/api/academic-changes', { body: { clientRequestId: uid(), reason: 'Synthetic mixed request.', changes: [
+      { kind: 'course.create', code: 'ATOMIC-MIX-' + uid().slice(0, 8), title: 'Atomic mixed course', description: null, gradeLevel: '8' },
+      { kind: 'course.edit', courseId: 'course-a', expectedUpdatedAt: '1970-01-01T00:00:00.000Z', code: 'course-a', title: 'Hijacked title', description: null, gradeLevel: '8' }] } });
+    equal(mixed.status, 409, 'A request whose second change is stale is refused');
+    equal(f.changedTables(before, f.fingerprint()).filter(name => !NOISE.has(name)), [], 'The valid first change was rolled back with the stale second one (header, events, course: nothing written)');
+    guardAttacks++;
+  }
+  // Course and class rules (classes_course_rules_*, enrolments_class_rules_*) on throw-away rows that are removed afterwards.
+  {
+    const now = '2026-10-06T00:00:00.000Z';
+    const run = (sql, ...params) => sqlite.prepare(sql).run(...params);
+    run("INSERT INTO courses (id, school_id, code, title, grade_level, created_at, updated_at) VALUES ('course-guard', 'a', 'course-guard', 'Guard course', '8', ?, ?)", now, now);
+    run("INSERT INTO classes (id, school_id, teacher_id, course_id, name, term, created_at, updated_at) VALUES ('class-guard', 'a', 'teacher-a', 'course-guard', 'class-guard', 'T1', ?, ?)", now, now);
+    run("INSERT INTO course_lifecycle (course_id, status, changed_at, changed_by, reason) VALUES ('course-guard', 'retired', ?, 'admin-a', 'Synthetic retirement.')", now);
+    attack('class created on a retired course', () => run("INSERT INTO classes (id, school_id, teacher_id, course_id, name, term, created_at, updated_at) VALUES ('class-guard-2', 'a', 'teacher-a', 'course-guard', 'class-guard-2', 'T1', ?, ?)", now, now), /saha_academic_conflict:course-retired/, ['classes']);
+    attack('class moved onto a retired course', () => run("UPDATE classes SET course_id = 'course-guard' WHERE id = 'class-other'"), /saha_academic_conflict:course-retired/, ['classes']);
+    run("DELETE FROM course_lifecycle WHERE course_id = 'course-guard'");
+    run("INSERT INTO class_settings (class_id, capacity, status, updated_at) VALUES ('class-guard', 1, 'open', ?)", now);
+    run("INSERT INTO enrolments (id, student_id, class_id, status, enrolled_at, created_at, updated_at) VALUES ('guard-first', 'student-other', 'class-guard', 'active', ?, ?, ?)", now, now, now);
+    attack('enrolment beyond the class capacity', () => run("INSERT INTO enrolments (id, student_id, class_id, status, enrolled_at, created_at, updated_at) VALUES ('guard-second', 'student-a', 'class-guard', 'active', ?, ?, ?)", now, now, now), /saha_academic_conflict:class-full/, ['enrolments']);
+    run("UPDATE class_settings SET status = 'closed', closed_at = ?, closed_by = 'admin-a' WHERE class_id = 'class-guard'", now);
+    attack('enrolment in a closed class', () => run("INSERT INTO enrolments (id, student_id, class_id, status, enrolled_at, created_at, updated_at) VALUES ('guard-third', 'student-a', 'class-guard', 'active', ?, ?, ?)", now, now, now), /saha_academic_conflict:class-closed/, ['enrolments']);
+    run("INSERT INTO enrolments (id, student_id, class_id, status, enrolled_at, created_at, updated_at) VALUES ('guard-withdrawn', 'student-a', 'class-guard', 'withdrawn', ?, ?, ?)", now, now, now);
+    attack('reactivation of an enrolment in a closed class', () => run("UPDATE enrolments SET status = 'active' WHERE id = 'guard-withdrawn'"), /saha_academic_conflict:class-closed/, ['enrolments']);
+    for (const statement of ["DELETE FROM enrolments WHERE id IN ('guard-first', 'guard-withdrawn')", "DELETE FROM class_settings WHERE class_id = 'class-guard'", "DELETE FROM classes WHERE id = 'class-guard'", "DELETE FROM courses WHERE id = 'course-guard'"]) run(statement);
+  }
+  // Attendance change log (attendance_changes_on_update / _on_delete): every real change is recorded with its before/after, no-ops are not.
+  {
+    const now = '2026-10-06T00:00:00.000Z';
+    sqlite.prepare("INSERT INTO attendance (id, class_id, student_id, date, status, note, recorded_by, created_at, updated_at) VALUES ('att-guard', 'class-a', 'student-a', '2019-01-01', 'present', NULL, 'teacher-a', ?, ?)").run(now, now);
+    const logged = () => sqlite.prepare("SELECT change_kind, before_record, after_record FROM attendance_changes WHERE attendance_id = 'att-guard' ORDER BY rowid").all();
+    equal(logged().length, 0, 'inserting a mark writes no change log row');
+    sqlite.prepare("UPDATE attendance SET updated_at = ? WHERE id = 'att-guard'").run('2026-10-07T00:00:00.000Z');
+    equal(logged().length, 0, 'an update that changes no recorded value (only the timestamp) writes no change log row');
+    sqlite.prepare("UPDATE attendance SET status = 'late' WHERE id = 'att-guard'").run();
+    const afterUpdate = logged();
+    equal(afterUpdate.map(row => row.change_kind), ['update'], 'a status change writes exactly one update log row');
+    equal([JSON.parse(afterUpdate[0].before_record).status, JSON.parse(afterUpdate[0].after_record).status], ['present', 'late'], 'the log row holds the exact before and after status');
+    sqlite.prepare("DELETE FROM attendance WHERE id = 'att-guard'").run();
+    const afterDelete = logged();
+    equal(afterDelete.map(row => row.change_kind), ['update', 'delete'], 'deleting a mark writes a delete log row');
+    equal([JSON.parse(afterDelete[1].before_record).status, afterDelete[1].after_record], ['late', null], 'the delete log row keeps the last value and no after record');
+    guardAttacks += 2;
+  }
+  check(guardAttacks >= 25, `${guardAttacks} direct-SQL attacks on guard, authority and lifecycle triggers each refused (or recorded) as documented`);
 }
 
 // ---------------------------------------------------------------------------------------------------------------

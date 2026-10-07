@@ -112,6 +112,17 @@ export async function buildFixture() {
   const unlinked = await must('admin-a', 'POST', '/api/admin/profile-links', { body: { profileType: 'student', profileId: 'student-peer', userId: null, expectedVersion: 0, clientRequestId: crypto.randomUUID(), reviewConfirmed: true, reason: 'Synthetic explicit profile ownership review.' } });
   await must('admin-a', 'POST', '/api/admin/profile-links', { body: { profileType: 'student', profileId: 'student-peer', userId: 'student-user-peer', expectedVersion: unlinked.profile.version, clientRequestId: crypto.randomUUID(), reviewConfirmed: true, reason: 'Synthetic explicit profile ownership review.' } });
   cookies['student-user-peer'] = (await sessions.createSession('student-user-peer')).split(';')[0];
+  // Evidence added for the merged v2.13 inventory: a class notice with a correction, a school term, a course-creation receipt
+  // from the reviewed lifecycle service and the id of one real audit entry. Everything goes through the real handlers.
+  const notice = await must('teacher-a', 'POST', '/api/notices', { body: { clientRequestId: crypto.randomUUID(), title: 'Synthetic class notice', body: 'Synthetic notice body for the class.', audience: { kind: 'class', classId: 'class-a', roles: 'both' }, reviewConfirmed: true } });
+  ids.notice = notice.notice.id;
+  await must('teacher-a', 'POST', `/api/notices/${ids.notice}/corrections`, { body: { clientRequestId: crypto.randomUUID(), title: 'Synthetic class notice (corrected)', body: 'Synthetic corrected body.', reason: 'Synthetic reviewed correction reason.', reviewConfirmed: true } });
+  const term = await must('admin-a', 'POST', '/api/schools/a/terms', { body: { clientRequestId: crypto.randomUUID(), academicYear: '2026-27', name: 'Synthetic term one', startsOn: '2026-04-01', endsOn: '2026-09-30' } });
+  ids.term = term.term.id;
+  ids.academicChange = crypto.randomUUID();
+  await must('admin-a', 'POST', '/api/academic-changes', { body: { clientRequestId: ids.academicChange, changes: [{ kind: 'course.create', code: 'FIXTURE-ACADEMIC', title: 'Synthetic lifecycle course', description: null, gradeLevel: '8' }] } });
+  ids.auditSource = 'attendance';
+  ids.auditEntry = sqlite.prepare("SELECT id FROM attendance_reviews WHERE school_id='a' LIMIT 1").get().id;
 
   /** SHA-256 fingerprint of every table's rows: any partial write, however small, changes it. */
   function fingerprint(tables) {

@@ -21,7 +21,7 @@ const realFetch = globalThis.fetch;
 globalThis.fetch = async () => { externalRequests++; throw new Error('The authorization matrix is offline'); };
 
 // ---------------------------------------------------------------------------------------------------------------
-// Section 1: the matrix covers exactly the documented inventory (60 route files / 96 handlers).
+// Section 1: the matrix covers exactly the documented inventory (103 route files / 150 handlers).
 // ---------------------------------------------------------------------------------------------------------------
 function parseCsv(text) {
   const records = []; let row = []; let field = ''; let quoted = false;
@@ -42,7 +42,7 @@ const contractRoutes = contract.map(record => record.route.replaceAll('`', '').r
 const contractMethods = new Map(contract.map(record => [record.route.replaceAll('`', ''),
   [...new Set(record.exported_methods_input.match(/\b(GET|POST|PATCH|PUT|DELETE)\b/g) ?? [])].sort()]));
 const discovered = discoverRoutes();
-equal(discovered.length, 60, 'v2.12 inventory is 60 route files');
+equal(discovered.length, 103, 'v2.13 merged inventory is 103 route files');
 equal(discovered.map(route => route.pattern).sort(), [...contractRoutes].sort(), 'Route files on disk equal the contract inventory exactly');
 let handlerCount = 0;
 for (const route of discovered) {
@@ -50,12 +50,12 @@ for (const route of discovered) {
   handlerCount += methods.length;
   equal([...methods].sort(), contractMethods.get(route.pattern), `${route.pattern}: exported methods equal the contract (no undocumented PUT/DELETE/HEAD/OPTIONS)`);
 }
-equal(handlerCount, 96, 'v2.12 inventory is 96 exported method handlers');
+equal(handlerCount, 150, 'v2.13 merged inventory is 150 exported method handlers');
 const matrixKeys = rows.map(row => `${row.method} ${row.route}`);
 equal(new Set(matrixKeys).size, matrixKeys.length, 'No duplicate matrix rows');
 const handlerKeys = [];
 for (const route of discovered) for (const method of await exportedMethods(route)) handlerKeys.push(`${method} ${route.pattern}`);
-equal([...matrixKeys].sort(), handlerKeys.sort(), 'The authorization matrix has one row for every one of the 96 handlers and no extra rows');
+equal([...matrixKeys].sort(), handlerKeys.sort(), 'The authorization matrix has one row for every one of the 150 handlers and no extra rows');
 
 // ---------------------------------------------------------------------------------------------------------------
 // Fixture and request helpers.
@@ -63,11 +63,13 @@ equal([...matrixKeys].sort(), handlerKeys.sort(), 'The authorization matrix has 
 const f = await buildFixture();
 const { ids } = f;
 const idMap = { schoolA: 'a', schoolB: 'b', courseA: 'course-a', courseB: 'course-b', reportA: 'published-a', reportB: 'published-b',
-  userTeacher: 'teacher-a', orf: 'oral-reading-fluency', ...ids };
+  userTeacher: 'teacher-a', orf: 'oral-reading-fluency', guardianA: 'guardian-profile-a', guardianB: 'guardian-profile-b', studentB: 'student-b', ...ids };
 function pathFor(row, { foreign = false } = {}) {
   let path = row.route;
   const param = foreign && row.foreign ? row.foreign : row.param;
-  path = path.replace('[submissionId]', idMap[row.param2] ?? 'x').replace('[requestId]', idMap[param] ?? 'x').replace('[id]', idMap[param] ?? 'x');
+  path = path.replace('[submissionId]', idMap[row.param2] ?? 'x').replace('[termId]', idMap[row.param3] ?? 'x')
+    .replace('[sourceId]', encodeURIComponent(idMap.auditEntry)).replace('[source]', idMap.auditSource)
+    .replace('[requestId]', idMap[param] ?? 'x').replace('[id]', idMap[param] ?? 'x');
   let query = row.query ?? '';
   if (row.route === '/api/curriculum/[id]/snapshot') query = `?versionId=${ids.curriculumVersion}`;
   if (row.route === '/api/notifications' && row.method === 'PATCH') query = '?id=missing-notice';
@@ -111,6 +113,12 @@ const where = (result) => `${result.row.method} ${result.row.route} as ${result.
 function expectDenied(result, status, label) {
   equal(result.status, status, `${label}: ${where(result)} -> ${result.status} ${result.text.slice(0, 120)}`);
   check(result.json && Object.keys(result.json).length >= 1 && typeof result.json.error === 'string', `${label}: denial body is a safe {error}: ${where(result)}`);
+}
+// A denial body is `{error}` or, for the lifecycle handlers, `{error, code}` where code is the documented stable machine-readable
+// outcome (API-CONTRACTS: it "never carries record contents"): a short lowercase token, never free text or an id.
+function safeDenial(result, message) {
+  const keys = Object.keys(result.json ?? {}).sort();
+  check(keys.join() === 'error' || (keys.join() === 'code,error' && /^[a-z][a-z0-9_-]{1,40}$/.test(result.json.code)), `${message} (${result.text.slice(0, 120)})`);
 }
 const unchanged = (before, message) => equal(f.changedTables(before, f.fingerprint()), [], message);
 
@@ -218,6 +226,23 @@ for (const row of protectedRows) {
   }
 }
 unchanged(before, 'Role-matrix probes changed no table (malformed bodies and denials write nothing)');
+// Role gate before query parsing: a denied signed-in role that also sends a hostile query string must still be told 403.
+// Rows marked queryOrder 'before' carry that promise in the contract ("role checked before query/body", "403 before filters");
+// for every other GET row with denied roles the ordering is only recorded as an observation.
+let queryOrderChecks = 0;
+for (const row of protectedRows.filter(candidate => candidate.method === 'GET')) {
+  for (const actor of sameSchool) {
+    const letter = roleLetter[actor.startsWith('admin') ? 'admin' : actor.startsWith('teacher') ? 'teacher' : actor.startsWith('guardian') ? 'guardian' : 'student'];
+    if (row.roles.includes(letter)) continue;
+    const hostile = { ...row, query: '?limit=0&cursor=%00bad&from=nope&to=nope&source=bogus&classId=&roles=x&studentId=&date=zzz&q=%25&unknown=1' };
+    const result = await send(actor, hostile);
+    if (result.status === 403) { expectDenied(result, 403, 'role gate before query parsing'); queryOrderChecks++; }
+    else if (row.queryOrder === 'before') check(false, `role denial must precede query parsing but ${actor} got ${result.status}: ${where(result)}`);
+    else observe(`GET ${row.route} [${row.clause}] parses the query before the role gate (denied role gets ${result.status} not 403)`, actor);
+  }
+}
+check(queryOrderChecks >= 40, `role-before-query probes exercised ${queryOrderChecks} denials`);
+unchanged(before, 'Hostile-query role probes changed no table');
 check(denials >= 300 && allowances >= 350, `role matrix exercised ${denials} denials and ${allowances} allowances`);
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -255,6 +280,37 @@ const scopedReads = [
   ['course', '/api/courses/course-a', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['admin-b', 'teacher-b']],
   ['foreign class', '/api/classes/class-b', ['admin-b', 'teacher-b'], ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a', 'teacher-other']],
   ['other class', '/api/classes/class-other', ['admin-a', 'teacher-other', 'guardian-other', 'student-user-other'], ['teacher-a', 'guardian-a', 'student-user-a', 'guardian-peer', 'admin-b']],
+  // v2.13 handlers: every new object read is scoped like the contract says (API-CONTRACTS.csv role_scope column).
+  ['sent notice', `/api/notices/${ids.notice}`, ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b', 'guardian-b']],
+  ['notice audience preview', '/api/notices/audience?classId=class-a&roles=guardians', ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['student record', '/api/records/students/student-a', ['admin-a'], ['teacher-a', 'guardian-a', 'student-user-a', 'teacher-other', 'admin-b']],
+  ['student guardian links', '/api/records/students/student-a/guardian-links', ['admin-a'], ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b']],
+  ['guardian record', '/api/records/guardians/guardian-profile-a', ['admin-a', 'guardian-a', 'teacher-a', 'student-user-a'], ['teacher-other', 'guardian-other', 'guardian-peer', 'student-user-other', 'admin-b', 'guardian-b']],
+  ['class lifecycle', '/api/classes/class-a/lifecycle', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['teacher-other', 'guardian-other', 'student-user-other', 'admin-b', 'teacher-b']],
+  ['class roster', '/api/classes/class-a/roster', ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['class history', '/api/classes/class-a/history', ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['class attendance changes', '/api/classes/class-a/attendance-changes?date=2026-10-02', ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['class attendance report', '/api/classes/class-a/attendance-report', ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['course lifecycle', '/api/courses/course-a/lifecycle', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['admin-b', 'teacher-b', 'guardian-b', 'student-user-b']],
+  ['course history', '/api/courses/course-a/history', ['admin-a'], ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b']],
+  ['assessment lifecycle', '/api/assessments/assessment-a/lifecycle', ['admin-a', 'teacher-a'], ['teacher-other', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['published report detail', '/api/report-cards/published-a/detail', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['teacher-other', 'guardian-other', 'student-user-other', 'guardian-peer', 'admin-b', 'guardian-b']],
+  ['draft report detail', `/api/report-cards/${ids.reportDraft}/detail`, ['admin-a'], ['guardian-a', 'student-user-a', 'guardian-other', 'admin-b', 'guardian-b']],
+  ['eligible results of a pupil', '/api/report-cards/eligible?studentId=student-a', ['admin-a'], ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b']],
+  ['eligible results of a foreign pupil', '/api/report-cards/eligible?studentId=student-b', ['admin-b'], ['admin-a', 'teacher-a', 'guardian-a', 'teacher-b']],
+  ['pupil attendance', '/api/students/student-a/attendance', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['teacher-other', 'guardian-other', 'student-user-other', 'guardian-peer', 'student-user-peer', 'admin-b']],
+  ['enrolment history', '/api/enrolments/history?studentId=student-a', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['teacher-other', 'guardian-other', 'student-user-other', 'guardian-peer', 'student-user-peer', 'admin-b']],
+  ['assignment progress roster', `/api/assignments/${ids.assignment}/progress`, ['admin-a', 'teacher-a'], ['teacher-other', 'student-user-a', 'student-user-peer', 'guardian-a', 'admin-b', 'teacher-b']],
+  ['curriculum status history', `/api/curriculum/${ids.curriculumOther}/status`, ['admin-a', 'teacher-other'], ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['curriculum usage', `/api/curriculum/${ids.curriculumOther}/usage`, ['admin-a', 'teacher-other'], ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['resource source', `/api/resources/${ids.resourceOther}/source`, ['admin-a', 'teacher-other'], ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b', 'teacher-b']],
+  ['school setup', '/api/schools/a/setup', ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a'], ['admin-b', 'teacher-b', 'guardian-b', 'student-user-b']],
+  ['other school setup', '/api/schools/b/setup', ['admin-b', 'teacher-b', 'guardian-b', 'student-user-b'], ['admin-a', 'teacher-a', 'guardian-a', 'student-user-a']],
+  ['academic change receipt', `/api/academic-changes/${ids.academicChange}`, ['admin-a'], ['admin-b', 'teacher-a', 'guardian-a', 'student-user-a']],
+  ['audit entry detail', `/api/admin/audit/attendance/${ids.auditEntry}`, ['admin-a'], ['admin-b', 'teacher-a', 'guardian-a', 'student-user-a']],
+  ['audit trail', '/api/admin/audit', ['admin-a', 'admin-b'], ['teacher-a', 'guardian-a', 'student-user-a']],
+  ['identity account detail', '/api/admin/users/teacher-a', ['admin-a'], ['admin-b', 'teacher-a', 'guardian-a', 'student-user-a']],
+  ['identity change history', '/api/admin/users/changes', ['admin-a', 'admin-b'], ['teacher-a', 'teacher-b', 'guardian-a', 'student-user-a']],
 ];
 let scopeChecks = 0;
 for (const [name, path, allowed, hidden] of scopedReads) {
@@ -268,11 +324,23 @@ for (const [name, path, allowed, hidden] of scopedReads) {
     const result = await f.call(actor, 'GET', path);
     seen.push({ ...result, row: { method: 'GET', route: path, clause: `scope: ${name}` }, actor, path, bodyRead: false });
     check([403, 404].includes(result.status), `${name}: ${actor} is out of scope and must not see it (got ${result.status} ${result.text.slice(0, 100)})`);
-    equal(Object.keys(result.json ?? {}), ['error'], `${name}: ${actor} denial reveals only a safe error`);
+    safeDenial(result, `${name}: ${actor} denial reveals only a safe error`);
     scopeChecks++;
   }
 }
 check(scopeChecks >= 200, `object-scope matrix exercised ${scopeChecks} cells`);
+
+// Administrator-only timelines are scoped to the administrator's own school: school b sees none of school a's evidence.
+{
+  const own = await f.call('admin-a', 'GET', '/api/admin/audit');
+  check(own.json.items.length > 0 && own.json.items.some(item => item.sourceId === ids.auditEntry), 'positive control: the school a audit trail lists the real attendance review entry');
+  const foreign = await f.call('admin-b', 'GET', '/api/admin/audit');
+  equal(foreign.json.items.filter(item => item.sourceId === ids.auditEntry || /student-a|student-peer|class-a/.test(JSON.stringify(item))), [], 'School b administrator receives no school a audit entry');
+  const changesA = await f.call('admin-a', 'GET', '/api/admin/users/changes');
+  const changesB = await f.call('admin-b', 'GET', '/api/admin/users/changes');
+  check(Array.isArray(changesA.json) && Array.isArray(changesB.json), 'Identity change lists are arrays');
+  equal(changesB.json.filter(event => event.schoolId !== 'b'), [], 'School b identity change list contains only school b events');
+}
 
 // Family roster privacy: a guardian/student sees the class but never classmates; staff see the roster.
 {
@@ -321,6 +389,7 @@ const markers = {
   [ids.reading]: actor => ['admin-a', 'teacher-a'].includes(actor),
   [ids.import]: actor => ['admin-a', 'teacher-a'].includes(actor),
   [ids.registryRequest]: actor => actor === 'admin-a',
+  [ids.academicChange]: actor => actor === 'admin-a',
 };
 const boundary = marker => new RegExp(`(?<![A-Za-z0-9-])${marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9-])`);
 let leakChecks = 0;
@@ -377,6 +446,8 @@ for (const actor of ['admin-a', 'teacher-a']) {
 const uuid = () => crypto.randomUUID();
 function writeCases(g) {
   const g_ids = g.ids;
+  const row = (sql, ...params) => g.sqlite.prepare(sql).get(...params);
+  const updatedAt = (table, id) => row(`SELECT updated_at AS value FROM ${table} WHERE id = ?`, id).value;
   return [
     ['attendance review', 'POST', '/api/classes/class-a/attendance-editor', () => ({ date: '2026-10-03', clientRequestId: uuid(), reviewConfirmed: true, reason: 'Synthetic reviewed attendance change.', entries: [{ studentId: 'student-a', status: 'late', note: null, expectedRecord: null }] }), 'teacher-a', ['teacher-other', 'admin-b', 'teacher-b', 'guardian-a', 'student-user-a'], [201]],
     ['legacy attendance', 'POST', '/api/attendance', () => ({ classId: 'class-a', date: '2026-10-04', entries: [{ studentId: 'student-a', status: 'present' }] }), 'teacher-a', ['teacher-other', 'admin-b', 'teacher-b', 'guardian-a'], [200]],
@@ -424,13 +495,36 @@ function writeCases(g) {
     ['registry guardian created by a teacher', 'POST', '/api/registry/guardians', () => ({ clientRequestId: uuid(), reviewConfirmed: true, reason: 'Hostile registry creation attempt', profile: { name: 'Hostile guardian', relationship: 'parent' } }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a'], [201]],
     ['profile ownership changed by a teacher', 'POST', '/api/admin/profile-links', () => ({ profileType: 'student', profileId: 'student-a', userId: null, expectedVersion: 0, clientRequestId: uuid(), reviewConfirmed: true, reason: 'Hostile unlink attempt by staff.' }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a'], [200]],
     ['external launch for an inaccessible pupil', 'POST', '/api/external-apps/oral-reading-fluency/launch', () => ({ studentId: 'student-b' }), null, ['teacher-a', 'admin-a'], null],
+    // ---- v2.13 handlers (merged inventory): valid bodies from out-of-scope actors must be denied and change nothing.
+    ['academic change by a non-administrator', 'POST', '/api/academic-changes', () => ({ clientRequestId: uuid(), changes: [{ kind: 'course.create', code: 'HOSTILE-' + uuid().slice(0, 8), title: 'Hostile lifecycle course', description: null, gradeLevel: '8' }] }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a'], [201]],
+    ['notice sent by family', 'POST', '/api/notices', () => ({ clientRequestId: uuid(), title: 'Hostile notice', body: 'Hostile body.', audience: { kind: 'class', classId: 'class-a', roles: 'both' }, reviewConfirmed: true }), 'teacher-a', ['guardian-a', 'student-user-a'], [201]],
+    ['notice to a class the teacher does not teach', 'POST', '/api/notices', () => ({ clientRequestId: uuid(), title: 'Hostile notice', body: 'Hostile body.', audience: { kind: 'class', classId: 'class-a', roles: 'both' }, reviewConfirmed: true }), 'teacher-a', ['teacher-other', 'admin-b', 'teacher-b'], [201]],
+    ['notice to a foreign person', 'POST', '/api/notices', () => ({ clientRequestId: uuid(), title: 'Hostile notice', body: 'Hostile body.', audience: { kind: 'recipients', userIds: ['guardian-b'] }, reviewConfirmed: true }), null, ['admin-a', 'teacher-a'], null],
+    ['notice correction by an unrelated actor', 'POST', `/api/notices/${g_ids.notice}/corrections`, () => ({ clientRequestId: uuid(), title: 'Hostile correction', body: 'Hostile corrected body.', reason: 'Hostile correction attempt.', reviewConfirmed: true }), 'teacher-a', ['teacher-other', 'admin-b', 'teacher-b', 'guardian-a', 'student-user-a'], [201]],
+    ['audit note by a non-administrator', 'POST', '/api/admin/audit/annotations', () => ({ clientRequestId: uuid(), source: 'attendance', sourceId: g_ids.auditEntry, note: 'Hostile note on the audit trail.', reviewConfirmed: true }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [201]],
+    ['assessment details edited by an unassigned teacher', 'PATCH', '/api/assessments/assessment-a', () => ({ clientRequestId: uuid(), expected: { title: 'Synthetic quiz', kind: 'quiz', maxScore: 20, date: '2026-10-05', updatedAt: updatedAt('assessments', 'assessment-a') }, details: { title: 'Hijacked quiz', kind: 'quiz', maxScore: 20, date: '2026-10-05' }, reason: 'Hostile edit of assessment details.' }), 'teacher-a', ['teacher-other', 'admin-b', 'teacher-b', 'guardian-a', 'student-user-a'], [201]],
+    ['assessment results published by an unassigned teacher', 'POST', '/api/assessments/assessment-a/lifecycle', () => ({ clientRequestId: uuid(), action: 'publish', partialConfirmed: true }), 'teacher-a', ['teacher-other', 'admin-b', 'teacher-b', 'guardian-a', 'student-user-a'], [201]],
+    ['student record edited by a non-administrator', 'PATCH', '/api/records/students/student-a', () => ({ firstName: 'Hijacked', lastName: 'Synthetic', dateOfBirth: '2012-01-01', admissionNumber: 'student-a', gradeLevel: '8', expectedUpdatedAt: updatedAt('students', 'student-a') }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
+    ['guardian link by a non-administrator', 'POST', '/api/records/students/student-a/guardian-links', () => ({ action: 'link', guardianId: 'guardian-profile-other', relationship: 'aunt', isPrimary: false, reason: 'Hostile guardian link attempt.', clientRequestId: uuid(), expectedVersion: 0 }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [201]],
+    ['guardian record edited by a non-administrator', 'PATCH', '/api/records/guardians/guardian-profile-a', () => ({ name: 'Hijacked guardian', phone: null, email: null, relationship: 'parent', expectedUpdatedAt: updatedAt('guardians', 'guardian-profile-a') }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
+    ['school setup edited by a non-administrator', 'PATCH', '/api/schools/a/setup', () => ({ name: 'Hijacked school', address: null, academicYear: null, contactEmail: null, contactPhone: null, currentTermId: null, expectedVersion: row('SELECT coalesce((SELECT version FROM school_setup_settings WHERE school_id = ?), 0) AS value', 'a').value, expectedUpdatedAt: updatedAt('schools', 'a') }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
+    ['school term created by a non-administrator', 'POST', '/api/schools/a/terms', () => ({ clientRequestId: uuid(), academicYear: '2027-28', name: 'Hostile term', startsOn: '2027-04-01', endsOn: '2027-09-30' }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [201]],
+    ['school term edited by a non-administrator', 'PATCH', `/api/schools/a/terms/${g_ids.term}`, () => ({ academicYear: '2026-27', name: 'Hijacked term', startsOn: '2026-04-01', endsOn: '2026-09-30', expectedVersion: row('SELECT version AS value FROM school_setup_terms WHERE id = ?', g_ids.term).value }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
+    ['attendance calendar changed by a non-administrator', 'PUT', '/api/attendance/calendar', () => ({ timezone: 'Asia/Kolkata', futureDatesAllowed: true }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a'], [200]],
+    ['curriculum retired by an unrelated actor', 'POST', `/api/curriculum/${g_ids.curriculumOther}/status`, () => ({ clientEventId: uuid(), expectedRevision: 0, status: 'retired', reason: 'Hostile retirement of a draft.' }), 'teacher-other', ['teacher-a', 'admin-b', 'teacher-b', 'guardian-a', 'student-user-a'], [201]],
+    ['identity role changed by a non-administrator', 'PATCH', '/api/admin/users/teacher-disabled/role', () => ({ clientRequestId: uuid(), reviewConfirmed: true, reason: 'Hostile role escalation attempt.', expectedVersion: 0, role: 'admin' }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
+    ['identity linked by a non-administrator', 'PATCH', '/api/admin/users/teacher-unmapped/identity', () => ({ clientRequestId: uuid(), reviewConfirmed: true, reason: 'Hostile identity link attempt.', expectedVersion: 0, action: 'link', identityIssuer: 'https://identity.example.invalid', identitySubject: 'hostile-' + uuid() }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
+    ['pupil deactivated by a non-administrator', 'POST', '/api/records/students/student-peer/status', () => ({ action: 'deactivate', reason: 'Hostile deactivation attempt.', expectedVersion: 0, clientRequestId: uuid() }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [201]],
     // Last on purpose: its positive control withdraws a pupil, which later controls would need active.
     ['enrolment withdrawn by a non-administrator', 'PATCH', '/api/enrolments', () => ({ id: 'student-a-enrolment', status: 'withdrawn' }), 'admin-a', ['teacher-a', 'guardian-a', 'student-user-a', 'admin-b'], [200]],
   ];
 }
 let hostileWrites = 0, positiveControls = 0;
 const pending = writeCases(f);
-for (const [name, method, path, payload, , hostile] of pending) {
+const v213Start = pending.findIndex(entry => entry[0] === 'academic change by a non-administrator');
+const V213_CASES = 19;
+equal(pending.findIndex(entry => entry[0] === 'enrolment withdrawn by a non-administrator') - v213Start, V213_CASES, 'The strict v2.13 hostile-write block covers exactly its 19 cases');
+for (const [index, [name, method, path, payload, , hostile]] of pending.entries()) {
   before = f.fingerprint();
   for (const actor of hostile) {
     const body = payload();
@@ -438,7 +532,10 @@ for (const [name, method, path, payload, , hostile] of pending) {
     seen.push({ ...result, row: { method, route: path, clause: `hostile write: ${name}` }, actor, path, bodyRead: false });
     // Strictly never a success; a denial writes nothing at all.
     check([400, 403, 404, 409].includes(result.status), `${name}: ${actor} got ${result.status} ${result.text.slice(0, 100)}; must be a denial`);
-    equal(Object.keys(result.json ?? {}), ['error'], `${name}: ${actor} denial is a safe {error}`);
+    // The v2.13 cases carry a fully valid body, so the only acceptable answer is a role or scope denial (403/404), never a
+    // validation (400) or state conflict (409) answer that would show the request got past the authority gate.
+    if (v213Start >= 0 && index >= v213Start && index < v213Start + V213_CASES) check([403, 404].includes(result.status), `${name}: ${actor} must be stopped by the role/scope gate (403/404), got ${result.status} ${result.text.slice(0, 100)}`);
+    safeDenial(result, `${name}: ${actor} denial is a safe {error}`);
     equal(f.changedTables(before, f.fingerprint()), [], `${name}: denied write by ${actor} changed no table`);
     hostileWrites++;
   }
