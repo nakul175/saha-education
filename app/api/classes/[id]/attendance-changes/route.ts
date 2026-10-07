@@ -1,0 +1,11 @@
+import { authenticated, query } from '@/lib/education/http';
+import { assertAcademicStaff } from '@/lib/education/academic-integrity';
+import { listAttendanceChanges } from '@/lib/education/attendance-changes';
+
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return authenticated(request, false, async principal => {
+    assertAcademicStaff(principal);
+    const { id } = await params;
+    return Response.json(await listAttendanceChanges(principal, id, { date: query(request, 'date') ?? '', studentId: query(request, 'studentId') }));
+  });
+}

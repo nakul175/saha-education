@@ -5,6 +5,7 @@ import { reportCards, students } from '@/db/schema';
 import { reportPublicationReceipts } from '@/db/report-publication-schema';
 import { reportCardSchema } from './validation';
 import { and, eq, isNotNull, sql } from 'drizzle-orm';
+import { LifecycleConflict } from './lifecycle-conflict';
 import { AccessError, assertAdmin, assertStudentAccess, studentReferenceScope, studentScope } from './access';
 
 function scope(principal: Principal) {
@@ -47,6 +48,7 @@ export async function publishReportCard(principal: Principal, id: string): Promi
   } catch (error) {
     let cause: unknown = error;
     for (let depth = 0; depth < 5 && cause instanceof Error; depth++) {
+      if (cause.message.includes('saha_report_stale_lines')) throw new LifecycleConflict('results_changed');
       if (cause.message.includes('saha_report_publication_conflict')) throw new AccessError('Report authority changed; reload before publishing', 409);
       cause = cause.cause;
     }

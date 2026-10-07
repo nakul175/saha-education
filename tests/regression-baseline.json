@@ -1,12 +1,22 @@
 {
   "description": "Minimum passed-assertion count per suite, from a real run. Changed only by node scripts/test.mjs --update-baseline.",
-  "updatedAt": "2026-10-06",
+  "updatedAt": "2026-10-07",
   "node": "v24.19.0",
   "suites": {
     "integration/academic-integrity-contract": {
       "layer": "integration",
       "file": "tests/integration/academic-integrity-contract.mjs",
       "minPassed": 218
+    },
+    "integration/academic-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/academic-lifecycle-contract.mjs",
+      "minPassed": 387
+    },
+    "integration/academic-lifecycle-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/academic-lifecycle-ui-contract.mjs",
+      "minPassed": 113
     },
     "integration/academic-ui-contract": {
       "layer": "integration",
@@ -16,7 +26,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 136
+      "minPassed": 194
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -27,6 +37,11 @@
       "layer": "integration",
       "file": "tests/integration/assessment-detail-ui-contract.mjs",
       "minPassed": 1476
+    },
+    "integration/assessment-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/assessment-lifecycle-contract.mjs",
+      "minPassed": 248
     },
     "integration/assessment-review-access-contract": {
       "layer": "integration",
@@ -58,6 +73,11 @@
       "file": "tests/integration/attendance-summary-contract.mjs",
       "minPassed": 103
     },
+    "integration/attendance-workflow-contract": {
+      "layer": "integration",
+      "file": "tests/integration/attendance-workflow-contract.mjs",
+      "minPassed": 362
+    },
     "integration/course-catalog-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/course-catalog-ui-contract.mjs",
@@ -68,6 +88,11 @@
       "file": "tests/integration/curriculum-contract.mjs",
       "minPassed": 131
     },
+    "integration/curriculum-library-contract": {
+      "layer": "integration",
+      "file": "tests/integration/curriculum-library-contract.mjs",
+      "minPassed": 140
+    },
     "integration/d1-attendance-portability-contract": {
       "layer": "integration",
       "file": "tests/integration/d1-attendance-portability-contract.mjs",
@@ -77,6 +102,11 @@
       "layer": "integration",
       "file": "tests/integration/d1-dashboard-portability-contract.mjs",
       "minPassed": 51
+    },
+    "integration/d1-lifecycle-portability-contract": {
+      "layer": "integration",
+      "file": "tests/integration/d1-lifecycle-portability-contract.mjs",
+      "minPassed": 107
     },
     "integration/dashboard-access-contract": {
       "layer": "integration",
@@ -93,10 +123,15 @@
       "file": "tests/integration/demo-login-ui-contract.mjs",
       "minPassed": 249
     },
+    "integration/demo-session-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/demo-session-lifecycle-contract.mjs",
+      "minPassed": 71
+    },
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 252
+      "minPassed": 271
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -108,15 +143,35 @@
       "file": "tests/integration/external-apps-contract.mjs",
       "minPassed": 70
     },
+    "integration/external-reading-handoff-contract": {
+      "layer": "integration",
+      "file": "tests/integration/external-reading-handoff-contract.mjs",
+      "minPassed": 106
+    },
     "integration/family-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/family-ui-contract.mjs",
       "minPassed": 307
     },
+    "integration/guardian-records-contract": {
+      "layer": "integration",
+      "file": "tests/integration/guardian-records-contract.mjs",
+      "minPassed": 243
+    },
     "integration/identity-admin-contract": {
       "layer": "integration",
       "file": "tests/integration/identity-admin-contract.mjs",
       "minPassed": 153
+    },
+    "integration/identity-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/identity-lifecycle-contract.mjs",
+      "minPassed": 186
+    },
+    "integration/identity-ui-contract": {
+      "layer": "integration",
+      "file": "tests/integration/identity-ui-contract.mjs",
+      "minPassed": 128
     },
     "integration/learner-recovery-ui-contract": {
       "layer": "integration",
@@ -127,6 +182,11 @@
       "layer": "integration",
       "file": "tests/integration/live-domain-authority-contract.mjs",
       "minPassed": 783
+    },
+    "integration/oidc-local-issuer-contract": {
+      "layer": "integration",
+      "file": "tests/integration/oidc-local-issuer-contract.mjs",
+      "minPassed": 150
     },
     "integration/principal-authority-contract": {
       "layer": "integration",
@@ -161,7 +221,7 @@
     "integration/reading-review-contract": {
       "layer": "integration",
       "file": "tests/integration/reading-review-contract.mjs",
-      "minPassed": 177
+      "minPassed": 194
     },
     "integration/registry-create-contract": {
       "layer": "integration",
@@ -172,6 +232,11 @@
       "layer": "integration",
       "file": "tests/integration/registry-ui-contract.mjs",
       "minPassed": 463
+    },
+    "integration/report-compile-contract": {
+      "layer": "integration",
+      "file": "tests/integration/report-compile-contract.mjs",
+      "minPassed": 289
     },
     "integration/report-publication-contract": {
       "layer": "integration",
@@ -188,6 +253,11 @@
       "file": "tests/integration/resources-contract.mjs",
       "minPassed": 147
     },
+    "integration/school-setup-contract": {
+      "layer": "integration",
+      "file": "tests/integration/school-setup-contract.mjs",
+      "minPassed": 240
+    },
     "integration/school-structure-authority-contract": {
       "layer": "integration",
       "file": "tests/integration/school-structure-authority-contract.mjs",
@@ -202,6 +272,16 @@
       "layer": "integration",
       "file": "tests/integration/session-revocation-contract.mjs",
       "minPassed": 411
+    },
+    "integration/student-records-contract": {
+      "layer": "integration",
+      "file": "tests/integration/student-records-contract.mjs",
+      "minPassed": 225
+    },
+    "integration/submission-progress-contract": {
+      "layer": "integration",
+      "file": "tests/integration/submission-progress-contract.mjs",
+      "minPassed": 61
     },
     "integration/submission-windows-contract": {
       "layer": "integration",
@@ -247,6 +327,11 @@
       "layer": "unit",
       "file": "tests/unit/i18n-contract.mjs",
       "minPassed": 11
+    },
+    "unit/reading-trends-contract": {
+      "layer": "unit",
+      "file": "tests/unit/reading-trends-contract.mjs",
+      "minPassed": 43
     },
     "unit/request-body-contract": {
       "layer": "unit",

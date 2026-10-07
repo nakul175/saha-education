@@ -1,0 +1,57 @@
+{
+  "recordedAt": "2026-10-06",
+  "agent": "A7",
+  "branch": "demo/reading-review",
+  "workstream": "FR-19 External ORF launch; FR-21 Reading review and trends (FR-20 exercised, not changed)",
+  "synthetic": true,
+  "realExternalContact": false,
+  "migration": "none (0022 reserved, not needed)",
+  "node": "24.19.0",
+  "newSuites": {
+    "tests/unit/reading-trends-contract.mjs": { "passed": 43, "failed": 0 },
+    "tests/integration/external-reading-handoff-contract.mjs": { "passed": 106, "failed": 0 },
+    "tests/integration/reading-review-contract.mjs (extended from 177)": { "passed": 194, "failed": 0 }
+  },
+  "existingReadingSuitesRun": {
+    "external-apps-contract": 70,
+    "reading-imports-contract": 86,
+    "reading-checks-contract": 102,
+    "reading-practice-ui-contract": 445
+  },
+  "mounted": {
+    "unconfigured": { "passed": 18, "failed": 0, "externalRequests": 0, "pageErrors": 0, "axeSamples": 1 },
+    "configuredLoopbackFake": { "passed": 33, "failed": 0, "externalRequests": 0, "pageErrors": 0, "axeSamples": 3 },
+    "axeIncompleteItemsNotInvestigated": 2
+  },
+  "regressionSuitesSharedFixture": {
+    "worker-specification-ui-check": { "passed": 38, "failed": 0 },
+    "worker-literacy-check": { "passed": 23, "failed": 0, "note": "intermittent failures in earlier runs, also seen on unmodified origin/main" },
+    "worker-reading-practice-ui-check": { "passed": 32, "failed": 0 },
+    "worker-development-ui-check": { "passed": 32, "failed": 1, "note": "Assessment conflict check fails identically on unmodified origin/main; outside this workstream" },
+    "worker-accessibility-check": { "passed": 100, "failed": 0 }
+  },
+  "wholeRepoTypecheck": { "exit": 0 },
+  "guardedRun": { "command": "node scripts/test.mjs static unit integration smoke --fast --guard", "exit": 0, "suites": 55, "passed": 22594, "failed": 0, "skipped": 0, "regressionGuard": "passed (53 baselined suites)" },
+  "mutations": { "total": 17, "caught": 15, "equivalentNotCaught": 2, "equivalent": ["M3 query string (redundant with the next check)", "R2 student school clause (defence in depth, unreachable)"], "layoutMutantCaught": true },
+  "designedCases": {
+    "TC-057": "pass (automated, synthetic)",
+    "TC-058": "pass (automated, synthetic)",
+    "TC-059": "pass (automated, synthetic)",
+    "TC-060": "blocked: no real app URL, owner or external account",
+    "TC-061": "pass (existing suites re-run, unchanged)",
+    "TC-062": "pass (existing suites re-run, unchanged)",
+    "TC-063": "pass (existing suites re-run, unchanged)",
+    "TC-064": "pass (existing suites re-run, unchanged)",
+    "TC-065": "pass (existing suites re-run, unchanged)",
+    "TC-066": "pass (automated, synthetic)",
+    "TC-067": "not performed: educator UAT",
+    "TC-071": "not performed: educator UAT",
+    "TC-082": "partly: reading corrections only",
+    "TC-099": "not performed: educator UAT",
+    "TC-124": "pass (automated, synthetic)",
+    "TC-285": "not executed by this workstream",
+    "TC-316": "pass (automated, synthetic)",
+    "TC-326": "pass (automated, synthetic)"
+  },
+  "accepted": false
+}

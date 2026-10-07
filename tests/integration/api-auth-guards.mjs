@@ -35,6 +35,11 @@ function load(path) {
     if (name === './access' || name === '@/lib/education/access') return access;
     if (name === '@/lib/education/http') return load('lib/education/http.ts');
     if (name === '@/lib/education/validation') return load('lib/education/validation.ts');
+    // The record routes share one real wrapper (authentication, administrator check, safe 409/400 mapping); it is loaded
+    // for real so the anonymous/cross-origin assertions below exercise it rather than a stub.
+    if (name === '@/lib/education/record-support') return load('lib/education/record-support.ts');
+    if (name === './http') return load('lib/education/http.ts');
+    if (name === './calendar-date' || name === './stored-timestamp') return load('lib/education/' + name.slice(2) + '.ts');
     if (name.startsWith('@/lib/education/')) return new Proxy({}, { get: () => async () => {
       calls++;
       if (serviceError) throw serviceError;
