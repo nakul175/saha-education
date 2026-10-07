@@ -1,6 +1,6 @@
 # Data dictionary
 
-Version 2.12 draft, 6 October 2026. Current working inventory: **41 implemented SQL tables and 338 columns**, obtained by applying migrations 0000–0016 to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
+Version 2.12 draft, 6 October 2026. Current working inventory: **46 implemented SQL tables and 377 columns** (41 and 338 after migrations 0000–0016; migration 0018 adds the five course/class/enrolment lifecycle tables and 39 columns), obtained by applying all migrations to an empty isolated SQLite database. Compare [schema](../../db/schema.ts), its re-exported domain schema modules and applied SQL. Historical v2.0 had 20 tables/156 fields; v2.1 had 28/225; published v2.2 had 34/288. No production data was read. The [CSV](DATA-DICTIONARY.csv) is the authoritative matching field inventory.
 
 The v2.12 candidate is prepared on `feat/specification-delivery` from recorded documentation-followup parent `23c2d8f3e8bc3d6e9154f138992a66ce456c0b77`. `source_commit` identifies that parent, not the containing implementation/documentation commit. The [eight-hour development record](../current/EIGHT-HOUR-DEVELOPMENT.md) and root-maintained dated execution/release evidence identify actual frozen source, publication, merge and deployment independently. The v2.0 baseline `5488bc0d20412a3d4be0c031c99c259c56834d5e` and published v2.1–v2.8 history remain retained. All requirements are unapproved and all designed cases are `not-run-for-this-specification`.
 
@@ -35,6 +35,78 @@ Sensitivity labels are engineering handling descriptions, not an approved legal 
 
 - Reviewed registry receipt creation guards the original administrator/current school and validated original snapshot; a trigger inserts its unlinked profile atomically. The receipt profile_id intentionally has no FK to the current profile, while school_id/created_by do. Receipt UPDATE/DELETE is blocked. Canonical request hashing/exact original-session enforcement remain service/SQL predicates, not inferred from text affinity.
 - Demo installation marker has no immediate school FK because the pristine seed claim precedes school insert in one atomic batch. Runtime UUID/configuration and winning nonce are service rules; marker rows are not a general immutable audit or credentials. Every normal domain school/account/profile FK remains.
+- Migration 0020 adds four append-only evidence tables for assessment publication, assessment detail edits, frozen report result lines and report corrections. Its triggers also lock published assessment results and details (`saha_assessment_published_lock`), block unpublishing results used by a published report, and refuse publishing a report whose frozen lines no longer match the published results (`saha_report_stale_lines`). Publication state is the latest event per assessment; no event means not published. These tables are not covered by the 0000–0016 table and column counts above.
+
+## `assessment_metadata_edits`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Client edit UUID; the same actor and canonical body replay the original edit, any other use is refused. | Protected staff publication evidence; actor attribution and private reasons |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated school at edit time; the live assessment class must belong to it. | Protected staff publication evidence; actor attribution and private reasons |
+| assessment_id | TEXT | no | none | FK assessments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX assessment_metadata_edits_assessment (assessment_id); UPDATE/DELETE blocked by immutable-row triggers | Assessment whose title, type, date or maximum was edited. | Protected staff publication evidence; actor attribution and private reasons |
+| class_id | TEXT | no | none | FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Class that owned the assessment at edit time; BEFORE INSERT trigger checks actor authority for it. | Protected staff publication evidence; actor attribution and private reasons |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Administrator or assigned teacher who made the edit; trigger rejects an actor without current authority. | Protected staff publication evidence; actor attribution and private reasons |
+| reason | TEXT | yes | none | CHECK null or length 10 to 500; UPDATE/DELETE blocked by immutable-row triggers | Staff reason; required by the service when any result was already saved. | Protected staff publication evidence; actor attribution and private reasons |
+| before_snapshot | TEXT | no | none | CHECK valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Exact assessment metadata JSON before the edit (id, class, title, kind, maximum, date, created and updated time). | Protected staff publication evidence; actor attribution and private reasons |
+| after_snapshot | TEXT | no | none | CHECK valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Exact assessment metadata JSON after the edit; trigger requires it to match the live row. | Protected staff publication evidence; actor attribution and private reasons |
+| request_hash | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Digest of actor, school, assessment, expected values, new values and reason, used to prove an exact replay. | Protected staff publication evidence; actor attribution and private reasons |
+| created_at | TEXT | no | none | CHECK length(created_at) > 0; UPDATE/DELETE blocked by immutable-row triggers | ISO edit time generated by the service. | Protected staff publication evidence; actor attribution and private reasons |
+
+Source: `db/assessment-lifecycle-schema.ts`, `drizzle/0020_assessment_lifecycle_reports.sql`.
+
+## `assessment_publications`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Client publication-event UUID; exact replay returns the original event. | Protected staff publication evidence; actor attribution and private reasons |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated school at the time of the event. | Protected staff publication evidence; actor attribution and private reasons |
+| assessment_id | TEXT | no | none | FK assessments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX assessment_publications_assessment (assessment_id); UPDATE/DELETE blocked by immutable-row triggers | Assessment whose saved results were published or unpublished. The latest event by insertion order is the current state; no event means not published. | Protected staff publication evidence; actor attribution and private reasons |
+| class_id | TEXT | no | none | FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Class that owned the assessment at event time. | Protected staff publication evidence; actor attribution and private reasons |
+| action | TEXT | no | none | CHECK action IN ('publish','unpublish'); UPDATE/DELETE blocked by immutable-row triggers | Publication transition; trigger rejects a repeat of the current state. | Protected staff publication evidence; actor attribution and private reasons |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Administrator or assigned teacher; trigger rejects an actor without current authority. | Protected staff publication evidence; actor attribution and private reasons |
+| reason | TEXT | yes | none | CHECK null or length 10 to 500; UPDATE/DELETE blocked by immutable-row triggers | Required reason for an unpublish; kept in history. | Protected staff publication evidence; actor attribution and private reasons |
+| partial_confirmed | INTEGER | no | 0 | CHECK partial_confirmed IN (0,1); UPDATE/DELETE blocked by immutable-row triggers | 1 when the actor confirmed publishing with some current-roster pupils missing a result. | Protected staff publication evidence; actor attribution and private reasons |
+| expected_pupils | INTEGER | no | none | CHECK expected_pupils >= 0; UPDATE/DELETE blocked by immutable-row triggers | Distinct active pupils in the class at event time; trigger recomputes and must match. | Protected staff publication evidence; actor attribution and private reasons |
+| recorded_results | INTEGER | no | none | CHECK recorded_results >= 0; UPDATE/DELETE blocked by immutable-row triggers | Distinct active pupils with a saved result at event time; trigger recomputes and must match. A zero score counts; a missing row does not. | Protected staff publication evidence; actor attribution and private reasons |
+| request_hash | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Digest of actor, school, assessment, action, reason and partial confirmation, used to prove an exact replay. | Protected staff publication evidence; actor attribution and private reasons |
+| created_at | TEXT | no | none | CHECK length(created_at) > 0; UPDATE/DELETE blocked by immutable-row triggers | ISO event time generated by the service. | Protected staff publication evidence; actor attribution and private reasons |
+
+Source: `db/assessment-lifecycle-schema.ts`, `drizzle/0020_assessment_lifecycle_reports.sql`.
+
+## `academic_change_requests`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers; BEFORE INSERT guard requires a lowercase hyphenated UUID | Client-generated request UUID: the exact-retry key. The same administrator and identical payload replays the original receipt. | Protected learner education record |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX academic_change_requests_actor_time (school_id, actor_id, created_at) | School of the verified administrator session, never client supplied. | Protected learner education record |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; BEFORE INSERT guard requires a live, enabled, identity-linked administrator of the same school | Administrator who submitted the request, derived from the verified session. | Protected learner education record |
+| request_hash | TEXT | no | none | CHECK 64 lowercase hexadecimal characters | SHA-256 of the canonical reason and changes; a reused request UUID with a different hash is a conflict, not a replay. | Protected learner education record |
+| reason | TEXT | yes | none | CHECK null or 5 to 500 characters without NUL | Administrator reason; required for edits, retirement, closure, withdrawal, completion, re-enrolment and transfer. Shown to administrators only. | Protected learner education record |
+| items_json | TEXT | no | none | CHECK valid JSON array of 1 to 25 items | Immutable ordered list of the planned changes. An AFTER INSERT trigger expands it into academic_events in the same statement. | Protected learner education record |
+| item_count | INTEGER | no | none | CHECK 1 to 25; BEFORE INSERT guard requires equality with the JSON array length | Number of changes in the request (atomic batch size, at most 25). | Protected learner education record |
+| created_at | TEXT | no | none | No additional DB constraint | ISO time the request was recorded, generated by the service. | Protected learner education record |
+
+Source: db/academic-lifecycle-schema.ts; drizzle/0018_course_class_enrolment_lifecycle.sql.
+
+## `academic_events`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Server UUID of one recorded change. | Protected learner education record |
+| request_id | TEXT | no | none | FK academic_change_requests.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX academic_events_request (request_id, seq) | Request that contains this change. | Protected learner education record |
+| seq | INTEGER | no | none | No additional DB constraint | Zero-based position of the change inside its request; receipts keep request order. | Protected learner education record |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEXES academic_events_subject, academic_events_class, academic_events_related_class and academic_events_student all lead with school_id | School owning the change. | Protected learner education record |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Administrator who made the change. | Protected learner education record |
+| kind | TEXT | no | none | CHECK one of course.create, course.edit, course.retire, course.reinstate, class.create, class.edit, class.teacher, class.close, class.reopen, enrolment.enrol, enrolment.withdraw, enrolment.complete, enrolment.reenrol, enrolment.transfer; per-kind AFTER INSERT triggers guard and apply the effect | Kind of change. | Protected learner education record |
+| subject_id | TEXT | no | none | No additional DB constraint (no FK: it names a course, class or enrolment depending on kind) | Identifier of the course, class or enrolment the change is about. | Protected learner education record |
+| class_id | TEXT | yes | none | No additional DB constraint; INDEX academic_events_class | Class the change belongs to (the source class for a transfer). | Protected learner education record |
+| related_class_id | TEXT | yes | none | No additional DB constraint; INDEX academic_events_related_class | Destination class of a transfer. | Protected learner education record |
+| student_id | TEXT | yes | none | No additional DB constraint; INDEX academic_events_student | Learner affected by an enrolment change. | Protected learner education record |
+| effective_on | TEXT | yes | none | No additional DB constraint (date shape and ordering rules are enforced by the kind triggers) | Calendar date (YYYY-MM-DD) the enrolment change takes effect. | Protected learner education record |
+| payload | TEXT | no | none | CHECK valid JSON object | Plain-language labels, before/after values, optimistic-concurrency token and previous status used for the receipt and history. | Protected learner education record |
+| created_at | TEXT | no | none | No additional DB constraint | ISO time recorded; equals the request time. | Protected learner education record |
+
+Source: db/academic-lifecycle-schema.ts; drizzle/0018_course_class_enrolment_lifecycle.sql.
 
 ## `assessment_results`
 
@@ -157,6 +229,34 @@ Source: db/attendance-reviews-schema.ts; drizzle/0013_attendance_reviews.sql.
 
 Source: db/attendance-reviews-schema.ts; drizzle/0013_attendance_reviews.sql.
 
+## `attendance_changes`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Database-generated random identifier of one logged replacement or deletion. | Protected staff attendance evidence; before/after notes and attribution |
+| attendance_id | TEXT | no | none | No FK so the entry survives deletion of the saved row ; UPDATE/DELETE blocked by immutable-row triggers | Saved attendance row that was replaced or removed. | Protected staff attendance evidence; before/after notes and attribution |
+| class_id | TEXT | no | none | INDEX attendance_changes_class_date (class_id, attendance_date, changed_at); UPDATE/DELETE blocked by immutable-row triggers | Class of the changed row, copied from the row before the change. | Protected staff attendance evidence; before/after notes and attribution |
+| student_id | TEXT | no | none | INDEX attendance_changes_student (student_id, changed_at); UPDATE/DELETE blocked by immutable-row triggers | Learner of the changed row, copied from the row before the change. | Protected staff attendance evidence; before/after notes and attribution |
+| attendance_date | TEXT | no | none | INDEX attendance_changes_class_date (class_id, attendance_date, changed_at); UPDATE/DELETE blocked by immutable-row triggers | Literal stored attendance date of the changed row, including any legacy non-calendar text. | Protected staff attendance evidence; before/after notes and attribution |
+| change_kind | TEXT | no | none | CHECK IN ('update','delete'); UPDATE/DELETE blocked by immutable-row triggers | update when status, note or recorder changed; delete when the row was removed. Insertions and updates that change none of those fields are not logged. | Protected staff attendance evidence; before/after notes and attribution |
+| before_record | TEXT | no | none | CHECK valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Exact prior id/status/note/recordedBy/createdAt/updatedAt written by the AFTER UPDATE/DELETE trigger. | Protected staff attendance evidence; before/after notes and attribution |
+| after_record | TEXT | yes | none | CHECK SQL NULL or valid JSON object; UPDATE/DELETE blocked by immutable-row triggers | Exact new id/status/note/recordedBy/createdAt/updatedAt; null for a deletion. | Protected staff attendance evidence; before/after notes and attribution |
+| changed_at | TEXT | no | none | INDEX attendance_changes_class_date; INDEX attendance_changes_student; UPDATE/DELETE blocked by immutable-row triggers | Database clock ISO time of the change; written by the trigger, not the caller. | Protected staff attendance evidence; before/after notes and attribution |
+
+Source: db/attendance-workflow-schema.ts; drizzle/0019_attendance_workflow.sql.
+
+## `school_attendance_settings`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| school_id | TEXT | no | none | PK; FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | School that owns this attendance calendar. No row means UTC calendar dates and future dates allowed. | Non-learner school configuration |
+| timezone | TEXT | no | none | CHECK length 1-64 and only letters, digits, underscore, plus, slash and hyphen | IANA timezone name whose calendar day is the school attendance date. The service accepts only names the runtime recognises. | Non-learner school configuration |
+| future_dates_allowed | INTEGER | no | 1 | CHECK IN (0,1) | Whether a new reviewed save may use a date after today at the school. Exact replays are never blocked by this setting. | Non-learner school configuration |
+| updated_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current school administrator who last saved the setting; server-derived. | Non-learner school configuration |
+| updated_at | TEXT | no | none | No additional DB constraint | Server ISO time of the last save. | Non-learner school configuration |
+
+Source: db/attendance-workflow-schema.ts; drizzle/0019_attendance_workflow.sql.
+
 ## `auth_rate_limits`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -178,6 +278,21 @@ Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
 
 Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
 
+## `class_settings`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| class_id | TEXT | no | none | PK; FK classes.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Class these settings belong to. A class without a row is open with no capacity or dates. | Internal staff academic content |
+| capacity | INTEGER | yes | none | CHECK null or integer 1 to 500 | Maximum active enrolments; null means no limit. Enforced at the database for both reviewed and legacy enrolment writes. | Internal staff academic content |
+| starts_on | TEXT | yes | none | CHECK null or exact YYYY-MM-DD calendar date; CHECK starts_on <= ends_on when both exist | First day of the class; enrolments cannot start earlier. | Internal staff academic content |
+| ends_on | TEXT | yes | none | CHECK null or exact YYYY-MM-DD calendar date | Last day of the class; enrolments cannot start later. | Internal staff academic content |
+| status | TEXT | no | 'open' | CHECK open or closed | Closed classes refuse new and re-enrolments until reopened. | Internal staff academic content |
+| closed_at | TEXT | yes | none | No additional DB constraint | ISO time the class was closed; null while open. | Internal staff academic content |
+| closed_by | TEXT | yes | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Administrator who closed the class; null while open. | Internal staff academic content |
+| updated_at | TEXT | no | none | No additional DB constraint | ISO time of the last settings change; used as the optimistic-concurrency token. | Internal staff academic content |
+
+Source: db/academic-lifecycle-schema.ts; drizzle/0018_course_class_enrolment_lifecycle.sql.
+
 ## `classes`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -194,6 +309,18 @@ Source: db/schema.ts; drizzle/0001_trusted_identity.sql.
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0002_reviewed_reading.sql, drizzle/0003_teacher_resources.sql.
 
+## `course_lifecycle`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| course_id | TEXT | no | none | PK; FK courses.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Course whose offer state is recorded. A course without a row is active. | Internal staff academic content |
+| status | TEXT | no | none | CHECK active or retired | Retired courses cannot receive new classes; existing classes and enrolments are untouched. | Internal staff academic content |
+| changed_at | TEXT | no | none | No additional DB constraint | ISO time of the last retire or reinstate. | Internal staff academic content |
+| changed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Administrator who last changed the state. | Internal staff academic content |
+| reason | TEXT | yes | none | No additional DB constraint | Administrator reason for the last retire or reinstate. | Internal staff academic content |
+
+Source: db/academic-lifecycle-schema.ts; drizzle/0018_course_class_enrolment_lifecycle.sql.
+
 ## `courses`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -208,6 +335,20 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0002_rev
 | updated_at | TEXT | no | none | No additional DB constraint | ISO last-update timestamp, generated by service; no database timestamp default. | Internal academic reference |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql.
+
+## `curriculum_reference_status_events`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Client-supplied status-event UUID, stable for exact actor/payload retry. | Internal staff curriculum availability history |
+| reference_id | TEXT | no | none | FK curriculum_references.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE curriculum_status_reference_revision (reference_id, revision); UPDATE/DELETE blocked by immutable-row triggers | Curriculum reference whose availability changed. | Internal staff curriculum availability history |
+| revision | INTEGER | no | none | UNIQUE curriculum_status_reference_revision (reference_id, revision); CHECK curriculum_status_revision: typeof(revision) = 'integer' AND revision BETWEEN 1 AND 1000000; UPDATE/DELETE blocked by immutable-row triggers | Status sequence 1 through 1000000; the highest revision is current and no row means never retired. | Internal staff curriculum availability history |
+| status | TEXT | no | none | CHECK curriculum_status_state: status IN ('active', 'retired'); UPDATE/DELETE blocked by immutable-row triggers | Availability set by this event: retired hides the reference and blocks new copies; active reinstates it. | Internal staff curriculum availability history |
+| reason | TEXT | no | none | CHECK curriculum_status_reason: length(trim(reason)) BETWEEN 10 AND 500; UPDATE/DELETE blocked by immutable-row triggers | Required explanation recorded with the change. | Internal staff curriculum availability history |
+| changed_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Authenticated author or administrator who made the change. | Internal staff curriculum availability history |
+| changed_at | TEXT | no | none | No additional DB constraint; UPDATE/DELETE blocked by immutable-row triggers | Server-generated ISO time of the change. | Internal staff curriculum availability history |
+
+Source: db/curriculum-schema.ts; drizzle/0023_curriculum_status.sql.
 
 ## `curriculum_reference_versions`
 
@@ -255,6 +396,18 @@ Source: db/curriculum-schema.ts; drizzle/0005_curriculum.sql.
 
 Source: db/demo-schema.ts; drizzle/0016_synthetic_demo.sql.
 
+## `enrolment_lifecycle`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| enrolment_id | TEXT | no | none | PK; FK enrolments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Enrolment whose current stint dates are recorded. Legacy enrolments have no row; their start is read from enrolled_at. | Protected learner education record |
+| started_on | TEXT | no | none | CHECK exact YYYY-MM-DD calendar date | First day of the current stint (re-enrolment starts a new stint on the same enrolment). | Protected learner education record |
+| ended_on | TEXT | yes | none | CHECK null or exact YYYY-MM-DD calendar date; CHECK ended_on >= started_on | Last day of the stint; null while active. | Protected learner education record |
+| end_kind | TEXT | yes | none | CHECK null, withdrawn, completed or transferred | How the stint ended. | Protected learner education record |
+| updated_at | TEXT | no | none | No additional DB constraint | ISO time of the last change. | Protected learner education record |
+
+Source: db/academic-lifecycle-schema.ts; drizzle/0018_course_class_enrolment_lifecycle.sql.
+
 ## `enrolments`
 
 | Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
@@ -284,6 +437,30 @@ Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql; drizzle/0009_aca
 | school_id | TEXT | yes | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Optional legacy school ownership; null legacy records fail closed in scoped services. New API records infer the principal school. | Protected family/contact data |
 
 Source: db/schema.ts; drizzle/0000_youthful_jamie_braddock.sql, drizzle/0001_trusted_identity.sql; drizzle/0008_profile_links.sql.
+
+## `identity_admin_changes`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK | Client review UUID and idempotency key for one role or identity decision; exact retries return the original decision. | Restricted attributable account administration evidence |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_changes_school_reviewed (school_id, reviewed_at) | Actor-fixed school of the decision. | Restricted attributable account administration evidence |
+| actor_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION | Current enabled school administrator who explicitly reviewed the decision. | Restricted attributable account administration evidence |
+| user_id | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX identity_admin_changes_user (user_id) | Account whose role or sign-in identity was changed; profile ownership is not remapped. | Restricted attributable account administration evidence |
+| action | TEXT | no | none | CHECK action IN ('change_role', 'link_identity', 'unlink_identity') | Decision kind: change_role, link_identity or unlink_identity. | Restricted attributable account administration evidence |
+| reason | TEXT | no | none | CHECK length(reason) BETWEEN 10 AND 500 | Explicit one-line review reason/reference; avoid secrets and unnecessary personal data. | Restricted attributable account administration evidence |
+| reviewed_at | TEXT | no | none | INDEX identity_admin_changes_school_reviewed (school_id, reviewed_at) | Server ISO review/decision timestamp. | Restricted attributable account administration evidence |
+| previous_role | TEXT | no | none | CHECK previous_role and next_role IN ('admin', 'teacher', 'guardian', 'student') | Account role before the decision. | Restricted attributable account administration evidence |
+| next_role | TEXT | no | none | CHECK previous_role and next_role IN ('admin', 'teacher', 'guardian', 'student') | Account role after the decision; equals previous_role for identity decisions. | Restricted attributable account administration evidence |
+| previous_issuer | TEXT | yes | none | No additional DB constraint | Exact provider issuer before the decision; NULL when the account had none. | Restricted attributable account administration evidence |
+| previous_subject | TEXT | yes | none | No additional DB constraint | Exact provider subject before the decision; NULL when the account had none. | Restricted attributable account administration evidence |
+| next_issuer | TEXT | yes | none | No additional DB constraint | Exact provider issuer after the decision; NULL after unlink or role change decisions. | Restricted attributable account administration evidence |
+| next_subject | TEXT | yes | none | No additional DB constraint | Exact provider subject after the decision; NULL after unlink or role change decisions. | Restricted attributable account administration evidence |
+| expected_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version = expected_version + 1 | Supplied shared account-administration revision. | Restricted attributable account administration evidence |
+| resulting_version | INTEGER | no | none | CHECK typeof(expected_version) = 'integer' AND typeof(resulting_version) = 'integer' AND expected_version >= 0 AND resulting_version = expected_version + 1 | Committed expected revision plus 1. | Restricted attributable account administration evidence |
+| request_hash | TEXT | no | none | No additional DB constraint | Private SHA-256 digest of the canonical reviewed operation; not exposed in responses. | Restricted attributable account administration evidence |
+| attempt_id | TEXT | no | none | No additional DB constraint | Private server attempt UUID gating one transaction so an old retry cannot apply its decision again. | Restricted attributable account administration evidence |
+
+Source: db/identity-admin-schema.ts; drizzle/0024_identity_admin_changes.sql.
 
 ## `identity_admin_events`
 
@@ -485,6 +662,42 @@ Source: db/reading-import-schema.ts; drizzle/0010_reading_imports.sql.
 | created_at | TEXT | no | none | Nonempty server timestamp/snapshot equality validated by trigger; registry_creation_receipts_actor_time index (school_id,created_by,created_at); immutable-row triggers | Server ISO original review/creation time shared with original profile timestamps; no SQL default. | Protected original registry review and profile evidence |
 
 Source: db/registry-create-schema.ts; drizzle/0015_registry_creation.sql.
+
+## `report_card_corrections`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Server UUID of the correction link. | Protected staff publication evidence; actor attribution and private reasons |
+| school_id | TEXT | no | none | FK schools.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | School of both reports; trigger rejects a cross-school or cross-learner link. | Protected staff publication evidence; actor attribution and private reasons |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Learner shared by the original and replacement report. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| original_report_id | TEXT | no | none | FK report_cards.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX report_card_corrections_original (original_report_id); UPDATE/DELETE blocked by immutable-row triggers | Published report being corrected; it stays readable and is shown as replaced once the replacement is published. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| replacement_report_id | TEXT | no | none | FK report_cards.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE report_card_corrections_replacement (replacement_report_id); UPDATE/DELETE blocked by immutable-row triggers | Replacement draft report; one replacement has at most one original. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| reason | TEXT | no | none | CHECK length 10 to 500; UPDATE/DELETE blocked by immutable-row triggers | Administrator reason shown with the replaced report to staff and to the linked family once the replacement is published. | Protected staff publication evidence; actor attribution and private reasons |
+| created_by | TEXT | no | none | FK users.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Administrator who linked the replacement; trigger rejects a non-administrator. | Protected staff publication evidence; actor attribution and private reasons |
+| created_at | TEXT | no | none | CHECK length(created_at) > 0; UPDATE/DELETE blocked by immutable-row triggers | ISO link time generated by the service. | Protected staff publication evidence; actor attribution and private reasons |
+
+Source: `db/assessment-lifecycle-schema.ts`, `drizzle/0020_assessment_lifecycle_reports.sql`.
+
+## `report_card_lines`
+
+| Column | SQL type | Nullable | DB default | DB constraints / index membership | Meaning | Sensitivity |
+|---|---|---|---|---|---|---|
+| id | TEXT | no | none | PK; UPDATE/DELETE blocked by immutable-row triggers | Server UUID of one frozen result line. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| report_id | TEXT | no | none | FK report_cards.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UNIQUE report_card_lines_pair (report_id, assessment_id); UPDATE/DELETE blocked by immutable-row triggers | Draft report that owns the line; trigger rejects lines on a published report. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| student_id | TEXT | no | none | FK students.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Learner; must equal the report learner. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| assessment_id | TEXT | no | none | FK assessments.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; INDEX report_card_lines_assessment (assessment_id); UNIQUE report_card_lines_pair (report_id, assessment_id); UPDATE/DELETE blocked by immutable-row triggers | Assessment included once per report. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| result_id | TEXT | no | none | FK assessment_results.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Saved result row that supplied the frozen score; a missing result cannot be compiled. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| publication_id | TEXT | no | none | FK assessment_publications.id; ON UPDATE NO ACTION; ON DELETE NO ACTION; UPDATE/DELETE blocked by immutable-row triggers | Publish event that was current when compiled; trigger requires the assessment to be published. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| assessment_title | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Frozen assessment title at compile time. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| assessment_kind | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Frozen assessment type at compile time. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| assessment_date | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Frozen stored calendar day (YYYY-MM-DD) at compile time. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| max_score | INTEGER | no | none | CHECK max_score >= 0; UPDATE/DELETE blocked by immutable-row triggers | Frozen assessment maximum; zero is a valid maximum. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| score | INTEGER | no | none | CHECK score >= 0 AND score <= max_score; UPDATE/DELETE blocked by immutable-row triggers | Frozen integer score; a raw zero stays 0. Never calculated or defaulted. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| grade | TEXT | yes | none | UPDATE/DELETE blocked by immutable-row triggers | Frozen school-supplied grade label, null when none was entered. Private feedback is deliberately not copied. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| result_updated_at | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | Result update time at compile; a later change makes publishing the report fail with a stale-lines conflict. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+| created_at | TEXT | no | none | UPDATE/DELETE blocked by immutable-row triggers | ISO compile time generated by the service. | Protected learner education record; frozen results visible to the linked family only after the report is published |
+
+Source: `db/assessment-lifecycle-schema.ts`, `drizzle/0020_assessment_lifecycle_reports.sql`.
 
 ## `report_cards`
 
@@ -710,3 +923,11 @@ Student date_of_birth and assessment date remain original calendar/text evidence
 The v2.12 clients add no SQL fields/tables;41 tables/338 fields remain and CSV inventory is unchanged. School address null, empty and nonempty are distinct. Omitted PATCH address leaves current value; deliberate empty stores empty and there is no existing restore-to-null operation. Current card's shared no-address label is a display limitation, not data normalization. School createdAt stays its exact raw preflight value; new acknowledgement updatedAt must be canonical UTC milliseconds. Existing legacy GET timestamps remain raw evidence.
 
 Course code remains globally unique, description may be null in saved catalog, and new creation acknowledgement fields/timestamps are correlated to original submitted values. Dirty intent, actor keys, pending exact body/endpoint and ordinary known acknowledgement are private mounted-page state only: they are not new persisted dictionary fields, audit/immutable receipts, durable client queue or consent/educational evidence. Later saved changes stay distinct from original comparison. See [focused design](SCHOOL-COURSE-UI-DESIGN.md).
+
+## Migration 0017: school setup and student/guardian records (candidate, demo branch)
+
+Additive migration `0017_school_records` adds six tables and 54 columns (47 tables and 392 fields in total); no earlier table is altered. The specification defines no academic year, term, deactivation, link-level relationship or unlink, so these are labelled candidate extensions, not approved requirements, and nothing here records acceptance.
+
+- `school_setup_settings` and `school_setup_terms`: one settings row per school (academic year label, contact email/phone, current term) and its terms, both guarded by exact-version compare-and-set. Design notes and evidence are in the demo record under docs/current (not linked here).
+- `student_record_status` and `student_status_events`: active/inactive override per student (absence of a row means active) with an immutable, replay-safe event log carrying a reason and the number of enrolments withdrawn. Inactive does not change sign-in or family visibility; that policy is undecided.
+- `student_guardian_details` and `student_guardian_events`: link-level relationship (overrides the profile-level `guardians.relationship` for one student) and an immutable link/update/unlink history that survives unlinking. `student_guardians.is_primary` keeps its original meaning; the public guardian DTO still omits it.

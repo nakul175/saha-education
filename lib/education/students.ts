@@ -2,6 +2,8 @@ import type { Principal } from './types';
 import { getDb } from '@/db/index';
 import type { SelectStudent, InsertStudent } from '@/db/schema';
 import { students, studentGuardians, guardians, users } from '@/db/schema';
+import { studentGuardianDetails, studentGuardianEvents } from '@/db/school-records-schema';
+import { constraintFailure } from './record-support';
 import { studentSchema } from './validation';
 import { and, eq, sql } from 'drizzle-orm';
 import { AccessError, assertPrincipal, assertAdmin, assertSchool, studentScope, guardianScope } from './access';
@@ -55,19 +57,32 @@ export async function linkGuardian(principal: Principal, studentId: string, guar
     join guardians relationship_guardian on relationship_guardian.id = ${guardianId}
     where relationship_student.id = ${studentId} and relationship_student.school_id = ${principal.schoolId}
       and relationship_guardian.school_id = ${principal.schoolId})`;
-  const [linked] = await getDb().insert(studentGuardians).select(sql`select ${studentId}, ${guardianId}, 0 where ${eligible}`)
-    .onConflictDoNothing().returning();
-  // Retries retain the established isPrimary evidence and recheck authority.
-  if (!linked) {
-    const [existing] = await getDb().select({ studentId: studentGuardians.studentId }).from(studentGuardians)
-      .where(and(eq(studentGuardians.studentId, studentId), eq(studentGuardians.guardianId, guardianId), eligible)).limit(1);
-    if (!existing) throw new AcademicConflict();
+  // The reviewed link history row and the relationship are written in one atomic batch. The history row is
+  // inserted first and only for a genuinely new pair; an exact retry of an existing pair keeps its evidence.
+  const db = getDb(), eventId = crypto.randomUUID(), attemptId = crypto.randomUUID(), stamp = new Date().toISOString();
+  const pairVersion = sql`(select count(*) from student_guardian_events pair_event where pair_event.student_id = ${studentId} and pair_event.guardian_id = ${guardianId})`;
+  try {
+    await db.batch([
+      db.insert(studentGuardianEvents).select(sql`select ${eventId}, ${principal.schoolId}, ${studentId}, ${guardianId}, ${principal.id}, 'link', ${pairVersion}, ${pairVersion} + 1, NULL,
+        (select relationship from guardians where id = ${guardianId}), NULL, 0, 'Linked through the original guardian link endpoint', ${stamp}, 'legacy-link-endpoint', ${attemptId}
+        where ${eligible} and not exists (select 1 from student_guardians where student_id = ${studentId} and guardian_id = ${guardianId})`),
+      db.insert(studentGuardians).select(sql`select student_id, guardian_id, 0 from student_guardian_events where id = ${eventId} and attempt_id = ${attemptId}`).onConflictDoNothing(),
+    ]);
+  } catch (error) {
+    // A concurrent identical link can win the history revision; the pair check below decides the outcome.
+    if (!constraintFailure(error, /UNIQUE constraint failed/)) throw error;
   }
+  // Retries retain the established isPrimary evidence and recheck authority.
+  const [existing] = await db.select({ studentId: studentGuardians.studentId }).from(studentGuardians)
+    .where(and(eq(studentGuardians.studentId, studentId), eq(studentGuardians.guardianId, guardianId), eligible)).limit(1);
+  if (!existing) throw new AcademicConflict();
 }
 export async function listGuardiansForStudent(principal: Principal, studentId: string): Promise<{ id: string; name: string; relationship: string; userId: string | null }[]> {
   if (!await getStudent(principal, studentId)) throw new AccessError('Student not found', 404);
-  return await getDb().select({ id: guardians.id, name: guardians.name, relationship: guardians.relationship, userId: guardians.userId })
+  // The link's own relationship (set by reviewed link administration) takes precedence over the profile default.
+  return await getDb().select({ id: guardians.id, name: guardians.name, relationship: sql<string>`coalesce(${studentGuardianDetails.relationship}, ${guardians.relationship})`, userId: guardians.userId })
     .from(studentGuardians).innerJoin(guardians, eq(studentGuardians.guardianId, guardians.id))
+    .leftJoin(studentGuardianDetails, and(eq(studentGuardianDetails.studentId, studentGuardians.studentId), eq(studentGuardianDetails.guardianId, studentGuardians.guardianId)))
     .where(and(eq(studentGuardians.studentId, studentId), liveAcademicPrincipal(principal), guardianScope(principal),
       sql`exists (select 1 from students where ${students.id} = ${studentId} and ${studentScope(principal)})`));
 }

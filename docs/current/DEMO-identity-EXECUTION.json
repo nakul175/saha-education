@@ -1,0 +1,98 @@
+{
+  "workstream": "A1 FR-01 trusted sign-in and FR-04 identity administration",
+  "branch": "demo/identity",
+  "migration": "0024_identity_admin_changes",
+  "syntheticOnly": true,
+  "realProviderContacted": false,
+  "accepted": false,
+  "guardedRun": {
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "suites": 57,
+    "assertions": 22971,
+    "failed": 0,
+    "passed": true
+  },
+  "newSuites": {
+    "oidc-local-issuer-contract": 150,
+    "identity-lifecycle-contract": 186,
+    "demo-session-lifecycle-contract": 71,
+    "identity-ui-contract": 128
+  },
+  "mounted": {
+    "demo": {
+      "passed": 14,
+      "failed": 0,
+      "notExecuted": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "localApiRequests": 97,
+      "navigationRetries": 0
+    },
+    "real": {
+      "passed": 16,
+      "failed": 0,
+      "notExecuted": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "localApiRequests": 72,
+      "navigationRetries": 0
+    },
+    "regressionWorkerDemoUi": {
+      "passed": 26,
+      "failed": 0
+    },
+    "regressionWorkerSpecificationUi": {
+      "passed": 38,
+      "failed": 0
+    }
+  },
+  "tsc": "tsc exit 0",
+  "cases": {
+    "TC-001": "pass",
+    "TC-002": "pass",
+    "TC-003": "pass",
+    "TC-004": "pass",
+    "TC-005": "pass",
+    "TC-006": "pass",
+    "TC-007": "pass",
+    "TC-008": "partial",
+    "TC-009": "pass",
+    "TC-010": "blocked",
+    "TC-014": "partial",
+    "TC-015": "pass",
+    "TC-016": "pass",
+    "TC-021": "regression-run-only",
+    "TC-022": "partial",
+    "TC-095": "partial",
+    "TC-102": "regression-run-only",
+    "TC-103": "regression-run-only",
+    "TC-104": "regression-run-only",
+    "TC-105": "regression-run-only",
+    "TC-106": "regression-run-only",
+    "TC-107": "regression-run-only",
+    "TC-108": "regression-run-only",
+    "TC-109": "not-executed",
+    "TC-206": "regression-run-only",
+    "TC-257": "partial",
+    "TC-278": "pass",
+    "TC-282": "partial",
+    "TC-284": "blocked"
+  },
+  "caseCounts": {
+    "pass": 11,
+    "partial": 6,
+    "blocked": 2,
+    "regression-run-only": 9,
+    "not-executed": 1
+  },
+  "mutants": {
+    "total": 40,
+    "detected": 37,
+    "survived": 3
+  },
+  "blocked": [
+    "TC-010 real provider",
+    "TC-284 hosted deployment"
+  ],
+  "policyCaveat": "Role change and link/unlink of existing accounts implemented at sponsor request; policy approval outstanding; no school move."
+}

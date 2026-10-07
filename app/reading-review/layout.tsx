@@ -10,6 +10,7 @@ export default async function ReadingReviewLayout({ children }: { children: Reac
     <a href="/" className="underline">← Dashboard</a>
     <h1 className="text-2xl font-bold">Reading review</h1>
     <p>Reading review is available to school staff. Contact your school administrator if your access needs updating.</p>
+    <p>Reading check results are private to school staff and are not shown to learners or families until your school publishes them. Nothing is published yet, so there is nothing to see on this page. Reports your school publishes appear under <a href="/report-cards" className="underline">Reports</a>.</p>
   </main>;
   return children;
 }

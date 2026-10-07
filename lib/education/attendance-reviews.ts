@@ -6,6 +6,7 @@ import { attendanceReviews } from '@/db/attendance-reviews-schema';
 import { AccessError } from './access';
 import { academicClassWrite, assertAcademicStaff } from './academic-integrity';
 import { digest } from './identity';
+import { assertAttendanceDateAllowed, readAttendanceCalendar } from './attendance-calendar';
 import type { Principal } from './types';
 
 const identifier = z.string().min(1).max(120);
@@ -109,6 +110,10 @@ export async function reviewAttendance(principal: Principal, classId: string, in
   const snapshot = await getAttendanceEditor(principal, classId, data.date);
   const prior = await retry(principal, classId, data, hash);
   if (prior) return prior;
+  // Exact replays above never depend on this school policy; only a NEW decision does.
+  // A lost actor is left to the guarded INSERT below, which keeps its established 409 denial.
+  const calendar = await readAttendanceCalendar(principal);
+  if (calendar) assertAttendanceDateAllowed(calendar, data.date);
   if (!snapshot.canReview) throw new AttendanceReviewConflict();
   const now = new Date().toISOString();
   const payload = JSON.stringify(entries.map(entry => ({ ...entry, attendanceId: entry.expectedRecord?.id ?? crypto.randomUUID() })));
