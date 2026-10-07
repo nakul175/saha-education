@@ -11,6 +11,11 @@ LEDGER="/var/lib/${APP}/applied-migrations.txt"
 STATUS="/var/lib/${APP}/deploy-status.json"
 LOCK="/var/lib/${APP}/update.lock"
 
+DEPLOY_KEY="/etc/saha/${APP}.deploy-key"
+if [ -f "$DEPLOY_KEY" ]; then
+  export GIT_SSH_COMMAND="ssh -i ${DEPLOY_KEY} -o IdentitiesOnly=yes -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts -o StrictHostKeyChecking=accept-new"
+fi
+
 exec 9>"$LOCK"; flock -n 9 || { echo "another update is running"; exit 0; }
 
 git_pull() {
@@ -25,6 +30,8 @@ CUR="$(git -C "$SRC" rev-parse HEAD)"
 if [ "$NEW" = "$CUR" ] && [ -d "$SRC/dist/server" ]; then exit 0; fi
 
 trap 'record "$NEW" failed' ERR
+# Builds are heavy (1-2 GB): when several apps share this droplet, only one builds at a time.
+exec 8>/var/lock/saha-build.lock; flock -w 1500 8
 git -C "$SRC" reset --hard "$NEW"
 cd "$SRC"
 pnpm install --frozen-lockfile

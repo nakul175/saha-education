@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-time (idempotent) setup of a DigitalOcean droplet (Ubuntu 24.04, 2 GB RAM or more) for this app.
 # Run as root on the droplet:
-#   SAHA_GIT_TOKEN=<read-only GitHub token> SAHA_HOST=<name>.<ip-dashed>.sslip.io bash provision.sh
+#   SAHA_GIT_TOKEN=<read-only GitHub token, or omit it to use an SSH deploy key> SAHA_HOST=<name>.<ip-dashed>.sslip.io bash provision.sh
 # The git token is stored in /etc/saha/<app>.git-token (mode 600) and never printed.
 set -euo pipefail
 
@@ -9,7 +9,28 @@ APP="saha-education"
 REPO="https://github.com/nakul175/saha-education.git"
 PORT="3200"
 : "${SAHA_HOST:?set SAHA_HOST, e.g. education.1-2-3-4.sslip.io (or your own domain)}"
-: "${SAHA_GIT_TOKEN:?set SAHA_GIT_TOKEN to a read-only GitHub token for ${REPO}}"
+# Git access: a read-only token (SAHA_GIT_TOKEN) or, when it is unset, a per-repository SSH deploy key
+# kept at /etc/saha/<app>.deploy-key. The first run without a token only generates that key and prints
+# its public half: add it to the repository (Settings > Deploy keys, read-only) and run provision.sh again.
+DEPLOY_KEY="/etc/saha/${APP}.deploy-key"
+if [ -z "${SAHA_GIT_TOKEN:-}" ]; then
+  install -d -o root -g root -m 0755 /etc/saha
+  command -v ssh-keygen >/dev/null || apt-get install -y openssh-client
+  if [ ! -f "$DEPLOY_KEY" ]; then
+    ssh-keygen -q -t ed25519 -N '' -C "${APP}@$(hostname)" -f "$DEPLOY_KEY"
+    echo "No SAHA_GIT_TOKEN: generated ${DEPLOY_KEY}. Add this read-only deploy key to ${REPO}, then run provision.sh again:"
+    cat "${DEPLOY_KEY}.pub"
+    exit 0
+  fi
+  # GitHub's SSH host keys come from its API over TLS, so the first SSH connection is verified, not trusted blindly.
+  if ! grep -qs '^github.com ' /etc/ssh/ssh_known_hosts; then
+    python3 -c 'import json,urllib.request; r=urllib.request.Request("https://api.github.com/meta",headers={"User-Agent":"saha-provision"}); m=json.load(urllib.request.urlopen(r,timeout=20)); print("\n".join("github.com "+k for k in m["ssh_keys"]))' >> /etc/ssh/ssh_known_hosts \
+      || echo "WARNING: could not fetch GitHub host keys; the first SSH connection will be trusted on first use" >&2
+  fi
+  HOSTKEY_POLICY=yes; grep -qs '^github.com ' /etc/ssh/ssh_known_hosts || HOSTKEY_POLICY=accept-new
+  REPO="git@github.com:nakul175/${APP}.git"
+  export GIT_SSH_COMMAND="ssh -i ${DEPLOY_KEY} -o IdentitiesOnly=yes -o UserKnownHostsFile=/etc/ssh/ssh_known_hosts -o StrictHostKeyChecking=${HOSTKEY_POLICY}"
+fi
 export DEBIAN_FRONTEND=noninteractive
 
 # --- swap (2 GB): the build needs more memory than a small droplet has ---
@@ -42,8 +63,10 @@ fi
 id saha >/dev/null 2>&1 || useradd --system --home-dir "/var/lib/${APP}" --shell /usr/sbin/nologin saha
 install -d -o root -g root -m 0755 /etc/saha "/opt/${APP}"
 install -d -o saha -g saha -m 0750 "/var/lib/${APP}" "/var/lib/${APP}/state"
-( umask 077; printf '%s' "$SAHA_GIT_TOKEN" > "/etc/saha/${APP}.git-token" )
-chown root:root "/etc/saha/${APP}.git-token"; chmod 600 "/etc/saha/${APP}.git-token"
+if [ -n "${SAHA_GIT_TOKEN:-}" ]; then
+  ( umask 077; printf '%s' "$SAHA_GIT_TOKEN" > "/etc/saha/${APP}.git-token" )
+  chown root:root "/etc/saha/${APP}.git-token"; chmod 600 "/etc/saha/${APP}.git-token"
+fi
 
 # --- source checkout (kept as root; the app runs as user saha) ---
 if [ ! -d "/opt/${APP}/src/.git" ]; then
@@ -58,7 +81,10 @@ install -m 0755 "$SRC/update.sh" "/usr/local/bin/${APP}-update"
 install -m 0644 "$SRC/${APP}.service" "/etc/systemd/system/${APP}.service"
 install -m 0644 "$SRC/${APP}-update.service" "/etc/systemd/system/${APP}-update.service"
 install -m 0644 "$SRC/${APP}-update.timer" "/etc/systemd/system/${APP}-update.timer"
-sed "s/SAHA_HOST/${SAHA_HOST}/" "$SRC/Caddyfile" > /etc/caddy/Caddyfile
+# One Caddy serves every app on this droplet: the main Caddyfile only imports one file per app.
+install -d -m 0755 /etc/caddy/conf.d
+grep -q '^import /etc/caddy/conf.d/' /etc/caddy/Caddyfile 2>/dev/null || printf 'import /etc/caddy/conf.d/*.caddy\n' > /etc/caddy/Caddyfile
+sed "s/SAHA_HOST/${SAHA_HOST}/" "$SRC/Caddyfile" > "/etc/caddy/conf.d/${APP}.caddy"
 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 systemctl daemon-reload
 systemctl enable caddy "${APP}.service" "${APP}-update.timer"
