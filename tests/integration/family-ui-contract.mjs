@@ -387,6 +387,25 @@ try {
     okay(has(ui, 'Original notice:'), 'Original idempotent marker remains explicitly recoverable without losing its notice identity');
     check(ctx.writes().length, 1, 'Reload with malformed evidence never automatically retries or repairs it');
   });
+  await scenario('Inbox pages newest first through actual route cursors with honest counts and a current-page hide-read filter', Inbox, async ctx => {
+    const insert = ctx.sqlite.prepare('INSERT INTO notifications (id,user_id,channel,title,body,created_at,updated_at) VALUES (?,?,?,?,?,?,?)');
+    for (let index = 1; index <= 29; index++) { const at = `2026-10-06T00:${String(index).padStart(2, '0')}:00.000Z`; insert.run('paged-' + String(index).padStart(2, '0'), 'guardian-a', 'in_app', 'Paged ' + index, 'Synthetic paged body', at, at); }
+    const ui = ctx.mount(); await ui.flush(); let ids = noticeIds(ui);
+    check([ids.length, ids[0], ids.at(-1)], [25, 'paged-29', 'paged-05'], 'The first page is the 25 newest notices');
+    okay(has(ui, '30 unread of 30 notices.'), 'Counts come from the whole owned inbox, not the page');
+    okay(ui.button('Newer notices').props.disabled, 'There is no newer page from the first page'); okay(!ui.button('Older notices').props.disabled, 'An older page is offered');
+    await ui.click('Older notices'); ids = noticeIds(ui);
+    check(ids, ['paged-04', 'paged-03', 'paged-02', 'paged-01', 'notice-guardian-a'], 'The older page continues exactly where the first ended');
+    const feeds = ctx.trace.filter(row => row.path === '/api/notifications' && row.method === 'GET').map(row => row.search);
+    check([feeds[0], feeds[1].startsWith('?cursor=')], ['', true], 'The older page used the server-issued cursor');
+    okay(ui.button('Older notices').props.disabled && !ui.button('Newer notices').props.disabled, 'The last page offers only newer notices');
+    await ui.click('Newer notices'); check(noticeIds(ui).length, 25, 'Newer returns to the first page');
+    ui.all(node => node.type === 'button' && text(node) === 'Mark as Read')[0].props.onClick(); await ui.flush();
+    okay(has(ui, '29 unread of 30 notices.'), 'A confirmed read moves the unread count and keeps the page');
+    ui.one(node => node.type === 'input' && node.props.type === 'checkbox').props.onChange({ target: { checked: true } }); await ui.flush();
+    check(noticeIds(ui).length, 24, 'Hiding read notices removes only the read notice from the current page');
+    check(ctx.writes().length, 1, 'Paging and filtering sent no write other than the requested marker');
+  });
   check(externalRequests, 0, 'All family-view callback requests remained synthetic and offline');
   console.log(JSON.stringify({ passed: checks, failed: 0, skipped: 0, scenarios, requests, externalRequests, evidence: 'Substituted client callbacks with actual synthetic sessions, routes and production D1 SQL; mounted browser separate.' }));
 } finally { globalThis.fetch = originalFetch; globalThis.window = originalWindow; delete globalThis.__sahaFamilyContractReact; delete globalThis.__sahaFamilyStoredTimestamp; }

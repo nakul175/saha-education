@@ -70,6 +70,8 @@ export function AppShell({
   const navigationItems = [
     { id: 'accounts', label: 'Accounts', path: '/admin/users' },
     { id: 'profile-links', label: 'Profile links', path: '/admin/profile-links' },
+    { id: 'audit', label: 'Audit trail', path: '/admin/audit' },
+    { id: 'notices', label: 'Send a notice', path: '/notices' },
     { id: 'curriculum', label: 'Curriculum library', path: '/curriculum' },
     { id: 'reading-review', label: 'Reading review', path: '/reading-review' },
     { id: 'reading-practice', label: 'Reading practice planner', path: '/reading-practice' },
@@ -159,7 +161,7 @@ export function AppShell({
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'academic', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'submissions', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports', 'school-setup', 'records'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'academic', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'submissions', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports', 'notices', 'school-setup', 'records'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications
