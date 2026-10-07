@@ -71,7 +71,7 @@ fi
 # --- source checkout (kept as root; the app runs as user saha) ---
 if [ ! -d "/opt/${APP}/src/.git" ]; then
   git -c credential.helper="!f(){ echo username=x-access-token; echo password=\$(cat /etc/saha/${APP}.git-token); }; f" \
-    clone --depth 1 "$REPO" "/opt/${APP}/src"
+    clone --depth 1 --branch main "$REPO" "/opt/${APP}/src"
 fi
 
 # --- units, updater, proxy ---
