@@ -272,14 +272,14 @@ try {
   });
   await check('FR-24 staff roster shows each learner status without exposing other classes', async () => {
     await page.goto(origin + '/submissions');
-    await expect(page.getByText('1 of 2 learners have responded', { exact: false })).toBeVisible();
-    await page.getByRole('link', { name: 'Learner progress', exact: true }).first().click();
-    await expect(page.getByRole('heading', { name: 'Learner progress', exact: true })).toBeVisible();
+    await expect(page.getByText('1 of 2 students have responded', { exact: false })).toBeVisible();
+    await page.getByRole('link', { name: 'Student progress', exact: true }).first().click();
+    await expect(page.getByRole('heading', { name: 'Student progress', exact: true })).toBeVisible();
     const row = page.getByRole('row', { name: /student-a Synthetic/ });
     await expect(row).toContainText('Response waiting for feedback');
     await expect(row).toContainText('2');
     await expect(page.getByRole('row', { name: /Peer Learner/ })).toContainText('No response yet');
-    await page.getByLabel('Show learners').selectOption('not-submitted');
+    await page.getByLabel('Show students').selectOption('not-submitted');
     await expect(page.getByRole('row', { name: /Peer Learner/ })).toBeVisible();
     await expect(page.getByRole('row', { name: /student-a Synthetic/ })).toHaveCount(0);
     await shot(page, 'staff-learner-progress');
@@ -337,7 +337,7 @@ try {
     assert.equal((await api(student, 'GET', `/api/assignments/${assignmentId}/submissions`)).text.includes('BROWSER_PEER_PRIVATE_RESPONSE'), false);
     assert.equal((await api(student, 'GET', '/api/assignment-progress')).text.includes('Peer'), false);
     await page.goto(origin + '/assignments/' + encodeURIComponent(assignmentId) + '/progress');
-    await expect(page.getByText('2 of 2 enrolled learners have responded', { exact: false })).toBeVisible();
+    await expect(page.getByText('2 of 2 enrolled students have responded', { exact: false })).toBeVisible();
     await expect(page.getByRole('row', { name: /Peer Learner/ })).toContainText('Response waiting for feedback');
     await expect(page.getByRole('row', { name: /student-a Synthetic/ })).toContainText('Feedback given on the latest response');
   });

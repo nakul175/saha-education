@@ -179,7 +179,7 @@ const fetchers: Record<AuditSource, Fetcher> = {
         window(f, 'report', { time: reportPublicationReceipts.publishedAt, id: reportPublicationReceipts.id, actorId: reportPublicationReceipts.publishedBy, actorName: actor.name, subject, reason: sql`''` })))
       .orderBy(desc(reportPublicationReceipts.publishedAt), desc(reportPublicationReceipts.id)).limit(limit);
     return rows.map(r => ({ source: 'report', sourceId: r.id, occurredAt: r.at, actor: actorOf(r.actorId, r.actorName, r.actorRole), action: 'Report card published', subject: r.subject,
-      reason: null, before: 'Draft, not visible to families', after: 'Visible to linked guardians and the learner' }));
+      reason: null, before: 'Draft, not visible to families', after: 'Visible to linked guardians and the student' }));
   },
   async 'submission-window'(principal, f, limit) {
     const earlier = alias(assignmentSubmissionWindows, 'earlier_window');

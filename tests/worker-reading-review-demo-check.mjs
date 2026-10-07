@@ -80,7 +80,7 @@ async function familyPrivacy(actor, label) {
     await page.goto(base.origin + path);
     await check(`${label} sees a plain privacy explanation and no reading data on ${path}`, async () => {
       await expect(page.getByText(/private to school staff/i).first()).toBeVisible();
-      await expect(page.getByText(/not published|not shown to learners or families/i).first()).toBeVisible();
+      await expect(page.getByText(/not published|not shown to students or families/i).first()).toBeVisible();
       for (const name of ['Prepare reading app', 'Save reviewed check', 'Show readings', 'Review a correction']) await expect(page.getByRole('button', { name })).toHaveCount(0);
       await expect(page.locator('table, svg[role=img]')).toHaveCount(0);
       assert.doesNotMatch(await page.locator('body').innerText(), /correct words|wcpm|accuracy/i);
@@ -142,7 +142,7 @@ try {
     await page.goto(base.origin + '/external-apps');
     await check('A configured destination shows a connected state with the handoff boundary explained', async () => {
       await expect(page.locator('[data-orf-state="ready"]')).toContainText('Connected');
-      await expect(page.getByText(/sends no learner names, learner numbers, class details or Saha sign-in/i)).toBeVisible();
+      await expect(page.getByText(/sends no student names, student numbers, class details or Saha sign-in/i)).toBeVisible();
       await expect(page.getByText(/Results do not come back automatically/i)).toBeVisible();
       await expect(page.getByRole('link', { name: /Open reading app/ })).toHaveCount(0);
     });
@@ -184,7 +184,7 @@ try {
     await check('A class with no readings says so and draws no chart', async () => {
       await expect(otherPage.getByText('No reading observations match these filters.', { exact: false })).toBeVisible();
       await expect(otherPage.getByText('No readings yet', { exact: true })).toBeVisible();
-      await expect(otherPage.getByText('This learner has no recorded reading yet.')).toBeVisible();
+      await expect(otherPage.getByText('This student has no recorded reading yet.')).toBeVisible();
       await expect(otherPage.locator('svg[role=img]')).toHaveCount(0);
       await expect(otherPage.getByText('No comparable reading observations are available for these filters.')).toBeVisible();
     });
@@ -196,7 +196,7 @@ try {
       const options = await emptyAdminPage.getByLabel('Class', { exact: false }).locator('option').allInnerTexts();
       assert.deepEqual(options, ['Select a class', 'class-b']);
       await emptyAdminPage.getByLabel('Class', { exact: false }).selectOption('class-b');
-      await expect(emptyAdminPage.getByText('This learner has no recorded reading yet.')).toBeVisible();
+      await expect(emptyAdminPage.getByText('This student has no recorded reading yet.')).toBeVisible();
       assert.doesNotMatch(await emptyAdminPage.locator('body').innerText(), /Anika|Bilal|Chitra|Rabbit and the Moon/);
     });
     await emptyAdmin.close();
@@ -217,14 +217,14 @@ try {
     // ---- FR-21: the review page ----
     await page.goto(base.origin + '/reading-review');
     await page.getByLabel('Class', { exact: false }).selectOption('class-a');
-    await expect(page.getByRole('heading', { name: 'Reading overview by learner' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Reading overview by student' })).toBeVisible();
     const overview = page.getByRole('region', { name: 'Reading overview table; scroll horizontally on small screens' });
     const rows = async () => overview.locator('tbody tr').evaluateAll(trs => trs.map(tr => [...tr.children].slice(0, 5).map(cell => cell.innerText.trim())));
     await check('The overview lists learners by name with honest counts and shows a learner with no readings', async () => {
       const actual = await rows();
       assert.deepEqual(actual.map(row => [row[0], row[1], row[3], row[4]]), [['Anika Rao', '7', '2', '1'], ['Bilal Khan', '2', '1', '1'], ['Chitra Menon', '1', '1', '0'], ['Dev Sharma', '0', '0', '0'], ['Esha Gupta', '3', '2', '1']]);
       assert.equal(actual[3][2], 'No readings yet');
-      await expect(page.getByText('1 of 5 learners has no recorded readings yet.')).toBeVisible();
+      await expect(page.getByText('1 of 5 students has no recorded readings yet.')).toBeVisible();
       await expect(page.getByText(/no class average or ranking is calculated/i).first()).toBeVisible();
     });
     const seriesFor = (name, passage) => page.locator('section[data-series-kind]').filter({ hasText: name }).filter({ hasText: 'Passage reference: ' + passage });
@@ -318,13 +318,13 @@ try {
     await page.getByLabel(/^Local JSON/).fill(JSON.stringify(envelope, null, 2));
     await page.getByRole('button', { name: 'Validate and stage preview', exact: true }).click();
     await check('Exported results become a staged preview that creates no reading yet', async () => {
-      await expect(page.getByRole('heading', { name: 'Saved import preview · staged', exact: true })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Saved import preview · waiting for review', exact: true })).toBeVisible();
       await expect(page.getByText('71 / 88 words correct · 60 seconds · 71 correct words/minute · 81% accuracy', { exact: true })).toBeVisible();
       assert.equal((await api(teacher, '/api/reading-checks?classId=class-a')).filter(item => item.studentId === 'learner-d').length, 0);
       await expect(page.getByRole('button', { name: 'Confirm reviewed readings', exact: true })).toBeDisabled();
     });
     await page.getByLabel('Review or rejection reason', { exact: true }).fill('Synthetic educator reviewed the fake export.');
-    await page.getByRole('checkbox', { name: /I reviewed the original normalized values/ }).check();
+    await page.getByRole('checkbox', { name: /I reviewed the original values/ }).check();
     await page.getByRole('button', { name: 'Confirm reviewed readings', exact: true }).click();
     await check('Confirmation after explicit review creates one reviewed reading with a receipt', async () => {
       await expect(page.getByRole('heading', { name: 'Saved import preview · confirmed', exact: true })).toBeVisible();

@@ -111,7 +111,7 @@ async function countAudience(principal: Principal, audience: Audience): Promise<
 async function classLabel(principal: Principal, classId: string, roles: 'guardians' | 'learners' | 'both'): Promise<string> {
   const [row] = await getDb().select({ name: classes.name, term: classes.term }).from(classes).where(and(eq(classes.id, classId), classScope(principal))).limit(1);
   if (!row) throw new AccessError('Class not found', 404);
-  return `${row.name} (${row.term}): ${roles === 'both' ? 'guardians and learners' : roles}`;
+  return `${row.name} (${row.term}): ${roles === 'both' ? 'guardians and students' : roles === 'learners' ? 'students' : roles}`;
 }
 
 export async function previewNoticeAudience(principal: Principal, value: z.infer<typeof noticeAudienceQuerySchema>): Promise<NoticeAudiencePreview> {
@@ -133,7 +133,7 @@ export async function listNoticePeople(principal: Principal, filter: { q?: strin
   const rows = await getDb().select({ userId: users.id, name: users.name, role: users.role,
     // Literal `users.*`: single-table select fields render unqualified and would bind to the subquery's own table.
     context: sql<string | null>`case users.role
-      when 'student' then (select 'Learner, grade ' || students.grade_level from students where students.user_id = users.id limit 1)
+      when 'student' then (select 'Student, grade ' || students.grade_level from students where students.user_id = users.id limit 1)
       else (select 'Guardian of ' || group_concat(learner.first_name || ' ' || learner.last_name, ', ') from guardians join student_guardians on student_guardians.guardian_id = guardians.id
         join students learner on learner.id = student_guardians.student_id where guardians.user_id = users.id and guardians.school_id = ${principal.schoolId!}) end` })
     .from(users).where(and(recipientBase(principal), staffRelated(principal), q ? sql`${users.name} like ${'%' + escaped + '%'} escape '\\'` : undefined))

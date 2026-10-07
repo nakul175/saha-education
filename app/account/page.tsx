@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { AccountSummary } from '@/lib/education/account';
 
-const ROLE_LABEL = { admin: 'School administrator', teacher: 'Teacher', guardian: 'Guardian', student: 'Learner' } as const;
+const ROLE_LABEL = { admin: 'School administrator', teacher: 'Teacher', guardian: 'Guardian', student: 'Student' } as const;
 const HOME = { admin: '/dashboard/admin', teacher: '/dashboard/teacher', guardian: '/dashboard/guardian', student: '/dashboard/student' } as const;
 
 function when(value: string): string {

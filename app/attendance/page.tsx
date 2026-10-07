@@ -133,8 +133,8 @@ export default function AttendancePage() {
           </div>
           {staff && <div className="flex flex-wrap gap-2"><a className="rounded-md border px-3 py-2 underline" href={'/classes/' + encodeURIComponent(current.class.id) + '/attendance'}>Review attendance marks</a><a className="rounded-md border px-3 py-2 underline" href={'/attendance/classes/' + encodeURIComponent(current.class.id)}>Class attendance report</a></div>}
         </div>
-        {current.pupils.truncated && <p role="status" className="rounded-md border p-3">Showing {current.pupils.items.length} of {current.pupils.total} available learners. This view is limited to {current.pupils.limit}; omitted learners are not counted as having no records.</p>}
-        {current.pupils.total === 0 && <p>No learner profiles or saved attendance rows are currently available for this class.</p>}
+        {current.pupils.truncated && <p role="status" className="rounded-md border p-3">Showing {current.pupils.items.length} of {current.pupils.total} available students. This view is limited to {current.pupils.limit}; omitted students are not counted as having no records.</p>}
+        {current.pupils.total === 0 && <p>No student profiles or saved attendance rows are currently available for this class.</p>}
         {current.pupils.items.map(pupil => <article key={pupil.id} data-attendance-pupil={pupil.id} aria-labelledby={'attendance-pupil-' + pupil.id}
           className="min-w-0 space-y-3 rounded-lg border p-4">
           <div className="min-w-0 break-words">
@@ -143,7 +143,7 @@ export default function AttendancePage() {
             <p className="text-sm">{pupil.currentActive ? 'Current active enrolment' : 'Saved records; no current active enrolment in this class'}</p>
             <p className="text-sm"><a className="underline" href={'/attendance/learners/' + encodeURIComponent(pupil.id)}>Day-by-day attendance for {pupil.firstName} {pupil.lastName}</a></p>
           </div>
-          {pupil.attendance.recordedRows === 0 ? <p>No attendance has been recorded for this learner in this class.</p> : <>
+          {pupil.attendance.recordedRows === 0 ? <p>No attendance has been recorded for this student in this class.</p> : <>
             <p>{pupil.attendance.recordedRows} saved {pupil.attendance.recordedRows === 1 ? 'row' : 'rows'}.</p>
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {Object.entries(pupil.attendance.counts).map(([status, count]) => <div key={status}>

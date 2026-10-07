@@ -18,7 +18,7 @@ const accounts = [
   { id: 'saha-demo-admin', role: 'admin', name: 'Demo administrator' },
   { id: 'saha-demo-teacher', role: 'teacher', name: 'Demo teacher' },
   { id: 'saha-demo-guardian', role: 'guardian', name: 'Demo guardian' },
-  { id: 'saha-demo-student', role: 'student', name: 'Demo learner' },
+  { id: 'saha-demo-student', role: 'student', name: 'Demo student' },
 ] as const;
 
 function guardedSeed(table: SQLiteTable, row: Record<string, string | number | null>, guard: SQL) {

@@ -159,7 +159,7 @@ try {
   });
 
   // ---- Account page --------------------------------------------------------------------------------------------------
-  for (const [role, label] of [['admin', 'School administrator'], ['teacher', 'Teacher'], ['guardian', 'Guardian'], ['student', 'Learner']]) await scenario('Account page for synthetic ' + role, { demo: true }, async ({ api, open, drained, count, writes }) => {
+  for (const [role, label] of [['admin', 'School administrator'], ['teacher', 'Teacher'], ['guardian', 'Guardian'], ['student', 'Student']]) await scenario('Account page for synthetic ' + role, { demo: true }, async ({ api, open, drained, count, writes }) => {
     await (await api('/api/demo', 'POST', JSON.stringify({ role, syntheticAcknowledged: true }))).text();
     const ui = await open(Account); const page = text(ui.tree);
     okay(page.includes('Your account') && page.includes(label) && page.includes('Synthetic demo entry') && page.includes('fictional'), 'Role, synthetic sign-in and fictional label shown');
@@ -261,7 +261,7 @@ try {
     okay(ui.all(item => item.type === 'h3').some(item => text(item) === 'Link school sign-in'), 'An unlinked account offers linking');
     await ui.type('Provider issuer to link', provider); await ui.type('Provider subject to link', 'sub-teacher-a'); await ui.type('Reason for the sign-in change', why); await ui.tick('I reviewed this account and confirm this sign-in');
     await ui.submit('sign-in-change-title');
-    okay(/already uses that exact issuer and subject/.test(alertText(ui)), 'identity_in_use explained: ' + alertText(ui));
+    okay(/already uses that sign-in identity/.test(alertText(ui)), 'identity_in_use explained: ' + alertText(ui));
     await ui.type('Provider subject to link', 'noor-new-sub'); await ui.tick('I reviewed this account and confirm this sign-in');
     await ui.submit('sign-in-change-title');
     okay(/is now linked to the school sign-in identity/.test(statusText(ui)), 'Free identity accepted: ' + statusText(ui));
@@ -288,7 +288,7 @@ try {
     await ui.type('Name', 'Outside Teacher'); await ui.type('Email', 'outside@example.invalid'); await ui.type('Exact trusted identity issuer', provider);
     await ui.type('Exact provider identity subject', 'outside-sub'); await ui.type('Reason and review reference', why); await ui.tick('I checked this person');
     const before = count('users'); await ui.submit('provision-title');
-    okay(/accepts only the synthetic demo issuer/.test(alertText(ui)), 'demo_issuer explained: ' + alertText(ui)); check(count('users'), before, 'No account was created');
+    okay(/accepts only the synthetic demo sign-in provider/.test(alertText(ui)), 'demo_issuer explained: ' + alertText(ui)); check(count('users'), before, 'No account was created');
     drained();
   });
   check(externalRequests, 0, 'Identity screens remain synthetic and offline');

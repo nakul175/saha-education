@@ -66,14 +66,14 @@ export default function SubmissionsPage() {
       </>}
     </>}
     {data && data.role === 'staff' && <>
-      <p>One line per assigned resource for the classes you can see. Counts use currently enrolled learners. Feedback is formative; no grade or late penalty is applied.</p>
+      <p>One line per assigned resource for the classes you can see. Counts use currently enrolled students. Feedback is formative; no grade or late penalty is applied.</p>
       {!loading && items.length === 0 && <p>No approved resource has been assigned to your classes yet. Assign one from Teaching resources.</p>}
       <ul className="space-y-3">{items.map(item => <li key={item.assignmentId} className="border rounded p-4 space-y-2 break-words">
         <a className="font-medium underline" href={`/assignments/${encodeURIComponent(item.assignmentId)}/progress`}>{item.title}</a>
         <p className="text-sm">{item.className} · {item.type} · assigned version {item.resourceVersion}</p>
-        {item.classProgress && <p>{item.classProgress.submitted} of {item.classProgress.enrolled} learners have responded · {item.classProgress.awaitingFeedback} waiting for feedback · {item.classProgress.feedbackGiven} with reviewed feedback</p>}
+        {item.classProgress && <p>{item.classProgress.submitted} of {item.classProgress.enrolled} students have responded · {item.classProgress.awaitingFeedback} waiting for feedback · {item.classProgress.feedbackGiven} with reviewed feedback</p>}
         <p className="text-sm">{dueLine(item)} {readable(item.window)}</p>
-        <p className="flex flex-wrap gap-4"><a className="underline" href={`/assignments/${encodeURIComponent(item.assignmentId)}/progress`}>Learner progress</a><a className="underline" href={`/assignments/${encodeURIComponent(item.assignmentId)}`}>Review responses and feedback</a></p>
+        <p className="flex flex-wrap gap-4"><a className="underline" href={`/assignments/${encodeURIComponent(item.assignmentId)}/progress`}>Student progress</a><a className="underline" href={`/assignments/${encodeURIComponent(item.assignmentId)}`}>Review responses and feedback</a></p>
       </li>)}</ul>
     </>}
     {data?.truncated && <p className="text-sm">Only the newest {items.length} assignments are shown.</p>}

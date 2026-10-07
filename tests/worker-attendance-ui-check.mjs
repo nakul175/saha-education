@@ -51,7 +51,7 @@ async function open(page, classId, chosenDate = date) {
   assert.equal(response?.status(), 200); await expect(page.getByRole('heading', { name: 'Take Attendance', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByLabel('Attendance date', { exact: true })).toBeEnabled();
   if (await page.getByLabel('Attendance date', { exact: true }).inputValue() !== chosenDate) await page.getByLabel('Attendance date', { exact: true }).fill(chosenDate);
-  await expect(page.getByText('Date: ' + chosenDate + '. Unrecorded learners remain blank. Only explicit changes are submitted.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Date: ' + chosenDate + '. Unrecorded students remain blank. Only explicit changes are submitted.', { exact: true })).toBeVisible();
 }
 async function prepare(page, explanation = reason) { await page.getByLabel('Reason for attendance changes', { exact: true }).fill(explanation); await reviewBox(page).check(); await expect(saveButton(page)).toBeEnabled(); }
 async function submit(page, classId, expected = 201) {
@@ -113,7 +113,7 @@ try {
   await check('Explicit comparison reload retains only intended edits and refreshes untouched rows', async () => {
     await page.getByRole('button', { name: 'Reload current records', exact: true }).click(); await expect(page.getByRole('status').filter({ hasText: 'Your intended edits are retained.' })).toBeVisible();
     await expect(row(page, savedPupil).getByText('late', { exact: true })).toBeVisible(); await expect(status(page, savedPupil)).toHaveValue('absent'); await expect(status(page, untouchedPupil)).toHaveValue('present');
-    await expect(page.getByText('1 learner with intended changes.', { exact: true })).toBeVisible(); await expect(reviewBox(page)).not.toBeChecked();
+    await expect(page.getByText('1 student with intended changes.', { exact: true })).toBeVisible(); await expect(reviewBox(page)).not.toBeChecked();
     await prepare(page); const result = await submit(page, classroom.id); assert.equal(result.review.changes.length, 1); assert.equal(result.review.changes[0].studentId, savedPupil.id); assert.equal(result.review.changes[0].beforeRecord.status, 'late');
   });
   await check('A rejected save retains entries and visible error without claiming success', async () => {
@@ -146,14 +146,14 @@ try {
       if (committed) return route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' }); return route.continue();
     };
     await page.route(match, failRefresh); try { await saveButton(page).click(); await expect(page.getByRole('status').filter({ hasText: 'Attendance review saved.' })).toContainText('Current records could not be refreshed.'); await expect(page.locator('[data-confirmed-attendance-review=' + JSON.stringify(receipt.review.id) + ']')).toBeVisible(); await expect(page.getByRole('button', { name: 'Retry pending save', exact: true })).toHaveCount(0); await expect(status(page, savedPupil)).toBeDisabled(); } finally { await page.unroute(match, failRefresh); }
-    await page.getByRole('button', { name: 'Reload current records', exact: true }).click(); await expect(status(page, savedPupil)).toHaveValue('excused'); await expect(page.getByText('0 learners with intended changes.', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Reload current records', exact: true }).click(); await expect(status(page, savedPupil)).toHaveValue('excused'); await expect(page.getByText('0 students with intended changes.', { exact: true })).toBeVisible();
   });
   await check('Date changes clear previous edits/review and retain exact calendar date without timezone shifting', async () => {
     await status(page, savedPupil).selectOption('present'); await prepare(page); await page.getByLabel('Attendance date', { exact: true }).fill(secondDate);
     await expect(status(page, savedPupil)).toHaveValue('excused'); await expect(note(page, savedPupil)).toHaveValue('Other exact date ' + suffix); await expect(reviewBox(page)).not.toBeChecked(); await expect(page.getByLabel('Reason for attendance changes', { exact: true })).toHaveValue('');
-    await expect(page.getByText('Date: ' + secondDate + '. Unrecorded learners remain blank. Only explicit changes are submitted.', { exact: true })).toBeVisible();
+    await expect(page.getByText('Date: ' + secondDate + '. Unrecorded students remain blank. Only explicit changes are submitted.', { exact: true })).toBeVisible();
     await page.getByLabel('Attendance date', { exact: true }).fill(''); await expect(page.getByRole('alert').filter({ hasText: 'Choose a real calendar date' })).toBeVisible(); await expect(page.locator('[data-attendance-student]')).toHaveCount(0);
-    await page.getByLabel('Attendance date', { exact: true }).fill('2028-02-29'); await expect(status(page, savedPupil)).toHaveValue(''); await expect(page.getByText('Date: 2028-02-29. Unrecorded learners remain blank. Only explicit changes are submitted.', { exact: true })).toBeVisible();
+    await page.getByLabel('Attendance date', { exact: true }).fill('2028-02-29'); await expect(status(page, savedPupil)).toHaveValue(''); await expect(page.getByText('Date: 2028-02-29. Unrecorded students remain blank. Only explicit changes are submitted.', { exact: true })).toBeVisible();
   });
   await check('A delayed obsolete date response cannot replace the newly selected snapshot', async () => {
     let release, started, done; const gate = new Promise(resolve => { release = resolve; }), begun = new Promise(resolve => { started = resolve; }), ended = new Promise(resolve => { done = resolve; });
@@ -195,7 +195,7 @@ try {
   await open(page, 'attendance-review-legacy-class');
   await check('Real retained duplicate enrolments block the entire editor without deleting evidence', async () => { await expect(page.getByRole('alert').filter({ hasText: 'The stored roster or attendance requires review.' })).toBeVisible(); await expect(saveButton(page)).toBeDisabled(); assert.equal((await api(admin, '/api/enrolments?classId=attendance-review-legacy-class')).filter(item => item.studentId === 'attendance-review-legacy-student').length, 2); });
   await open(page, 'attendance-review-cap-class');
-  await check('Actual 101-pupil roster discloses the 100-row bound and blocks partial saves', async () => { await expect(page.locator('[data-attendance-student]')).toHaveCount(100); await expect(page.getByRole('alert').filter({ hasText: 'Showing 100 of 101 active learners.' })).toBeVisible(); await expect(saveButton(page)).toBeDisabled(); });
+  await check('Actual 101-pupil roster discloses the 100-row bound and blocks partial saves', async () => { await expect(page.locator('[data-attendance-student]')).toHaveCount(100); await expect(page.getByRole('alert').filter({ hasText: 'Showing 100 of 101 active students.' })).toBeVisible(); await expect(saveButton(page)).toBeDisabled(); });
   await check('Failed initial load exposes an error and cannot submit an unverified roster', async () => {
     const screen = await teacher.newPage(), match = url => url.pathname === endpoint(classroom.id);
     const fail = route => route.request().method() === 'GET' ? route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' }) : route.continue();
@@ -218,12 +218,12 @@ try {
     const deny = route => route.fulfill({ status: 403, contentType: 'application/json', body: '{"error":"Unavailable"}' }); await screen.route(historyMatch, deny);
     try { const saved = screen.waitForResponse(item => new URL(item.url()).pathname === endpoint(classroom.id) && item.request().method() === 'POST'); await saveButton(screen).click(); const response = await saved; assert.equal(response.status(), 201); await response.body(); await expect(screen.getByRole('status').filter({ hasText: 'Attendance review saved.' })).toContainText('Current access could not be verified.'); await expect(screen.getByRole('status').filter({ hasText: 'Current records reloaded.' })).toHaveCount(0); await expect(screen.locator('[data-attendance-student],[data-confirmed-attendance-review],[data-attendance-review]')).toHaveCount(0); await expect(screen.getByRole('button', { name: 'Retry pending save', exact: true })).toHaveCount(0); }
     finally { await screen.unroute(historyMatch, deny); }
-    await reload(screen).click(); await expect(note(screen, blankPupil)).toHaveValue('Known committed history denial ' + suffix); await expect(screen.getByText('0 learners with intended changes.', { exact: true })).toBeVisible(); await screen.close();
+    await reload(screen).click(); await expect(note(screen, blankPupil)).toHaveValue('Known committed history denial ' + suffix); await expect(screen.getByText('0 students with intended changes.', { exact: true })).toBeVisible(); await screen.close();
   });
   await check('Temporary history503 remains an availability error while authorized current marks remain usable', async () => {
     const screen = await teacher.newPage(), match = url => url.pathname === endpoint(classroom.id) + '/history';
     const fail = route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' }); await screen.route(match, fail);
-    try { await screen.goto(base.origin + '/classes/' + classroom.id + '/attendance', { waitUntil: 'domcontentloaded' }); await expect(screen.getByRole('alert')).toContainText('Review history could not be loaded.'); await expect(screen.locator('[data-attendance-student]')).toHaveCount(3); await expect(status(screen, savedPupil)).toBeEnabled(); await expect(screen.getByText('0 learners with intended changes.', { exact: true })).toBeVisible(); }
+    try { await screen.goto(base.origin + '/classes/' + classroom.id + '/attendance', { waitUntil: 'domcontentloaded' }); await expect(screen.getByRole('alert')).toContainText('Review history could not be loaded.'); await expect(screen.locator('[data-attendance-student]')).toHaveCount(3); await expect(status(screen, savedPupil)).toBeEnabled(); await expect(screen.getByText('0 students with intended changes.', { exact: true })).toBeVisible(); }
     finally { await screen.unroute(match, fail); await screen.close(); }
   });
   await check('Family accounts see a clear recording denial without editor requests or private roster', async () => {

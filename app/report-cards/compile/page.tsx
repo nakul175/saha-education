@@ -94,7 +94,7 @@ export default function CompileReportPage() {
     } catch (cause) {
       const lost = cause instanceof LifecycleRequestError && cause.unconfirmed;
       setUnconfirmed(lost);
-      setError(lost ? 'Saving could not be confirmed, so the draft report may or may not exist. Open the report list for this learner and check before creating it again; nothing is repeated automatically.' : failureMessage(cause, 'saving the draft report'));
+      setError(lost ? 'Saving could not be confirmed, so the draft report may or may not exist. Open the report list for this student and check before creating it again; nothing is repeated automatically.' : failureMessage(cause, 'saving the draft report'));
       if (cause instanceof LifecycleRequestError && cause.code) void loadLearner(studentId);
     } finally { inFlight.current = false; setSaving(false); }
   }
@@ -103,7 +103,7 @@ export default function CompileReportPage() {
   const note = (field: Field) => problems[field] && <p id={'problem-' + field} className="mt-1 text-sm text-red-700 dark:text-red-400">{problems[field]}</p>;
   return <div className="mx-auto max-w-3xl min-w-0 space-y-6 p-4">
     <h1 className="text-2xl font-bold">Compile a report card</h1>
-    <p>Choose a learner, pick from their published assessment results, then add the grade and summary your school has decided. The draft stays private until you review and publish it.</p>
+    <p>Choose a student, pick from their published assessment results, then add the grade and summary your school has decided. The draft stays private until you review and publish it.</p>
     <div className="flex flex-wrap items-center gap-4"><a href="/report-cards" className="underline">Back to report cards</a><a href="/assessments/manage" className="underline">Manage assessments</a></div>
     {session.status === 'loading' && <p role="status">Checking your account…</p>}
     {session.status === 'denied' && <p role="alert">Sign in with an administrator account to compile report cards.</p>}
@@ -113,23 +113,23 @@ export default function CompileReportPage() {
       {(error || created) && <div ref={message} tabIndex={-1} role={error ? 'alert' : 'status'} className="space-y-2 break-words rounded border p-3">
         {error && <p>{error}</p>}
         {unconfirmed && <a className="underline" href="/report-cards">Open the report list</a>}
-        {created && <><p>Draft saved for {studentName || 'the learner'}: {created.term}, with {created.lines} published result{created.lines === 1 ? '' : 's'} attached. It is private until you publish it.</p>
+        {created && <><p>Draft saved for {studentName || 'the student'}: {created.term}, with {created.lines} published result{created.lines === 1 ? '' : 's'} attached. It is private until you publish it.</p>
           <a className="underline" href={'/report-cards/' + encodeURIComponent(created.id)}>Review and publish this draft</a></>}
       </div>}
-      {studentState === 'loading' && <p role="status">Loading learners…</p>}
-      {studentState === 'error' && <div className="space-y-2"><p role="alert">The learner list could not be loaded.</p><Button type="button" variant="outline" onClick={() => void loadStudents()}>Try again</Button></div>}
-      {studentState === 'ready' && <Card><CardHeader><CardTitle>Learner</CardTitle></CardHeader><CardContent className="space-y-3">
-        <Label htmlFor="compile-student">Learner</Label>
-        <select id="compile-student" className={selectClass} value={studentId} disabled={saving} onChange={event => pick(event.target.value)}><option value="">Choose a learner</option>{students.map(row => <option key={row.id} value={row.id}>{row.firstName} {row.lastName}</option>)}</select>
-        {students.length === 0 && <p>No learner records are available to your account.</p>}
+      {studentState === 'loading' && <p role="status">Loading students…</p>}
+      {studentState === 'error' && <div className="space-y-2"><p role="alert">The student list could not be loaded.</p><Button type="button" variant="outline" onClick={() => void loadStudents()}>Try again</Button></div>}
+      {studentState === 'ready' && <Card><CardHeader><CardTitle>Student</CardTitle></CardHeader><CardContent className="space-y-3">
+        <Label htmlFor="compile-student">Student</Label>
+        <select id="compile-student" className={selectClass} value={studentId} disabled={saving} onChange={event => pick(event.target.value)}><option value="">Choose a student</option>{students.map(row => <option key={row.id} value={row.id}>{row.firstName} {row.lastName}</option>)}</select>
+        {students.length === 0 && <p>No student records are available to your account.</p>}
       </CardContent></Card>}
       {studentId && learnerState === 'loading' && <p role="status">Loading published results for {studentName}…</p>}
-      {studentId && learnerState === 'error' && <div className="space-y-2"><p role="alert">Published results could not be loaded for this learner.</p><Button type="button" variant="outline" onClick={() => void loadLearner(studentId)}>Try again</Button></div>}
+      {studentId && learnerState === 'error' && <div className="space-y-2"><p role="alert">Published results could not be loaded for this student.</p><Button type="button" variant="outline" onClick={() => void loadLearner(studentId)}>Try again</Button></div>}
       {studentId && learnerState === 'ready' && <form noValidate onSubmit={submit} className="space-y-6">
         <fieldset disabled={saving} className="min-w-0 space-y-6">
           <Card><CardHeader><CardTitle>Published results for {studentName}</CardTitle><CardDescription>Only results from published assessments appear here. Unpublished and unreviewed scores are never included.</CardDescription></CardHeader>
             <CardContent className="min-w-0">
-              {eligible.length === 0 ? <p data-eligible-empty>No published results are available for this learner yet. Publish an assessment from Manage assessments first, or save a report without results.</p>
+              {eligible.length === 0 ? <p data-eligible-empty>No published results are available for this student yet. Publish an assessment from Manage assessments first, or save a report without results.</p>
                 : <ul className="space-y-2">{eligible.map(row => <li key={row.assessmentId} data-eligible-result={row.assessmentId} className="min-w-0 rounded border p-3">
                   <Label className="flex items-start gap-2" htmlFor={'pick-' + row.assessmentId}><input id={'pick-' + row.assessmentId} type="checkbox" className="mt-1" checked={chosen[row.assessmentId] === true} onChange={event => setChosen(previous => ({ ...previous, [row.assessmentId]: event.target.checked }))} />
                     <span className="min-w-0 break-words"><span className="font-medium">{row.title}</span> ({kindLabel(row.kind)}, {row.className}, {formatDay(row.date)}): <span data-score>{row.score} out of {row.maxScore}</span>{row.grade ? ', grade ' + row.grade : ', no grade entered'}. Published {formatStamp(row.publishedAt)}.{row.inReports > 0 ? ' Already used in ' + row.inReports + ' report' + (row.inReports === 1 ? '' : 's') + '.' : ''}</span></Label>

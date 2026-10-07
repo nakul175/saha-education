@@ -191,11 +191,11 @@ try {
   await page.getByRole('button', { name: 'Validate and stage preview', exact: true }).click();
   await check('Lost stage acknowledgement explains retained import ID and keeps editable JSON', async () => { const alert = page.getByRole('alert').filter({ hasText: 'Retry the same JSON' }); await expect(alert).toContainText('import ID is retained'); assert.deepEqual(JSON.parse(await page.getByLabel(/^Local JSON/).inputValue()), envelope); });
   await page.getByRole('button', { name: 'Validate and stage preview', exact: true }).click();
-  await check('Same import UUID recovers exactly one staged preview', async () => { await expect(page.getByRole('heading', { name: 'Saved import preview · staged', exact: true })).toBeVisible(); assert.equal(stageLoss.payloads.length, 2); assert.deepEqual(stageLoss.payloads[1], stageLoss.payloads[0]); assert.equal((await api(teacher, '/api/reading-imports')).filter(item => item.id === stageLoss.payloads[0].clientImportId).length, 1); assert.equal((await api(teacher, '/api/reading-checks?classId=class-a')).filter(item => item.passageReference === passageReference).length, 0); });
+  await check('Same import UUID recovers exactly one staged preview', async () => { await expect(page.getByRole('heading', { name: 'Saved import preview · waiting for review', exact: true })).toBeVisible(); assert.equal(stageLoss.payloads.length, 2); assert.deepEqual(stageLoss.payloads[1], stageLoss.payloads[0]); assert.equal((await api(teacher, '/api/reading-imports')).filter(item => item.id === stageLoss.payloads[0].clientImportId).length, 1); assert.equal((await api(teacher, '/api/reading-checks?classId=class-a')).filter(item => item.passageReference === passageReference).length, 0); });
   await stageLoss.remove();
   const importId = stageLoss.payloads[0].clientImportId;
   const importReason = page.getByLabel('Review or rejection reason', { exact: true });
-  const importReviewed = page.getByRole('checkbox', { name: /I reviewed the original normalized values/ });
+  const importReviewed = page.getByRole('checkbox', { name: /I reviewed the original values/ });
   const confirm = page.getByRole('button', { name: 'Confirm reviewed readings', exact: true });
   await check('Staged normalized metrics remain explicit and require review', async () => { await expect(page.getByText('91 / 100 words correct · 60 seconds · 91 correct words/minute · 91% accuracy', { exact: true })).toBeVisible(); await expect(confirm).toBeDisabled(); });
   await importReason.fill('Synthetic educator reviewed exact normalized reading.'); await importReviewed.check();
@@ -210,9 +210,9 @@ try {
   await decisionLoss.remove();
   const duplicateEnvelope = { ...envelope, sourceReference: 'Duplicate batch ' + suffix };
   await page.getByLabel(/^Local JSON/).fill(JSON.stringify(duplicateEnvelope)); await page.getByRole('button', { name: 'Validate and stage preview', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Saved import preview · staged', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Saved import preview · waiting for review', exact: true })).toBeVisible();
   await importReason.fill('Synthetic duplicate source consumption verification.'); await importReviewed.check(); await confirm.click();
-  await check('A new draft cannot consume the same source result twice', async () => { await expect(page.getByRole('alert').filter({ hasText: 'already consumed source result' })).toBeVisible(); assert.equal((await api(teacher, '/api/reading-checks?classId=class-a')).filter(item => item.passageReference === passageReference).length, 1); await expect(page.getByRole('heading', { name: 'Saved import preview · staged', exact: true })).toBeVisible(); });
+  await check('A new draft cannot consume the same source result twice', async () => { await expect(page.getByRole('alert').filter({ hasText: 'already consumed source result' })).toBeVisible(); assert.equal((await api(teacher, '/api/reading-checks?classId=class-a')).filter(item => item.passageReference === passageReference).length, 1); await expect(page.getByRole('heading', { name: 'Saved import preview · waiting for review', exact: true })).toBeVisible(); });
   await page.getByRole('button', { name: 'Reject this draft', exact: true }).click();
   await check('A conflicting duplicate draft can be explicitly rejected', async () => { await expect(page.getByRole('heading', { name: 'Saved import preview · rejected', exact: true })).toBeVisible(); await expect(page.getByText('Reason: Synthetic duplicate source consumption verification.', { exact: true })).toBeVisible(); assert.equal((await api(teacher, '/api/reading-checks?classId=class-a')).filter(item => item.passageReference === passageReference).length, 1); });
   await check('Desktop import labels and width', async () => labelsAndOverflow(page));

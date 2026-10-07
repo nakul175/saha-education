@@ -85,7 +85,7 @@ async function demoSuite() {
     { role: 'admin', label: 'administrator', title: 'Admin Dashboard', roleLabel: 'School administrator' },
     { role: 'teacher', label: 'teacher', title: 'Teacher Dashboard', roleLabel: 'Teacher' },
     { role: 'guardian', label: 'guardian', title: 'Guardian Dashboard', roleLabel: 'Guardian' },
-    { role: 'student', label: 'learner', title: 'My progress', roleLabel: 'Learner' },
+    { role: 'student', label: 'learner', title: 'My progress', roleLabel: 'Student' },
   ];
   async function loginPage(page) {
     const response = await go(page, '/login');
@@ -210,14 +210,14 @@ async function demoSuite() {
     await page.getByLabel('Reason and review reference', { exact: true }).fill(why);
     await page.getByRole('checkbox', { name: /I checked this person/ }).check();
     await page.getByRole('button', { name: 'Provision reviewed account', exact: true }).click();
-    await expect(alertLine(page)).toContainText('accepts only the synthetic demo issuer');
+    await expect(alertLine(page)).toContainText('accepts only the synthetic demo sign-in provider');
     await expect(page.getByRole('heading', { name: 'Outside Teacher ' + suffix, exact: true })).toHaveCount(0);
   });
   const learnerContext = await newContext(); const learner = await learnerContext.newPage();
   await proc('Disabling a demo account signs it out at once, blocks entry in plain words, and re-enabling does not revive the session', async () => {
     await enter(learner, roles[3]);
     await go(page, '/admin/users');
-    await page.getByRole('button', { name: 'Disable access for Demo learner', exact: true }).click();
+    await page.getByRole('button', { name: 'Disable access for Demo student', exact: true }).click();
     await page.getByLabel('Reason for this access change', { exact: false }).fill(why);
     await page.getByRole('checkbox', { name: /I reviewed this account and confirm this disable/ }).check();
     await page.getByRole('button', { name: 'Disable reviewed account', exact: true }).click();
@@ -228,7 +228,7 @@ async function demoSuite() {
     await learner.getByRole('button', { name: 'Explore as learner', exact: true }).click();
     await expect(alertLine(learner)).toContainText('This demo account is switched off'); await shot(learner, 'disabled-entry');
     assert.equal((await whoami(learner)).status, 401, 'No session was issued');
-    await page.getByRole('button', { name: 'Enable access for Demo learner', exact: true }).click();
+    await page.getByRole('button', { name: 'Enable access for Demo student', exact: true }).click();
     await page.getByLabel('Reason for this access change', { exact: false }).fill(why + ' re-enable');
     await page.getByRole('checkbox', { name: /I reviewed this account and confirm this enable/ }).check();
     await page.getByRole('button', { name: 'Enable reviewed account', exact: true }).click();
@@ -242,7 +242,7 @@ async function demoSuite() {
     await go(page, '/admin/users');
     await expect(page.getByRole('heading', { name: 'Recent administration reviews', exact: true })).toBeVisible();
     const history = await page.locator('section[aria-labelledby=administration-history-title]').innerText();
-    assert.match(history, /Disabled · Demo learner/); assert.match(history, /Enabled · Demo learner/);
+    assert.match(history, /Disabled · Demo student/); assert.match(history, /Enabled · Demo student/);
     assert.equal(/saha-demo-(admin|teacher|student|guardian)\b/.test(history), false, 'No raw account id in the history');
   });
 }
@@ -368,7 +368,7 @@ async function realSuite() {
     await expect(admin.getByRole('heading', { name: 'Link school sign-in', exact: true })).toBeVisible();
     await admin.getByLabel('Provider issuer to link').fill(provider); await admin.getByLabel('Provider subject to link').fill('sub-guardian-a');
     await review('Reason for the sign-in change', /confirm this sign-in change/, 'Link sign-in identity');
-    await expect(alertLine(admin)).toContainText('already uses that exact issuer and subject');
+    await expect(alertLine(admin)).toContainText('already uses that sign-in identity');
     await admin.getByLabel('Provider subject to link').fill('newcomer-relinked-' + suffix);
     await admin.getByRole('checkbox', { name: /confirm this sign-in change/ }).check();
     await admin.getByRole('button', { name: 'Link sign-in identity', exact: true }).click();

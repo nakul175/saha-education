@@ -54,7 +54,7 @@ export default function AcademicHubPage() {
     {loading && <p role="status">Loading courses and classes…</p>}
     {error && <p role="alert" className="rounded border p-3">{error}</p>}
     {principal && !error && <>
-      {!isStaff(principal) && <p role="status">This page is for school staff. Open Enrolment history to see your learner&apos;s classes.</p>}
+      {!isStaff(principal) && <p role="status">This page is for school staff. Open Enrolment history to see your student&apos;s classes.</p>}
       <nav aria-label="Enrolment tasks" className="flex flex-wrap gap-3">
         {admin && <a className="underline" href="/courses/new">Add a course</a>}
         {admin && <a className="underline" href="/classes/new">Add a class</a>}

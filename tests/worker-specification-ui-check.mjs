@@ -128,7 +128,7 @@ try {
   });
   await learner.getByRole('textbox', { name: /^Your response/ }).fill('Synthetic browser response: one half has fewer equal parts than one quarter.');
   await learner.getByRole('button', { name: 'Save response attempt 1', exact: true }).click();
-  await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('exact original request and UUID are retained'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toBeDisabled(); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
+  await check('Lost response preserves learner input for a safe retry', async () => { await expect(learner.getByRole('alert')).toContainText('original request is kept exactly as it was'); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toBeDisabled(); await expect(learner.getByRole('textbox', { name: /^Your response/ })).toHaveValue('Synthetic browser response: one half has fewer equal parts than one quarter.'); });
   await learner.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true }).click();
   await expect(learner.getByRole('button', { name: 'Retry pending response', exact: true })).toBeEnabled();
   await learner.getByRole('button', { name: 'Retry pending response', exact: true }).click();

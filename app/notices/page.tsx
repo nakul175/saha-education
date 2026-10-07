@@ -11,7 +11,7 @@ type Roles = 'guardians' | 'learners' | 'both';
 type NoticeList = { items: SentNotice[]; total: number; nextCursor: string | null };
 const inputStyle = 'w-full rounded border bg-background p-2';
 const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
-const rolesText: Record<Roles, string> = { guardians: 'Guardians of learners in the class', learners: 'Learners in the class', both: 'Guardians and learners in the class' };
+const rolesText: Record<Roles, string> = { guardians: 'Guardians of students in the class', learners: 'Students in the class', both: 'Guardians and students in the class' };
 const SEND_MESSAGES = {
   400: 'Check the title, message, who it is for and the confirmation. Titles and messages are plain text, so “<” tags are not allowed.',
   404: 'That class or one of the people is no longer available to you. Reload the page and choose again.',

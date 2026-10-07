@@ -237,7 +237,7 @@ try {
   const report = { term: 'Mounted term ' + suffix, summary: 'Synthetic mounted summary ' + suffix };
   await go(adminPage, '/report-cards/compile', 'Compile a report card');
   await check('Compile lists only published, valid results for the chosen learner and keeps the raw zero', async () => {
-    await adminPage.getByLabel('Learner', { exact: true }).selectOption({ label: ANA_NAME }); await expect(adminPage.locator('[data-eligible-result]')).toHaveCount(2);
+    await adminPage.getByLabel('Student', { exact: true }).selectOption({ label: ANA_NAME }); await expect(adminPage.locator('[data-eligible-result]')).toHaveCount(2);
     await expect(adminPage.locator('[data-eligible-result="lc-assessment-partial"] [data-score]')).toHaveText('0 out of 20'); await expect(adminPage.locator('[data-eligible-result="' + created.id + '"] [data-score]')).toHaveText('0 out of 28');
     for (const id of ['lc-assessment-empty', 'lc-assessment-bad-max', 'lc-assessment-dupes']) await expect(adminPage.locator('[data-eligible-result="' + id + '"]')).toHaveCount(0);
     await expect(adminPage.getByText(PRIVATE_NOTE)).toHaveCount(0); await noLeaks(adminPage, 'compile'); await labelsAndWidth(adminPage, 'compile');
@@ -258,7 +258,7 @@ try {
     await api(family, '/api/report-cards/eligible?studentId=' + ANA, 'GET', undefined, 403);
   });
   await check('Staff review shows the learner by name, the snapshot lines and no private feedback; publishing needs the review box', async () => {
-    await go(adminPage, '/report-cards/' + report.id, 'Report Card'); await expect(adminPage.getByText('Learner: ' + ANA_NAME)).toBeVisible(); await expect(adminPage.locator('[data-report-line]')).toHaveCount(2);
+    await go(adminPage, '/report-cards/' + report.id, 'Report Card'); await expect(adminPage.getByText('Student: ' + ANA_NAME)).toBeVisible(); await expect(adminPage.locator('[data-report-line]')).toHaveCount(2);
     await expect(adminPage.locator('[data-report-line="lc-assessment-partial"] [data-score]')).toHaveText('Score: 0 out of 20, grade Seeded grade'); await expect(adminPage.getByText(PRIVATE_NOTE)).toHaveCount(0);
     await expect(adminPage.getByText('Not published. Only staff can see this draft.')).toBeVisible(); await expect(adminPage.getByRole('button', { name: 'Publish report', exact: true })).toBeDisabled(); await noLeaks(adminPage, 'staff report');
   });
@@ -271,7 +271,7 @@ try {
   });
   await check('The linked guardian and learner read the published report with raw zeros and no private teacher feedback', async () => {
     for (const account of [family, learner]) {
-      const screen = await account.newPage(); await go(screen, '/report-cards/' + report.id, 'Report Card'); await expect(screen.getByText(report.summary, { exact: true })).toBeVisible(); await expect(screen.getByText('Learner: ' + ANA_NAME)).toBeVisible();
+      const screen = await account.newPage(); await go(screen, '/report-cards/' + report.id, 'Report Card'); await expect(screen.getByText(report.summary, { exact: true })).toBeVisible(); await expect(screen.getByText('Student: ' + ANA_NAME)).toBeVisible();
       await expect(screen.locator('[data-report-line]')).toHaveCount(2); await expect(screen.locator('[data-report-line="lc-assessment-partial"] [data-score]')).toHaveText('Score: 0 out of 20, grade Seeded grade');
       await expect(screen.getByText(PRIVATE_NOTE)).toHaveCount(0); await expect(screen.getByRole('button', { name: 'Publish report', exact: true })).toHaveCount(0); await expect(screen.locator('[data-line-changed],[data-results-changed]')).toHaveCount(0); await noLeaks(screen, 'family report');
       const detail = await api(account, '/api/report-cards/' + report.id + '/detail'); assert.ok(detail.lines.every(line => line.current === null && !('feedback' in line)), 'Family lines expose no staff-only fields'); assert.equal(detail.resultsChanged, null);
@@ -298,7 +298,7 @@ try {
   });
   const replacement = { term: 'Corrected ' + report.term };
   await check('A replacement report links to the original with a reason and publishes once its lines match the current results', async () => {
-    await go(adminPage, '/report-cards/compile', 'Compile a report card'); await adminPage.getByLabel('Learner', { exact: true }).selectOption({ label: ANA_NAME });
+    await go(adminPage, '/report-cards/compile', 'Compile a report card'); await adminPage.getByLabel('Student', { exact: true }).selectOption({ label: ANA_NAME });
     await expect(adminPage.locator('[data-eligible-result="lc-assessment-partial"] [data-score]')).toHaveText('2 out of 20'); await expect(adminPage.locator('[data-eligible-result="lc-assessment-partial"]')).toContainText('Already used in 1 report.');
     await adminPage.locator('[data-eligible-result="lc-assessment-partial"] input').check(); await adminPage.getByLabel('Term', { exact: true }).fill(replacement.term); await adminPage.getByLabel('Overall grade', { exact: true }).fill('B+');
     await expect(adminPage.getByLabel('This report replaces a published report (optional)', { exact: true }).locator('option')).toHaveCount(2);
@@ -332,7 +332,7 @@ try {
     await goList(mobile); await labelsAndWidth(mobile, 'manage 375'); await noLeaks(mobile, 'manage 375'); await shot(mobile, 'manage-375');
     await go(mobile, '/assessments/new', 'New assessment'); await labelsAndWidth(mobile, 'new 375'); await shot(mobile, 'new-375');
     await goManage(mobile, created.id); await labelsAndWidth(mobile, 'detail 375'); await noLeaks(mobile, 'detail 375'); await shot(mobile, 'detail-375');
-    await go(mobileAdmin, '/report-cards/compile', 'Compile a report card'); await mobileAdmin.getByLabel('Learner', { exact: true }).selectOption({ label: ANA_NAME }); await expect(mobileAdmin.locator('[data-eligible-result]')).toHaveCount(2); await labelsAndWidth(mobileAdmin, 'compile 375'); await shot(mobileAdmin, 'compile-375');
+    await go(mobileAdmin, '/report-cards/compile', 'Compile a report card'); await mobileAdmin.getByLabel('Student', { exact: true }).selectOption({ label: ANA_NAME }); await expect(mobileAdmin.locator('[data-eligible-result]')).toHaveCount(2); await labelsAndWidth(mobileAdmin, 'compile 375'); await shot(mobileAdmin, 'compile-375');
     await go(mobileFamily, '/report-cards/' + replacement.id, 'Report Card'); await labelsAndWidth(mobileFamily, 'report 375'); await noLeaks(mobileFamily, 'report 375'); await shot(mobileFamily, 'report-375');
   });
   await check('Keyboard users can reach and operate the publish controls with native focus', async () => {
