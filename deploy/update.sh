@@ -27,7 +27,10 @@ record() { printf '{"commit":"%s","state":"%s","at":"%s"}\n' "${1:-unknown}" "$2
 git_pull fetch --depth 1 origin "$BRANCH"
 NEW="$(git -C "$SRC" rev-parse FETCH_HEAD)"
 CUR="$(git -C "$SRC" rev-parse HEAD)"
-if [ "$NEW" = "$CUR" ] && [ -d "$SRC/dist/server" ]; then exit 0; fi
+# wrangler dev keeps its temporary files beside the config file (dist/server/.wrangler); the build runs as
+# root but the service runs as user saha, so that directory is created for saha on every run, new build or not.
+scratch() { [ -d "$SRC/dist/server" ] && install -d -o saha -g saha "$SRC/dist/server/.wrangler"; return 0; }
+if [ "$NEW" = "$CUR" ] && [ -d "$SRC/dist/server" ]; then scratch; exit 0; fi
 
 trap 'record "$NEW" failed' ERR
 # Builds are heavy (1-2 GB): when several apps share this droplet, only one builds at a time.
@@ -48,7 +51,8 @@ for f in drizzle/*.sql; do
     echo "$name" >> "$LEDGER"
   fi
 done
+scratch
 chown -R saha:saha "/var/lib/${APP}"
 systemctl start "${APP}.service"
 sleep 5
-curl -fsS -o /dev/null http://127.0.0.1:3200/ && record "$NEW" ok
+if curl -fsS -m 20 -o /dev/null http://127.0.0.1:3200/; then record "$NEW" ok; else record "$NEW" failed; exit 1; fi
