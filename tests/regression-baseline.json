@@ -1,6 +1,6 @@
 {
   "description": "Minimum passed-assertion count per suite, from a real run. Changed only by node scripts/test.mjs --update-baseline.",
-  "updatedAt": "2026-10-06",
+  "updatedAt": "2026-10-07",
   "node": "v24.19.0",
   "suites": {
     "integration/academic-integrity-contract": {
@@ -138,6 +138,11 @@
       "file": "tests/integration/external-apps-contract.mjs",
       "minPassed": 70
     },
+    "integration/external-reading-handoff-contract": {
+      "layer": "integration",
+      "file": "tests/integration/external-reading-handoff-contract.mjs",
+      "minPassed": 106
+    },
     "integration/family-ui-contract": {
       "layer": "integration",
       "file": "tests/integration/family-ui-contract.mjs",
@@ -211,7 +216,7 @@
     "integration/reading-review-contract": {
       "layer": "integration",
       "file": "tests/integration/reading-review-contract.mjs",
-      "minPassed": 177
+      "minPassed": 194
     },
     "integration/registry-create-contract": {
       "layer": "integration",
@@ -312,6 +317,11 @@
       "layer": "unit",
       "file": "tests/unit/i18n-contract.mjs",
       "minPassed": 11
+    },
+    "unit/reading-trends-contract": {
+      "layer": "unit",
+      "file": "tests/unit/reading-trends-contract.mjs",
+      "minPassed": 43
     },
     "unit/request-body-contract": {
       "layer": "unit",
