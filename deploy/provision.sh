@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-time (idempotent) setup of a DigitalOcean droplet (Ubuntu 24.04, 2 GB RAM or more) for this app.
 # Run as root on the droplet:
-#   SAHA_GIT_TOKEN=<read-only GitHub token, or omit it to use an SSH deploy key> SAHA_HOST=<name>.<ip-dashed>.sslip.io bash provision.sh
+#   SAHA_GIT_TOKEN=<read-only GitHub token, or omit it to use an SSH deploy key> SAHA_HOST=<name>.<ip-dashed>.sslip.io SAHA_FIRST_USER=<email> bash provision.sh
 # The git token is stored in /etc/saha/<app>.git-token (mode 600) and never printed.
 set -euo pipefail
 
@@ -9,6 +9,7 @@ APP="saha-education"
 REPO="https://github.com/nakul175/saha-education.git"
 PORT="3200"
 : "${SAHA_HOST:?set SAHA_HOST, e.g. education.1-2-3-4.sslip.io (or your own domain)}"
+: "${SAHA_FIRST_USER:?set SAHA_FIRST_USER to the email address of the first person who may open the site}"
 # Git access: a read-only token (SAHA_GIT_TOKEN) or, when it is unset, a per-repository SSH deploy key
 # kept at /etc/saha/<app>.deploy-key. The first run without a token only generates that key and prints
 # its public half: add it to the repository (Settings > Deploy keys, read-only) and run provision.sh again.
@@ -40,7 +41,7 @@ if ! swapon --show | grep -q /swapfile; then
 fi
 
 apt-get update -y
-apt-get install -y ca-certificates curl gnupg git debian-keyring debian-archive-keyring apt-transport-https ufw build-essential
+apt-get install -y ca-certificates curl gnupg git debian-keyring debian-archive-keyring apt-transport-https ufw build-essential python3-bcrypt openssl
 
 # --- Node 22 (wrangler 4 needs >= 22.13) ---
 if ! command -v node >/dev/null || ! node -v | grep -q '^v22\.'; then
@@ -84,6 +85,8 @@ install -m 0644 "$SRC/${APP}-update.timer" "/etc/systemd/system/${APP}-update.ti
 # One Caddy serves every app on this droplet: the main Caddyfile only imports one file per app.
 install -d -m 0755 /etc/caddy/conf.d
 grep -q '^import /etc/caddy/conf.d/' /etc/caddy/Caddyfile 2>/dev/null || printf 'import /etc/caddy/conf.d/*.caddy\n' > /etc/caddy/Caddyfile
+install -m 0755 "$SRC/add-user.sh" "/usr/local/bin/${APP}-add-user"
+if [ ! -s "/etc/saha/${APP}.users" ]; then "/usr/local/bin/${APP}-add-user" "$SAHA_FIRST_USER"; fi
 sed "s/SAHA_HOST/${SAHA_HOST}/" "$SRC/Caddyfile" > "/etc/caddy/conf.d/${APP}.caddy"
 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 systemctl daemon-reload
