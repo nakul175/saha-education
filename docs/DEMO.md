@@ -48,7 +48,7 @@ Try the privacy boundary on purpose: as Guardian, the home page lists exactly tw
 
 ## What this does not show (known limits)
 
-- It runs locally only. A hosted demo (case TC-284) needs a deployed environment, and the private hosted deployment is still blocked; see [the hosting record](current/HOSTED-DEPLOYMENT-FAILURE.md).
+- It runs locally only until someone deploys it. A Cloudflare deployment script exists ([guide](DEPLOY-CLOUDFLARE.md)) but has never run against a real account, so no hosted demo (case TC-284) exists. The earlier private hosted deployment is still blocked; see [the hosting record](current/HOSTED-DEPLOYMENT-FAILURE.md).
 - The screens are in English only. The Hindi content (a worksheet and reading checks) is stored and shown in its own script, but labels and messages are not translated. A language and locale review is a human decision that has not been made.
 - Real sign-in, reading-app (ORF) data, AI planning and delivery to real families are all switched off. The launcher drops any `SAHA_OIDC_*` setting from its environment, because a real school sign-in setting would switch demo mode off.
 - The data is synthetic and the term dates move with the date you start. Do not enter real student details.
