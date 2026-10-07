@@ -86,6 +86,10 @@ try {
   check(result.observations[0].effective.wordsCorrect, 91, 'Initial effective metrics equal original');
   check(result.series.length, 1, 'One comparable task series initially');
   check(result.series[0].points[0].revision, 0, 'Series indicates whether its point uses a correction');
+  check(result.names, { students: { 'student-a': 'student-a Synthetic' }, staff: { 'teacher-a': 'teacher-a' } }, 'Review resolves only referenced learner and recorder display names');
+  check(JSON.stringify(result.names).includes('@'), false, 'Display names expose no contact details');
+  check((await review('admin-b', '?classId=class-b')).names, { students: { 'student-b': 'student-b Synthetic' }, staff: { 'admin-b': 'admin-b' } }, 'Another school resolves only its own names');
+  check((await review('teacher-other')).names, { students: {}, staff: {} }, 'An empty review resolves no names');
   check((await review('teacher-other')).observations.length, 0, 'Unassigned teacher review filters cannot widen access');
   check((await review('admin-a', '?studentId=student-b')).observations.length, 0, 'Foreign student review filter returns no evidence');
   check((await review('admin-a', '?classId=class-b')).series.length, 0, 'Foreign class filter returns no series');
@@ -152,6 +156,7 @@ try {
   check(second.revision, 2, 'Correction advances exactly one revision');
   check(second.correctedBy, 'admin-a', 'Administrator attribution retained');
   check(await history(), [first, second], 'Oldest-first correction history preserves both revisions');
+  check((await review()).names.staff, { 'teacher-a': 'teacher-a', 'admin-a': 'admin-a' }, 'Correction reviewers resolve to staff names');
   response = await call('POST', 'teacher-a', firstInput);
   check(response.status, 201, 'Old exact retry still succeeds after later correction');
   check(await response.json(), first, 'Later correction cannot change old retry response');
@@ -188,6 +193,10 @@ try {
   check(comparable.points.map(row => row.readingDate), ['2026-01-01', today], 'Comparable points use chronological reading dates');
   check(comparable.points.find(row => row.checkId === original.id).wordsCorrect, 87, 'Series uses latest explicitly corrected metrics');
   check(comparable.points.find(row => row.checkId === original.id).revision, 4, 'Series retains effective revision attribution');
+  check((await review('admin-a', '?classId=class-other')).names.staff, { 'teacher-other': 'teacher-other' }, 'A recorder in this school is named');
+  sqlite.prepare("UPDATE users SET school_id='b' WHERE id='teacher-other'").run();
+  check((await review('admin-a', '?classId=class-other')).names.staff, {}, 'A recorder who now belongs to another school is not named');
+  sqlite.prepare("UPDATE users SET school_id='a' WHERE id='teacher-other'").run();
   const wholeSchool = await review('admin-a', '');
   check(wholeSchool.series.length, 6, 'School review keeps student/class series separate');
   check(wholeSchool.observations.some(row => row.original.id === foreign.id), false, 'Whole-school history excludes another school');

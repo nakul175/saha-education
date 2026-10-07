@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { and, asc, desc, eq, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
 import { getDb } from '@/db/index';
-import { readingChecks, type SelectReadingCheck } from '@/db/schema';
+import { readingChecks, students, users, type SelectReadingCheck } from '@/db/schema';
 import { readingCorrections, type SelectReadingCorrection } from '@/db/reading-correction-schema';
 import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import { readingCheckInputSchema, type ReadingCheck } from './reading-checks';
@@ -35,7 +35,11 @@ export type ComparableReadingSeries = {
   studentId: string; classId: string; language: string; passageReference: string; durationMs: number;
   points: ComparableReadingPoint[];
 };
-export type ReadingReview = { observations: ReadingReviewObservation[]; series: ComparableReadingSeries[] };
+// Display names for people referenced by the returned evidence only. Staff are
+// resolved inside the caller's school and never include contact details; an id
+// without an entry means the name is unavailable, not that access was denied.
+export type ReadingReviewNames = { students: Record<string, string>; staff: Record<string, string> };
+export type ReadingReview = { observations: ReadingReviewObservation[]; series: ComparableReadingSeries[]; names: ReadingReviewNames };
 
 export class ReadingReviewConflict extends Error {
   readonly status = 409;
@@ -116,7 +120,7 @@ export async function getReadingReview(principal: Principal, filter: { studentId
     filter.classId ? eq(readingChecks.classId, identifier.parse(filter.classId)) : undefined);
   const rows = await getDb().select().from(readingChecks).where(filteredScope)
     .orderBy(desc(readingChecks.readingDate), desc(readingChecks.createdAt), asc(readingChecks.id));
-  if (!rows.length) return { observations: [], series: [] };
+  if (!rows.length) return { observations: [], series: [], names: { students: {}, staff: {} } };
   const corrections = await getDb().select({ correction: readingCorrections }).from(readingCorrections)
     .innerJoin(readingChecks, eq(readingChecks.id, readingCorrections.readingCheckId))
     .where(filteredScope).orderBy(asc(readingCorrections.revision));
@@ -142,5 +146,20 @@ export async function getReadingReview(principal: Principal, filter: { studentId
   }
   const series = Array.from(grouped.values());
   for (const group of series) group.points.sort((a, b) => a.readingDate.localeCompare(b.readingDate) || a.checkId.localeCompare(b.checkId));
-  return { observations, series };
+  return { observations, series, names: await resolveNames(principal, observations) };
+}
+async function resolveNames(principal: Principal, observations: ReadingReviewObservation[]): Promise<ReadingReviewNames> {
+  const studentIds = [...new Set(observations.map(observation => observation.original.studentId))];
+  const staffIds = [...new Set(observations.flatMap(observation => [observation.original.recordedBy, ...observation.corrections.map(correction => correction.correctedBy)]))];
+  const db = getDb();
+  // D1 limits bound parameters per statement, so look names up in small chunks.
+  const chunks = <T,>(values: T[]) => Array.from({ length: Math.ceil(values.length / 40) }, (_, index) => values.slice(index * 40, index * 40 + 40));
+  const studentRows = (await Promise.all(chunks(studentIds).map(ids => db.select({ id: students.id, firstName: students.firstName, lastName: students.lastName })
+    .from(students).where(and(inArray(students.id, ids), eq(students.schoolId, principal.schoolId!)))))).flat();
+  const staffRows = (await Promise.all(chunks(staffIds).map(ids => db.select({ id: users.id, name: users.name })
+    .from(users).where(and(inArray(users.id, ids), eq(users.schoolId, principal.schoolId!)))))).flat();
+  return {
+    students: Object.fromEntries(studentRows.map(row => [row.id, [row.firstName, row.lastName].join(' ').trim()])),
+    staff: Object.fromEntries(staffRows.map(row => [row.id, row.name])),
+  };
 }

@@ -53,7 +53,10 @@ export async function updateEnrolmentStatus(principal: Principal, id: string, st
   assertAdmin(principal);
   enrolmentSchema.shape.status.parse(status);
   if (!await getEnrolment(principal, id)) return null;
-  const [record] = await getDb().update(enrolments).set({ status, updatedAt: new Date().toISOString() }).where(and(eq(enrolments.id, id), scope(principal))).returning();
+  let record: SelectEnrolment | undefined;
+  try {
+    [record] = await getDb().update(enrolments).set({ status, updatedAt: new Date().toISOString() }).where(and(eq(enrolments.id, id), scope(principal))).returning();
+  } catch (error) { rethrowAcademicConflict(error); }
   if (!record) throw new AcademicConflict();
   return record;
 }

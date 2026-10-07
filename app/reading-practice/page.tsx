@@ -99,7 +99,7 @@ export default function ReadingPracticePage() {
       const classId = classes.some(row => row.id === requested.classId) ? requested.classId : requested.classId ? '' : classes[0]?.id ?? '';
       const referenceId = references.some(row => row.id === requested.referenceId) ? requested.referenceId : '';
       if (requested.classId && !classId || requested.referenceId && !referenceId) throw new RequestFailure(404);
-      const readings = classId ? validateReadings(await read<ReadingReview>('/api/reading-review?' + new URLSearchParams({ classId }), abort.signal), classId, actor.schoolId!) : { observations: [], series: [] };
+      const readings = classId ? validateReadings(await read<ReadingReview>('/api/reading-review?' + new URLSearchParams({ classId }), abort.signal), classId, actor.schoolId!) : { observations: [], series: [], names: { students: {}, staff: {} } };
       if (!current()) return;
       const versions = referenceId ? await read<CurriculumVersion[]>(sourcePath(referenceId) + '/versions', abort.signal) : [];
       if (!Array.isArray(versions) || versions.some(version => version.referenceId !== referenceId || !nonempty(version.id) || !Number.isInteger(version.version))) throw new Error('Unconfirmed source history');

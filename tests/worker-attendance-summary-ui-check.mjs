@@ -59,7 +59,7 @@ async function capture(page, label) {
     scrollTo(0, document.documentElement.scrollHeight); await frames();
     scrollTo(0, 0); document.documentElement.getBoundingClientRect(); await frames();
   });
-  const path = '/private/tmp/saha-attendance-summary-' + label + '.png';
+  const path = (process.env.SAHA_TEST_OUTPUT_DIR || '/private/tmp') + '/saha-attendance-summary-' + label + '.png';
   await page.screenshot({ path, fullPage: true }); captures.push(path);
 }
 try {
