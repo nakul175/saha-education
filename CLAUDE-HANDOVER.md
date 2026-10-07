@@ -62,3 +62,11 @@ Local checkouts and private temporary artifacts are convenience copies; the remo
 - Hosted status remains failed with no URL. [Sanitized publication evidence](docs/current/CLAUDE-HANDOVER-PUBLICATION.json) records the complete boundary. This documentation-only followup adds no application behavior; current main may include its later closure commit above the application merge.
 
 Claude can start with: “Read CLAUDE-HANDOVER.md and AGENTS.md. Continue from current main, review and finish the preserved assessment commit on a new branch, and retain exact verification/acceptance boundaries. Resolve the documented hosting migration boundary before deployment.”
+
+## Overnight demo integration (7 October 2026)
+
+Ten workstreams plus two integration pull requests (#11 to #22) are merged into main. The application now has working pages, server rules and tests for school setup, student and guardian records, courses, classes and enrolment lifecycle, attendance, assessment publication and report cards, reading review and external reading hand-off, curriculum and submission progress, notices and an administrator audit trail, account administration, and a guided synthetic demo school. Final tree: 78 suites, 62,583 assertions, 0 failed; `tsc` and ESLint clean; the first GitHub Actions run passed. Read [the integration record](docs/current/DEMO-integration.md) before relying on any claim: it lists the browser results, the defects found and the open items.
+
+Run the demo locally with `pnpm demo` ([guide](docs/DEMO.md)). A Cloudflare deployment script exists and passes its dry run, but it has **never run against a real account** because no credentials were provided; follow [DEPLOY-CLOUDFLARE](docs/DEPLOY-CLOUDFLARE.md) with a Workers and D1 scoped token. No hosted address exists or is claimed.
+
+Still true: the 371 designed cases are unrun and nothing is accepted; real identity-provider, ORF, paid AI and real-recipient settings are unprovided and disabled; the private hosted SQL failure is unexplained; several working policies need a named approver (see the record).

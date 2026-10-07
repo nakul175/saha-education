@@ -248,3 +248,6 @@ The preserved assessment-detail candidate (`e1283e78`) was cherry-picked onto ma
 
 **Limits.** One local Chromium on fictional data; callback suites substitute hooks. The 371 designed cases remain unrun, no designed case or business approval was promoted, and the hosted SQL migration blocker is unchanged.
 
+## Overnight demo integration (7 October 2026)
+
+Fresh build of main after merging #11 to #22. Guarded run: 78 suites, 62,583 assertions (unit 162, integration 62,244, smoke 177), 0 failed, regression guard 78 baselined suites. `tsc --noEmit` and ESLint report 0 errors. Documentation, requirements audit, specification and catalogue checks pass (103 route files, 371 designed cases counted, no execution or acceptance inferred). GitHub Actions `verify` passed once on PR #22. Mounted Chromium procedures, each with 0 external requests and 0 page errors: demo experience 1,127 checks over 114 pages with 0 axe violations; cross-role journeys 19/19; demo sign-in 26/26; courses 26, attendance 25, assessment lifecycle 33, assessment review 43, development 60, profile and assessment 36, family 36, notices and audit 23, curriculum and submissions 23, reading review 18 and 33. Limits, flaky local-Worker behaviour and open findings are in [the integration record](docs/current/DEMO-integration.md). This is executable evidence, not acceptance.
