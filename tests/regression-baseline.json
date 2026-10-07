@@ -26,7 +26,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 187
+      "minPassed": 194
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -88,6 +88,11 @@
       "file": "tests/integration/curriculum-contract.mjs",
       "minPassed": 131
     },
+    "integration/curriculum-library-contract": {
+      "layer": "integration",
+      "file": "tests/integration/curriculum-library-contract.mjs",
+      "minPassed": 140
+    },
     "integration/d1-attendance-portability-contract": {
       "layer": "integration",
       "file": "tests/integration/d1-attendance-portability-contract.mjs",
@@ -126,7 +131,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 270
+      "minPassed": 271
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -272,6 +277,11 @@
       "layer": "integration",
       "file": "tests/integration/student-records-contract.mjs",
       "minPassed": 225
+    },
+    "integration/submission-progress-contract": {
+      "layer": "integration",
+      "file": "tests/integration/submission-progress-contract.mjs",
+      "minPassed": 61
     },
     "integration/submission-windows-contract": {
       "layer": "integration",
