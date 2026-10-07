@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- vinext beta client Link transitions crash in this workspace; use full-page navigation. */
 import { use, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ResourceSourcePanel } from '@/components/resource-source';
 import { getPrincipal } from '@/lib/education/client-api';
 import { copyResourceContent, RESOURCE_FIELDS, RESOURCE_TYPES } from '@/lib/education/resource-templates';
 import type { ResourceContent, ResourceType, ResourceVersion, TeachingResource } from '@/lib/education/resource-types';
@@ -95,9 +96,10 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
     <a href="/resources">← Teaching resources</a><h1 className="text-2xl font-bold">Review and prepare a resource</h1>
     <p role="status" aria-live="polite">{message}</p>
     {staff && resource && content && <>
+      <ResourceSourcePanel resourceId={resource.id} />
       <section className="border rounded p-4 space-y-4">
         <h2 className="text-xl font-semibold">Edit latest draft</h2>
-        <p>Saving creates an immutable revision. Editing an approved resource creates a new draft; existing assignments keep their approved version.</p>
+        <p>Saving creates a new revision; earlier ones are kept. Editing an approved resource creates a new draft; existing assignments keep their approved version.</p>
         <p>Editing version {resource.latest.version}{dirty ? ' · Unsaved edits' : ''}</p>
         <form onSubmit={event => { event.preventDefault(); void mutate('save'); }} className="space-y-4">
           <fieldset disabled={busy} className="space-y-4">

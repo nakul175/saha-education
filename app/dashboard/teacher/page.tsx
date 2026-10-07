@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getServerPrincipal } from '@/lib/education/auth';
 import { getRoleDashboard } from '@/lib/education/dashboard';
 import { AppShell } from '@/components/app-shell';
+import { RoleGuide } from '@/components/role-guide';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const coverageLabels = {
@@ -18,6 +19,7 @@ export default async function TeacherDashboard() {
   if (!snapshot || snapshot.role !== 'teacher') redirect('/');
   return <AppShell principal={principal}><div className="space-y-6 p-4">
     <div className="min-w-0 space-y-2 break-words"><h1>Teacher Dashboard</h1><p className="text-muted-foreground">Your assigned classes and their stored result coverage.</p><a href="/dashboard/teacher" className="inline-block underline">Refresh dashboard</a></div>
+    <RoleGuide role="teacher" />
     <Card><CardHeader><CardTitle>My classes</CardTitle></CardHeader><CardContent className="space-y-4">
       {snapshot.classes.total === 0 && <p>No classes are currently assigned to you.</p>}
       {snapshot.classes.truncated && <p role="status">Showing {snapshot.classes.items.length} of {snapshot.classes.total} assigned classes. Open <a href="/classes" className="underline">Classes</a> for the available list.</p>}

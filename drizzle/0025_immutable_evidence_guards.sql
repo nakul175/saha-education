@@ -1,18 +1,3 @@
--- Additive defence in depth: DB-level immutability for append-only evidence the API contract already calls immutable.
--- Approval columns of resource_versions and curriculum_reference_versions stay updatable (explicit review, FR-14/FR-22);
--- every content column is frozen. One trigger per statement piece (hosted runner splits on the breakpoint marker).
-CREATE TRIGGER submission_attempts_no_update BEFORE UPDATE ON submission_attempts BEGIN SELECT RAISE(ABORT,'Submission attempts are immutable'); END;
---> statement-breakpoint
-CREATE TRIGGER submission_attempts_no_delete BEFORE DELETE ON submission_attempts BEGIN SELECT RAISE(ABORT,'Submission attempts are immutable'); END;
---> statement-breakpoint
-CREATE TRIGGER submission_feedback_no_update BEFORE UPDATE ON submission_feedback BEGIN SELECT RAISE(ABORT,'Submission feedback is immutable'); END;
---> statement-breakpoint
-CREATE TRIGGER submission_feedback_no_delete BEFORE DELETE ON submission_feedback BEGIN SELECT RAISE(ABORT,'Submission feedback is immutable'); END;
---> statement-breakpoint
-CREATE TRIGGER identity_admin_events_no_update BEFORE UPDATE ON identity_admin_events BEGIN SELECT RAISE(ABORT,'Account administration events are immutable'); END;
---> statement-breakpoint
-CREATE TRIGGER identity_admin_events_no_delete BEFORE DELETE ON identity_admin_events BEGIN SELECT RAISE(ABORT,'Account administration events are immutable'); END;
---> statement-breakpoint
 CREATE TRIGGER reading_checks_no_update BEFORE UPDATE ON reading_checks BEGIN SELECT RAISE(ABORT,'Reading checks are immutable; corrections are append-only'); END;
 --> statement-breakpoint
 CREATE TRIGGER reading_checks_no_delete BEFORE DELETE ON reading_checks BEGIN SELECT RAISE(ABORT,'Reading checks are immutable; corrections are append-only'); END;

@@ -3,6 +3,8 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- vinext beta requires full-page navigation here. */
 import { use, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { CurriculumLifecycle } from '@/components/curriculum-lifecycle';
+import { formatWhen } from '@/lib/education/display';
 import type { CurriculumContent, CurriculumReference, CurriculumVersion, CurriculumProvenance } from '@/lib/education/curriculum';
 import type { ResourceType, TeachingResource } from '@/lib/education/resource-types';
 
@@ -46,6 +48,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
   const copyRetry = useRef<{ payload: string; id: string } | null>(null);
   const notice = useRef<HTMLDivElement>(null);
   const selected = versions.find(version => version.id === selectedId);
+  const retired = reference?.status.state === 'retired';
   const dirty = !!reference && !!content && JSON.stringify(content) !== JSON.stringify(editable(reference.latest));
   async function readReference(signal?: AbortSignal) {
     const responses = await Promise.all([fetch(path, { cache: 'no-store', signal }), fetch(`${path}/versions`, { cache: 'no-store', signal })]);
@@ -149,6 +152,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
   return <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
     <nav className="flex flex-wrap gap-4" aria-label="Workspace navigation"><a className="underline" href="/curriculum">← Curriculum references</a><a className="underline" href="/resources">Teaching resources</a></nav>
     <h1 className="text-2xl font-bold">Review a curriculum reference</h1>
+    {retired && reference && <p className="border rounded p-4" role="note">This reference is retired ({formatWhen(reference.status.changedAt)}). Reason: {reference.status.reason} It is hidden from other staff and cannot be copied or revised until it is reinstated under Availability below. Existing copies and assignments are unchanged.</p>}
     <div ref={notice} tabIndex={-1} className="space-y-2 rounded focus:outline-2 focus:outline-offset-2"><p role="status" aria-live="polite">{loading ? 'Loading reference and saved history…' : message}</p>{error && <p role="alert">{error}</p>}
       {!loading && !reference && <Button variant="outline" disabled={busy} onClick={() => { void reload(false); }}>Retry loading reference</Button>}
       {copied && <div className="space-y-1"><a className="underline" href={`/resources/${encodeURIComponent(copied.resource.id)}`}>Open provisional teaching draft</a><p className="text-sm">The draft retains attribution to this exact saved reference version when either item is revised.</p></div>}
@@ -156,7 +160,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
     {reference && content && <>
       {reference.canManage ? <section className="border rounded p-4 space-y-4" aria-labelledby="curriculum-edit-title">
         <h2 id="curriculum-edit-title" className="text-xl font-semibold">Edit latest reference</h2>
-        <p>Editing version {reference.latest.version}{dirty ? ' · Unsaved edits' : ''}. Saving appends an immutable revision. Other staff continue to see the latest reviewed version until the new revision is reviewed.</p>
+        <p>Editing version {reference.latest.version}{dirty ? ' · Unsaved edits' : ''}. Saving adds a new revision; earlier ones are kept. Other staff continue to see the latest reviewed version until the new revision is reviewed.</p>
         <p className="text-sm">The permission statement is your declaration, not an independent licensing check. Only include content you have permission to use.</p>
         <form onSubmit={save} className="space-y-4"><fieldset disabled={busy} className="space-y-4"><legend className="sr-only">Edit reference content and permission</legend>
           {fields.map(field => <label className="block space-y-1" key={field.key}><span>{field.label} *</span>
@@ -168,7 +172,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
           <label className="block space-y-1"><span>HTTPS source URL (optional)</span><input type="url" className={inputStyle} maxLength={2000} value={content.sourceUrl ?? ''} onChange={event => { setContent(previous => previous && ({ ...previous, sourceUrl: event.target.value || null })); setReviewed(false); }} /></label>
           <p className="text-sm">No automatic source import. HTTPS only; no embedded credentials or URL fragment.</p>
         </fieldset>
-        <div className="flex flex-wrap gap-3"><Button type="submit" disabled={busy || !dirty || needsReload}>Save new reference version</Button><Button type="button" variant="outline" disabled={busy} onClick={() => { void reload(true); }}>Reload latest (replace edits)</Button></div>
+        <div className="flex flex-wrap gap-3"><Button type="submit" disabled={busy || !dirty || needsReload || retired}>Save new reference version</Button><Button type="button" variant="outline" disabled={busy} onClick={() => { void reload(true); }}>Reload latest (replace edits)</Button></div>
         {needsReload && <p>Reload the latest saved reference before saving again. Keep a copy of your unsaved edits before replacing them.</p>}
         </form>
       </section> : <p className="border rounded p-4">This reviewed school reference is available for reading and copying. Its author and school administrators manage revisions and review.</p>}
@@ -184,14 +188,16 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
             <h4 className="font-semibold">Declared rights and permission</h4><p className="whitespace-pre-wrap">{selected.rightsStatement}</p>
             {selected.sourceReference && <p>Source reference: {selected.sourceReference}</p>}
             {selected.sourceUrl && <p><a className="underline break-all" href={selected.sourceUrl} target="_blank" rel="noopener noreferrer">Open source attribution URL in a new tab</a></p>}
-            <p>{selected.approvedAt ? `Reviewed ${new Date(selected.approvedAt).toLocaleString()}` : 'Private draft; not available for copying.'}</p>
+            <p className="text-sm">Rights as recorded by {selected.createdByName ?? 'the author'}. This is the author&apos;s declaration; the library does not verify permission, and the school&apos;s curriculum and pilot rights position is still an open decision.</p>
+            <p>{selected.approvedAt ? `Reviewed by ${selected.approvedByName ?? 'school staff'} on ${formatWhen(selected.approvedAt)}` : 'Private draft; not available for copying.'}</p>
           </article>
-          {reference.canManage && !selected.approvedAt && <div className="space-y-3">
+          {reference.canManage && !selected.approvedAt && !retired && <div className="space-y-3">
             <label className="flex items-start gap-3"><input type="checkbox" checked={reviewed} disabled={busy || dirty || needsReload} onChange={event => setReviewed(event.target.checked)} /><span>I reviewed saved version {selected.version} above for accuracy, grade suitability, curriculum fit and permission to use this material. I approve this exact version for school staff to copy. Self-review is permitted.</span></label>
             {dirty && <p>Save or replace your unsaved edits before approving a saved version.</p>}
             <Button disabled={busy || !reviewed || dirty || needsReload} onClick={() => { void approve(); }}>Review and approve saved version {selected.version}</Button>
           </div>}
-          {selected.approvedAt && <form onSubmit={event => { event.preventDefault(); void copy(); }} className="space-y-3">
+          {selected.approvedAt && retired && <p>This reference is retired, so new copies are blocked. Reinstate it under Availability to copy this reviewed version.</p>}
+          {selected.approvedAt && !retired && <form onSubmit={event => { event.preventDefault(); void copy(); }} className="space-y-3">
             <h3 className="text-lg font-semibold">Create a provisional teaching draft</h3>
             <p>Copy the text and curriculum context of reviewed version {selected.version}. This creates your own editable draft and retains the exact source version. Resource approval and class assignment require separate actions.</p>
             {dirty && <p className="text-sm">Your unsaved reference edits above are excluded from this copy.</p>}
@@ -200,6 +206,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
           </form>}
         </>}
       </section>
+      <CurriculumLifecycle reference={reference} onStatusChanged={status => { setReference(previous => previous && ({ ...previous, status })); setMessage(''); }} />
     </>}
   </main>;
 }

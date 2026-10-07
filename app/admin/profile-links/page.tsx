@@ -142,7 +142,7 @@ export default function ProfileLinksPage() {
           </select></label>}
           {review.action === 'link' && eligible.length === 0 && <p>No eligible accounts are displayed. Provision and review a matching school account first; reload this page afterward.</p>}
           <label className="block"><span>Reason for this profile link decision</span><input className={inputStyle} required minLength={10} maxLength={500} value={review.reason} onChange={event => setReview(previous => previous ? { ...previous, reason: event.target.value, confirmed: false } : null)} /></label>
-          <p className="text-sm text-muted-foreground">Use 10–500 characters on one line. Record ownership evidence without passwords, tokens or unnecessary personal details.</p>
+          <p className="text-sm text-muted-foreground">Use 10–500 characters on one line. Record ownership evidence without passwords, access codes or unnecessary personal details.</p>
           <label className="flex items-start gap-2"><input type="checkbox" required checked={review.confirmed} onChange={event => setReview(previous => previous ? { ...previous, confirmed: event.target.checked } : null)} /><span>I checked this profile and the exact account, and confirm this ownership change.</span></label>
           {!changed && <p className="text-sm text-muted-foreground">Select a different account or explicitly unlink the current account. An unchanged binding does not create a review.</p>}
           <div className="flex flex-wrap gap-3"><Button type="submit" disabled={!review.confirmed || !changed}>{saving ? 'Saving review…' : 'Save reviewed profile link'}</Button><Button type="button" variant="outline" onClick={() => setReview(null)}>Close review</Button></div>

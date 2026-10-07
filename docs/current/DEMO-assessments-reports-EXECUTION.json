@@ -1,0 +1,132 @@
+{
+  "recordedAt": "2026-10-06",
+  "workstream": "A5 assessments and reports (FR-10, FR-11)",
+  "branch": "demo/assessments-reports",
+  "baseMain": "cadd2eb",
+  "migration": "0020_assessment_lifecycle_reports",
+  "synthetic": true,
+  "acceptance": "none inferred; no case marked accepted",
+  "guardedRun": {
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "suites": 56,
+    "checks": 23084,
+    "failed": 0,
+    "skipped": 0
+  },
+  "newSuites": {
+    "assessment-lifecycle-contract": 248,
+    "report-compile-contract": 289,
+    "d1-lifecycle-portability-contract": 107
+  },
+  "assessmentDetailCallbackSuite": {
+    "checks": 1476,
+    "baselineMin": 1476
+  },
+  "mountedLifecycle": {
+    "file": "tests/worker-assessment-lifecycle-ui-check.mjs",
+    "passed": 33,
+    "failed": 0,
+    "externalRequests": 0,
+    "pageErrors": 0,
+    "dialogs": 0
+  },
+  "mountedEditor": {
+    "file": "tests/worker-assessment-review-ui-check.mjs",
+    "passed": 43,
+    "failed": 0,
+    "externalRequests": 0,
+    "pageErrors": 0
+  },
+  "mutations": [
+    {
+      "name": "M01 partial publish needs confirmation",
+      "detected": true
+    },
+    {
+      "name": "M02 unpublish blocked while a published report uses the results",
+      "detected": true
+    },
+    {
+      "name": "M03 published results lock details",
+      "detected": true
+    },
+    {
+      "name": "M04 publishing a report with stale lines is refused",
+      "detected": false
+    },
+    {
+      "name": "M05 family and learner see published reports only",
+      "detected": true
+    },
+    {
+      "name": "M06 a raw zero score is eligible",
+      "detected": true
+    },
+    {
+      "name": "M07 report lines never expose feedback",
+      "detected": true
+    },
+    {
+      "name": "M08 replay with another body is rejected",
+      "detected": true
+    },
+    {
+      "name": "M09 unpublish needs a reason",
+      "detected": true
+    },
+    {
+      "name": "M10 staff-only changed-result flag is hidden from family",
+      "detected": true
+    },
+    {
+      "name": "M11 an unpublished replacement is hidden from family",
+      "detected": true
+    },
+    {
+      "name": "M12 edit needs a reason once results are saved",
+      "detected": false
+    },
+    {
+      "name": "M13 published results lock new results (insert path)",
+      "detected": true
+    },
+    {
+      "name": "M14 correction only for a published, current original",
+      "detected": false
+    },
+    {
+      "name": "M15 a publication transition cannot repeat",
+      "detected": true
+    },
+    {
+      "name": "M04b stale-lines trigger disabled",
+      "detected": true
+    },
+    {
+      "name": "M12b reason requirement removed from service AND trigger",
+      "detected": true
+    },
+    {
+      "name": "M14b correction-original check removed from service AND trigger",
+      "detected": true
+    },
+    {
+      "name": "M16 stale compare-and-set removed (service and WHERE guard)",
+      "detected": true
+    }
+  ],
+  "designedCases": {
+    "partly": 2,
+    "pass": 66,
+    "not-run": 1,
+    "blocked": 5
+  },
+  "designedCaseTotal": 74,
+  "limits": [
+    "single local Chromium and fictional data",
+    "native SQLite limit emulation, not the hosted D1 runner",
+    "manual UAT cases blocked on named reviewers",
+    "no business approval",
+    "hosting blocker unchanged"
+  ]
+}

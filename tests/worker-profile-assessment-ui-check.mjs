@@ -188,7 +188,7 @@ try {
       const requests = []; const observe = request => { const path = new URL(request.url()).pathname; if (path.startsWith('/api/assessments/')) requests.push(path); }; page.on('request', observe);
       try { await openIndex(page); } finally { page.off('request', observe); }
       const rows = await api(value, '/api/assessments'); assert.deepEqual(await ids(assessmentRows(page), 'data-assessment-list-item'), rows.map(row => row.id).sort());
-      const staff = ['administrator', 'teacher'].includes(role); assert.equal(await main(page).locator('a[href^="/assessments/"]').count(), staff ? rows.length : 0); assert.equal(requests.some(path => /\/results|\/result-editor/.test(path)), false);
+      const staff = ['administrator', 'teacher'].includes(role); assert.equal(await main(page).locator('a[href^="/assessments/"]:not([href="/assessments/manage"])').count(), staff ? rows.length : 0); assert.equal(requests.some(path => /\/results|\/result-editor/.test(path)), false);
       await expect(main(page).getByRole('link', { name: staff ? 'Report cards' : 'Published report cards', exact: true })).toHaveAttribute('href', '/report-cards');
       if (!staff) await expect(page.getByText('View assessment details for your current classes. Individual assessment results are private staff records.', { exact: true })).toBeVisible();
       if (staff && rows.length) {

@@ -3,13 +3,34 @@ import { getDb } from '@/db/index';
 import type { SelectNotification, InsertNotification } from '@/db/schema';
 import { notifications, users, students, guardians } from '@/db/schema';
 import { notificationSchema } from './validation';
-import { and, eq, isNull, or, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, or, sql } from 'drizzle-orm';
+import { z } from 'zod';
 import { AccessError, assertPrincipal, livePrincipalScope, studentScope } from './access';
 
 export async function listNotifications(principal: Principal, userId: string = principal.id): Promise<SelectNotification[]> {
   assertPrincipal(principal);
   if (userId !== principal.id) throw new AccessError('Notifications are private');
   return await getDb().select().from(notifications).where(and(eq(notifications.userId, principal.id), livePrincipalScope(principal)));
+}
+// Newest first. A cursor is the last row's `createdAt|id`; paging never skips or repeats a row.
+export const notificationPageSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  cursor: z.string().max(300).regex(/^[^|]{1,60}\|[^|]{1,200}$/).optional(),
+  unread: z.enum(['1']).optional(),
+}).strict();
+export type NotificationPage = { items: SelectNotification[]; total: number; unread: number; nextCursor: string | null };
+export async function listNotificationPage(principal: Principal, filter: z.input<typeof notificationPageSchema> = {}): Promise<NotificationPage> {
+  assertPrincipal(principal);
+  const { limit = 25, cursor, unread } = notificationPageSchema.parse(filter);
+  const [boundary, boundaryId] = cursor ? cursor.split('|') : [];
+  const own = and(eq(notifications.userId, principal.id), livePrincipalScope(principal));
+  const rows = await getDb().select().from(notifications).where(and(own, unread ? isNull(notifications.readAt) : undefined,
+    cursor ? or(sql`${notifications.createdAt} < ${boundary}`, and(eq(notifications.createdAt, boundary!), sql`${notifications.id} < ${boundaryId}`)) : undefined))
+    .orderBy(desc(notifications.createdAt), desc(notifications.id)).limit(limit + 1);
+  const [counts] = await getDb().select({ total: sql<number>`count(*)`, unread: sql<number>`coalesce(sum(case when ${notifications.readAt} is null then 1 else 0 end), 0)` })
+    .from(notifications).where(own);
+  const items = rows.slice(0, limit), last = items.at(-1);
+  return { items, total: Number(counts?.total ?? 0), unread: Number(counts?.unread ?? 0), nextCursor: rows.length > limit && last ? `${last.createdAt}|${last.id}` : null };
 }
 export async function getNotification(principal: Principal, id: string): Promise<SelectNotification | null> {
   assertPrincipal(principal);

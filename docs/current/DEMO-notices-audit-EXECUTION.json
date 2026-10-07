@@ -1,0 +1,1074 @@
+{
+  "workstream": "A6 in-app notices (FR-12) and audit and corrections (FR-26)",
+  "branch": "demo/notices-audit",
+  "baseCommit": "cadd2ebd8df0d1a0d24b609a59a756c725d9012c",
+  "recordedOn": "2026-10-06",
+  "dataKind": "synthetic only; no outbound delivery, no real recipients, paid AI and real provider settings disabled",
+  "meaning": "pass = expected results checked by the named automated suites or procedure on this branch; partial = part checked, gap named; blocked = needs people, devices or a policy decision not provided; not-run = steps not executed here. Nothing is marked accepted; all designed cases remain unapproved.",
+  "guardedRun": {
+    "command": "node scripts/test.mjs static unit integration smoke --fast --guard",
+    "result": "passed",
+    "suites": 55,
+    "assertions": 22936,
+    "failed": 0,
+    "skipped": 0,
+    "layers": {
+      "static": "3 suites passed",
+      "unit": "9 suites, 119 assertions",
+      "integration": "45 suites, 22640 assertions",
+      "smoke": "1 suite, 177 assertions"
+    },
+    "regressionGuard": "53 baselined suites checked, 0 excused; the two new suites are not in tests/regression-baseline.json yet (the owner of the baseline adds them)",
+    "newSuites": {
+      "integration/notices-contract": 256,
+      "integration/audit-trail-contract": 224,
+      "integration/family-ui-contract": "320 checks in 64 scenarios (existing suite, extended)"
+    }
+  },
+  "mountedRun": {
+    "environment": "built Worker from this branch on 127.0.0.1:8806, isolated local D1, synthetic fixture, Chromium, every non-local request aborted and counted",
+    "noticesAuditProcedure": {
+      "file": "tests/worker-notices-audit-demo-check.mjs",
+      "passed": 23,
+      "failed": 0,
+      "externalRequests": 0,
+      "pageErrors": 0,
+      "dialogs": 0,
+      "workerRestartRetriesInHarness": 1
+    },
+    "existingMountedChecksRerun": {
+      "worker-family-ui-check": "36 of 36 procedures passed, 0 external requests, 0 page errors",
+      "worker-access-check": "passed",
+      "worker-domain-check": "104 passed in one of two final runs; the other run, and an earlier run, stopped on an HTTP 503 'worker restarted mid-request' on unrelated POST routes"
+    }
+  },
+  "sandboxNote": "The shared local sandbox restarts the Worker under roughly one request in seven in rapid POST loops (probe: 22 of 160 POSTs as a guardian to /api/courses, /api/classes, /api/report-cards and /api/notifications returned 503 'Your worker restarted mid-request'); another workstream saw the same on an unrelated PATCH. It does not depend on the notices and audit code. The notices and audit browser harness repeats such requests (bounded) and reports the count.",
+  "mutationChecks": [
+    "notices: learners audience ignores the class - detected by notices-contract",
+    "notices: chosen people skip the teacher relation check - detected",
+    "notices: tag-like text filter weakened - detected",
+    "notices: replay ignores the payload hash - detected",
+    "audit: attendance school scope removed - detected by audit-trail-contract",
+    "audit: attendance entry for a pupil of another school no longer hides the entry - detected",
+    "audit: paging tie-break <= repeats an entry - detected",
+    "migration: notices UPDATE trigger disabled - detected",
+    "migration: identity admin events DELETE trigger disabled - detected",
+    "inbox: Older button resets the cursor - detected by family-ui-contract",
+    "inbox: hide-read filter removed - detected"
+  ],
+  "designedCasesNamingFR12OrFR26": 95,
+  "caseStatusCounts": {
+    "blocked": 15,
+    "not-run": 58,
+    "pass": 19,
+    "partial": 3
+  },
+  "cases": [
+    {
+      "id": "TC-030",
+      "title": "Attendance date and attributable corrections",
+      "requirements": "FR-09;FR-26",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-032",
+      "title": "Result retry race and correction trail",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-034",
+      "title": "Report publication and notice atomic retry",
+      "requirements": "FR-11;FR-12;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-035",
+      "title": "Notification recipient ownership",
+      "requirements": "FR-12;FR-03",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "automated suites at this branch tip",
+      "note": "Recipient-only read and mark; unrelated actor denied; read time is server time. Also checked for notices in the new suite (a different account cannot mark another recipient's notice).",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/api-contract.mjs",
+        "tests/integration/notices-contract.mjs (256 checks)"
+      ]
+    },
+    {
+      "id": "TC-036",
+      "title": "External notifications remain disabled",
+      "requirements": "FR-12;NFR-03",
+      "layer": "regression",
+      "status": "partial",
+      "basis": "automated suites and mounted procedure",
+      "note": "Checked: notices are stored with channel in_app, zero outbound requests in the notices and audit suites and in the mounted run (0 external requests). Not checked: inspection of logs for message bodies, which the case also asks for.",
+      "evidence": [
+        "tests/integration/notices-contract.mjs",
+        "tests/integration/audit-trail-contract.mjs",
+        "tests/worker-notices-audit-demo-check.mjs"
+      ]
+    },
+    {
+      "id": "TC-066",
+      "title": "Attributable ORF corrections and preserved original",
+      "requirements": "FR-21;FR-26",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (reading practice and review)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-079",
+      "title": "Submission retries, corrections and late policy",
+      "requirements": "FR-24;NFR-02;FR-26",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-082",
+      "title": "Attributable academic/resource/reading corrections",
+      "requirements": "FR-26;FR-09;FR-10;FR-21",
+      "layer": "integration",
+      "status": "partial",
+      "basis": "audit contract",
+      "note": "The audit trail shows identity, profile, registry, attendance, assessment, reading, report, window, feedback, import, approval, notice and note evidence produced by the real routes, with actor, time and reason, and nothing is editable. The case itself says legacy attendance replacements, assessment correction coverage beyond receipts and platform retention remain incomplete, so it cannot pass.",
+      "evidence": [
+        "tests/integration/audit-trail-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-083",
+      "title": "Retention/export/deletion enforcement",
+      "requirements": "NFR-03;FR-26",
+      "layer": "integration",
+      "status": "blocked",
+      "basis": "policy decision not provided",
+      "note": "Retention, export and deletion need an approved school policy. None is implemented; the audit and notice tables block UPDATE and DELETE and there is no export route.",
+      "evidence": []
+    },
+    {
+      "id": "TC-085",
+      "title": "Approval audit reproducibility after later edits",
+      "requirements": "FR-26;FR-14;FR-15",
+      "layer": "regression",
+      "status": "pass",
+      "basis": "existing suites plus new audit check",
+      "note": "The first approval entry (who, when, subject) is unchanged after a later version and a retried earlier approval, and the later version is its own entry; version content and assignment evidence stay covered by the existing resource and curriculum suites.",
+      "evidence": [
+        "tests/integration/resources-contract.mjs",
+        "tests/integration/curriculum-contract.mjs",
+        "tests/integration/audit-trail-contract.mjs (224 checks)"
+      ]
+    },
+    {
+      "id": "TC-096",
+      "title": "School and academic administrator UAT",
+      "requirements": "FR-05;FR-06;FR-07;FR-08;FR-09;FR-10;FR-11;FR-12",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "needs named reviewers",
+      "note": "Usability, accessibility and wording acceptance needs named people, assistive technology and real devices. Supporting automated checks (labelled controls, keyboard, 375px, no raw JSON) exist for the new pages but are not this review.",
+      "evidence": []
+    },
+    {
+      "id": "TC-103",
+      "title": "Typed same-school login link and explicit unlink",
+      "requirements": "FR-04;FR-06;FR-26",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (identity and profile links)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-104",
+      "title": "Profile decision replay returns current ownership",
+      "requirements": "FR-04;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (identity and profile links)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-105",
+      "title": "Profile CAS and affected-session atomicity",
+      "requirements": "FR-02;FR-04;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (identity and profile links)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-107",
+      "title": "Profile history and retry live authority/privacy",
+      "requirements": "FR-03;FR-04;FR-26;NFR-01;NFR-03",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (identity and profile links)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-110",
+      "title": "Academic guard migration preserves legacy duplicate evidence",
+      "requirements": "FR-08;FR-10;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (academic integrity)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-114",
+      "title": "Ambiguous legacy result pair cannot choose arbitrary winner",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (academic integrity)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-117",
+      "title": "Academic duplicate and correction policy review",
+      "requirements": "FR-08;FR-09;FR-10;FR-26;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "owned by another workstream (academic integrity)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-120",
+      "title": "Reviewed import confirmation and durable declared provenance",
+      "requirements": "FR-20;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (reading imports)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-122",
+      "title": "Import confirmation fault CAS and exact retry",
+      "requirements": "FR-20;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (reading imports)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-124",
+      "title": "Rejected draft never appears as a reading",
+      "requirements": "FR-20;FR-21;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (reading imports)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-127",
+      "title": "Strict window review schema and calendar UTC bounds",
+      "requirements": "FR-24;FR-26;NFR-01",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-128",
+      "title": "Submission window current role and history privacy",
+      "requirements": "FR-03;FR-24;FR-26;NFR-01;NFR-03",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-129",
+      "title": "Window CAS history and current-state old UUID replay",
+      "requirements": "FR-24;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-131",
+      "title": "Committed submission replay and feedback survive closure",
+      "requirements": "FR-24;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-133",
+      "title": "Submission window review usability and educator policy",
+      "requirements": "FR-24;FR-26;NFR-05;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-144",
+      "title": "Concurrent publication has one receipt and notice winner",
+      "requirements": "FR-11;FR-12;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-145",
+      "title": "Zero-row or revoked publication creates no notice",
+      "requirements": "FR-03;FR-11;FR-12;NFR-01;NFR-02",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-146",
+      "title": "Publication derives current eligible guardian accounts",
+      "requirements": "FR-03;FR-06;FR-11;FR-12;NFR-03",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-147",
+      "title": "Trigger failure rolls back every publication member",
+      "requirements": "FR-11;FR-12;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-148",
+      "title": "Migration preserves legacy evidence and immutable receipts",
+      "requirements": "FR-11;FR-12;FR-26;NFR-02;NFR-03",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-149",
+      "title": "Saved-report review and uncertain draft recovery usability",
+      "requirements": "FR-11;FR-12;NFR-05;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "needs named reviewers",
+      "note": "Usability, accessibility and wording acceptance needs named people, assistive technology and real devices. Supporting automated checks (labelled controls, keyboard, 375px, no raw JSON) exist for the new pages but are not this review.",
+      "evidence": []
+    },
+    {
+      "id": "TC-150",
+      "title": "Notice reads and acknowledgements reject stale actors",
+      "requirements": "FR-03;FR-12;NFR-01;NFR-03",
+      "layer": "security",
+      "status": "pass",
+      "basis": "existing automated suites re-run at this branch tip",
+      "note": "Inbox reads and acknowledgements, manual-notice INSERT rechecks and first-read preservation re-ran green after the inbox paging change; the API route keeps its POST and PATCH behaviour.",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-151",
+      "title": "Teacher notice INSERT rechecks class and active pupil relation",
+      "requirements": "FR-03;FR-12;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "existing automated suites re-run at this branch tip",
+      "note": "Inbox reads and acknowledgements, manual-notice INSERT rechecks and first-read preservation re-ran green after the inbox paging change; the API route keeps its POST and PATCH behaviour.",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-152",
+      "title": "Manual notice INSERT rechecks recipient school and account",
+      "requirements": "FR-03;FR-06;FR-12;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "existing automated suites re-run at this branch tip",
+      "note": "Inbox reads and acknowledgements, manual-notice INSERT rechecks and first-read preservation re-ran green after the inbox paging change; the API route keeps its POST and PATCH behaviour.",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-153",
+      "title": "Notice auth origin body and channel boundaries",
+      "requirements": "FR-12;NFR-01",
+      "layer": "security",
+      "status": "pass",
+      "basis": "existing automated suites re-run at this branch tip",
+      "note": "Inbox reads and acknowledgements, manual-notice INSERT rechecks and first-read preservation re-ran green after the inbox paging change; the API route keeps its POST and PATCH behaviour.",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-154",
+      "title": "Personal notices survive unlink without learner access",
+      "requirements": "FR-03;FR-06;FR-11;FR-12;NFR-03",
+      "layer": "regression",
+      "status": "pass",
+      "basis": "existing automated suites re-run at this branch tip",
+      "note": "Inbox reads and acknowledgements, manual-notice INSERT rechecks and first-read preservation re-ran green after the inbox paging change; the API route keeps its POST and PATCH behaviour.",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-155",
+      "title": "Acknowledgement retry preserves content and row identity",
+      "requirements": "FR-12;NFR-02",
+      "layer": "regression",
+      "status": "pass",
+      "basis": "existing automated suites re-run at this branch tip",
+      "note": "Inbox reads and acknowledgements, manual-notice INSERT rechecks and first-read preservation re-ran green after the inbox paging change; the API route keeps its POST and PATCH behaviour.",
+      "evidence": [
+        "tests/integration/live-domain-authority-contract.mjs",
+        "tests/integration/report-publication-contract.mjs"
+      ]
+    },
+    {
+      "id": "TC-156",
+      "title": "Inbox uncertainty retains rows and recovery action",
+      "requirements": "FR-12;NFR-05;NFR-09",
+      "layer": "regression",
+      "status": "partial",
+      "basis": "callback suite only",
+      "note": "Uncertain acknowledgement keeps rows and the exact-retry reminder in the callback suite (lost reply, malformed acknowledgement, late denial). A mounted-browser interruption of the acknowledgement was not performed.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-157",
+      "title": "Inbox accessibility and retention wording review",
+      "requirements": "FR-12;NFR-05;NFR-06;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "needs named reviewers",
+      "note": "Usability, accessibility and wording acceptance needs named people, assistive technology and real devices. Supporting automated checks (labelled controls, keyboard, 375px, no raw JSON) exist for the new pages but are not this review.",
+      "evidence": []
+    },
+    {
+      "id": "TC-168",
+      "title": "No current roster preserves historical result evidence",
+      "requirements": "FR-08;FR-10;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (dashboard legacy evidence)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-169",
+      "title": "Legacy duplicate results require review without arbitrary selection",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (dashboard legacy evidence)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-170",
+      "title": "Legacy whole enrolment pairs remain visibly ambiguous",
+      "requirements": "FR-08;FR-10;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (dashboard legacy evidence)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-186",
+      "title": "Dirty-only review preserves null empty and untouched notes",
+      "requirements": "FR-09;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-187",
+      "title": "Bounded roster and preserved global legacy ambiguity",
+      "requirements": "FR-08;FR-09;FR-26;NFR-02;NFR-04",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-190",
+      "title": "Full-evidence CAS and late active-membership write guards",
+      "requirements": "FR-03;FR-08;FR-09;FR-26;NFR-01;NFR-02",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-191",
+      "title": "Mid-audit fault rolls back full reviewed attendance batch",
+      "requirements": "FR-09;FR-26;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-192",
+      "title": "Concurrent different reviewed UUIDs have one CAS winner",
+      "requirements": "FR-09;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-193",
+      "title": "Concurrent exact UUID and reordered entries replay once",
+      "requirements": "FR-09;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-194",
+      "title": "Original UUID replay survives legacy edits and withdrawal",
+      "requirements": "FR-03;FR-08;FR-09;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-195",
+      "title": "Committed result readback denies late authority loss",
+      "requirements": "FR-03;FR-09;FR-26;NFR-01;NFR-02;NFR-03",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-196",
+      "title": "Immutable reviewed history and unchanged legacy replacements",
+      "requirements": "FR-09;FR-26;NFR-02;NFR-03",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-197",
+      "title": "Current whole-batch history privacy exact filtering and cap",
+      "requirements": "FR-03;FR-09;FR-26;NFR-01;NFR-03;NFR-04",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-203",
+      "title": "Reviewed recorder uncertainty conflict and accessible evidence",
+      "requirements": "FR-03;FR-09;FR-26;NFR-02;NFR-05",
+      "layer": "accessibility",
+      "status": "blocked",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-205",
+      "title": "Educator attendance meaning and correction governance acceptance",
+      "requirements": "FR-03;FR-08;FR-09;FR-26;NFR-05;NFR-06;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "owned by another workstream (attendance)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-210",
+      "title": "Strict full metadata and saved result evidence contract",
+      "requirements": "FR-10;FR-26;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-211",
+      "title": "Unicode limits and unchanged long saved grade feedback",
+      "requirements": "FR-10;FR-26;NFR-02;NFR-05",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-215",
+      "title": "Full metadata and original result CAS rejects every stale field",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-217",
+      "title": "Mixed new existing results and forced audit fault roll back atomically",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-218",
+      "title": "Concurrent distinct reviewed UUIDs have one CAS winner",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-219",
+      "title": "Concurrent exact and reordered UUID replay arbitrates once",
+      "requirements": "FR-10;FR-26;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-220",
+      "title": "Original result replay survives later legacy metadata edits and withdrawal",
+      "requirements": "FR-08;FR-10;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-221",
+      "title": "Whole-batch history transfer privacy and denied committed readback",
+      "requirements": "FR-03;FR-10;FR-26;NFR-01;NFR-02",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-222",
+      "title": "Immutable latest100 reviewed result history and exact totals",
+      "requirements": "FR-10;FR-26;NFR-01;NFR-03",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-223",
+      "title": "Legacy accepted replacements and omitted text semantics stay compatible",
+      "requirements": "FR-10;FR-26;NFR-02",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-224",
+      "title": "Explicit dirty review preserves supplied grade and resets confirmation",
+      "requirements": "FR-10;FR-26;NFR-05;NFR-06",
+      "layer": "accessibility",
+      "status": "blocked",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-225",
+      "title": "Conflict comparison uncertain original retry and truthful refresh failure",
+      "requirements": "FR-10;FR-26;NFR-02;NFR-05",
+      "layer": "regression",
+      "status": "blocked",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-227",
+      "title": "Encrypted local recovery retains reviewed result receipt and exact replay",
+      "requirements": "FR-10;FR-26;NFR-02;NFR-03;NFR-08",
+      "layer": "recovery",
+      "status": "not-run",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-229",
+      "title": "Educator result correction meaning grade and publication acceptance",
+      "requirements": "FR-10;FR-26;NFR-05;NFR-06;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "owned by another workstream (assessment results)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-231",
+      "title": "Original pending feedback does not create a duplicate reviewed revision",
+      "requirements": "FR-03;FR-24;FR-26",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-232",
+      "title": "Original pending window close cannot override a later reopening",
+      "requirements": "FR-03;FR-24;FR-26",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (submissions and windows)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-259",
+      "title": "Revoked reviewed writes and receipt replay reveal no private evidence",
+      "requirements": "FR-02;FR-03;FR-09;FR-10;FR-24;FR-26;NFR-01;NFR-02",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (session revocation)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-262",
+      "title": "Reviewed student and guardian create atomic unlinked originals",
+      "requirements": "FR-03;FR-06;FR-26;NFR-02",
+      "layer": "smoke",
+      "status": "not-run",
+      "basis": "owned by another workstream (reviewed registry)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-267",
+      "title": "Strict review shape Unicode and legacy field policy remain explicit",
+      "requirements": "FR-06;FR-26;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (reviewed registry)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-270",
+      "title": "Original receipt survives current profile edit and account link",
+      "requirements": "FR-03;FR-06;FR-26;NFR-02;NFR-03",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (reviewed registry)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-271",
+      "title": "Receipt lookup and immutability protect historical privacy",
+      "requirements": "FR-03;FR-06;FR-26;NFR-01;NFR-03",
+      "layer": "security",
+      "status": "not-run",
+      "basis": "owned by another workstream (reviewed registry)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-277",
+      "title": "Page-memory recovery and legacy duplicate governance review",
+      "requirements": "FR-06;FR-26;NFR-03;NFR-07;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "owned by another workstream (reviewed registry)",
+      "note": "Needs named reviewers or devices; not performed here.",
+      "evidence": []
+    },
+    {
+      "id": "TC-292",
+      "title": "Original report publication retry preserves receipt time and guardian notice",
+      "requirements": "FR-02;FR-03;FR-11;FR-12;FR-26;NFR-02",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (report publication)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-294",
+      "title": "Every current role receives only its owned inbox",
+      "requirements": "FR-02;FR-03;FR-12",
+      "layer": "smoke",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-295",
+      "title": "Inbox fresh account rejects changed owner and obsolete feed",
+      "requirements": "FR-02;FR-03;FR-12;NFR-01",
+      "layer": "security",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-296",
+      "title": "Read marker lock confirms the actual saved server timestamp",
+      "requirements": "FR-12;NFR-02",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-297",
+      "title": "Lost committed read marker retries the exact original notice",
+      "requirements": "FR-02;FR-03;FR-12;NFR-02",
+      "layer": "regression",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-298",
+      "title": "Late read-status denial hides private notice content",
+      "requirements": "FR-02;FR-03;FR-12;NFR-01",
+      "layer": "security",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-299",
+      "title": "Pending notice belongs to the original current account",
+      "requirements": "FR-02;FR-03;FR-12;NFR-01",
+      "layer": "security",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-300",
+      "title": "Acknowledgement or malformed response cannot fabricate a saved read",
+      "requirements": "FR-12;NFR-01;NFR-02",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-301",
+      "title": "Unavailable notice reminder dismissal changes no record",
+      "requirements": "FR-12;NFR-03;NFR-09",
+      "layer": "regression",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-302",
+      "title": "Unmounted inbox and late marker acknowledgement do not refresh private state",
+      "requirements": "FR-02;FR-03;FR-12;NFR-01",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-303",
+      "title": "Legacy inbox dates remain exact stored evidence",
+      "requirements": "FR-12;NFR-03",
+      "layer": "integration",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-304",
+      "title": "Encoded original notice ID and stored channels preserve scope",
+      "requirements": "FR-03;FR-12;NFR-01",
+      "layer": "regression",
+      "status": "pass",
+      "basis": "callback suite with actual routes and D1 SQL",
+      "note": "family-ui-contract re-ran green with the paging, count and hide-read additions; its original scenarios are unchanged.",
+      "evidence": [
+        "tests/integration/family-ui-contract.mjs (320 checks, 64 scenarios)"
+      ]
+    },
+    {
+      "id": "TC-305",
+      "title": "Family inbox keyboard mobile and read-status recovery review",
+      "requirements": "FR-03;FR-12;NFR-01;NFR-05;NFR-06;NFR-09",
+      "layer": "accessibility",
+      "status": "blocked",
+      "basis": "needs named reviewers",
+      "note": "Usability, accessibility and wording acceptance needs named people, assistive technology and real devices. Supporting automated checks (labelled controls, keyboard, 375px, no raw JSON) exist for the new pages but are not this review.",
+      "evidence": []
+    },
+    {
+      "id": "TC-311",
+      "title": "Repeated legacy class profile presentation preserves membership evidence",
+      "requirements": "FR-07;FR-08;FR-26;NFR-03",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (family class presentation)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-313",
+      "title": "Family current class and inbox usability acceptance",
+      "requirements": "FR-03;FR-07;FR-09;FR-12;NFR-01;NFR-05;NFR-06;NFR-09",
+      "layer": "uat",
+      "status": "blocked",
+      "basis": "needs named reviewers",
+      "note": "Usability, accessibility and wording acceptance needs named people, assistive technology and real devices. Supporting automated checks (labelled controls, keyboard, 375px, no raw JSON) exist for the new pages but are not this review.",
+      "evidence": []
+    },
+    {
+      "id": "TC-316",
+      "title": "Effective reading preserves original manual provenance and revision",
+      "requirements": "FR-20;FR-21;FR-26;NFR-03",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (reading practice and review)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-325",
+      "title": "Original copy evidence remains distinct from later source and resource versions",
+      "requirements": "FR-13;FR-14;FR-15;FR-22;FR-26;NFR-03",
+      "layer": "regression",
+      "status": "not-run",
+      "basis": "owned by another workstream (resource copy evidence)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    },
+    {
+      "id": "TC-370",
+      "title": "Global course code collision and later edits imply no hidden original receipt",
+      "requirements": "FR-03;FR-07;FR-26;NFR-02;NFR-03",
+      "layer": "integration",
+      "status": "not-run",
+      "basis": "owned by another workstream (course catalogue)",
+      "note": "Steps not executed by this workstream. The audit trail reads this area's receipts read-only, and the area's own suites re-ran in the guarded run, but that is not execution of this case.",
+      "evidence": []
+    }
+  ]
+}

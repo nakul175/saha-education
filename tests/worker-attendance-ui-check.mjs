@@ -69,7 +69,7 @@ async function labelsAndWidth(page) {
   const missing = await page.locator('input:not([type=hidden]),select,textarea').evaluateAll(items => items.filter(item => !item.labels?.length && !item.getAttribute('aria-label') && !item.getAttribute('aria-labelledby')).length);
   assert.equal(missing, 0); const width = await page.evaluate(() => ({ viewport: innerWidth, scroll: document.documentElement.scrollWidth })); assert.ok(width.scroll <= width.viewport + 1, 'No horizontal overflow: ' + JSON.stringify(width));
 }
-async function shot(page, name) { const path = '/private/tmp/saha-attendance-ui-' + name + '.png'; await page.screenshot({ path, fullPage: true }); screenshots.push(path); }
+async function shot(page, name) { const path = (process.env.SAHA_TEST_OUTPUT_DIR || '/private/tmp') + '/saha-attendance-ui-' + name + '.png'; await page.screenshot({ path, fullPage: true }); screenshots.push(path); }
 try {
   const admin = await context('admin-a'), teacher = await context('teacher-a'), family = await context('guardian-a'), learner = await context('student-user-a'), other = await context('teacher-other');
   const school = (await api(admin, '/api/schools'))[0], course = (await api(admin, '/api/courses')).find(item => item.id === 'course-a'); assert.ok(school && course);
@@ -238,7 +238,7 @@ try {
   await check('Native attendance summary link opens the permitted recorded-data page', async () => { await page.getByRole('link', { name: 'Attendance records', exact: true }).click(); await expect(page).toHaveURL(base.origin + '/attendance'); await expect(page.getByRole('heading', { name: 'Attendance Summary', exact: true, level: 1 })).toBeVisible(); });
   await check('Browser assets load and all observed requests stay local', async () => { assert.deepEqual(pageErrors, []); assert.deepEqual(externalRequests, []); assert.deepEqual(failedResources, []); });
   const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length, checks, screenshots, limits: ['Built localhost Worker with final migrated synthetic sessions only.', 'Failure injections model local rejected, lost-acknowledgement and failed-refresh delivery; no external messaging/provider calls.', 'Suffix-only fixtures and explicit real reviews were added; base actor/profile/enrolment states were unchanged.', 'Legacy duplicate enrolments were seeded before final guards; no confirmed rows were deleted or merged.', 'This does not establish educational date/attendance policy, accessibility certification, hosted release or UAT approval.'] };
-  writeFileSync('/private/tmp/saha-attendance-ui-results.json', JSON.stringify(result, null, 2) + '\n'); console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length }));
+  writeFileSync((process.env.SAHA_TEST_OUTPUT_DIR || '/private/tmp') + '/saha-attendance-ui-results.json', JSON.stringify(result, null, 2) + '\n'); console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: externalRequests.length, pageErrors: pageErrors.length }));
 } catch (error) {
   for (const value of contexts) for (const page of value.pages()) if (page.url().startsWith(base.origin)) console.error('Local screen: ' + new URL(page.url()).pathname + '\n' + (await page.locator('body').innerText()).slice(0, 1600));
   console.log(JSON.stringify({ passed, failed: 1, externalRequests: externalRequests.length, pageErrors: pageErrors.length })); throw error;

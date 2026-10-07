@@ -70,12 +70,15 @@ export function AppShell({
   const navigationItems = [
     { id: 'accounts', label: 'Accounts', path: '/admin/users' },
     { id: 'profile-links', label: 'Profile links', path: '/admin/profile-links' },
+    { id: 'audit', label: 'Audit trail', path: '/admin/audit' },
+    { id: 'notices', label: 'Send a notice', path: '/notices' },
     { id: 'curriculum', label: 'Curriculum library', path: '/curriculum' },
     { id: 'reading-review', label: 'Reading review', path: '/reading-review' },
     { id: 'reading-practice', label: 'Reading practice planner', path: '/reading-practice' },
     { id: 'reading-imports', label: 'Reading imports', path: '/reading-imports' },
     { id: 'resources', label: 'Teaching resources', path: '/resources' },
     { id: 'learning', label: 'Class resources', path: '/learning' },
+    { id: 'submissions', label: 'Submissions and feedback', path: '/submissions' },
     { id: 'external-apps', label: 'Reading apps', path: '/external-apps' },
     { 
       id: 'dashboard', 
@@ -97,6 +100,16 @@ export function AppShell({
       label: 'Schools',
       path: '/schools'
     },
+    {
+      id: 'school-setup',
+      label: 'School setup',
+      path: '/schools/setup'
+    },
+    {
+      id: 'records',
+      label: 'Records',
+      path: '/records'
+    },
     { 
       id: 'classes', 
       label: 'Classes',
@@ -112,6 +125,8 @@ export function AppShell({
       label: 'Enrolments',
       path: '/enrolments'
     },
+    { id: 'academic', label: 'Courses and rosters', path: '/academic' },
+    { id: 'enrolment-history', label: 'Enrolment history', path: '/enrolments/history' },
     { 
       id: 'attendance', 
       label: 'Attendance',
@@ -139,24 +154,24 @@ export function AppShell({
     if (!principal) return false;
     
     // All roles can access dashboard and notifications
-    if (item.id === 'dashboard' || item.id === 'notifications') return true;
+    if (item.id === 'dashboard' || item.id === 'notifications' || item.id === 'enrolment-history') return true;
     
     // Admin can access everything
     if (principal.role === 'admin') return true;
     
     // Teacher can access students, classes, courses, enrolments, attendance, assessments, report-cards
     if (principal.role === 'teacher') {
-      return ['students', 'classes', 'courses', 'enrolments', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports'].includes(item.id);
+      return ['students', 'classes', 'courses', 'enrolments', 'academic', 'attendance', 'assessments', 'report-cards', 'external-apps', 'resources', 'learning', 'submissions', 'curriculum', 'reading-review', 'reading-practice', 'reading-imports', 'notices', 'school-setup', 'records'].includes(item.id);
     }
     
     // Guardian can access guardians and notifications
     if (principal.role === 'guardian') {
-      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications'].includes(item.id);
+      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications', 'records'].includes(item.id);
     }
     
     // Student can only access dashboard and notifications
     if (principal.role === 'student') {
-      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications', 'learning'].includes(item.id);
+      return ['students', 'classes', 'attendance', 'assessments', 'report-cards', 'notifications', 'learning', 'submissions', 'records'].includes(item.id);
     }
     
     return false;
@@ -166,14 +181,14 @@ export function AppShell({
     <div className="min-h-screen bg-background">
       <a href="#main-content" className="absolute left-4 top-4 z-50 -translate-y-24 rounded-md bg-background px-4 py-2 font-medium text-foreground shadow focus:translate-y-0">Skip to main content</a>
       {syntheticDemo && <aside className="flex flex-wrap items-center justify-between gap-2 border-b bg-amber-50 px-4 py-2 text-sm text-amber-950" aria-label="Synthetic demo">
-        <p><strong>Synthetic demo.</strong> Fictional records only; please don’t enter real learner details.</p>
+        <p><strong>Synthetic demo.</strong> Fictional records only; please don’t enter real student details.</p>
         <a className="font-medium underline underline-offset-4" href="/login">Switch demo role</a>
       </aside>}
       {/* Header */}
       <header className="border-b">
         <div className="container flex min-h-16 flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
-            <h1 className="text-xl font-bold">Saha Education</h1>
+            <p className="text-xl font-bold">Saha Education</p>
           </div>
           
           {principal ? (
@@ -189,6 +204,7 @@ export function AppShell({
                   <p className="text-xs text-muted-foreground capitalize">
                     {principal.role}
                   </p>
+                  <a className="text-xs underline underline-offset-4" href="/account">Your account</a>
                 </div>
               </div>
               <Button 

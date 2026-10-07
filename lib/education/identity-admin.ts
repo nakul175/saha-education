@@ -5,17 +5,18 @@ import { users, authSessions } from '@/db/schema';
 import { identityAdminEvents, identityAdminUserVersions } from '@/db/identity-admin-schema';
 import { AccessError, assertAdmin, livePrincipalScope } from './access';
 import { digest } from './identity';
+import { DEMO_ISSUER, demoRuntimeAllowed } from './demo-policy';
 import type { Principal, Role } from './types';
 
-const identifier = z.string().min(1).max(120);
-const reason = z.string().trim().min(10).max(500).refine(value => !/[\x00-\x1f\x7f]/.test(value));
-const issuer = z.string().min(1).max(2048).refine(value => {
+export const identifier = z.string().min(1).max(120);
+export const reason = z.string().trim().min(10).max(500).refine(value => !/[\x00-\x1f\x7f]/.test(value));
+export const issuer = z.string().min(1).max(2048).refine(value => {
   try {
     const url = new URL(value);
     return value === value.trim() && url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash;
   } catch { return false; }
 }, 'Use the exact trusted HTTPS issuer');
-const review = { clientRequestId: z.string().uuid(), reviewConfirmed: z.literal(true), reason };
+export const review = { clientRequestId: z.string().uuid(), reviewConfirmed: z.literal(true), reason };
 export const provisionIdentitySchema = z.object({
   ...review, name: z.string().trim().min(1).max(120), email: z.string().trim().email().max(254),
   role: z.enum(['admin', 'teacher', 'guardian', 'student']), identityIssuer: issuer,
@@ -39,19 +40,21 @@ export type IdentityAdminEvent = {
 export type IdentityAdminResult = { user: AdminUser; event: IdentityAdminEvent };
 export class IdentityAdminConflict extends Error {
   readonly status = 409;
-  constructor() { super('Identity administration conflict'); this.name = 'IdentityAdminConflict'; }
+  /** Short machine reason so the review screen can explain the refusal in plain language. */
+  readonly reason: string | undefined;
+  constructor(reason?: string) { super('Identity administration conflict'); this.name = 'IdentityAdminConflict'; this.reason = reason; }
 }
-function liveActor(principal: Principal) {
+export function liveActor(principal: Principal) {
   assertAdmin(principal);
   return livePrincipalScope(principal);
 }
-async function liveAdmin(principal: Principal): Promise<void> {
+export async function liveAdmin(principal: Principal): Promise<void> {
   assertAdmin(principal);
   const [row] = await getDb().select({ id: users.id }).from(users)
     .where(and(eq(users.id, principal.id), liveActor(principal))).limit(1);
   if (!row) throw new AccessError('Administrator access required');
 }
-function userView(row: typeof users.$inferSelect, version: number): AdminUser {
+export function userView(row: typeof users.$inferSelect, version: number): AdminUser {
   return { ...row, role: row.role as Role, schoolId: row.schoolId!, version };
 }
 type EventRow = typeof identityAdminEvents.$inferSelect;
@@ -60,7 +63,7 @@ function eventView(row: EventRow): IdentityAdminEvent {
   void requestHash; void attemptId;
   return { ...safe, action: row.action as IdentityAdminEvent['action'], previousEnabled: row.previousEnabled === null ? null : row.previousEnabled === 1, nextEnabled: row.nextEnabled === 1 };
 }
-async function currentUser(principal: Principal, id: string): Promise<AdminUser | null> {
+export async function currentUser(principal: Principal, id: string): Promise<AdminUser | null> {
   const [row] = await getDb().select({ user: users, version: sql<number>`coalesce(${identityAdminUserVersions.version}, 0)` })
     .from(users).leftJoin(identityAdminUserVersions, eq(identityAdminUserVersions.userId, users.id))
     .where(and(eq(users.id, identifier.parse(id)), eq(users.schoolId, principal.schoolId!), liveActor(principal))).limit(1);
@@ -88,13 +91,15 @@ async function retry(principal: Principal, id: string, hash: string): Promise<Id
   if (!user) throw new IdentityAdminConflict();
   return { user, event: eventView(event) };
 }
-function uniqueFailure(error: unknown): boolean {
+export function uniqueFailure(error: unknown): boolean {
   return error instanceof Error && (/UNIQUE constraint failed|PRIMARY KEY constraint failed/i.test(error.message) || uniqueFailure(error.cause));
 }
 
 export async function provisionIdentity(principal: Principal, value: ProvisionIdentityInput): Promise<IdentityAdminResult> {
   await liveAdmin(principal);
   const input = provisionIdentitySchema.parse(value);
+  // An isolated synthetic installation closes when any other issuer appears in its school.
+  if (demoRuntimeAllowed() && input.identityIssuer !== DEMO_ISSUER) throw new IdentityAdminConflict('demo_issuer');
   const hash = await digest(JSON.stringify({ action: 'provision', input }));
   const replay = await retry(principal, input.clientRequestId, hash);
   if (replay) return replay;
