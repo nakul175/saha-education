@@ -26,7 +26,7 @@
     "integration/api-auth-guards": {
       "layer": "integration",
       "file": "tests/integration/api-auth-guards.mjs",
-      "minPassed": 179
+      "minPassed": 187
     },
     "integration/api-contract": {
       "layer": "integration",
@@ -37,6 +37,11 @@
       "layer": "integration",
       "file": "tests/integration/assessment-detail-ui-contract.mjs",
       "minPassed": 1476
+    },
+    "integration/assessment-lifecycle-contract": {
+      "layer": "integration",
+      "file": "tests/integration/assessment-lifecycle-contract.mjs",
+      "minPassed": 248
     },
     "integration/assessment-review-access-contract": {
       "layer": "integration",
@@ -93,6 +98,11 @@
       "file": "tests/integration/d1-dashboard-portability-contract.mjs",
       "minPassed": 51
     },
+    "integration/d1-lifecycle-portability-contract": {
+      "layer": "integration",
+      "file": "tests/integration/d1-lifecycle-portability-contract.mjs",
+      "minPassed": 107
+    },
     "integration/dashboard-access-contract": {
       "layer": "integration",
       "file": "tests/integration/dashboard-access-contract.mjs",
@@ -116,7 +126,7 @@
     "integration/development-recovery-contract": {
       "layer": "integration",
       "file": "tests/integration/development-recovery-contract.mjs",
-      "minPassed": 266
+      "minPassed": 270
     },
     "integration/evidence-access-contract": {
       "layer": "integration",
@@ -212,6 +222,11 @@
       "layer": "integration",
       "file": "tests/integration/registry-ui-contract.mjs",
       "minPassed": 463
+    },
+    "integration/report-compile-contract": {
+      "layer": "integration",
+      "file": "tests/integration/report-compile-contract.mjs",
+      "minPassed": 289
     },
     "integration/report-publication-contract": {
       "layer": "integration",
