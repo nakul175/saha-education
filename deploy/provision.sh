@@ -58,7 +58,10 @@ install -m 0755 "$SRC/update.sh" "/usr/local/bin/${APP}-update"
 install -m 0644 "$SRC/${APP}.service" "/etc/systemd/system/${APP}.service"
 install -m 0644 "$SRC/${APP}-update.service" "/etc/systemd/system/${APP}-update.service"
 install -m 0644 "$SRC/${APP}-update.timer" "/etc/systemd/system/${APP}-update.timer"
-sed "s/SAHA_HOST/${SAHA_HOST}/" "$SRC/Caddyfile" > /etc/caddy/Caddyfile
+# One Caddy serves every app on this droplet: the main Caddyfile only imports one file per app.
+install -d -m 0755 /etc/caddy/conf.d
+grep -q '^import /etc/caddy/conf.d/' /etc/caddy/Caddyfile 2>/dev/null || printf 'import /etc/caddy/conf.d/*.caddy\n' > /etc/caddy/Caddyfile
+sed "s/SAHA_HOST/${SAHA_HOST}/" "$SRC/Caddyfile" > "/etc/caddy/conf.d/${APP}.caddy"
 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 systemctl daemon-reload
 systemctl enable caddy "${APP}.service" "${APP}-update.timer"

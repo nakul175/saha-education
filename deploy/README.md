@@ -39,3 +39,11 @@ Rollback: revert the commit on `main`; the next timer run redeploys it. Data is 
 - `wrangler dev --local` is a development runtime, acceptable for the private synthetic demo and not for production or real learner data.
 - The D1 database is one file on the droplet. Turn on DigitalOcean droplet backups (about 20% of the droplet price) before relying on it.
 - Authentication is the demo role cookie from the application; nothing here adds real sign-in.
+
+## Sharing one droplet with other Saha apps
+
+Several apps can run on one droplet (recommended: 8 GB RAM for four apps). Each app has its own port, system service, database file and sign-in list. Run each app's `provision.sh` in turn with its own `SAHA_HOST` (for example `health.<ip-dashed>.sslip.io`, `agriculture.<ip-dashed>.sslip.io`).
+
+- Caddy: each app writes `/etc/caddy/conf.d/<app>.caddy`; `/etc/caddy/Caddyfile` only imports that folder.
+- Builds share one lock (`/var/lock/saha-build.lock`), so update timers never build two apps at once.
+- Failure domain: one droplet means one crash, disk or build problem affects every app on it, and one backup covers all of them.

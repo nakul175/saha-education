@@ -25,6 +25,8 @@ CUR="$(git -C "$SRC" rev-parse HEAD)"
 if [ "$NEW" = "$CUR" ] && [ -d "$SRC/dist/server" ]; then exit 0; fi
 
 trap 'record "$NEW" failed' ERR
+# Builds are heavy (1-2 GB): when several apps share this droplet, only one builds at a time.
+exec 8>/var/lock/saha-build.lock; flock -w 1500 8
 git -C "$SRC" reset --hard "$NEW"
 cd "$SRC"
 pnpm install --frozen-lockfile
