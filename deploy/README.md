@@ -19,7 +19,7 @@ Status: deployment kit, not yet run on a droplet. Synthetic data only. Real iden
 The repository is private, so copy `deploy/provision.sh` to the droplet first (scp, or paste it into a file). Then:
 
 ```bash
-SAHA_GIT_TOKEN=<token> SAHA_HOST=education.<ip-with-dashes>.sslip.io bash provision.sh
+SAHA_HOST=education.<ip-with-dashes>.sslip.io SAHA_FIRST_USER=<email> bash provision.sh
 ```
 
 A custom domain works the same way: point an A record at the droplet and pass it as `SAHA_HOST`.
@@ -38,7 +38,7 @@ Rollback: revert the commit on `main`; the next timer run redeploys it. Data is 
 
 - `wrangler dev --local` is a development runtime, acceptable for the private synthetic demo and not for production or real learner data.
 - The D1 database is one file on the droplet. Turn on DigitalOcean droplet backups (about 20% of the droplet price) before relying on it.
-- Authentication is the demo role cookie from the application; nothing here adds real sign-in.
+- Sign-in is a Caddy password wall (one username and password per person, `sudo saha-education-add-user <email>` prints a random password once; only the bcrypt hash is stored). Behind it the application still uses its own demo role login. There is no MFA, lockout or real sign-out.
 
 ## Sharing one droplet with other Saha apps
 

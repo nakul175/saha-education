@@ -1,5 +1,15 @@
-# /etc/caddy/Caddyfile  (SAHA_HOST is substituted by provision.sh)
+# /etc/caddy/conf.d/saha-education.caddy  (SAHA_HOST is substituted by provision.sh)
+#
+# Caddy is a password wall in front of the demo. The application has only its own demo role login,
+# so without this anyone who found the address could open it. Caddy asks for a username (an email
+# address) and password from /etc/saha/saha-education.users before any request reaches the app.
+# The application listens on 127.0.0.1 only.
 SAHA_HOST {
 	encode zstd gzip
+
+	basic_auth {
+		import /etc/saha/saha-education.users
+	}
+
 	reverse_proxy 127.0.0.1:3200
 }
