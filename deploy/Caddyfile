@@ -1,0 +1,5 @@
+# /etc/caddy/Caddyfile  (SAHA_HOST is substituted by provision.sh)
+SAHA_HOST {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3200
+}

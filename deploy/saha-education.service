@@ -1,0 +1,20 @@
+[Unit]
+Description=Saha Education (Cloudflare Workers runtime, local D1 on disk)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=saha
+Group=saha
+WorkingDirectory=/opt/saha-education/src
+Environment=SITES_RUNTIME_ROOT=/var/lib/saha-education/runtime
+ExecStart=/usr/bin/node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to /var/lib/saha-education/state --ip 127.0.0.1 --port 3200 --inspector-port 0
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
