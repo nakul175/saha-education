@@ -169,6 +169,13 @@
       "when": 1792000024000,
       "tag": "0024_identity_admin_changes",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1792000025000,
+      "tag": "0025_immutable_evidence_guards",
+      "breakpoints": true
     }
   ]
 }

@@ -3,7 +3,9 @@
 // `triggers.crons` is set only in the hosted configuration (scripts/cloudflare-staging.mjs); where no trigger is
 // configured this handler is never called and the Worker behaves as before.
 import handler from 'vinext/server/fetch-handler';
+import { withSecurityHeaders } from '../lib/education/security-headers';
 
 export default {
-  fetch: (request: Request, env: unknown, ctx: ExecutionContext) => handler.fetch(request, env, ctx),
+  // Every response, including framework-generated 404/500 pages, passes through the browser security headers (NFR-01).
+  fetch: async (request: Request, env: unknown, ctx: ExecutionContext) => withSecurityHeaders(request, await handler.fetch(request, env, ctx)),
 };
