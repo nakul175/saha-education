@@ -239,7 +239,7 @@ export function AssignmentSubmissionWindow({ assignmentId, window, staff, actorI
         </form>
         <details><summary className="cursor-pointer font-medium">Window review history (latest 100)</summary>
           {historyState === 'loading' || loadedScope.path !== path || loadedScope.actorId !== actorId ? <p>Loading current window review history…</p> : historyState === 'unavailable' ? <p>Review history is unavailable. Refresh the window to try again.</p> : visibleReviews.length === 0 ? <p>No window reviews yet.</p> : <ol className="space-y-3 mt-3">{visibleReviews.map(item => <li className="border rounded p-3 space-y-1" key={item.id}>
-            <h3 className="font-semibold">Window revision {item.revision} · {item.state}</h3><p>Reviewed {readableTime(item.reviewedAt)} · Staff ID {item.reviewedBy}</p>
+            <h3 className="font-semibold">Window revision {item.revision} · {item.state}</h3><p>Reviewed {readableTime(item.reviewedAt)} · {actorId && item.reviewedBy === actorId ? 'by you' : 'by another staff member'}</p>
             {item.closesAt && <p>Closing time: {readableTime(item.closesAt)}</p>}<p>Reason: {item.reason}</p>
           </li>)}</ol>}
         </details>
