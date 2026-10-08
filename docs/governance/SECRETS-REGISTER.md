@@ -9,7 +9,7 @@ Owner: Nakul Jain · Last reviewed: 2026-10-08 · Update trigger: any new secret
 | `SAHA_OIDC_CLIENT_ID` | Registered client id (not secret) | Worker binding | Nakul Jain | with client | Not provisioned |
 | `SAHA_OIDC_CLIENT_SECRET` | Confidential client secret | Worker secret store, never in git | Nakul Jain | on provider policy, TBD | Not provisioned |
 | `SAHA_OIDC_REDIRECT_URL`, `SAHA_OIDC_TOKEN_AUTH_METHOD` | Callback and auth method (configuration) | Worker binding | Nakul Jain | n/a | Not provisioned |
-| `SAHA_ALLOWED_ORIGINS` | Exact trusted origins for mutations (configuration) | Worker binding | Nakul Jain | per host change | Set by deploy script for Cloudflare demo; droplet value TBD |
+| `SAHA_ALLOWED_ORIGINS` | Exact trusted origins for mutations (configuration) | Worker binding | Nakul Jain | per host change | Set by deploy script for Cloudflare demo; on the droplet `https://education.aplyd.org`, passed as a `--var` by the systemd service (see [ARCHITECTURE-HOSTING](ARCHITECTURE-HOSTING.md)) |
 | `SAHA_DEMO_ENABLED`, `SAHA_DEMO_INSTALLATION_ID` | Switch and marker for the synthetic demo (configuration) | Worker binding / demo launcher | Nakul Jain | n/a | Demo only; must be off with any real provider |
 | `SAHA_ORF_APP_URL` | Reading-app launch URL | Worker binding | Nakul Jain | n/a | Blank by design |
 | `SAHA_NOTIFICATION_EMAIL_FROM` | Sender address, delivery disabled | Worker binding | Nakul Jain | n/a | Not used |

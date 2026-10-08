@@ -4,7 +4,7 @@
 
 **Purpose.** Saha Education is a school administration and learning application (student and guardian records, courses and classes, attendance, assessments and report cards, notices, teacher resources, manual reading review) built with Next.js 16, a Cloudflare-style Worker and D1 (SQLite).
 
-**Status (8 October 2026).** A working demo on synthetic data. It is **not accepted for production or real learner data**: no real sign-in provider, reading-app destination, paid AI or message delivery is configured, all 371 designed test cases are unrun, and no hosted address is claimed. Owner: Nakul Jain (nakul.jain@aplyd.com). Licence: none granted ([LICENSE](LICENSE)).
+**Status (8 October 2026).** A working demo on synthetic data. It is **not accepted for production or real learner data**: no real sign-in provider, reading-app destination, paid AI or message delivery is configured, and all 371 designed test cases are unrun. A private copy runs on the shared DigitalOcean droplet at `https://education.aplyd.org` (since 7 October 2026, behind a Caddy password wall, synthetic data; the demo sign-in was switched on there on 8 October 2026; see [deploy/README.md](deploy/README.md)). Owner: Nakul Jain (nakul.jain@aplyd.com). Licence: none granted ([LICENSE](LICENSE)).
 
 **Run it in under 10 minutes.** Needs Node 22.13 or newer and pnpm 11.25.0.
 
@@ -19,13 +19,13 @@ Options and a five-minute tour: [docs/DEMO.md](docs/DEMO.md). Checks before a pu
 
 The text below is the earlier, dated project history and is kept for reference.
 
-Current continuation: [Claude handover](CLAUDE-HANDOVER.md), [final school/course batch](docs/current/EIGHT-HOUR-BATCH-4.md) and [exact execution evidence](docs/current/EIGHT-HOUR-BATCH-4-EXECUTION.json). The combined verified source passes20,952 checks/52 suites and40+26 mounted procedures. v2.12 contains371 unrun designed cases/51 scenarios. The unfinished assessment work is safely preserved on a separate remote branch; the private hosting SQL failure remains unresolved with no demo URL. PR6 is merged to main as `bdeea544`; actual publication and the paused development schedule are recorded in the handover. Earlier candidate descriptions below remain historical.
+Current continuation: [Claude handover](CLAUDE-HANDOVER.md), [final school/course batch](docs/current/EIGHT-HOUR-BATCH-4.md) and [exact execution evidence](docs/current/EIGHT-HOUR-BATCH-4-EXECUTION.json). The combined verified source passes 20,952 checks/52 suites and 40+26 mounted procedures. v2.12 contains 371 unrun designed cases/51 scenarios. The unfinished assessment work is safely preserved on a separate remote branch; the private hosting SQL failure remains unresolved with no demo URL. PR6 is merged to main as `bdeea544`; actual publication and the paused development schedule are recorded in the handover. Earlier candidate descriptions below remain historical.
 
 Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md), [current session/demo batch](docs/current/EIGHT-HOUR-BATCH-1.md), [eight-hour development log](docs/current/EIGHT-HOUR-DEVELOPMENT.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
 
-The[second isolated candidate](docs/current/EIGHT-HOUR-BATCH-2.md) improves family class/inbox recovery and teacher reading-practice preparation, with the actual family attendance portability fix. Initial fresh build/18,765 assertions49 suites and26 demo/36 family/32 planner/38 prerequisite/39 report-inbox browser procedures pass;329 designed cases remain unrun and approvalsfalse. The reading-app return link is corrected; final49-suite regression and actual four-role native navigation recheck pass. Private hosting and final-hour merge remain pending.
+The[second isolated candidate](docs/current/EIGHT-HOUR-BATCH-2.md) improves family class/inbox recovery and teacher reading-practice preparation, with the actual family attendance portability fix. Initial fresh build/18,765 assertions 49 suites and 26 demo/36 family/32 planner/38 prerequisite/39 report-inbox browser procedures pass; 329 designed cases remain unrun and approvalsfalse. The reading-app return link is corrected; final 49-suite regression and actual four-role native navigation recheck pass. Private hosting and final-hour merge remain pending.
 
-The[third candidate](docs/current/EIGHT-HOUR-BATCH-3.md) improves current student-profile and assessment navigation with exact-pair recovery. Fresh build/19,187 assertions50 suites and36 mounted procedures pass. All349 designed cases remain unrun and approvalsfalse. Private hosted version1 failed with incomplete SQL input;[the failure record](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) identifies the required migration boundary. No hosted demo URL or early main merge is claimed.
+The[third candidate](docs/current/EIGHT-HOUR-BATCH-3.md) improves current student-profile and assessment navigation with exact-pair recovery. Fresh build/19,187 assertions 50 suites and 36 mounted procedures pass. All 349 designed cases remain unrun and approvalsfalse. Private hosted version 1 failed with incomplete SQL input;[the failure record](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) identifies the required migration boundary. No hosted demo URL or early main merge is claimed.
 
 Saha Education is a comprehensive school management platform designed to streamline educational operations. The system supports efficient management of schools, students, teachers, guardians, courses, classes, enrolments, attendance tracking, assessments, report cards, and user notifications.
 
@@ -140,7 +140,7 @@ pnpm db:generate
 
 ## Data model
 
-The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) covers all 39 tables/325 fields, including authentication, teaching resources and the specification extensions. Core school-administration tables include:
+The database schema is managed with Drizzle ORM. The [current dictionary](docs/specification/DATA-DICTIONARY.md) and its [CSV](docs/specification/DATA-DICTIONARY.csv) cover all 63 tables/540 fields (migrations 0000–0025; `node scripts/check-specification.mjs` compares the CSV with a freshly migrated database), including authentication, teaching resources and the specification extensions. Core school-administration tables include:
 
 - **schools**: Stores school information including name, address, and timestamps
 - **users**: User accounts with roles (admin|teacher|guardian|student) and associated school references
@@ -189,4 +189,4 @@ Test results are aggregated and reported with counts for each layer, showing pas
 - All records require verified school and relationship scopes; no role cookie grants access
 - Reviewed account provisioning and status administration are implemented; role, identity, school and profile remapping remain pending
 
-Current timed continuation: [authority/publication batch](docs/current/DEVELOPMENT-BATCH-2.md), [actual tested evidence](docs/current/DEVELOPMENT-BATCH-2-EXECUTION.json) and [four-hour progress](docs/current/FOUR-HOUR-DEVELOPMENT.md). The v2.3 design pack contains 35 tables/294 fields, 51 routes/84 handlers and 157 unrun designed cases; source verification does not imply business acceptance or deployment.
+Earlier timed continuation (5 October 2026): [authority/publication batch](docs/current/DEVELOPMENT-BATCH-2.md), [actual tested evidence](docs/current/DEVELOPMENT-BATCH-2-EXECUTION.json) and [four-hour progress](docs/current/FOUR-HOUR-DEVELOPMENT.md). The v2.3 design pack contained 35 tables/294 fields, 51 routes/84 handlers and 157 unrun designed cases; the current designed cases are the rows of [TEST-CASES.csv](docs/specification/TEST-CASES.csv). Source verification does not imply business acceptance or deployment.

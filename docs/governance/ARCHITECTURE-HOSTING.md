@@ -13,7 +13,7 @@ Canonical architecture documents: [docs/ARCHITECTURE.md](../ARCHITECTURE.md) (la
 | Topology | State | Evidence |
 |---|---|---|
 | Local demo (`pnpm demo`, port 8787, database in `.wrangler/demo`) | Works; synthetic school | [docs/DEMO.md](../DEMO.md) |
-| DigitalOcean droplet (below) | Deploy kit; the `deploy/README.md` status line says "not yet run on a droplet". Whether a droplet is live, and its address: TBD (owner: Nakul Jain) | `deploy/` |
+| DigitalOcean droplet (below) | In use since 7 October 2026 on the shared droplet `saha-apps` (64.227.190.72) at `https://education.aplyd.org`, behind the Caddy password wall, synthetic data only; the demo sign-in was switched on there on 8 October 2026. Private demo, not production | `deploy/` |
 | Cloudflare Workers + D1 | Script and dry run exist; **never run against a real account**; no hosted URL | [DEPLOY-CLOUDFLARE.md](../DEPLOY-CLOUDFLARE.md) |
 | Private Sites hosting | Failed at migration time (`incomplete input: SQLITE_ERROR`), no URL; cause unknown | [HOSTED-DEPLOYMENT-FAILURE.md](../current/HOSTED-DEPLOYMENT-FAILURE.md) |
 
@@ -33,8 +33,8 @@ Internet -> Caddy :443 (automatic HTTPS, basic-auth wall) -> 127.0.0.1:3200 (wra
 - **Git access:** a read-only fine-grained token in `/etc/saha/saha-education.git-token` (expires, default 30 days) or an ed25519 deploy key at `/etc/saha/saha-education.deploy-key`.
 - Several Saha apps can share one droplet (own port, service, database file and user list each); one failure domain.
 
-## Not yet defined
+## Settings on the droplet
 
-How the demo switch (`SAHA_DEMO_ENABLED`) and `SAHA_ALLOWED_ORIGINS` reach the Worker on the droplet: the systemd unit sets only `SITES_RUNTIME_ROOT`, and `deploy/` shows no other source. TBD (owner: Nakul Jain). The service runs as user `saha` with `NoNewPrivileges`, `PrivateTmp` and `ProtectHome`; the update job (build and `pnpm install`) runs as root.
+The demo switch (`SAHA_DEMO_ENABLED`, with `SAHA_DEMO_INSTALLATION_ID`) and `SAHA_ALLOWED_ORIGINS` (exactly `https://education.aplyd.org`) reach the Worker as `--var` flags on the `wrangler dev` command line of the systemd service, together with `--local-upstream education.aplyd.org --upstream-protocol https`, which makes `request.url` carry the public https origin so that the same-origin check on writes can pass. On the running droplet these flags live in a systemd drop-in (`/etc/systemd/system/saha-education.service.d/public-origin.conf`); pull request #29 brings the unit file in the `deploy/` kit in line with them. The service runs as user `saha` with `NoNewPrivileges`, `PrivateTmp` and `ProtectHome`; the update job (build and `pnpm install`) runs as root.
 
 Production hosting, identity provider, monitoring destination, backup schedule and RPO/RTO: TBD (owner: Nakul Jain). See [SLO-ALERTS.md](SLO-ALERTS.md) and [BACKUP-DR.md](BACKUP-DR.md).

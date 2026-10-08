@@ -1,6 +1,6 @@
 # Saha Education Data Model
 
-This document describes the database schema and relationships for the Saha Education system.
+This document describes the 13 core tables of the rebuild baseline (migration 0000) and their relationships. The current schema has 63 tables (migrations 0000–0025); the complete field inventory is [docs/specification/DATA-DICTIONARY.csv](specification/DATA-DICTIONARY.csv), with the migration list in [docs/governance/MIGRATIONS.md](governance/MIGRATIONS.md).
 
 ## Database Schema
 
