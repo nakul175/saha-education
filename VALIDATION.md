@@ -266,3 +266,5 @@ Source: `feat/calm-workspace-redesign` from main `75e9f97`, immediately before p
 | Deployment | Pending authenticated host evidence | Outer host returned 401. Main publication alone cannot prove the deployed revision |
 
 The first local navigation-source assertion was adapted to the canonical grouped menu. Old system Python lacked `Connection.setlimit`; the supported Python required native SQLite library discovery for its statically built module. All limit calibrations and prior baselines remain intact in the passing run. Canonical cases/approval flags are unchanged.
+
+Publication follow-up: PR30 merged at `1d3e2cedcce902eac25169928050e90061786a9f` on 8 October, 07:57:34 UTC. CI run 37746246967 passed all steps for application source `913511387f50390c4e3703167b54eba2f469daab`. The remaining host verification is blocked by missing authenticated access (HTTP 401 and an empty SSH agent). See [publication evidence](docs/current/CALM-WORKSPACE-PUBLICATION.json); no deployed revision is inferred.
