@@ -2,7 +2,7 @@
 
 Owner: Nakul Jain · Last reviewed: 2026-10-08 · Update trigger: change to branching, CI, or the check commands.
 
-This is a private repository. Every coding agent and person starts with [HANDOVER.md](HANDOVER.md) and [AGENTS.md](AGENTS.md); Claude sessions also read [CLAUDE-HANDOVER.md](CLAUDE-HANDOVER.md). The rules below summarise them; where they differ, those files win.
+This is a private repository. Every coding agent and person starts with [HANDOVER.md](HANDOVER.md) and [AGENTS.md](AGENTS.md); Claude sessions also read [docs/history/CLAUDE-HANDOVER-2026-10-06.md](docs/history/CLAUDE-HANDOVER-2026-10-06.md). The rules below summarise them; where they differ, those files win.
 
 ## Workflow
 

@@ -27,7 +27,7 @@ Recorded results and their limits: [the security record](../current/DEMO-securit
 - No SBOM published with releases; no artifact signing or provenance.
 - No branch-protection or required-review settings are recorded in the repo; the real GitHub settings are unknown (TBD, owner: Nakul Jain).
 - Several recorded review findings remain open (F5 field limits, F6 draft-report policy, F7 old unbounded body helper, F10 static-asset headers).
-- No independent code review by a person has been recorded for the merged work in `HANDOVER.md`/`CLAUDE-HANDOVER.md`, which describe agent-run work merged at the sponsor's instruction.
+- No independent code review by a person has been recorded for the merged work in `HANDOVER.md`/`docs/history/CLAUDE-HANDOVER-2026-10-06.md`, which describe agent-run work merged at the sponsor's instruction.
 - The droplet build runs `pnpm install` and the build as root on every new commit.
 
 ## Developer rules
