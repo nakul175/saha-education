@@ -138,8 +138,8 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
   const acknowledgementVisible = originalActor && acknowledged?.actorKey === scopeKey(principal) && acknowledged.studentId === profileId;
 
   return <AppShell principal={principal}><div className="mx-auto max-w-4xl min-w-0 space-y-6 p-4">
-    <h1 className="text-3xl font-bold">Student Profile</h1>
-    <div className="flex flex-wrap gap-4"><a href="/" className="underline">Return to dashboard</a>{principal && <><a href="/students" className="underline">Students</a><a href="/report-cards" className="underline">{principal.role === 'guardian' || principal.role === 'student' ? 'Published report cards' : 'Report cards'}</a></>}</div>
+    <p className="saha-eyebrow">Student Profile</p><div className="saha-profile-heading"><span className="saha-person-avatar" aria-hidden="true">{student ? (student.firstName.charAt(0) + student.lastName.charAt(0)).toUpperCase() : 'S'}</span><div><h1>{student ? `${student.firstName} ${student.lastName}` : 'Student Profile'}</h1><p>{student ? `Grade ${student.gradeLevel} · Admission ${student.admissionNumber}` : 'A clear view of this student’s school life.'}</p></div></div>
+    <div className="saha-profile-links"><a href="/" className="underline">Return to dashboard</a>{principal && <><a href="/students" className="underline">Students</a>{student && <a href={'/attendance/learners/' + encodeURIComponent(student.id)}>Attendance</a>}{student && ['admin', 'teacher'].includes(principal.role) && <a href={'/reading-review?studentId=' + encodeURIComponent(student.id)}>Reading history</a>}<a href="/report-cards" className="underline">{principal.role === 'guardian' || principal.role === 'student' ? 'Published report cards' : 'Report cards'}</a></>}</div>
     <Button type="button" variant="outline" disabled={saving || !profileId} onClick={() => void reload(profileId)}>Reload student profile</Button>
     {loading && <p role="status">Loading current student profile…</p>}
     {error && <p role="alert" className="break-words text-red-600">{error}</p>}
@@ -157,7 +157,7 @@ export default function StudentProfilePage({ params }: { params: Promise<{ id: s
         <div><dt className="text-muted-foreground">Admission Number</dt><dd>{student.admissionNumber}</dd></div>
         <div><dt className="text-muted-foreground">Date of Birth</dt><dd>{isExactCalendarDate(student.dateOfBirth) ? <time dateTime={student.dateOfBirth}>{student.dateOfBirth}</time> : <span role="status">Stored date requires review: {String(student.dateOfBirth ?? '')}</span>}</dd></div>
         <div><dt className="text-muted-foreground">Grade Level</dt><dd>{student.gradeLevel}</dd></div>
-        <div><dt className="text-muted-foreground">School reference</dt><dd>{student.schoolId}</dd></div>
+
       </dl></CardContent></Card>
       <Card><CardHeader><CardTitle>Guardians</CardTitle></CardHeader><CardContent className="space-y-3"><p>Linked guardians visible to your current account.</p>
         {guardians.length === 0 ? <p>No linked guardians are available in this view.</p> : guardians.map(guardian => <div key={guardian.id} data-linked-guardian-id={guardian.id} className="rounded border p-3 break-words"><p className="font-medium">{guardian.name}</p><p>Relationship: {guardian.relationship}</p><p>Linked</p></div>)}

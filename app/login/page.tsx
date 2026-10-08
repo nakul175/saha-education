@@ -80,13 +80,13 @@ export default function LoginPage() {
       actionInFlight.current = false;
     }
   }
-  return <main aria-labelledby="login-title" className="min-h-screen flex items-center justify-center bg-background p-4">
+  return <main aria-labelledby="login-title" className="saha-login"><aside className="saha-login-story"><p className="saha-wordmark"><span aria-hidden="true">s</span>saha.</p><div><h2>A little structure.<br />A lot of possibility.</h2><p>One calm workspace for school life. More time to teach, learn and stay connected.</p></div><div className="saha-login-promises"><div>Attendance and class records, together.</div><div>Teaching resources with a clear next step.</div><div>Shared progress that keeps families informed.</div></div></aside><div className="saha-login-content">
     <Card className="w-full max-w-lg"><CardHeader><CardTitle><h1 id="login-title" className="text-2xl">{demo ? 'Explore Saha Education' : 'Sign in to Saha Education'}</h1></CardTitle>
       <CardDescription>{demo ? 'A private demonstration with fictional school records.' : 'Use your school account to continue.'}</CardDescription></CardHeader>
       <CardContent className="space-y-4">
         {demo ? <>
           <p className="text-sm">Choose a view to explore attendance, learning resources, results and family updates. Sample changes stay in this demo.</p>
-          <label className="flex items-start gap-3 text-sm" htmlFor="demo-acknowledgement">
+          <label className="saha-login-ack flex items-start gap-3 text-sm" htmlFor="demo-acknowledgement">
             <input className="mt-1 size-4 shrink-0" id="demo-acknowledgement" type="checkbox" checked={acknowledged}
               disabled={loading} onChange={event => setAcknowledged(event.target.checked)} />
             <span>I’m exploring fictional records and won’t enter real student details.</span>
@@ -97,7 +97,7 @@ export default function LoginPage() {
               ['teacher', 'Teacher', 'Take attendance, enter results, record reading checks and share class resources.'],
               ['guardian', 'Guardian', 'See your children\'s attendance, shared reports and notices from the school.'],
               ['student', 'Student', 'Open class resources, write answers and read your teacher\'s feedback.'],
-            ] as const).map(([role, label, description]) => <div key={role} className="flex min-w-0 flex-col gap-1">
+            ] as const).map(([role, label, description]) => <div key={role} className="saha-demo-role min-w-0">
               <Button variant="outline" disabled={loading || !acknowledged} onClick={() => explore(role)}>Explore as {label.toLowerCase()}</Button>
               <p className="text-xs text-muted-foreground">{description}</p>
             </div>)}
@@ -109,6 +109,6 @@ export default function LoginPage() {
         {!demo && unconfigured && <p role="note" className="text-sm text-muted-foreground">School sign-in has not been set up on this installation yet. Your administrator needs to connect the school provider before anyone can sign in.</p>}
         {error && <p role="alert">{error}</p>}
         {!demo && <p className="text-sm text-muted-foreground">Your school administrator manages your access.</p>}
-      </CardContent></Card>
+      </CardContent></Card></div>
   </main>;
 }

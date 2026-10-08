@@ -101,7 +101,7 @@ export default function ProfileLinksPage() {
   const visible = profiles.filter(profile => profile.profileType === kind && (status === 'all' || (status === 'linked' ? profile.userId !== null : profile.userId === null)));
   const eligible = review ? accounts.filter(account => account.role === review.profile.profileType) : [];
   const changed = review && (review.action === 'unlink' ? review.profile.userId !== null : Boolean(review.userId) && review.userId !== review.profile.userId);
-  return <main className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
     <a href="/" className="underline">← Dashboard</a>
     <h1 className="text-2xl font-bold">Reviewed profile links</h1>
     <p>Connect a student or guardian profile to the exact school sign-in account after reviewing ownership. Profile records and family relationships are preserved.</p>
@@ -160,5 +160,5 @@ export default function ProfileLinksPage() {
         </li>)}</ol>
       </section>
     </>}
-  </main>;
+  </div>;
 }

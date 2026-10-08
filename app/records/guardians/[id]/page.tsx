@@ -121,7 +121,7 @@ function Profile({ principal, id }: { principal: Principal; id: string }) {
               {detail.children.map(child => (
                 <li key={child.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
                   <div className="min-w-0">
-                    <p className="break-words font-medium">{child.firstName} {child.lastName}{child.isPrimary && <span className="ml-2 rounded-full border border-blue-600/40 bg-blue-50 px-2 py-0.5 text-xs text-blue-900">Primary contact</span>}</p>
+                    <p className="break-words font-medium">{child.firstName} {child.lastName}{child.isPrimary && <span className="ml-2 rounded-full border border-primary/40 bg-primary/5 px-2 py-0.5 text-xs text-primary">Primary contact</span>}</p>
                     <p className="text-sm text-muted-foreground">Grade {child.gradeLevel} · {child.relationship}</p>
                   </div>
                   <div className="flex items-center gap-2">

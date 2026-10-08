@@ -251,3 +251,18 @@ The preserved assessment-detail candidate (`e1283e78`) was cherry-picked onto ma
 ## Overnight demo integration (7 October 2026)
 
 Fresh build of main after merging #11 to #22. Guarded run: 78 suites, 62,583 assertions (unit 162, integration 62,244, smoke 177), 0 failed, regression guard 78 baselined suites. `tsc --noEmit` and ESLint report 0 errors. Documentation, requirements audit, specification and catalogue checks pass (103 route files, 371 designed cases counted, no execution or acceptance inferred). GitHub Actions `verify` passed once on PR #22. Mounted Chromium procedures, each with 0 external requests and 0 page errors: demo experience 1,127 checks over 114 pages with 0 axe violations; cross-role journeys 19/19; demo sign-in 26/26; courses 26, attendance 25, assessment lifecycle 33, assessment review 43, development 60, profile and assessment 36, family 36, notices and audit 23, curriculum and submissions 23, reading review 18 and 33. Limits, flaky local-Worker behaviour and open findings are in [the integration record](docs/current/DEMO-integration.md). This is executable evidence, not acceptance.
+
+## Calm workspace redesign — 8 October 2026
+
+Source: `feat/calm-workspace-redesign` from main `75e9f97`, immediately before publication. Synthetic local evidence only; [implementation, screenshots, failures corrected and deployment limits](docs/current/CALM-WORKSPACE-REDESIGN.md).
+
+| Check | Actual result | Boundary |
+|---|---|---|
+| Final framework build | Passed | Node 24.19.0; application build, not hosted success |
+| Guarded static/unit/integration/smoke | 79 suites; 62,627 assertions; 0 failed/skipped | 78 existing regression baselines pass; new 36-assertion navigation suite passes separately |
+| TypeScript | Passed | Included in static checks |
+| Repository lint | 0 errors, 12 warnings | Declared generated-output exclusions; warnings retained |
+| Manual synthetic browser sample | Teacher/admin/guardian/student homes; resources, profile/reading link and reviewed attendance save inspected | Phone 390px resources/family home and 320px attendance had no document overflow; menu Escape returns focus. No complete UAT/axe/screen-reader claim |
+| Deployment | Pending authenticated host evidence | Outer host returned 401. Main publication alone cannot prove the deployed revision |
+
+The first local navigation-source assertion was adapted to the canonical grouped menu. Old system Python lacked `Connection.setlimit`; the supported Python required native SQLite library discovery for its statically built module. All limit calibrations and prior baselines remain intact in the passing run. Canonical cases/approval flags are unchanged.

@@ -4,6 +4,7 @@ import { getServerPrincipal } from '@/lib/education/auth';
 import { getRoleDashboard } from '@/lib/education/dashboard';
 import { AppShell } from '@/components/app-shell';
 import { RoleGuide } from '@/components/role-guide';
+import { WorkspaceHeading } from '@/components/workspace-heading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function GuardianDashboard() {
@@ -11,9 +12,9 @@ export default async function GuardianDashboard() {
   if (!principal || principal.role !== 'guardian') redirect('/');
   const snapshot = await getRoleDashboard(principal);
   if (!snapshot || snapshot.role !== 'guardian') redirect('/');
-  return <AppShell principal={principal}><div className="space-y-6 p-4">
-    <div className="min-w-0 space-y-2 break-words"><h1>Guardian Dashboard</h1><p className="text-muted-foreground">Attendance records and published reports currently available to your account.</p><a href="/dashboard/guardian" className="inline-block underline">Refresh dashboard</a></div>
-    <RoleGuide role="guardian" />
+  return <AppShell principal={principal}><div className="space-y-6">
+    <WorkspaceHeading eyebrow="Your family workspace" title="Guardian Dashboard" description="A clear view of your children’s school life, shared progress and updates." action={<a href="/dashboard/guardian" className="saha-text-link">Refresh dashboard</a>} />
+    <section className="saha-hero"><div><p className="saha-eyebrow">Stay connected</p><h2>Follow the next small step.</h2><p>See the reports your school has shared and follow your children’s attendance.</p></div><a href="/report-cards" className="saha-primary-link">View shared reports</a></section>
     {snapshot.profiles.total === 0 && <p role="status">No linked student profiles are available for this account.</p>}
     {snapshot.profiles.truncated && <p role="status">Showing {snapshot.profiles.items.length} of {snapshot.profiles.total} linked profiles. Open <a href="/students" className="underline">Students</a> for the available list.</p>}
     <div className="grid gap-4 lg:grid-cols-2">{snapshot.profiles.items.map(profile => {
@@ -21,7 +22,7 @@ export default async function GuardianDashboard() {
       const excusedOnly = profile.attendance.recordedRows > 0 && counts.excused === profile.attendance.recordedRows;
       return <Card key={profile.id} className="min-w-0" data-dashboard-profile={profile.id}><CardHeader><CardTitle className="break-words">{profile.firstName} {profile.lastName}</CardTitle></CardHeader><CardContent className="min-w-0 space-y-5 break-words">
         <p className="text-sm text-muted-foreground">Admission number: {profile.admissionNumber}</p>
-        <section className="space-y-2" aria-labelledby={'attendance-' + profile.id}><h2 id={'attendance-' + profile.id}>Stored attendance</h2>
+        <section className="space-y-2" aria-labelledby={'attendance-' + profile.id}><h2 id={'attendance-' + profile.id}>Attendance overview</h2>
           {profile.attendance.recordedRows === 0 ? <p>No attendance records available.</p> : <>
             {excusedOnly && <p>Only excused attendance records are available.</p>}
             <p>Recorded rows: {profile.attendance.recordedRows}</p>
@@ -39,6 +40,6 @@ export default async function GuardianDashboard() {
         </section>
       </CardContent></Card>;
     })}</div>
-    <p className="text-sm text-muted-foreground break-words">Snapshot: {new Date(snapshot.asOf).toLocaleString()}</p>
+    <RoleGuide role="guardian" /><p className="saha-snapshot-label">Snapshot: {new Date(snapshot.asOf).toLocaleString()}</p>
   </div></AppShell>;
 }

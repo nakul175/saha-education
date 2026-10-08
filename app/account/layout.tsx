@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/app-shell';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getServerPrincipal } from '@/lib/education/auth';
@@ -11,5 +12,5 @@ export default async function AccountLayout({ children }: { children: React.Reac
     const jar = await cookies();
     redirect(jar.getAll(SESSION_COOKIE).length ? '/login?reason=expired' : '/login');
   }
-  return children;
+  return <AppShell principal={principal}>{children}</AppShell>;
 }

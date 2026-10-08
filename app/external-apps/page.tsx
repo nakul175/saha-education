@@ -69,7 +69,7 @@ export default function ReadingAppsPage() {
   }
   const inputStyle = 'border rounded p-2 w-full';
   const names = new Map(students.map(s => [s.id, s.firstName + ' ' + s.lastName]));
-  return <main className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
+  return <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
     <a className="underline" href="/">← Dashboard</a><h1 className="text-2xl font-bold">Reading apps and reviewed checks</h1>
     <p role="status">{message}</p>
     {family && <section className="border rounded p-4 space-y-2" aria-labelledby="family-reading-heading"><h2 id="family-reading-heading" className="text-xl font-semibold">Reading checks are private to school staff</h2>
@@ -115,5 +115,5 @@ export default function ReadingAppsPage() {
         {classId && <p className="pt-2"><a className="underline" href="/reading-review">Review history, corrections and trends</a></p>}
       </section>
     </>}
-  </main>;
+  </div>;
 }

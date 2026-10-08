@@ -35,7 +35,7 @@ function PrintVersion({ id, versionId }: { id: string; versionId: string | null 
     })();
     return () => { active = false; };
   }, [id, versionId]);
-  return <main className="max-w-3xl mx-auto p-6 space-y-6">
+  return <div className="max-w-3xl mx-auto p-6 space-y-6">
     <div className="resource-print-controls space-y-3">
       <a href={`/resources/${encodeURIComponent(id)}`}>← Resource workspace</a>
       <h1 className="text-2xl font-bold">Print an approved resource</h1>
@@ -64,7 +64,7 @@ function PrintVersion({ id, versionId }: { id: string; versionId: string | null 
       .resource-print-controls { display: none; }
       .resource-print-sheet section { break-inside: auto; }
     }`}</style>
-  </main>;
+  </div>;
 }
 export default function ResourcePrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

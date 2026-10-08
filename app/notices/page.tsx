@@ -150,7 +150,7 @@ export default function NoticesPage() {
     setChosen(previous => previous.some(known => known.userId === person.userId) ? previous.filter(known => known.userId !== person.userId) : previous.length >= 50 ? previous : [...previous, person]);
   }
 
-  return <main className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
     <a href="/notifications" className="underline">← Notifications</a>
     <h1 className="text-2xl font-bold">Send a notice</h1>
     <p>Write a short notice for a class or for chosen people. It appears in their in-app notifications only. It is not sent by email or text message.</p>
@@ -224,5 +224,5 @@ export default function NoticesPage() {
         {list?.nextCursor && <Button type="button" variant="outline" disabled={loadingMore || saving} onClick={() => { void older(); }}>{loadingMore ? 'Loading…' : 'Show older notices'}</Button>}
       </section>
     </>}
-  </main>;
+  </div>;
 }

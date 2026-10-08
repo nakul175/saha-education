@@ -4,6 +4,7 @@ import { getServerPrincipal } from '@/lib/education/auth';
 import { getRoleDashboard } from '@/lib/education/dashboard';
 import { AppShell } from '@/components/app-shell';
 import { RoleGuide } from '@/components/role-guide';
+import { WorkspaceHeading } from '@/components/workspace-heading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function StudentDashboard() {
@@ -11,9 +12,9 @@ export default async function StudentDashboard() {
   if (!principal || principal.role !== 'student') redirect('/');
   const snapshot = await getRoleDashboard(principal);
   if (!snapshot || snapshot.role !== 'student') redirect('/');
-  return <AppShell principal={principal}><div className="space-y-6 p-4">
-    <div className="min-w-0 space-y-2 break-words"><h1>My progress</h1><p className="text-muted-foreground">Attendance records and published reports currently available to your account.</p><a href="/dashboard/student" className="inline-block underline">Refresh dashboard</a></div>
-    <RoleGuide role="student" />
+  return <AppShell principal={principal}><div className="space-y-6">
+    <WorkspaceHeading eyebrow="Your learning workspace" title="My progress" description="Your learning, feedback and next steps, together in one place." action={<a href="/dashboard/student" className="saha-text-link">Refresh dashboard</a>} />
+    <section className="saha-hero"><div><p className="saha-eyebrow">Continue learning</p><h2>Make a little progress today.</h2><p>Open a class resource, continue your answers and read your teacher’s feedback.</p></div><a href="/learning" className="saha-primary-link">Open class resources</a></section>
     {snapshot.profiles.total === 0 && <p role="status">No linked student profile is available for this account.</p>}
     {snapshot.profiles.truncated && <p role="status">Showing {snapshot.profiles.items.length} of {snapshot.profiles.total} linked profiles. Open <a href="/students" className="underline">Students</a> for the available list.</p>}
     <div className="grid gap-4 lg:grid-cols-2">{snapshot.profiles.items.map(profile => {
@@ -21,7 +22,7 @@ export default async function StudentDashboard() {
       const excusedOnly = profile.attendance.recordedRows > 0 && counts.excused === profile.attendance.recordedRows;
       return <Card key={profile.id} className="min-w-0" data-dashboard-profile={profile.id}><CardHeader><CardTitle className="break-words">{profile.firstName} {profile.lastName}</CardTitle></CardHeader><CardContent className="min-w-0 space-y-5 break-words">
         <p className="text-sm text-muted-foreground">Admission number: {profile.admissionNumber}</p>
-        <section className="space-y-2" aria-labelledby={'attendance-' + profile.id}><h2 id={'attendance-' + profile.id}>Stored attendance</h2>
+        <section className="space-y-2" aria-labelledby={'attendance-' + profile.id}><h2 id={'attendance-' + profile.id}>Attendance overview</h2>
           {profile.attendance.recordedRows === 0 ? <p>No attendance records available.</p> : <>
             {excusedOnly && <p>Only excused attendance records are available.</p>}
             <p>Recorded rows: {profile.attendance.recordedRows}</p>
@@ -39,6 +40,6 @@ export default async function StudentDashboard() {
         </section>
       </CardContent></Card>;
     })}</div>
-    <p className="text-sm text-muted-foreground break-words">Snapshot: {new Date(snapshot.asOf).toLocaleString()}</p>
+    <RoleGuide role="student" /><p className="saha-snapshot-label">Snapshot: {new Date(snapshot.asOf).toLocaleString()}</p>
   </div></AppShell>;
 }

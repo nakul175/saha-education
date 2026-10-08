@@ -34,7 +34,7 @@ export default function AssignmentProgressPage({ params }: { params: Promise<{ i
   }, [path, id]);
   useEffect(() => { void Promise.resolve().then(() => load()); const counter = generation; return () => { counter.current++; }; }, [load]);
   const rows = roster ? roster.rows.filter(row => filter === 'all' || row.status === filter) : [];
-  return <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 break-words">
+  return <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 break-words">
     <nav className="flex flex-wrap gap-4" aria-label="Workspace navigation"><a className="underline" href="/submissions">← Submissions and feedback</a><a className="underline" href={`/assignments/${encodeURIComponent(id)}`}>Review responses and feedback</a></nav>
     <h1 className="text-2xl font-bold">Student progress</h1>
     <p role="status" aria-live="polite">{loading ? 'Loading student progress…' : message}</p>
@@ -63,5 +63,5 @@ export default function AssignmentProgressPage({ params }: { params: Promise<{ i
         </tr>)}</tbody></table></div>}
       {roster.truncated && <p className="text-sm">Only the first 200 students are shown.</p>}
     </>}
-  </main>;
+  </div>;
 }

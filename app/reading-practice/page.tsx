@@ -204,7 +204,7 @@ export default function ReadingPracticePage() {
   const held = pendingView;
   const canRecover = !!held && !!context && actorKey(context.actor) === held.actorKey && context.classId === held.classId && context.snapshot?.versionId === held.versionId && context.readings.observations.some(row => row.original.id === held.checkId);
   const blocked = loading || saving || hasPending;
-  return <main className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
     <nav aria-label="Reading practice navigation" className="flex flex-wrap gap-4 text-sm"><a href="/" className="underline">← Dashboard</a><a href="/reading-review" className="underline">Reading history and corrections</a><a href="/curriculum" className="underline">Curriculum references</a><a href="/resources" className="underline">Teaching resources</a></nav>
     <header className="space-y-2"><h1 className="text-3xl font-bold">Reading practice planner</h1><p>Review an observation, choose a practice focus and copy a reviewed curriculum reference into a provisional teaching draft.</p><p className="text-sm text-muted-foreground">Teachers decide suitability, language and permission to reuse content. This manual planner provides no validated screening, scoring, diagnosis, adaptive placement or personalized learning. Reading counts describe the recorded activity only.</p></header>
     {(error || notice) && <div ref={message} tabIndex={-1} role={error ? 'alert' : 'status'} className="rounded border p-3 break-words">{error || notice}</div>}
@@ -230,5 +230,5 @@ export default function ReadingPracticePage() {
       </section>
     </>}
     {receipt && <section aria-label="Original copied draft receipt" className="space-y-3 rounded border p-4 break-words"><h2 className="text-xl font-semibold">Original copied draft receipt</h2><p>{receipt.action.source.content.title} · original source version {receipt.action.source.version} · original copied resource version {receipt.saved.resource.latest.version} · {receipt.action.type}.</p><p>This receipt confirms the original copy and its exact source attribution. It does not represent later edits, current approval, an assignment or student progress.</p><a className="underline" href={'/resources/' + encodeURIComponent(receipt.saved.resource.id)}>Open teaching draft to adapt and review</a><p className="text-sm text-muted-foreground">Use the existing editor for review, printing and authorized class assignment. This planner provides no individual or group assignment.</p></section>}
-  </main>;
+  </div>;
 }
