@@ -8,9 +8,9 @@ There is **no OpenAPI document that is maintained as the contract**. The canonic
 
 ## Derived skeleton
 
-[openapi.derived.yaml](openapi.derived.yaml) is **derived and incomplete**. It was generated on 2026-10-08 by reading the exported handler names in every `app/api/**/route.ts`: 103 route files, 150 method and path pairs. It carries paths, path parameters and methods only. It has no request or response schemas, no status codes and no per-route authentication, and it was not tested against a running Worker. The server URL is a placeholder because no hosted URL exists.
+[openapi.derived.yaml](openapi.derived.yaml) is **derived and incomplete**. It was generated on 2026-10-08 by reading the exported handler names in every `app/api/**/route.ts`: 103 route files, 150 method and path pairs. It carries paths, path parameters and methods only. It has no request or response schemas, no status codes and no per-route authentication, and it was not tested against a running Worker. The server URL is a placeholder: the private demo host (`https://education.aplyd.org`, behind a password wall) was not used to generate or test it.
 
-Drift to know about: API-CONTRACTS.md was written for 60 route files and 96 handlers; the merged tree has 103 and 150. The contract document has not been regenerated for the routes added by the demo workstreams (#11 to #22). Reconciling them is a documentation task (TBD, owner: Nakul Jain), and `tests/integration/authorization-matrix-contract.mjs` encodes the 96-handler table.
+Drift to know about: the route inventory table and CSV of API-CONTRACTS.md cover all 103 route files and 150 handlers (`node scripts/check-specification.mjs` fails on any route without a matching row and method set), and `tests/support/authorization-matrix-spec.mjs` transcribes all 103 routes for `tests/integration/authorization-matrix-contract.mjs`. The prose sections of API-CONTRACTS.md, however, were written while the inventory stood at 60 route files and 96 handlers and do not describe the routes added by the demo workstreams (#11 to #22) beyond their inventory rows. Writing those sections is a documentation task (TBD, owner: Nakul Jain).
 
 ## Common behaviour (verified in [API-CONTRACTS.md](../specification/API-CONTRACTS.md))
 

@@ -4,7 +4,7 @@ Owner: Nakul Jain · Last reviewed: 2026-10-08 · Update trigger: any new file i
 
 ## Canonical sources
 
-- Field-level dictionary: [docs/specification/DATA-DICTIONARY.md](../specification/DATA-DICTIONARY.md) and its authoritative CSV [DATA-DICTIONARY.csv](../specification/DATA-DICTIONARY.csv). Its header counts (46 tables, 377 columns) stop at migration 0018; a section adds migration 0017 (47 tables, 392 fields). Later migrations 0019 to 0025 add the tables listed below and are **not yet reflected in the field tables**: check against `db/schema.ts` and the SQL (`node scripts/check-specification.mjs` compares the dictionary with a freshly migrated database; run it before trusting a count).
+- Field-level dictionary: [docs/specification/DATA-DICTIONARY.md](../specification/DATA-DICTIONARY.md) and its authoritative CSV [DATA-DICTIONARY.csv](../specification/DATA-DICTIONARY.csv). Its header states the current count (63 tables, 540 columns, migrations 0000–0025) and the CSV lists every column. The Markdown has field tables for 54 tables; the six tables of migration 0017 are described in prose only and the three tables of migration 0021 (`notices`, `notice_recipients`, `audit_annotations`) are **not yet described there**: check against `db/schema.ts` and the SQL (`node scripts/check-specification.mjs` compares the dictionary CSV with a freshly migrated database; run it before trusting a count).
 - Plain table overview (old, rebuild baseline, 13 tables): [docs/DATA-MODEL.md](../DATA-MODEL.md) is superseded for field detail.
 - Rules for writing migrations and applying them to a hosted database: [docs/RELEASE-CHECKLIST.md](../RELEASE-CHECKLIST.md) sections 2 and 3.
 

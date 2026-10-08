@@ -59,7 +59,7 @@ Dated batch and workstream records: `DEVELOPMENT-BATCH-1..7`, `EIGHT-HOUR-BATCH-
 
 ## Gaps this change lists but does not close
 
-- Documentation counts are stale in places: the API and data dictionary were written for 60 route files and about 47 tables; the tree has 103 route files, 150 method and path pairs and migrations through 0025.
+- Documentation bodies lag the tree in places: the API contract prose sections were written for 60 route files and 96 handlers and the data dictionary field tables cover 54 of the 63 tables; the tree has 103 route files, 150 method and path pairs and 63 tables through migration 0025. The route inventory table, both CSVs and the headers of both documents state the current counts.
 - CI does not run `scripts/security-gate.mjs` (SBOM and `pnpm audit`), secret scanning or code scanning; no CI step checks these governance documents' links (the existing documentation check does not cover `docs/governance/`).
 - No decision on license, retention, RPO/RTO, controller, identity provider, alert destination, incident contacts, branch protection settings.
 - A committed generator for `openapi.derived.yaml` and the SBOM CSV does not exist.

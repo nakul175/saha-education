@@ -17,8 +17,8 @@ The [canonical register](requirements.json) retains 12 business requirements and
 
 | Pack | Current contents |
 |---|---|
-| Data | [Dictionary](DATA-DICTIONARY.md) and [CSV](DATA-DICTIONARY.csv):41 migrated tables/338 fields through 0016; lexical SQL and generation metadata boundaries explicit |
-| APIs and integrations | [API contracts](API-CONTRACTS.md) and [CSV](API-CONTRACTS.csv):60 route files/96 exported handlers; [integration boundaries](INTEGRATION-CONTRACTS.md) |
+| Data | [Dictionary](DATA-DICTIONARY.md) and [CSV](DATA-DICTIONARY.csv): 63 migrated tables/540 fields through 0025 in the CSV (the Markdown has field tables for 54 of them); lexical SQL and generation metadata boundaries explicit |
+| APIs and integrations | [API contracts](API-CONTRACTS.md) and [CSV](API-CONTRACTS.csv): 103 route files/150 exported handlers; [integration boundaries](INTEGRATION-CONTRACTS.md) |
 | Registry/session/demo | [Reviewed registry design](REGISTRY-DESIGN.md), [original session and synthetic demo design](SESSION-DEMO-DESIGN.md) |
 | Academic and learner details | [Dashboards](DASHBOARD-DESIGN.md), [attendance](ATTENDANCE-DESIGN.md), [assessment results](ASSESSMENT-DESIGN.md), [learner recovery](LEARNER-RECOVERY-DESIGN.md), [academic clients](ACADEMIC-UI-DESIGN.md), [family views](FAMILY-UI-DESIGN.md), [manual reading practice](READING-PRACTICE-DESIGN.md), [profiles and assessment index](PROFILE-ASSESSMENT-UI-DESIGN.md), [current school/course recovery](SCHOOL-COURSE-UI-DESIGN.md) |
 | Screens | [Wireframe mapping](WIREFRAMES.md), [12-screen offline fictional prototype](wireframes/index.html); existing login/roster illustrate current demo/reviewed creation |
