@@ -8,6 +8,7 @@ Process document for changes that reach `main` or a hosted environment (NFR-09 c
 2. Keep one concern per commit. Do not edit `sources/`, historical `docs/current/*` records, `tests/regression-baseline.json`, the specification case/trace exports or the original migrations. Weakening or deleting an existing assertion is a regression, not a fix.
 3. Run, from a clean worktree:
    - `pnpm install --frozen-lockfile`
+   - `pnpm run lint:baseline` (ESLint; the error count must not rise above `.lint-baseline.json`) and `pnpm run typecheck` (`tsc --noEmit`)
    - `pnpm run build` (a fresh build, not a cached one)
    - `node scripts/test.mjs static unit integration smoke --fast --guard` (the guarded run; the guard compares counts with `tests/regression-baseline.json`)
    - `python3 scripts/check-documentation.py`

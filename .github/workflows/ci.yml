@@ -31,6 +31,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      # Node 24, not the hosts' 22: on Node 22.22 node:sqlite truncates a bound string at its first NUL byte, so
+      # tests/integration/security-hardening-contract.mjs ("stored and returned byte-for-byte") fails in the
+      # harness (run 37758219627, 8 October 2026). The application itself runs under Miniflare/D1, not node:sqlite.
       - name: Set up Node.js (node:sqlite and module hooks are required by the test harness)
         uses: actions/setup-node@v4
         with:
@@ -41,6 +44,12 @@ jobs:
 
       - name: Install dependencies from the lockfile
         run: pnpm install --frozen-lockfile
+
+      - name: Lint ratchet (error count must not rise above .lint-baseline.json)
+        run: pnpm run lint:baseline
+
+      - name: Type check
+        run: pnpm run typecheck
 
       - name: Original migrations are unmodified (applied history is preserved)
         if: github.event_name == 'pull_request'
