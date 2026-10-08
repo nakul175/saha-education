@@ -103,7 +103,7 @@ export default function CurriculumPage() {
     } finally { lock.current = false; setBusy(false); notice.current?.focus(); }
   }
   const filtering = JSON.stringify(applied) !== JSON.stringify(noFilters);
-  return <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+  return <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
     <nav className="flex flex-wrap gap-4" aria-label="Workspace navigation"><a href="/" className="underline">← Dashboard</a><a href="/resources" className="underline">Teaching resources</a></nav>
     <h1 className="text-2xl font-bold">Curriculum references</h1>
     <p>Write original or permitted reference text for your school. Teachers manage their own entries; school administrators can manage school entries. Other staff can read and copy reviewed versions.</p>
@@ -157,5 +157,5 @@ export default function CurriculumPage() {
         <Button type="submit" disabled={busy || loading}>{busy ? 'Working…' : 'Save private reference draft'}</Button>
       </form>
     </section>
-  </main>;
+  </div>;
 }

@@ -92,7 +92,7 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Could not reload.'); }
     finally { busyRef.current = false; setBusy(false); }
   }
-  return <main className="max-w-4xl mx-auto p-6 space-y-6">
+  return <div className="max-w-4xl mx-auto p-6 space-y-6">
     <a href="/resources">← Teaching resources</a><h1 className="text-2xl font-bold">Review and prepare a resource</h1>
     <p role="status" aria-live="polite">{message}</p>
     {staff && resource && content && <>
@@ -153,5 +153,5 @@ export default function ResourceDetailPage({ params }: { params: Promise<{ id: s
         </>}
       </section>
     </>}
-  </main>;
+  </div>;
 }

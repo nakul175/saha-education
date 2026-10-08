@@ -52,7 +52,7 @@ const GUIDES: Record<Role, Guide> = {
 export function RoleGuide({ role }: { role: Role }) {
   const guide = GUIDES[role];
   const demo = demoRuntimeAllowed();
-  return <section aria-labelledby="role-guide-title" data-role-guide={role} className="min-w-0 space-y-4 rounded border bg-muted/40 p-4 break-words">
+  return <details data-role-guide={role} className="saha-role-guide"><summary>Getting started in your workspace</summary><div className="min-w-0 space-y-4 break-words">
     <div className="space-y-2">
       <h2 id="role-guide-title">What you can do here</h2>
       <p>{guide.intro}</p>
@@ -64,5 +64,5 @@ export function RoleGuide({ role }: { role: Role }) {
       <ol className="list-decimal space-y-2 pl-5" aria-labelledby="demo-path-title">{guide.steps.map(step => <li key={step.href}>
         <a href={step.href} className="font-medium underline underline-offset-4">{step.label}</a>. {step.detail}</li>)}</ol>
     </div>}
-  </section>;
+  </div></details>;
 }

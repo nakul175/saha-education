@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/app-shell';
 import { redirect } from 'next/navigation';
 import { getServerPrincipal } from '@/lib/education/auth';
 
@@ -6,10 +7,10 @@ export const dynamic = 'force-dynamic';
 export default async function NoticesLayout({ children }: { children: React.ReactNode }) {
   const principal = await getServerPrincipal();
   if (!principal) redirect('/login');
-  if (principal.role !== 'admin' && principal.role !== 'teacher') return <main className="mx-auto max-w-3xl space-y-4 p-6">
+  if (principal.role !== 'admin' && principal.role !== 'teacher') return <AppShell principal={principal}><div className="mx-auto max-w-3xl space-y-4 p-6">
     <a href="/notifications" className="underline">← Notifications</a>
     <h1 className="text-2xl font-bold">Send a notice</h1>
     <p>Sending notices is available to teachers and school administrators. You can read the notices sent to you on the notifications page.</p>
-  </main>;
-  return children;
+  </div></AppShell>;
+  return <AppShell principal={principal}>{children}</AppShell>;
 }

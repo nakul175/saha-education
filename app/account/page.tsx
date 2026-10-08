@@ -47,7 +47,7 @@ export default function AccountPage() {
     }
   }
   const synthetic = account?.signInMethod === 'synthetic_demo';
-  return <main aria-labelledby="account-title" className="mx-auto max-w-2xl space-y-5 p-4 sm:p-6">
+  return <div aria-labelledby="account-title" className="mx-auto max-w-2xl space-y-5 p-4 sm:p-6">
     <a href={account ? HOME[account.role] : '/'} className="underline">← Dashboard</a>
     <h1 id="account-title" className="text-2xl font-bold">Your account</h1>
     <div role="status" aria-live="polite" aria-atomic="true">{loading ? 'Loading your account…' : ''}</div>
@@ -68,5 +68,5 @@ export default function AccountPage() {
         {synthetic && <Button asChild variant="outline"><a href="/login">Switch demo role</a></Button>}
       </div>
     </>}
-  </main>;
+  </div>;
 }

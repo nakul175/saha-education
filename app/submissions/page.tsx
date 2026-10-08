@@ -50,7 +50,7 @@ export default function SubmissionsPage() {
   const missed = items.filter(item => item.mine?.status === 'not-submitted' && !item.window.acceptingSubmissions);
   const waiting = items.filter(item => item.mine?.status === 'awaiting-feedback');
   const received = items.filter(item => item.mine?.status === 'feedback-given');
-  return <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 break-words">
+  return <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 break-words">
     <nav className="flex flex-wrap gap-4" aria-label="Workspace navigation"><a className="underline" href="/">← Dashboard</a><a className="underline" href="/learning">Assigned learning</a></nav>
     <h1 className="text-2xl font-bold">Submissions and feedback</h1>
     <p role="status" aria-live="polite">{loading ? 'Loading submission status…' : message}</p>
@@ -77,5 +77,5 @@ export default function SubmissionsPage() {
       </li>)}</ul>
     </>}
     {data?.truncated && <p className="text-sm">Only the newest {items.length} assignments are shown.</p>}
-  </main>;
+  </div>;
 }

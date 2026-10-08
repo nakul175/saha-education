@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable @next/next/no-html-link-for-pages -- vinext beta client Link transitions crash in this workspace; use full-page navigation. */
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getPrincipal } from '@/lib/education/client-api';
@@ -56,40 +55,39 @@ export default function ResourcesPage() {
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Could not save. Your text has been kept.'); }
     finally { savingRef.current = false; setSaving(false); }
   }
-  return <main className="max-w-4xl mx-auto p-6 space-y-6">
-    <a href="/">← Dashboard</a><h1 className="text-2xl font-bold">Teaching resources</h1>
-    <p>Create original lessons, worksheets, quizzes and activities. These templates contain writing prompts for you to edit; they do not generate teaching content.</p>
+  function field(key: typeof RESOURCE_FIELDS[number]['key']) {
+    const spec = RESOURCE_FIELDS.find(item => item.key === key)!;
+    const labels = { objectives: 'What will students learn?', body: 'Student material', title: 'Resource title' };
+    return <label key={key} className="saha-field"><span>{labels[key as keyof typeof labels] || spec.label}{spec.required ? ' *' : ''}</span>
+      {spec.multiline ? <textarea className={inputStyle} rows={key === 'body' ? 10 : 4} required={spec.required} maxLength={spec.maxLength} value={content[key]} onChange={event => setContent(previous => ({ ...previous, [key]: event.target.value }))} /> :
+      <input className={inputStyle} pattern={spec.pattern} required={spec.required} maxLength={spec.maxLength} value={content[key]} placeholder={key === 'language' ? 'For example, en-IN or hi-IN' : undefined} onChange={event => setContent(previous => ({ ...previous, [key]: event.target.value }))} />}
+      {key === 'language' && <span className="saha-field-hint">Use your teaching language tag, such as en-IN for English or hi-IN for Hindi.</span>}
+    </label>;
+  }
+  return <div className="space-y-6">
+    <header className="saha-page-header"><div><p className="saha-eyebrow">Teaching workspace</p><h1>Teaching resources</h1><p className="saha-page-intro">Create original lessons, worksheets, quizzes and activities. Start with a clear learning goal, then prepare the material your students will use.</p></div></header>
     <p role="status" aria-live="polite">{loading ? 'Loading resources…' : message}</p>
     {staff && <>
-      <section className="space-y-3" aria-labelledby="resource-list-title">
-        <div className="flex items-center justify-between gap-3"><h2 id="resource-list-title" className="text-xl font-semibold">Your resources</h2>
-          <Button variant="outline" onClick={() => { void loadResources().then(() => setMessage('List refreshed.')).catch(error => setMessage(error.message)); }}>Reload list</Button></div>
-        {!loading && resources.length === 0 && <p>No saved resources yet.</p>}
-        <ul className="space-y-2">{resources.map(resource => <li key={resource.id} className="border rounded p-3">
-          <a href={`/resources/${encodeURIComponent(resource.id)}`} className="font-medium underline">{resource.latest.title}</a>
-          <p>{resource.latest.type} · {resource.latest.gradeLevel} · {resource.latest.language} · Version {resource.latest.version} · {resource.latest.approvedAt ? 'Approved' : 'Draft'}</p>
-        </li>)}</ul>
+      <section className="saha-workspace-panel" aria-labelledby="resource-list-title">
+        <div className="saha-panel-heading"><h2 id="resource-list-title">Your resources</h2><Button variant="outline" onClick={() => { void loadResources().then(() => setMessage('List refreshed.')).catch(error => setMessage(error.message)); }}>Reload list</Button></div>
+        {!loading && resources.length === 0 && <p className="saha-coverage-note">No saved resources yet. Create your first draft below.</p>}
+        <ul>{resources.map(resource => <li key={resource.id} className="saha-resource-summary"><div><a href={`/resources/${encodeURIComponent(resource.id)}`}>{resource.latest.title}</a><p>{resource.latest.type} · {resource.latest.gradeLevel} · {resource.latest.language} · Version {resource.latest.version}</p></div><span className="saha-quiet-label">{resource.latest.approvedAt ? 'Approved' : 'Draft'}</span></li>)}</ul>
       </section>
-      <section className="border rounded p-4 space-y-4" aria-labelledby="create-resource-title">
-        <h2 id="create-resource-title" className="text-xl font-semibold">Create a draft</h2>
-        <label className="block space-y-1"><span>Start with a template</span>
-          <select className={inputStyle} value={content.type} disabled={saving} onChange={event => {
-            const type = event.target.value as ResourceType;
-            if (content.body !== resourceTemplate(content.type).body && !window.confirm('Replace your edited student material with the new template outline? The other fields will be kept.')) return;
-            setContent(previous => ({ ...previous, type, body: resourceTemplate(type).body }));
-          }}>{RESOURCE_TYPES.map(type => <option value={type} key={type}>{type}</option>)}</select>
-        </label>
-        <p className="text-sm text-muted-foreground">Changing the template replaces the student-material outline. Enter your local curriculum; no alignment is implied.</p>
-        <form onSubmit={create} className="space-y-4">
-          <fieldset disabled={saving} className="space-y-4">{RESOURCE_FIELDS.map(field => <label key={field.key} className="block space-y-1">
-            <span>{field.label}{field.required ? ' *' : ''}</span>
-            {field.multiline ? <textarea className={inputStyle} rows={field.key === 'body' ? 10 : 4} required={field.required} maxLength={field.maxLength} value={content[field.key]}
-              onChange={event => setContent(previous => ({ ...previous, [field.key]: event.target.value }))} /> :
-              <input className={inputStyle} pattern={field.pattern} required={field.required} maxLength={field.maxLength} value={content[field.key]} onChange={event => setContent(previous => ({ ...previous, [field.key]: event.target.value }))} />}
-          </label>)}</fieldset>
-          <Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save draft'}</Button>
+      <section className="saha-workspace-panel" aria-labelledby="create-resource-title">
+        <div className="saha-panel-heading"><h2 id="create-resource-title">Create a draft</h2><span>Manual planning · not AI generated</span></div>
+        <div className="px-6 pb-5"><label className="saha-field"><span>Start with a template</span><select className={inputStyle} value={content.type} disabled={saving} onChange={event => {
+          const type = event.target.value as ResourceType;
+          if (content.body !== resourceTemplate(content.type).body && !window.confirm('Replace your edited student material with the new template outline? The other fields will be kept.')) return;
+          setContent(previous => ({ ...previous, type, body: resourceTemplate(type).body }));
+        }}>{RESOURCE_TYPES.map(type => <option value={type} key={type}>{type}</option>)}</select></label><p className="saha-field-hint mt-2">Templates provide writing prompts for you to edit. Changing the template replaces the student-material outline. No curriculum alignment is implied.</p></div>
+        <form onSubmit={create} className="saha-resource-form">
+          <fieldset disabled={saving} className="space-y-6"><section className="space-y-4"><div><p className="saha-eyebrow">Plan</p><h3>The purpose of this resource</h3></div><div className="saha-field-grid">{(['title', 'gradeLevel', 'subject', 'language', 'curriculum', 'objectives'] as const).map(field)}</div></section>
+            <section className="space-y-4"><div><p className="saha-eyebrow">Prepare</p><h3>What students will see</h3><p className="saha-field-hint">Clear instructions and material for the student edition.</p></div>{field('body')}</section>
+            <details className="saha-role-guide"><summary>Teacher notes and answer key · staff only</summary><div className="space-y-4">{field('teacherNotes')}{field('answerKey')}</div></details>
+          </fieldset>
+          <div className="flex flex-wrap items-center justify-between gap-3"><p className="saha-field-hint">Save a private draft, then review its saved version before assigning it.</p><Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save draft'}</Button></div>
         </form>
       </section>
     </>}
-  </main>;
+  </div>;
 }

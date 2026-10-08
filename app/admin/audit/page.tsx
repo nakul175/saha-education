@@ -130,7 +130,7 @@ export default function AuditTrailPage() {
   }
 
   const filtered = applied.source !== '' || applied.actorId !== '' || applied.from !== '' || applied.to !== '' || applied.q !== '';
-  return <main className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
     <a href="/" className="underline">← Dashboard</a>
     <h1 className="text-2xl font-bold">Audit trail</h1>
     <p>A read-only record of who changed what in your school, and when. Entries cannot be edited or deleted. If something needs explaining, add a correction note beside the entry; the original stays as it was.</p>
@@ -206,5 +206,5 @@ export default function AuditTrailPage() {
         {next && <Button type="button" variant="outline" disabled={loadingMore || loading} onClick={() => { void older(); }}>{loadingMore ? 'Loading…' : 'Show older entries'}</Button>}
       </section>
     </>}
-  </main>;
+  </div>;
 }

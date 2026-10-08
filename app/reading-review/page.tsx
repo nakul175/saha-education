@@ -156,6 +156,7 @@ export default function ReadingReviewPage() {
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [classId, setClassId] = useState('');
   const [studentId, setStudentId] = useState('');
+  const linkedStudent = useRef('');
   const [students, setStudents] = useState<Student[]>([]);
   const [allReview, setAllReview] = useState<ReadingReview | null>(null);
   const [data, setData] = useState<ReadingReview | null>(null);
@@ -172,8 +173,17 @@ export default function ReadingReviewPage() {
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
-    void readJson<Class[]>('/api/classes', { signal: controller.signal }).then(result => {
-      if (active) { setClasses(result); setLoadingClasses(false); setError(''); }
+    linkedStudent.current = new URLSearchParams(window.location.search || '').get('studentId') || '';
+    void readJson<Class[]>('/api/classes', { signal: controller.signal }).then(async result => {
+      if (active) { setClasses(result); setLoadingClasses(false); setError(''); if (linkedStudent.current && result.length) {
+        const requested = linkedStudent.current;
+        const [readings, enrolments] = await Promise.all([readJson<ReadingReview>('/api/reading-review?studentId=' + encodeURIComponent(requested), { signal: controller.signal }), readJson<{ classId: string; status: string }[]>('/api/enrolments?studentId=' + encodeURIComponent(requested), { signal: controller.signal })]);
+        if (!active) return;
+        const linkedClasses = [...readings.observations.map(item => item.original.classId), ...enrolments.filter(item => item.status === 'active').map(item => item.classId)];
+        const match = result.find(item => linkedClasses.includes(item.id));
+        if (match) { setStudentId(requested); setClassId(match.id); setLoading(true); }
+        else setError('No available class was found for this student’s reading history. Choose a class to continue.');
+      } }
     }).catch(error => { if (active) { setError(failureMessage(error)); setLoadingClasses(false); } });
     return () => { active = false; controller.abort(); };
   }, [classesRefresh]);
@@ -231,7 +241,7 @@ export default function ReadingReviewPage() {
       tasks: own_series.length, repeated: own_series.filter(series => series.points.length >= 2).length };
   });
   const selected = data?.observations.find(observation => observation.original.id === selectedCheckId);
-  return <main className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
     <nav aria-label="Reading review navigation" className="flex flex-wrap gap-4 text-sm"><a className="underline" href="/">← Dashboard</a><a className="underline" href="/external-apps">Reading apps and new checks</a></nav>
     <header className="space-y-2"><h1 className="text-3xl font-bold">Reading review and history</h1>
       <p>Review manually entered reading observations and append attributable corrections. Original evidence is retained.</p>
@@ -304,5 +314,5 @@ export default function ReadingReviewPage() {
           {selected?.original.id === observation.original.id && <CorrectionEditor key={observation.original.id + ':' + observation.revision} observation={observation} onSaved={correctionSaved} onAccessLost={accessLost} onSaving={value => { savingRef.current = value; setSaving(value); }}/>}</article>)}
       </section>
     </>}
-  </main>;
+  </div>;
 }

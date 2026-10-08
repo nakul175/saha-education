@@ -10,7 +10,7 @@ import { serverWork, settleQuiet } from '../support/quiescence.mjs';
 
 const origin = 'https://education.example.invalid';
 const installation = '908df258-dff2-43d4-a540-503b2c7e7d13';
-const routes = { demo: await load('app/api/demo/route.ts'), session: await load('app/api/session/route.ts'), login: await load('app/api/auth/login/route.ts') };
+const routes = { demo: await load('app/api/demo/route.ts'), session: await load('app/api/session/route.ts'), login: await load('app/api/auth/login/route.ts'), account: await load('app/api/account/route.ts') };
 const demoService = await load('lib/education/demo.ts');
 const identity = await load('lib/education/identity.ts');
 const sessionService = await load('lib/education/session.ts');
@@ -29,10 +29,11 @@ globalThis.__sahaDemoClientReact = {
   useRef(initial) { const ui = currentUI, index = ui.index++; if (!ui.cells[index]) ui.cells[index] = { current: initial }; return ui.cells[index]; },
   useEffect(callback, deps) { const ui = currentUI, index = ui.index++, old = ui.cells[index]; if (!old || deps.some((value, offset) => value !== old.deps[offset])) { old?.cleanup?.(); ui.cells[index] = { deps }; ui.effects.push(() => { ui.cells[index].cleanup = callback(); }); } },
 };
+globalThis.__sahaWorkspaceNavigation = await load('lib/education/navigation.ts');
 globalThis.__sahaDemoClientSlots = { Button: slot('button', true), NavigationMenuLink: slot('a', true) };
 async function client(path) {
   const compiled = ts.transpileModule(readFileSync(root + path, 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.React } }).outputText;
-  const prefix = 'const React=globalThis.__sahaDemoClientReact;const {useEffect,useRef,useState}=React;const {Button,NavigationMenuLink}=globalThis.__sahaDemoClientSlots;const Card="section",CardContent="div",CardDescription="p",CardHeader="header",CardTitle="div",Avatar="span",AvatarFallback="span",NavigationMenu="nav",NavigationMenuItem="li",NavigationMenuList="ul",cn=(...values)=>values.join(" ");\n';
+  const prefix = 'const {workspaceGroups,currentWorkspace,accountDisplayScope}=globalThis.__sahaWorkspaceNavigation;const Sun="i",Users="i",CircleCheck="i",BookOpen="i",AudioLines="i",ChartNoAxesCombined="i",School="i",Bell="i",Menu="i",X="i",ChevronDown="i",ArrowUpRight="i",LogOut="i",ShieldCheck="i";const React=globalThis.__sahaDemoClientReact;const {useEffect,useRef,useState}=React;const {Button,NavigationMenuLink}=globalThis.__sahaDemoClientSlots;const Card="section",CardContent="div",CardDescription="p",CardHeader="header",CardTitle="div",Avatar="span",AvatarFallback="span",NavigationMenu="nav",NavigationMenuItem="li",NavigationMenuList="ul",cn=(...values)=>values.join(" ");\n';
   return import('data:text/javascript;base64,' + Buffer.from(prefix + compiled.replace(/^import[^;]*;\s*/gm, '')).toString('base64'));
 }
 const Login = (await client('app/login/page.tsx')).default;
@@ -65,7 +66,7 @@ async function scenario(name, enabled, action) {
     const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('Ordinary demo checks stay offline.'); }
     actualRequests++;
     const request = new Request(url, { method, headers: { origin: wrongOrigin ? 'https://other.example.invalid' : origin, ...(cookie ? { cookie } : {}), ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: payload }) });
-    const route = path === '/api/demo' ? routes.demo : path === '/api/session' ? routes.session : path === '/api/auth/login' ? routes.login : null;
+    const route = path === '/api/account' ? routes.account : path === '/api/demo' ? routes.demo : path === '/api/session' ? routes.session : path === '/api/auth/login' ? routes.login : null;
     assert.ok(route, 'Only explicit actual local routes are used');
     const response = await serverWork(() => route[method](request));
     const issued = response.headers.get('set-cookie'); if (issued) cookie = issued.split(';')[0];
@@ -160,6 +161,31 @@ try {
     check(writes().filter(item => item.method === 'DELETE').length, 1, 'Same-frame sign-out dispatches one actual DELETE'); check(sqlite.prepare('SELECT count(*) n FROM auth_sessions').get().n, 0, 'Actual sign-out revokes the opaque session');
     check(redirects, [origin + '/login'], 'Only acknowledged sign-out navigates to login'); drained();
   });
+  await scenario('Account display metadata stays bound to the parent-authorised identity', true, async ({ api, open, trace, drained }) => {
+    await (await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true }))).text();
+    const principal = await (await api('/api/session')).json();
+    const summary = await (await api('/api/account')).json();
+    const props = { principal, children: 'Scoped teacher content' };
+    const ui = await open(Shell, props);
+    okay(text(ui.tree).includes(summary.name), 'The exact current account displays its readable school account name');
+    check(text(ui.tree).includes(principal.id), false, 'Internal account IDs are not printed in the header');
+    check(trace.filter(item => item.path === '/api/session').length, 0, 'Display metadata never independently establishes page authority');
+    props.principal = null; ui.render();
+    check(text(ui.tree).includes(summary.name), false, 'Withholding the parent identity immediately hides its display metadata');
+    drained();
+  });
+  await scenario('Metadata with a different scope cannot decorate the current account', true, async ({ api, open, setIntercept, drained }) => {
+    await (await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true }))).text();
+    const principal = await (await api('/api/session')).json();
+    setIntercept(async ({ path, response }) => { if (path !== '/api/account') return response;
+      const body = await response.json();
+      return Response.json({ ...body, name: 'Synthetic unrelated account' }, { headers: { 'x-saha-account-scope': 'different-scope' } });
+    });
+    const ui = await open(Shell, { principal, children: 'Scoped teacher content' });
+    check(text(ui.tree).includes('Synthetic unrelated account'), false, 'Different-scope display metadata is ignored');
+    okay(text(ui.tree).includes('Teacher workspace'), 'The supplied current role remains available without unbound metadata');
+    drained();
+  });
   await scenario('Failed shell sign-out stays visible and supports explicit retry', true, async ({ api, open, setWrongOrigin, writes, sqlite, drained }) => {
     const entry = await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true })); await entry.text();
     const ui = await open(Shell, { principal: { id: 'saha-demo-teacher', role: 'teacher', schoolId: 'saha-demo-school' }, children: 'Synthetic main content' });
@@ -208,7 +234,7 @@ try {
     const entry = await api('/api/demo', 'POST', JSON.stringify({ role: 'teacher', syntheticAcknowledged: true })); await entry.text();
     const currentSession = await api('/api/session'); check(currentSession.status, 200, 'Actual current-session route supplies the parent identity'); const principal = await currentSession.json();
     const props = { principal, children: 'Synthetic current scoped page' }, ui = await open(Shell, props);
-    okay(text(ui.tree).includes(principal.id), 'Current verified parent identity appears before denial');
+    okay(text(ui.tree).includes('Teacher workspace'), 'Current verified parent role appears before denial without printing an internal ID');
     const signOut = await api('/api/session', 'DELETE'); check(signOut.status, 200, 'Actual original session is revoked by the ordinary sign-out handler'); await signOut.text();
     const denied = await api('/api/session'); check(denied.status, 401, 'A subsequent actual parent read observes the revoked session'); await denied.text();
     props.principal = null; props.children = 'Private page data is unavailable'; ui.render();
@@ -228,12 +254,12 @@ try {
     setIntercept(async ({ path, options, response }) => { if (path === '/api/demo' && (options.method ?? 'GET') === 'GET') { held = response; await gate; } return response; });
     const props = { principal: null, children: 'Synthetic withheld page' }, ui = await open(Shell, props);
     okay(held, 'Actual demo-discovery response is queued while parent identity is withheld');
-    props.principal = teacher; ui.render(); okay(text(ui.tree).includes(teacher.id), 'Only a supplied current teacher identity enables its header');
+    props.principal = teacher; ui.render(); okay(text(ui.tree).includes('Teacher workspace'), 'Only a supplied current teacher identity enables its header');
     const guardianEntry = await api('/api/demo', 'POST', JSON.stringify({ role: 'guardian', syntheticAcknowledged: true })); await guardianEntry.text();
     const guardianSession = await api('/api/session'); check(guardianSession.status, 200, 'Actual new guardian session supplies the next parent identity'); const guardian = await guardianSession.json();
     props.principal = guardian; ui.render();
     check(text(ui.tree).includes(teacher.id), false, 'Changing current parent removes the previous teacher in the same render');
-    okay(text(ui.tree).includes(guardian.id), 'Changing current parent shows only its verified guardian header');
+    okay(text(ui.tree).includes('Guardian workspace'), 'Changing current parent shows only its verified guardian header');
     check(ui.all(item => item.type === 'a' && item.props.href === '/reading-practice').length, 0, 'Current guardian never inherits the earlier staff planner link');
     props.principal = null; ui.render();
     check(text(ui.tree).includes(guardian.id), false, 'Withholding the changed parent immediately hides that identity');
@@ -243,7 +269,7 @@ try {
     check(ui.all(item => item.type === 'nav').length, 0, 'Delayed discovery never enables an old role menu');
     check(trace.filter(item => item.path === '/api/session' && item.method === 'GET').length, 0, 'No independent identity request is queued across parent switches');
     props.principal = guardian; ui.render();
-    okay(text(ui.tree).includes(guardian.id), 'A later explicit verified parent restores only its own current header');
+    okay(text(ui.tree).includes('Guardian workspace'), 'A later explicit verified parent restores only its own current header');
     check(ui.all(item => item.type === 'a' && item.props.href === '/reading-practice').length, 0, 'Restored family header still excludes the staff planner');
     drained();
   });
@@ -260,5 +286,5 @@ try {
   });
   check(externalRequests, 0, 'Every ordinary UI contract remains synthetic and offline');
   console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios, actualRequests, externalRequests,
-    scope: 'Actual synthetic routes/opaque sessions/production D1 SQLite with unchanged client callbacks and substituted React hooks/elements; no mounted-browser/keyboard/layout/accessibility/provider/UAT evidence' }));
+    scope: 'Actual synthetic routes/opaque sessions/production D1 SQLite with production client callbacks and substituted React hooks/elements; no mounted-browser/keyboard/layout/accessibility/provider/UAT evidence' }));
 } finally { configure(false); globalThis.fetch = originalFetch; globalThis.window = originalWindow; delete globalThis.__sahaDemoClientReact; delete globalThis.__sahaDemoClientSlots; }

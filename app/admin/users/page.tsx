@@ -276,7 +276,7 @@ export default function AdminUsersPage() {
         : change.action === 'link_identity' ? 'School sign-in linked' : 'School sign-in link removed' })),
   ].sort((a, b) => b.at.localeCompare(a.at) || b.id.localeCompare(a.id)).slice(0, 200);
 
-  return <main className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
     <a href="/" className="underline">← Dashboard</a>
     <h1 className="text-2xl font-bold">Reviewed account administration</h1>
     <p>Provision accounts after checking the person, school role and exact identity supplied by your trusted sign-in provider. The provider is configured separately.</p>
@@ -411,5 +411,5 @@ export default function AdminUsersPage() {
         </li>)}</ol>
       </section>
     </>}
-  </main>;
+  </div>;
 }

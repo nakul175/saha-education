@@ -149,7 +149,7 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
       else setError(`${reason instanceof Error ? reason.message : 'Could not confirm draft creation.'} Retrying the same source version and type is safe.`);
     } finally { lock.current = false; setBusy(false); notice.current?.focus(); }
   }
-  return <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+  return <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
     <nav className="flex flex-wrap gap-4" aria-label="Workspace navigation"><a className="underline" href="/curriculum">← Curriculum references</a><a className="underline" href="/resources">Teaching resources</a></nav>
     <h1 className="text-2xl font-bold">Review a curriculum reference</h1>
     {retired && reference && <p className="border rounded p-4" role="note">This reference is retired ({formatWhen(reference.status.changedAt)}). Reason: {reference.status.reason} It is hidden from other staff and cannot be copied or revised until it is reinstated under Availability below. Existing copies and assignments are unchanged.</p>}
@@ -208,5 +208,5 @@ export default function CurriculumDetailPage({ params }: { params: Promise<{ id:
       </section>
       <CurriculumLifecycle reference={reference} onStatusChanged={status => { setReference(previous => previous && ({ ...previous, status })); setMessage(''); }} />
     </>}
-  </main>;
+  </div>;
 }

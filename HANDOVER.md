@@ -1,5 +1,9 @@
 # Saha Education handover
 
+## Current update — 8 October 2026
+
+The sponsor approved the Calm workspace redesign and authorized its application-wide merge/deployment. Read [the redesign delivery record](docs/current/CALM-WORKSPACE-REDESIGN.md) first for the new navigation, shared layouts, scoped friendly names, dashboards, resource editor, attendance controls, current test evidence and the private-host verification boundary. Source is on `feat/calm-workspace-redesign` from main `75e9f97`. Historical records below retain their original dates and limitations.
+
 ## Current delivery
 
 The sponsor requested reconciliation and Claude handover during the authorized final-hour merge window. The [final verified school/course batch](docs/current/EIGHT-HOUR-BATCH-4.md) is merged through PR6 as `bdeea544c8fc8d208f4391bac24e506082ea81f7`; [Claude's handover](CLAUDE-HANDOVER.md) is the next-agent entry point and records exact publication and the paused schedule. Fresh build and final52 suites/20,952 assertions plus40 new school/course and26 retained structure mounted procedures pass. Canonical v2.12 has371 designed cases/51 scenarios; all unrun and approvalsfalse. The unfinished assessment-detail work is preserved separately on `handoff/assessment-detail-2026-10-06`, commit `e1283e78d7d19f6637c0821304e5a4a5cbd438d6`, with partial1476-check evidence and no final release credit. The [hosted SQL failure](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) remains unresolved with no returned URL. Existing records below retain their historical source/version boundaries; read the current final publication in Claude's handover first.
@@ -9,6 +13,8 @@ The sponsor requested reconciliation and Claude handover during the authorized f
 Start with the current [BRD](docs/specification/BRD.md), then [FSD](docs/specification/FSD.md), [HLD](docs/specification/HLD.md) and [LLD](docs/specification/LLD.md). The [specification index](docs/specification/README.md) links the parallel test pack, wireframes, data dictionary, API/integration contracts, risks and operations documents. Read [specification delivery](docs/current/SPECIFICATION-DELIVERY.md), [authentication/access delivery](docs/current/AUTH-ACCESS.md) and [validation](VALIDATION.md) for implementation evidence. The original [education requirements baseline](docs/education/README.md) remains historical; older architecture/data/API documents may contain unsupported statements.
 
 ## Implementation boundary
+
+The approved Calm workspace presentation now covers the shared shell and global styles, including formerly detached teaching, reading, account/admin and inbox journeys. Existing server authority and reviewed-save contracts remain. See the [current implementation and verification boundary](docs/current/CALM-WORKSPACE-REDESIGN.md).
 
 Verified OIDC issuer/subject mappings, browser-bound one-use sign-in transactions, opaque digest-stored D1 sessions, live role/school/disabled checks, matching-origin mutation checks, authenticated APIs/page layouts and scoped domain services are implemented. Role cookies/public identity headers confer no authority. Families see linked records and published reports; unpublished assessment results are staff-only. School bootstrap remains explicit operator provisioning.
 
@@ -51,7 +57,8 @@ Use the manifest's Node/pnpm toolchain; current check environment and actual res
 | BR-01–12; FR-01–26; NFR-01–09 | Draft, unapproved | Current v2.12 has371 designed cases/51 scenarios, all unrun and unapproved; exact execution records remain separate |
 | FR-09 | Partial, unapproved | Reviewed exact attendance snapshots/saves/history and coherent family viewer implemented; school calendars, correction governance, legacy API bypass, retention and UAT remain open |
 | FR-10 | Partial, unapproved | Reviewed result snapshots/saves/history and exact conflicts/retries implemented; legacy replacement API, grade/date/correction/retention policy and family publication remain open |
-| Next delivery | Verified combined application merged to main; automation paused for Claude continuation | See [Claude handover](CLAUDE-HANDOVER.md) for actual merge revision, isolated assessment WIP and required failed/applied migration boundary. Hosting, actual identity/ORF settings and acceptance remain open |
+| NFR-05/NFR-06 | Partial, unapproved | Approved Calm workspace design implemented; sampled synthetic browser/responsive checks and source contracts pass. Broader accessibility/educator UAT remains open; [dated evidence](docs/current/CALM-WORKSPACE-REDESIGN.md) |
+| Next delivery | Calm workspace source prepared for authorized merge; private hosted verification pending access | Verify the exact merged revision and server deployment status. Existing records and provider/ORF boundaries remain; [current handover](docs/current/CALM-WORKSPACE-REDESIGN.md) |
 
 ## Remaining product gaps
 

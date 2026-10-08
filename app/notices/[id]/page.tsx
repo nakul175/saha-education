@@ -67,7 +67,7 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
   }
 
   const readCount = detail ? detail.readCount : 0;
-  return <main className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
+  return <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
     <a href="/notices" className="underline">← Sent notices</a>
     <div ref={status} tabIndex={-1} role={error ? 'alert' : 'status'} aria-live="polite" aria-atomic="true" className={error || message ? 'rounded border p-3 break-words' : undefined}>{loading ? 'Loading this notice…' : error || message}</div>
     {detail && <>
@@ -118,5 +118,5 @@ export default function NoticeDetailPage({ params }: { params: Promise<{ id: str
       </section>}
     </>}
     {!loading && !detail && <p><a className="underline" href="/notices">Go to your sent notices</a></p>}
-  </main>;
+  </div>;
 }

@@ -64,7 +64,7 @@ export default function LearningPage() {
     void Promise.resolve().then(() => { if (active) void reload(); });
     return () => { active = false; counter.value++; reads.active?.abort(); };
   }, [reload]);
-  return <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 break-words">
+  return <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 break-words">
     <nav className="flex flex-wrap gap-4" aria-label="Workspace navigation"><a className="underline" href="/">← Dashboard</a><a className="underline" href="/submissions">Submission status and feedback</a></nav><h1 className="text-2xl font-bold">Assigned learning</h1>
     <p role="status" aria-live="polite">{loading ? 'Loading assigned learning…' : message}</p>
     <Button variant="outline" disabled={loading} onClick={() => { void reload(); }}>Reload assignments</Button>
@@ -83,5 +83,5 @@ export default function LearningPage() {
         </article>
       </details>)}</div>
     </>}
-  </main>;
+  </div>;
 }

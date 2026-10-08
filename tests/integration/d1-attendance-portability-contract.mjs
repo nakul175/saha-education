@@ -20,10 +20,10 @@ const check = (actual, expected, label) => {
 
 // The same native C prepare method as the dashboard portability contract.
 // Python receives placeholder SQL/schema only, never session or bind values.
-const nativeCompiler = `import _sqlite3,ctypes,json,pathlib,sys
+const nativeCompiler = `import _sqlite3,ctypes,ctypes.util,json,pathlib,sys
 database=None
 try:
- data=json.load(sys.stdin);lib=ctypes.CDLL(_sqlite3.__file__)
+ data=json.load(sys.stdin);lib=ctypes.CDLL(getattr(_sqlite3,'__file__',None) or ctypes.util.find_library('sqlite3'))
  lib.sqlite3_open.argtypes=[ctypes.c_char_p,ctypes.POINTER(ctypes.c_void_p)];lib.sqlite3_open.restype=ctypes.c_int
  lib.sqlite3_exec.argtypes=[ctypes.c_void_p,ctypes.c_char_p,ctypes.c_void_p,ctypes.c_void_p,ctypes.POINTER(ctypes.c_char_p)];lib.sqlite3_exec.restype=ctypes.c_int
  lib.sqlite3_limit.argtypes=[ctypes.c_void_p,ctypes.c_int,ctypes.c_int];lib.sqlite3_limit.restype=ctypes.c_int

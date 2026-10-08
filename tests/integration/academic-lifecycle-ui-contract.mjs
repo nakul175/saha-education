@@ -79,8 +79,9 @@ try {
   const hook = read('components/academic-submission.tsx');
   check(/newRequestId\(\)/.test(hook) && /run\(pending\)/.test(hook), true, 'The hook creates the id once and retries the same pending request');
   check(/Check whether it was saved/.test(hook) && /Try the same request again/.test(hook) && /Discard this request/.test(hook), true, 'Uncertain outcomes offer check, retry and discard');
-  const shell = read('components/app-shell.tsx');
-  check(/id: 'academic'/.test(shell) && /id: 'enrolment-history'/.test(shell), true, 'Navigation links to the hub and enrolment history');
+  const navigation = await load('lib/education/navigation.ts');
+  const links = navigation.workspaceGroups('admin').flatMap(group => group.links);
+  check(links.some(link => link.href === '/academic') && links.some(link => link.href === '/enrolments/history'), true, 'Navigation links to the hub and enrolment history');
   check(readdirSync(join(root, 'app/academic')).sort(), ['layout.tsx', 'page.tsx'], 'The hub folder holds only its page and layout');
   check(externalRequests, 0, 'No external request was attempted');
 } finally { globalThis.fetch = originalFetch; }
