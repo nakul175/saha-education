@@ -1,0 +1,10 @@
+# Code owners. Written 2026-10-08; owner: Nakul Jain.
+# One owner for everything until a team exists. Sensitive areas are listed so they stay explicit.
+*                         @nakul175
+/drizzle/                 @nakul175
+/lib/education/           @nakul175
+/worker/                  @nakul175
+/deploy/                  @nakul175
+/.github/                 @nakul175
+/docs/governance/         @nakul175
+/SECURITY.md              @nakul175

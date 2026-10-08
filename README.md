@@ -1,5 +1,24 @@
 # Saha Education
 
+## At a glance
+
+**Purpose.** Saha Education is a school administration and learning application (student and guardian records, courses and classes, attendance, assessments and report cards, notices, teacher resources, manual reading review) built with Next.js 16, a Cloudflare-style Worker and D1 (SQLite).
+
+**Status (8 October 2026).** A working demo on synthetic data. It is **not accepted for production or real learner data**: no real sign-in provider, reading-app destination, paid AI or message delivery is configured, all 371 designed test cases are unrun, and no hosted address is claimed. Owner: Nakul Jain (nakul.jain@aplyd.com). Licence: none granted ([LICENSE](LICENSE)).
+
+**Run it in under 10 minutes.** Needs Node 22.13 or newer and pnpm 11.25.0.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm demo        # builds on first run, then serves http://127.0.0.1:8787/login (tick the fictional-records box, pick a role)
+```
+
+Options and a five-minute tour: [docs/DEMO.md](docs/DEMO.md). Checks before a pull request: [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**Where to read next.** [HANDOVER.md](HANDOVER.md) (current state), [docs/governance/README.md](docs/governance/README.md) (map of all governance documents), [docs/specification/README.md](docs/specification/README.md) (requirements, design, tests), [deploy/README.md](deploy/README.md) (droplet hosting), [SECURITY.md](SECURITY.md), [CHANGELOG.md](CHANGELOG.md).
+
+The text below is the earlier, dated project history and is kept for reference.
+
 Current continuation: [Claude handover](CLAUDE-HANDOVER.md), [final school/course batch](docs/current/EIGHT-HOUR-BATCH-4.md) and [exact execution evidence](docs/current/EIGHT-HOUR-BATCH-4-EXECUTION.json). The combined verified source passes20,952 checks/52 suites and40+26 mounted procedures. v2.12 contains371 unrun designed cases/51 scenarios. The unfinished assessment work is safely preserved on a separate remote branch; the private hosting SQL failure remains unresolved with no demo URL. PR6 is merged to main as `bdeea544`; actual publication and the paused development schedule are recorded in the handover. Earlier candidate descriptions below remain historical.
 
 Start with the current [BRD → FSD → HLD → LLD pack](docs/specification/README.md), [implementation delivery](docs/current/SPECIFICATION-DELIVERY.md), [current session/demo batch](docs/current/EIGHT-HOUR-BATCH-1.md), [eight-hour development log](docs/current/EIGHT-HOUR-DEVELOPMENT.md) and [HANDOVER.md](HANDOVER.md). The [education documentation set](docs/education/README.md) preserves the original rebuild baseline.
