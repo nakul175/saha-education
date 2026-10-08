@@ -7,10 +7,19 @@ import { root } from './security-db.mjs';
 // Cloudflare D1 limits that matter for these queries: 100 bound variables and expression
 // depth 100. A statement that exceeds either limit fails here instead of only on the host.
 export function recordStatements(sqlite) {
-  const statements = new Map(); const original = sqlite.prepare.bind(sqlite);
-  sqlite.prepare = query => {
-    const statement = original(query); let variables = 0;
-    for (const method of ['run', 'get', 'all']) { const real = statement[method].bind(statement); statement[method] = (...parameters) => { variables = Math.max(variables, parameters.length); statements.set(query, Math.max(statements.get(query) ?? 0, variables)); return real(...parameters); }; }
+  const statements = new Map();
+  const original = sqlite.prepare.bind(sqlite);
+  sqlite.prepare = (query) => {
+    const statement = original(query);
+    let variables = 0;
+    for (const method of ['run', 'get', 'all']) {
+      const real = statement[method].bind(statement);
+      statement[method] = (...parameters) => {
+        variables = Math.max(variables, parameters.length);
+        statements.set(query, Math.max(statements.get(query) ?? 0, variables));
+        return real(...parameters);
+      };
+    }
     return statement;
   };
   return statements;
@@ -32,10 +41,23 @@ for statement in data['statements']:
 print(json.dumps({'checked': len(data['statements']), 'failures': failures}))
 `;
 export function compileWithD1Limits(statements) {
-  const migrations = readdirSync(join(root, 'drizzle')).filter(name => /^\d.*\.sql$/.test(name)).sort();
-  const schema = migrations.map(name => readFileSync(join(root, 'drizzle', name), 'utf8').replaceAll('--> statement-breakpoint', '')).join('\n');
-  const input = JSON.stringify({ schema, statements: [...statements].map(([sql, variables]) => ({ sql, variables })) });
-  const run = spawnSync('python3', ['-I', '-c', compiler], { input, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  const migrations = readdirSync(join(root, 'drizzle'))
+    .filter((name) => /^\d.*\.sql$/.test(name))
+    .sort();
+  const schema = migrations
+    .map((name) =>
+      readFileSync(join(root, 'drizzle', name), 'utf8').replaceAll('--> statement-breakpoint', ''),
+    )
+    .join('\n');
+  const input = JSON.stringify({
+    schema,
+    statements: [...statements].map(([sql, variables]) => ({ sql, variables })),
+  });
+  const run = spawnSync('python3', ['-I', '-c', compiler], {
+    input,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  });
   if (run.status !== 0) throw new Error('D1 limit compile failed: ' + run.stderr.slice(0, 400));
   return JSON.parse(run.stdout);
 }

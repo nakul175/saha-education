@@ -25,7 +25,7 @@ node scripts/audit-requirements.mjs --check
 node scripts/check-specification.mjs
 ```
 
-Fast mode reuses the build; rebuild after application changes. Mounted tests in tests/worker-*.mjs need explicit isolated local Worker/synthetic fixtures described by their environment checks. Never reuse opaque sessions or fixture databases as production configuration. Commit and push each verified meaningful batch; do not force-push.
+Fast mode reuses the build; rebuild after application changes. Mounted tests in tests/worker-\*.mjs need explicit isolated local Worker/synthetic fixtures described by their environment checks. Never reuse opaque sessions or fixture databases as production configuration. Commit and push each verified meaningful batch; do not force-push.
 
 ## Preserved unfinished assessment work
 
@@ -43,7 +43,7 @@ Run these only on the new continuation branch after inspecting the exact diff. R
 ## Concrete blockers and next priorities
 
 1. **Private hosting:** saved version 1 of source 8088 failed with `incomplete input: SQLITE_ERROR`. Project `appgprj_6ac3f931d31881918ffa33404d3b43a6`; deployment `appgdep_6ac412c0fdfc81918dcd9440de06e6c7`; no returned URL. Status remained failed at 02:53 UTC 6 October. [Failure evidence](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) preserves source/archive/migration diagnostics. Obtain the failed migration filename and last applied boundary from hosting settings/support. Do not rewrite applied SQL, infer missing triggers, remove constraints or retry the unchanged failed archive blindly. After the boundary/runner issue is resolved, publish the exact verified main source using retained .openai/hosting.json, private synthetic settings and the Sites workflow; verify the returned URL. Git merge does not deploy the app.
-2. **Finish preserved assessment UI** with the checks above; publish a focused PR to main. *(Completed 6 October 2026 on a continuation branch; see the update above. Merge status is recorded by the pull request.)*
+2. **Finish preserved assessment UI** with the checks above; publish a focused PR to main. _(Completed 6 October 2026 on a continuation branch; see the update above. Merge status is recorded by the pull request.)_
 3. **Real identity and external ORF:** sponsor chose an existing sign-in provider but has not named its issuer/tenant/configuration; real login remains fail-closed. ORF destination/SSO/result-sync configuration remains unprovided. Confirm the actual provider/destination through the credential workflow before connecting. AmplifiU-inspired manual teacher workflows exist; paid AI drafting and vendor curriculum imports remain unimplemented.
 4. **Product acceptance:** resolve curriculum/pilot rights, grading/date/publication/correction/retention policy, legacy API bypass boundaries, representative accessibility/performance/recovery and educational UAT. Preserve synthetic-only and no real-recipient constraints.
 

@@ -4,87 +4,612 @@ import { useEffect, useRef, useState } from 'react';
 import type { Class, Student } from '@/lib/education/types';
 import { formatReadingDate } from '@/lib/education/reading-trends';
 import { getPrincipal } from '@/lib/education/client-api';
-import type { ReadingImport, ReadingImportDraft, ReadingImportEnvelope } from '@/lib/education/reading-imports';
+import type {
+  ReadingImport,
+  ReadingImportDraft,
+  ReadingImportEnvelope,
+} from '@/lib/education/reading-imports';
 
-const inputStyle='w-full min-w-0 rounded border bg-background p-2';
-const statusWords:Record<string,string>={staged:'waiting for review'};
-const statusWord=(status:string)=>statusWords[status]??status;
-const buttonStyle='rounded border px-3 py-2 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
-class ImportError extends Error { constructor(readonly status:number) {super(status===409?'The import conflicts with a saved decision or an already consumed source result. Refresh the draft; duplicate drafts can be rejected.':status===403?'Your account no longer has import permission.':status===404?'The draft, class or student mapping is unavailable to your account.':status===400?'The server rejected the envelope or decision. Check the documented format and values.':'The request could not be confirmed. Retry the same values to recover the outcome.');} }
-async function read<T>(path:string,init?:RequestInit):Promise<T> {
-  const response=await fetch(path,{...init,cache:'no-store'});
-  if(response.status===401) window.location.assign(new URL('/login',window.location.origin).href);
-  if(!response.ok) throw new ImportError(response.status); return response.json() as Promise<T>;
+const inputStyle = 'w-full min-w-0 rounded border bg-background p-2';
+const statusWords: Record<string, string> = { staged: 'waiting for review' };
+const statusWord = (status: string) => statusWords[status] ?? status;
+const buttonStyle =
+  'rounded border px-3 py-2 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2';
+class ImportError extends Error {
+  constructor(readonly status: number) {
+    super(
+      status === 409
+        ? 'The import conflicts with a saved decision or an already consumed source result. Refresh the draft; duplicate drafts can be rejected.'
+        : status === 403
+          ? 'Your account no longer has import permission.'
+          : status === 404
+            ? 'The draft, class or student mapping is unavailable to your account.'
+            : status === 400
+              ? 'The server rejected the envelope or decision. Check the documented format and values.'
+              : 'The request could not be confirmed. Retry the same values to recover the outcome.',
+    );
+  }
 }
-function template(classId:string,studentId:string) {
-  return JSON.stringify({format:'saha.reading-results.v1',classId,sourceLabel:'Synthetic declared namespace',sourceReference:'Synthetic local batch 1',rows:[{externalReference:'synthetic-result-1',studentId,language:'en-IN',passageReference:'Synthetic passage A',readingDate:new Date().toISOString().slice(0,10),durationSeconds:60,wordsAttempted:100,wordsCorrect:90}]},null,2);
+async function read<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(path, { ...init, cache: 'no-store' });
+  if (response.status === 401) window.location.assign(new URL('/login', window.location.origin).href);
+  if (!response.ok) throw new ImportError(response.status);
+  return response.json() as Promise<T>;
 }
-function fieldErrors(text:string):string[] {
-  if(new TextEncoder().encode(text).length>120000) return ['Keep this local JSON below 120,000 bytes so its request envelope fits the server limit.'];
-  let value:unknown; try {value=JSON.parse(text);} catch {return ['Enter valid JSON. Check commas, quotation marks and brackets.'];}
-  if(!value || typeof value!=='object' || Array.isArray(value)) return ['The envelope must be a JSON object.'];
-  const v=value as Record<string,unknown>, errors:string[]=[];
-  const exactPlain=(s:unknown,max:number)=>typeof s==='string'&&s.length>0&&s.length<=max&&s===s.trim()&&!/[\u0000-\u001f\u007f<>]/u.test(s);
-  if(v.format!=='saha.reading-results.v1') errors.push('format must be saha.reading-results.v1.');
-  if(!exactPlain(v.classId,120)) errors.push('classId must be an exact Saha class ID.');
-  if(!exactPlain(v.sourceLabel,120)||!exactPlain(v.sourceReference,200)) errors.push('Provide exact plain sourceLabel (1–120 characters) and sourceReference (1–200).');
-  if(Object.keys(v).some(k=>!['format','classId','sourceLabel','sourceReference','rows'].includes(k))) errors.push('The envelope contains unsupported fields; URLs, names and authority fields are not imported.');
-  if(!Array.isArray(v.rows)||v.rows.length<1||v.rows.length>25) return [...errors,'Provide between 1 and 25 rows.'];
-  const seen=new Set();
-  v.rows.forEach((unknownRow,index)=>{
-    if(!unknownRow||typeof unknownRow!=='object'||Array.isArray(unknownRow)){errors.push(`Row ${index+1} must be an object.`);return;}
-    const r=unknownRow as Record<string,unknown>, prefix=`Row ${index+1}: `;
-    if(!exactPlain(r.externalReference,200)||seen.has(r.externalReference)) errors.push(prefix+'provide a distinct stable externalReference (1–200 characters).'); seen.add(r.externalReference);
-    if(!exactPlain(r.studentId,120)) errors.push(prefix+'provide an exact Saha studentId; names are not mapped automatically.');
-    if(typeof r.language!=='string'||!(/^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/.test(r.language))||r.language.length>35) errors.push(prefix+'use a language code such as en-IN.');
-    if(!exactPlain(r.passageReference,200)) errors.push(prefix+'provide a plain passageReference (1–200 characters).');
-    const date=typeof r.readingDate==='string'?new Date(r.readingDate+'T00:00:00.000Z'):new Date(NaN);
-    if(typeof r.readingDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(r.readingDate)||!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==r.readingDate||r.readingDate>new Date().toISOString().slice(0,10)) errors.push(prefix+'provide a valid reading date no later than today (UTC).');
-    if(typeof r.durationSeconds!=='number'||!Number.isFinite(r.durationSeconds)||r.durationSeconds<1||r.durationSeconds>3600) errors.push(prefix+'durationSeconds must be a number from 1 to 3600.');
-    if(typeof r.wordsAttempted!=='number'||!Number.isInteger(r.wordsAttempted)||r.wordsAttempted<1||r.wordsAttempted>500||typeof r.wordsCorrect!=='number'||!Number.isInteger(r.wordsCorrect)||r.wordsCorrect<0||r.wordsCorrect>r.wordsAttempted) errors.push(prefix+'counts must be whole numbers, 1–500 attempted and 0–attempted correct.');
-    if(Object.keys(r).some(k=>!['externalReference','studentId','language','passageReference','readingDate','durationSeconds','wordsAttempted','wordsCorrect'].includes(k))) errors.push(prefix+'unsupported fields are not accepted.');
+function template(classId: string, studentId: string) {
+  return JSON.stringify(
+    {
+      format: 'saha.reading-results.v1',
+      classId,
+      sourceLabel: 'Synthetic declared namespace',
+      sourceReference: 'Synthetic local batch 1',
+      rows: [
+        {
+          externalReference: 'synthetic-result-1',
+          studentId,
+          language: 'en-IN',
+          passageReference: 'Synthetic passage A',
+          readingDate: new Date().toISOString().slice(0, 10),
+          durationSeconds: 60,
+          wordsAttempted: 100,
+          wordsCorrect: 90,
+        },
+      ],
+    },
+    null,
+    2,
+  );
+}
+function fieldErrors(text: string): string[] {
+  if (new TextEncoder().encode(text).length > 120000)
+    return ['Keep this local JSON below 120,000 bytes so its request envelope fits the server limit.'];
+  let value: unknown;
+  try {
+    value = JSON.parse(text);
+  } catch {
+    return ['Enter valid JSON. Check commas, quotation marks and brackets.'];
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    return ['The envelope must be a JSON object.'];
+  const v = value as Record<string, unknown>,
+    errors: string[] = [];
+  const exactPlain = (s: unknown, max: number) =>
+    typeof s === 'string' &&
+    s.length > 0 &&
+    s.length <= max &&
+    s === s.trim() &&
+    !/[\u0000-\u001f\u007f<>]/u.test(s);
+  if (v.format !== 'saha.reading-results.v1') errors.push('format must be saha.reading-results.v1.');
+  if (!exactPlain(v.classId, 120)) errors.push('classId must be an exact Saha class ID.');
+  if (!exactPlain(v.sourceLabel, 120) || !exactPlain(v.sourceReference, 200))
+    errors.push('Provide exact plain sourceLabel (1–120 characters) and sourceReference (1–200).');
+  if (
+    Object.keys(v).some((k) => !['format', 'classId', 'sourceLabel', 'sourceReference', 'rows'].includes(k))
+  )
+    errors.push(
+      'The envelope contains unsupported fields; URLs, names and authority fields are not imported.',
+    );
+  if (!Array.isArray(v.rows) || v.rows.length < 1 || v.rows.length > 25)
+    return [...errors, 'Provide between 1 and 25 rows.'];
+  const seen = new Set();
+  v.rows.forEach((unknownRow, index) => {
+    if (!unknownRow || typeof unknownRow !== 'object' || Array.isArray(unknownRow)) {
+      errors.push(`Row ${index + 1} must be an object.`);
+      return;
+    }
+    const r = unknownRow as Record<string, unknown>,
+      prefix = `Row ${index + 1}: `;
+    if (!exactPlain(r.externalReference, 200) || seen.has(r.externalReference))
+      errors.push(prefix + 'provide a distinct stable externalReference (1–200 characters).');
+    seen.add(r.externalReference);
+    if (!exactPlain(r.studentId, 120))
+      errors.push(prefix + 'provide an exact Saha studentId; names are not mapped automatically.');
+    if (
+      typeof r.language !== 'string' ||
+      !/^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/.test(r.language) ||
+      r.language.length > 35
+    )
+      errors.push(prefix + 'use a language code such as en-IN.');
+    if (!exactPlain(r.passageReference, 200))
+      errors.push(prefix + 'provide a plain passageReference (1–200 characters).');
+    const date =
+      typeof r.readingDate === 'string' ? new Date(r.readingDate + 'T00:00:00.000Z') : new Date(NaN);
+    if (
+      typeof r.readingDate !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(r.readingDate) ||
+      !Number.isFinite(date.getTime()) ||
+      date.toISOString().slice(0, 10) !== r.readingDate ||
+      r.readingDate > new Date().toISOString().slice(0, 10)
+    )
+      errors.push(prefix + 'provide a valid reading date no later than today (UTC).');
+    if (
+      typeof r.durationSeconds !== 'number' ||
+      !Number.isFinite(r.durationSeconds) ||
+      r.durationSeconds < 1 ||
+      r.durationSeconds > 3600
+    )
+      errors.push(prefix + 'durationSeconds must be a number from 1 to 3600.');
+    if (
+      typeof r.wordsAttempted !== 'number' ||
+      !Number.isInteger(r.wordsAttempted) ||
+      r.wordsAttempted < 1 ||
+      r.wordsAttempted > 500 ||
+      typeof r.wordsCorrect !== 'number' ||
+      !Number.isInteger(r.wordsCorrect) ||
+      r.wordsCorrect < 0 ||
+      r.wordsCorrect > r.wordsAttempted
+    )
+      errors.push(prefix + 'counts must be whole numbers, 1–500 attempted and 0–attempted correct.');
+    if (
+      Object.keys(r).some(
+        (k) =>
+          ![
+            'externalReference',
+            'studentId',
+            'language',
+            'passageReference',
+            'readingDate',
+            'durationSeconds',
+            'wordsAttempted',
+            'wordsCorrect',
+          ].includes(k),
+      )
+    )
+      errors.push(prefix + 'unsupported fields are not accepted.');
   });
   return errors;
 }
 export default function ReadingImportsPage() {
-  const [classes,setClasses]=useState<Class[]>([]),[classId,setClassId]=useState(''),[students,setStudents]=useState<Student[]>([]);
-  const [text,setText]=useState(()=>template('SELECT-CLASS-ID','SELECT-STUDENT-ID'));
-  const [drafts,setDrafts]=useState<ReadingImportDraft[]>([]),[selected,setSelected]=useState<ReadingImport|null>(null);
-  const [reason,setReason]=useState(''),[reviewed,setReviewed]=useState(false),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true);
-  const [error,setError]=useState(''),[message,setMessage]=useState(''),[errors,setErrors]=useState<string[]>([]);
-  const [me,setMe]=useState(''),[selectedRoster,setSelectedRoster]=useState<Map<string,string>>(new Map());
-  const who=(id:string|null)=>!id?'':id===me?'you':'another staff member';
-  const when=(value:string|null)=>{const match=value?/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(value):null;return match?formatReadingDate(match[1])+', '+match[2]+' UTC':value??'';};
-  const lock=useRef(false),stageRetry=useRef<{payload:string;id:string}|null>(null),decisionRetry=useRef<{payload:string;id:string}|null>(null);
-  useEffect(()=>{let active=true; void Promise.all([read<Class[]>('/api/classes'),read<ReadingImportDraft[]>('/api/reading-imports')]).then(([c,d])=>{if(active){setClasses(c);setDrafts(d);}}).catch(e=>{if(active)setError(e instanceof Error?e.message:'Could not load import workspace.');}).finally(()=>{if(active)setLoading(false);}); return()=>{active=false;};},[]);
-  useEffect(()=>{let active=true;void getPrincipal().then(p=>{if(active)setMe(p.id);}).catch(()=>{});return()=>{active=false;};},[]);
-  useEffect(()=>{const id=selected?.draft.classId;if(!id)return;let active=true;void read<Class>('/api/classes/'+encodeURIComponent(id)).then(c=>{if(active)setSelectedRoster(new Map((c.enrolledStudents??[]).map(s=>[s.id,s.firstName+' '+s.lastName])));}).catch(()=>{if(active)setSelectedRoster(new Map());});return()=>{active=false;};},[selected?.draft.classId]);
-  useEffect(()=>{if(!classId)return;let active=true;void read<Class>('/api/classes/'+encodeURIComponent(classId)).then(c=>{if(active)setStudents(c.enrolledStudents??[]);}).catch(e=>{if(active)setError(e instanceof Error?e.message:'Could not load the class list.');});return()=>{active=false;};},[classId]);
-  function keep(value:ReadingImport){setSelected(value);setDrafts(previous=>[value.draft,...previous.filter(d=>d.id!==value.draft.id)]);setReason('');setReviewed(false);}
-  async function reload(){if(lock.current)return;lock.current=true;setBusy(true);setError('');setReviewed(false);try{const list=await read<ReadingImportDraft[]>('/api/reading-imports');setDrafts(list);if(selected)keep(await read<ReadingImport>('/api/reading-imports/'+encodeURIComponent(selected.draft.id)));setMessage('Import history refreshed.');}catch(e){setError(e instanceof Error?e.message:'Could not refresh.');if(e instanceof ImportError&&[403,404].includes(e.status))setSelected(null);}finally{lock.current=false;setBusy(false);}}
-  async function open(id:string){if(lock.current)return;lock.current=true;setBusy(true);setError('');setSelected(null);setReviewed(false);try{keep(await read<ReadingImport>('/api/reading-imports/'+encodeURIComponent(id)));setMessage('Saved preview loaded.');}catch(e){setError(e instanceof Error?e.message:'Could not load draft.');}finally{lock.current=false;setBusy(false);}}
-  async function stage(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(lock.current)return;const validation=fieldErrors(text);setErrors(validation);if(validation.length)return;
-    const envelope=JSON.parse(text) as ReadingImportEnvelope,payload=JSON.stringify(envelope),id=stageRetry.current?.payload===payload?stageRetry.current.id:crypto.randomUUID();stageRetry.current={payload,id};lock.current=true;setBusy(true);setError('');setMessage('');
-    try{const value=await read<ReadingImport>('/api/reading-imports',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientImportId:id,envelope})});keep(value);stageRetry.current=null;setMessage(value.draft.status==='staged'?'Preview saved. No observations have been created. Review every row below.':'Existing import recovered; its current decision is shown.');try{setDrafts(await read<ReadingImportDraft[]>('/api/reading-imports'));}catch{setMessage('Import preview saved. History could not refresh; the saved preview is shown.');}}
-    catch(e){setError(e instanceof ImportError?e.message:'The preview save could not be confirmed. Retry the same JSON to recover the saved outcome; its import ID is retained.');}finally{lock.current=false;setBusy(false);}}
-  async function decide(action:'confirm'|'reject'){if(lock.current||!selected||!reviewed||!reason.trim())return;const input={expectedRevision:0,action,confirmReviewed:true,reason:reason.trim()},payload=JSON.stringify({id:selected.draft.id,...input}),id=decisionRetry.current?.payload===payload?decisionRetry.current.id:crypto.randomUUID();decisionRetry.current={payload,id};lock.current=true;setBusy(true);setError('');setMessage('');
-    try{const value=await read<ReadingImport>('/api/reading-imports/'+encodeURIComponent(selected.draft.id)+'/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...input,clientDecisionId:id})});keep(value);decisionRetry.current=null;setMessage(value.draft.status==='confirmed'?'Reviewed import confirmed. Each source result has a durable receipt and one original reading.':'Import rejected. No observations were created from this draft.');try{setDrafts(await read<ReadingImportDraft[]>('/api/reading-imports'));}catch{setMessage('Review decision saved. History could not refresh; its confirmed outcome is shown below.');}}
-    catch(e){setError(e instanceof ImportError?e.message:'The review outcome could not be confirmed. Retry the same decision and reason to recover it; its decision ID is retained.');if(e instanceof ImportError&&[403,404].includes(e.status))setSelected(null);}finally{lock.current=false;setBusy(false);}}
-  return <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
-    <nav aria-label="Reading import navigation" className="flex flex-wrap gap-4"><a href="/" className="underline">← Dashboard</a><a href="/reading-review" className="underline">Reading history</a></nav>
-    <h1 className="text-3xl font-bold">Reviewed reading imports</h1><p>Add a local results file for educator review. Adding it creates a private preview. Confirmation records manually reviewed observations; it does not verify a vendor export or connect to an external app.</p>
-    <p role="status" aria-live="polite">{loading?'Loading authorized classes and imports…':busy?'Working…':message}</p>{error&&<p role="alert" className="rounded border p-3">{error}</p>}
-    <button className={buttonStyle} disabled={busy||loading} onClick={()=>void reload()}>Refresh import history</button>
-    <section className="space-y-4 rounded border p-4"><h2 className="text-xl font-semibold">Exact local roster IDs</h2><label className="block">Authorized class<select value={classId} disabled={busy||loading} className={inputStyle} onChange={e=>{setClassId(e.target.value);setStudents([]);}}><option value="">Choose a class</option>{classes.map(c=><option value={c.id} key={c.id}>{c.name} · {c.id}</option>)}</select></label>
-      {classId&&<><p className="break-all">classId: {classId}</p><ul>{students.map(s=><li key={s.id} className="break-all">{s.firstName} {s.lastName} · studentId: {s.id}</li>)}</ul>{!students.length&&<p>No active student IDs loaded for this class.</p>}<button type="button" className={buttonStyle} disabled={busy||!students.length} onClick={()=>{setText(template(classId,students[0].id));setErrors([]);}}>Replace editor with synthetic template using these IDs</button></>}
-    </section>
-    <section className="space-y-4 rounded border p-4"><h2 className="text-xl font-semibold">Normalized JSON envelope</h2><p className="text-sm">Format saha.reading-results.v1; 1–25 rows. sourceLabel is the exact declared namespace; externalReference must be stable and unique for each source result. Confirmed school + sourceLabel + externalReference combinations cannot be consumed twice, even from a new draft. Names never link students automatically.</p><p className="text-sm">Use only counts, duration, date, language, passage reference and exact Saha IDs. No audio, transcripts, file URLs or automatic import fetches.</p>
-      <form onSubmit={stage} className="space-y-3"><label className="block">Local JSON<textarea className={inputStyle+' font-mono text-sm'} rows={18} value={text} disabled={busy||loading} onChange={e=>{setText(e.target.value);setErrors([]);}} aria-describedby="import-validation"/></label><div id="import-validation" role="alert">{errors.length>0&&<ul className="list-disc pl-5">{errors.map((e,i)=><li key={i}>{e}</li>)}</ul>}</div><button className={buttonStyle} disabled={busy||loading}>Validate and stage preview</button></form>
-    </section>
-    <section className="space-y-3"><h2 className="text-xl font-semibold">Saved imports</h2><p className="text-sm">Up to 100 most recent authorized drafts and outcomes; this is not a complete school total.</p>{!drafts.length&&!loading&&<p>No imports available.</p>}<ul className="space-y-2">{drafts.map(d=><li key={d.id} className="rounded border p-3"><button className="underline break-words text-left" disabled={busy} onClick={()=>void open(d.id)}>{d.sourceLabel} · {d.sourceReference} · {d.status}</button><p className="text-sm">Created by {who(d.createdBy)||'staff'} · {when(d.createdAt)}</p></li>)}</ul></section>
-    {selected&&<section className="space-y-4 rounded border p-4"><h2 className="text-xl font-semibold">Saved import preview · {statusWord(selected.draft.status)}</h2><p className="break-words">{selected.draft.sourceLabel} · {selected.draft.sourceReference}</p><p className="text-sm break-words">Class {classes.find(c=>c.id===selected.draft.classId)?.name??'(name unavailable)'} · added {when(selected.draft.createdAt)} by {who(selected.draft.createdBy)||'staff'}</p>
-      <ol className="space-y-3">{selected.items.map(item=><li key={item.id} className="space-y-2 rounded border p-3"><h3 className="font-semibold break-all">Source result {item.externalReference} · {selectedRoster.get(item.studentId)??'Student not currently enrolled'}</h3><p className="break-words">{item.readingDate} · {item.language} · {item.passageReference}</p><p>{item.wordsCorrect} / {item.wordsAttempted} words correct · {item.durationSeconds} seconds · {item.wcpm} correct words/minute · {item.accuracy}% accuracy</p><p>{item.eligible?'Active enrolment currently confirmed.':'Student is not actively enrolled; this draft cannot be confirmed.'}</p>{item.receipt&&<p className="text-sm">Consumption receipt: saved once as a reviewed reading · reviewed by {who(item.receipt.reviewedBy)||'staff'} · {when(item.receipt.reviewedAt)}. See it in <a className="underline" href="/reading-review">Reading review</a>.</p>}</li>)}</ol>
-      {selected.draft.status==='staged'?<fieldset disabled={busy} className="space-y-3"><legend className="font-semibold">Review the exact saved values above</legend><label className="block">Review or rejection reason<input className={inputStyle} maxLength={1000} required value={reason} onChange={e=>{setReason(e.target.value);setReviewed(false);}}/></label><label className="flex items-start gap-2"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/><span>I reviewed the original values, student IDs and source references and confirm the selected decision. This is a manual educator review.</span></label><div className="flex flex-wrap gap-3"><button className={buttonStyle} disabled={!reviewed||!reason.trim()||selected.items.some(i=>!i.eligible)} onClick={()=>void decide('confirm')}>Confirm reviewed readings</button><button className={buttonStyle} disabled={!reviewed||!reason.trim()} onClick={()=>void decide('reject')}>Reject this draft</button></div></fieldset>:<div className="space-y-2"><p>Decision: {statusWord(selected.draft.status)} · Reviewer {who(selected.draft.reviewedBy)||'staff'} · {when(selected.draft.reviewedAt)}</p><p className="break-words">Reason: {selected.draft.reason}</p><p>Saved observations and source receipts are retained. Corrections use the separate reading review workflow.</p></div>}
-    </section>}
-  </div>;
+  const [classes, setClasses] = useState<Class[]>([]),
+    [classId, setClassId] = useState(''),
+    [students, setStudents] = useState<Student[]>([]);
+  const [text, setText] = useState(() => template('SELECT-CLASS-ID', 'SELECT-STUDENT-ID'));
+  const [drafts, setDrafts] = useState<ReadingImportDraft[]>([]),
+    [selected, setSelected] = useState<ReadingImport | null>(null);
+  const [reason, setReason] = useState(''),
+    [reviewed, setReviewed] = useState(false),
+    [busy, setBusy] = useState(false),
+    [loading, setLoading] = useState(true);
+  const [error, setError] = useState(''),
+    [message, setMessage] = useState(''),
+    [errors, setErrors] = useState<string[]>([]);
+  const [me, setMe] = useState(''),
+    [selectedRoster, setSelectedRoster] = useState<Map<string, string>>(new Map());
+  const who = (id: string | null) => (!id ? '' : id === me ? 'you' : 'another staff member');
+  const when = (value: string | null) => {
+    const match = value ? /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(value) : null;
+    return match ? formatReadingDate(match[1]) + ', ' + match[2] + ' UTC' : (value ?? '');
+  };
+  const lock = useRef(false),
+    stageRetry = useRef<{ payload: string; id: string } | null>(null),
+    decisionRetry = useRef<{ payload: string; id: string } | null>(null);
+  useEffect(() => {
+    let active = true;
+    void Promise.all([read<Class[]>('/api/classes'), read<ReadingImportDraft[]>('/api/reading-imports')])
+      .then(([c, d]) => {
+        if (active) {
+          setClasses(c);
+          setDrafts(d);
+        }
+      })
+      .catch((e) => {
+        if (active) setError(e instanceof Error ? e.message : 'Could not load import workspace.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  useEffect(() => {
+    let active = true;
+    void getPrincipal()
+      .then((p) => {
+        if (active) setMe(p.id);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+  useEffect(() => {
+    const id = selected?.draft.classId;
+    if (!id) return;
+    let active = true;
+    void read<Class>('/api/classes/' + encodeURIComponent(id))
+      .then((c) => {
+        if (active)
+          setSelectedRoster(
+            new Map((c.enrolledStudents ?? []).map((s) => [s.id, s.firstName + ' ' + s.lastName])),
+          );
+      })
+      .catch(() => {
+        if (active) setSelectedRoster(new Map());
+      });
+    return () => {
+      active = false;
+    };
+  }, [selected?.draft.classId]);
+  useEffect(() => {
+    if (!classId) return;
+    let active = true;
+    void read<Class>('/api/classes/' + encodeURIComponent(classId))
+      .then((c) => {
+        if (active) setStudents(c.enrolledStudents ?? []);
+      })
+      .catch((e) => {
+        if (active) setError(e instanceof Error ? e.message : 'Could not load the class list.');
+      });
+    return () => {
+      active = false;
+    };
+  }, [classId]);
+  function keep(value: ReadingImport) {
+    setSelected(value);
+    setDrafts((previous) => [value.draft, ...previous.filter((d) => d.id !== value.draft.id)]);
+    setReason('');
+    setReviewed(false);
+  }
+  async function reload() {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setError('');
+    setReviewed(false);
+    try {
+      const list = await read<ReadingImportDraft[]>('/api/reading-imports');
+      setDrafts(list);
+      if (selected)
+        keep(await read<ReadingImport>('/api/reading-imports/' + encodeURIComponent(selected.draft.id)));
+      setMessage('Import history refreshed.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not refresh.');
+      if (e instanceof ImportError && [403, 404].includes(e.status)) setSelected(null);
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+  async function open(id: string) {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setError('');
+    setSelected(null);
+    setReviewed(false);
+    try {
+      keep(await read<ReadingImport>('/api/reading-imports/' + encodeURIComponent(id)));
+      setMessage('Saved preview loaded.');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not load draft.');
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+  async function stage(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (lock.current) return;
+    const validation = fieldErrors(text);
+    setErrors(validation);
+    if (validation.length) return;
+    const envelope = JSON.parse(text) as ReadingImportEnvelope,
+      payload = JSON.stringify(envelope),
+      id = stageRetry.current?.payload === payload ? stageRetry.current.id : crypto.randomUUID();
+    stageRetry.current = { payload, id };
+    lock.current = true;
+    setBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      const value = await read<ReadingImport>('/api/reading-imports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientImportId: id, envelope }),
+      });
+      keep(value);
+      stageRetry.current = null;
+      setMessage(
+        value.draft.status === 'staged'
+          ? 'Preview saved. No observations have been created. Review every row below.'
+          : 'Existing import recovered; its current decision is shown.',
+      );
+      try {
+        setDrafts(await read<ReadingImportDraft[]>('/api/reading-imports'));
+      } catch {
+        setMessage('Import preview saved. History could not refresh; the saved preview is shown.');
+      }
+    } catch (e) {
+      setError(
+        e instanceof ImportError
+          ? e.message
+          : 'The preview save could not be confirmed. Retry the same JSON to recover the saved outcome; its import ID is retained.',
+      );
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+  async function decide(action: 'confirm' | 'reject') {
+    if (lock.current || !selected || !reviewed || !reason.trim()) return;
+    const input = { expectedRevision: 0, action, confirmReviewed: true, reason: reason.trim() },
+      payload = JSON.stringify({ id: selected.draft.id, ...input }),
+      id = decisionRetry.current?.payload === payload ? decisionRetry.current.id : crypto.randomUUID();
+    decisionRetry.current = { payload, id };
+    lock.current = true;
+    setBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      const value = await read<ReadingImport>(
+        '/api/reading-imports/' + encodeURIComponent(selected.draft.id) + '/decision',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...input, clientDecisionId: id }),
+        },
+      );
+      keep(value);
+      decisionRetry.current = null;
+      setMessage(
+        value.draft.status === 'confirmed'
+          ? 'Reviewed import confirmed. Each source result has a durable receipt and one original reading.'
+          : 'Import rejected. No observations were created from this draft.',
+      );
+      try {
+        setDrafts(await read<ReadingImportDraft[]>('/api/reading-imports'));
+      } catch {
+        setMessage('Review decision saved. History could not refresh; its confirmed outcome is shown below.');
+      }
+    } catch (e) {
+      setError(
+        e instanceof ImportError
+          ? e.message
+          : 'The review outcome could not be confirmed. Retry the same decision and reason to recover it; its decision ID is retained.',
+      );
+      if (e instanceof ImportError && [403, 404].includes(e.status)) setSelected(null);
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+      <nav aria-label="Reading import navigation" className="flex flex-wrap gap-4">
+        <a href="/" className="underline">
+          ← Dashboard
+        </a>
+        <a href="/reading-review" className="underline">
+          Reading history
+        </a>
+      </nav>
+      <h1 className="text-3xl font-bold">Reviewed reading imports</h1>
+      <p>
+        Add a local results file for educator review. Adding it creates a private preview. Confirmation
+        records manually reviewed observations; it does not verify a vendor export or connect to an external
+        app.
+      </p>
+      <p role="status" aria-live="polite">
+        {loading ? 'Loading authorized classes and imports…' : busy ? 'Working…' : message}
+      </p>
+      {error && (
+        <p role="alert" className="rounded border p-3">
+          {error}
+        </p>
+      )}
+      <button className={buttonStyle} disabled={busy || loading} onClick={() => void reload()}>
+        Refresh import history
+      </button>
+      <section className="space-y-4 rounded border p-4">
+        <h2 className="text-xl font-semibold">Exact local roster IDs</h2>
+        <label className="block">
+          Authorized class
+          <select
+            value={classId}
+            disabled={busy || loading}
+            className={inputStyle}
+            onChange={(e) => {
+              setClassId(e.target.value);
+              setStudents([]);
+            }}
+          >
+            <option value="">Choose a class</option>
+            {classes.map((c) => (
+              <option value={c.id} key={c.id}>
+                {c.name} · {c.id}
+              </option>
+            ))}
+          </select>
+        </label>
+        {classId && (
+          <>
+            <p className="break-all">classId: {classId}</p>
+            <ul>
+              {students.map((s) => (
+                <li key={s.id} className="break-all">
+                  {s.firstName} {s.lastName} · studentId: {s.id}
+                </li>
+              ))}
+            </ul>
+            {!students.length && <p>No active student IDs loaded for this class.</p>}
+            <button
+              type="button"
+              className={buttonStyle}
+              disabled={busy || !students.length}
+              onClick={() => {
+                setText(template(classId, students[0].id));
+                setErrors([]);
+              }}
+            >
+              Replace editor with synthetic template using these IDs
+            </button>
+          </>
+        )}
+      </section>
+      <section className="space-y-4 rounded border p-4">
+        <h2 className="text-xl font-semibold">Normalized JSON envelope</h2>
+        <p className="text-sm">
+          Format saha.reading-results.v1; 1–25 rows. sourceLabel is the exact declared namespace;
+          externalReference must be stable and unique for each source result. Confirmed school + sourceLabel +
+          externalReference combinations cannot be consumed twice, even from a new draft. Names never link
+          students automatically.
+        </p>
+        <p className="text-sm">
+          Use only counts, duration, date, language, passage reference and exact Saha IDs. No audio,
+          transcripts, file URLs or automatic import fetches.
+        </p>
+        <form onSubmit={stage} className="space-y-3">
+          <label className="block">
+            Local JSON
+            <textarea
+              className={inputStyle + ' font-mono text-sm'}
+              rows={18}
+              value={text}
+              disabled={busy || loading}
+              onChange={(e) => {
+                setText(e.target.value);
+                setErrors([]);
+              }}
+              aria-describedby="import-validation"
+            />
+          </label>
+          <div id="import-validation" role="alert">
+            {errors.length > 0 && (
+              <ul className="list-disc pl-5">
+                {errors.map((e, i) => (
+                  <li key={i}>{e}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <button className={buttonStyle} disabled={busy || loading}>
+            Validate and stage preview
+          </button>
+        </form>
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-xl font-semibold">Saved imports</h2>
+        <p className="text-sm">
+          Up to 100 most recent authorized drafts and outcomes; this is not a complete school total.
+        </p>
+        {!drafts.length && !loading && <p>No imports available.</p>}
+        <ul className="space-y-2">
+          {drafts.map((d) => (
+            <li key={d.id} className="rounded border p-3">
+              <button
+                className="underline break-words text-left"
+                disabled={busy}
+                onClick={() => void open(d.id)}
+              >
+                {d.sourceLabel} · {d.sourceReference} · {d.status}
+              </button>
+              <p className="text-sm">
+                Created by {who(d.createdBy) || 'staff'} · {when(d.createdAt)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+      {selected && (
+        <section className="space-y-4 rounded border p-4">
+          <h2 className="text-xl font-semibold">
+            Saved import preview · {statusWord(selected.draft.status)}
+          </h2>
+          <p className="break-words">
+            {selected.draft.sourceLabel} · {selected.draft.sourceReference}
+          </p>
+          <p className="text-sm break-words">
+            Class {classes.find((c) => c.id === selected.draft.classId)?.name ?? '(name unavailable)'} · added{' '}
+            {when(selected.draft.createdAt)} by {who(selected.draft.createdBy) || 'staff'}
+          </p>
+          <ol className="space-y-3">
+            {selected.items.map((item) => (
+              <li key={item.id} className="space-y-2 rounded border p-3">
+                <h3 className="font-semibold break-all">
+                  Source result {item.externalReference} ·{' '}
+                  {selectedRoster.get(item.studentId) ?? 'Student not currently enrolled'}
+                </h3>
+                <p className="break-words">
+                  {item.readingDate} · {item.language} · {item.passageReference}
+                </p>
+                <p>
+                  {item.wordsCorrect} / {item.wordsAttempted} words correct · {item.durationSeconds} seconds ·{' '}
+                  {item.wcpm} correct words/minute · {item.accuracy}% accuracy
+                </p>
+                <p>
+                  {item.eligible
+                    ? 'Active enrolment currently confirmed.'
+                    : 'Student is not actively enrolled; this draft cannot be confirmed.'}
+                </p>
+                {item.receipt && (
+                  <p className="text-sm">
+                    Consumption receipt: saved once as a reviewed reading · reviewed by{' '}
+                    {who(item.receipt.reviewedBy) || 'staff'} · {when(item.receipt.reviewedAt)}. See it in{' '}
+                    <a className="underline" href="/reading-review">
+                      Reading review
+                    </a>
+                    .
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
+          {selected.draft.status === 'staged' ? (
+            <fieldset disabled={busy} className="space-y-3">
+              <legend className="font-semibold">Review the exact saved values above</legend>
+              <label className="block">
+                Review or rejection reason
+                <input
+                  className={inputStyle}
+                  maxLength={1000}
+                  required
+                  value={reason}
+                  onChange={(e) => {
+                    setReason(e.target.value);
+                    setReviewed(false);
+                  }}
+                />
+              </label>
+              <label className="flex items-start gap-2">
+                <input type="checkbox" checked={reviewed} onChange={(e) => setReviewed(e.target.checked)} />
+                <span>
+                  I reviewed the original values, student IDs and source references and confirm the selected
+                  decision. This is a manual educator review.
+                </span>
+              </label>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  className={buttonStyle}
+                  disabled={!reviewed || !reason.trim() || selected.items.some((i) => !i.eligible)}
+                  onClick={() => void decide('confirm')}
+                >
+                  Confirm reviewed readings
+                </button>
+                <button
+                  className={buttonStyle}
+                  disabled={!reviewed || !reason.trim()}
+                  onClick={() => void decide('reject')}
+                >
+                  Reject this draft
+                </button>
+              </div>
+            </fieldset>
+          ) : (
+            <div className="space-y-2">
+              <p>
+                Decision: {statusWord(selected.draft.status)} · Reviewer{' '}
+                {who(selected.draft.reviewedBy) || 'staff'} · {when(selected.draft.reviewedAt)}
+              </p>
+              <p className="break-words">Reason: {selected.draft.reason}</p>
+              <p>
+                Saved observations and source receipts are retained. Corrections use the separate reading
+                review workflow.
+              </p>
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  );
 }

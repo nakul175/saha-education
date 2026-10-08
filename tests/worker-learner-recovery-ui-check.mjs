@@ -2,93 +2,1118 @@
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { chromium, expect } from '@playwright/test';
-const base = new URL(process.env.SAHA_WORKER_TEST_URL), fixture = process.env.SAHA_WORKER_SESSION_FIXTURE, executablePath = process.env.SAHA_TEST_BROWSER;
-if (!fixture || !executablePath || !['127.0.0.1', 'localhost'].includes(base.hostname) || !['http:', 'https:'].includes(base.protocol) || base.pathname !== '/' || base.search || base.hash || base.username || base.password) throw new Error('Use an exact local Worker origin, private synthetic sessions and local Chrome.');
-const sessions = JSON.parse(readFileSync(fixture, 'utf8')), suffix = crypto.randomUUID().slice(0, 8), reason = 'Synthetic recovery review ' + suffix;
-const browser = await chromium.launch({ executablePath, headless: true, args: ['--disable-background-networking'] });
-const contexts = [], errors = [], external = [], assets = [], injectionErrors = [], checks = [], screenshots = [];
+const base = new URL(process.env.SAHA_WORKER_TEST_URL),
+  fixture = process.env.SAHA_WORKER_SESSION_FIXTURE,
+  executablePath = process.env.SAHA_TEST_BROWSER;
+if (
+  !fixture ||
+  !executablePath ||
+  !['127.0.0.1', 'localhost'].includes(base.hostname) ||
+  !['http:', 'https:'].includes(base.protocol) ||
+  base.pathname !== '/' ||
+  base.search ||
+  base.hash ||
+  base.username ||
+  base.password
+)
+  throw new Error('Use an exact local Worker origin, private synthetic sessions and local Chrome.');
+const sessions = JSON.parse(readFileSync(fixture, 'utf8')),
+  suffix = crypto.randomUUID().slice(0, 8),
+  reason = 'Synthetic recovery review ' + suffix;
+const browser = await chromium.launch({
+  executablePath,
+  headless: true,
+  args: ['--disable-background-networking'],
+});
+const contexts = [],
+  errors = [],
+  external = [],
+  assets = [],
+  injectionErrors = [],
+  checks = [],
+  screenshots = [];
 let passed = 0;
-async function check(name, work) { await work(); if (injectionErrors.length) throw injectionErrors[0]; passed++; checks.push(name); console.log('ok - ' + name); }
+async function check(name, work) {
+  await work();
+  if (injectionErrors.length) throw injectionErrors[0];
+  passed++;
+  checks.push(name);
+  console.log('ok - ' + name);
+}
 async function switchActor(value, user) {
-  const cookie = sessions[user]; assert.equal(typeof cookie, 'string'); await value.setExtraHTTPHeaders({ cookie }); await value.clearCookies(); const split = cookie.indexOf('='); await value.addCookies([{ name: cookie.slice(0, split), value: cookie.slice(split + 1), domain: base.hostname, path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
+  const cookie = sessions[user];
+  assert.equal(typeof cookie, 'string');
+  await value.setExtraHTTPHeaders({ cookie });
+  await value.clearCookies();
+  const split = cookie.indexOf('=');
+  await value.addCookies([
+    {
+      name: cookie.slice(0, split),
+      value: cookie.slice(split + 1),
+      domain: base.hostname,
+      path: '/',
+      secure: true,
+      httpOnly: true,
+      sameSite: 'Lax',
+    },
+  ]);
 }
 async function context(user) {
-  const value = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block', timezoneId: 'Asia/Kolkata', extraHTTPHeaders: user ? { cookie: sessions[user] } : {} }); contexts.push(value); if (user) await switchActor(value, user);
-  value.on('page', page => { page.on('pageerror', error => errors.push(error.message)); page.on('response', response => { if (response.status() >= 400 && ['script', 'stylesheet'].includes(response.request().resourceType())) assets.push({ path: new URL(response.url()).pathname, status: response.status() }); }); });
-  await value.route('**/*', route => { const url = new URL(route.request().url()); if (url.origin === base.origin) return route.continue(); external.push(url.origin); return route.abort(); }); return value;
+  const value = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    serviceWorkers: 'block',
+    timezoneId: 'Asia/Kolkata',
+    extraHTTPHeaders: user ? { cookie: sessions[user] } : {},
+  });
+  contexts.push(value);
+  if (user) await switchActor(value, user);
+  value.on('page', (page) => {
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('response', (response) => {
+      if (response.status() >= 400 && ['script', 'stylesheet'].includes(response.request().resourceType()))
+        assets.push({ path: new URL(response.url()).pathname, status: response.status() });
+    });
+  });
+  await value.route('**/*', (route) => {
+    const url = new URL(route.request().url());
+    if (url.origin === base.origin) return route.continue();
+    external.push(url.origin);
+    return route.abort();
+  });
+  return value;
 }
 async function api(value, path, method = 'GET', data, expected = 200) {
-  const url = new URL(path, base); assert.equal(url.origin, base.origin); let response, body; try { response = await value.request.fetch(url.href, { method, timeout: 15000, maxRedirects: 0, headers: method === 'GET' ? {} : { Origin: base.origin }, ...(data === undefined ? {} : { data }) }); body = await response.text(); } catch { throw new Error('Local authenticated transport unavailable: ' + method + ' ' + url.pathname); } assert.equal(response.status(), expected, method + ' ' + path); return JSON.parse(body);
+  const url = new URL(path, base);
+  assert.equal(url.origin, base.origin);
+  let response, body;
+  try {
+    response = await value.request.fetch(url.href, {
+      method,
+      timeout: 15000,
+      maxRedirects: 0,
+      headers: method === 'GET' ? {} : { Origin: base.origin },
+      ...(data === undefined ? {} : { data }),
+    });
+    body = await response.text();
+  } catch {
+    throw new Error('Local authenticated transport unavailable: ' + method + ' ' + url.pathname);
+  }
+  assert.equal(response.status(), expected, method + ' ' + path);
+  return JSON.parse(body);
 }
-async function routeFetch(route, actor) { const url = new URL(route.request().url()); assert.equal(url.origin, base.origin); try { return await route.fetch({ timeout: 15000, maxRedirects: 0, headers: { ...await route.request().allHeaders(), cookie: sessions[actor] } }); } catch { throw new Error('Local routed transport unavailable: ' + route.request().method() + ' ' + url.pathname); } }
-function guarded(work) { return async route => { try { return await work(route); } catch (error) { injectionErrors.push(error); return route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Local injection failed"}' }); } }; }
-const submissions = id => '/api/assignments/' + id + '/submissions', windowPath = id => '/api/assignments/' + id + '/submission-window';
-const responseField = page => page.getByRole('textbox', { name: 'Your response *', exact: true });
-const responseSelection = page => page.getByRole('combobox', { name: /^Saved response to review/ });
-const windowSelection = page => page.getByRole('combobox', { name: /^New response access/ });
-const feedbackField = page => page.getByRole('textbox', { name: /^(Formative feedback|New formative feedback revision) \*$/ });
-const responseSave = page => page.getByRole('button', { name: /^Save response attempt / });
-const feedbackSave = page => page.getByRole('button', { name: /^Save reviewed feedback revision / });
-const feedbackReview = page => page.getByRole('checkbox', { name: /I reviewed this feedback against/ });
-const refresh = page => page.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true });
-const windowReview = page => page.getByRole('checkbox', { name: 'I reviewed this change to new response access and its closing time for this assignment.', exact: true });
-const windowSave = page => page.getByRole('button', { name: 'Save reviewed submission window', exact: true });
-async function open(page, id) { await page.goto(base.origin + '/assignments/' + id, { waitUntil: 'domcontentloaded', timeout: 20000 }); await expect(page.getByRole('heading', { name: 'Assignment responses and feedback', exact: true })).toBeVisible(); await expect(page.locator('[data-assigned-material=' + JSON.stringify(id) + ']')).toBeVisible(); await expect(refresh(page)).toBeEnabled(); }
-async function postButton(page, button, path, expected = 201) { const awaited = page.waitForResponse(response => new URL(response.url()).pathname === path && response.request().method() === 'POST'); await button.click(); const reply = await awaited; assert.equal(reply.status(), expected); const result = await reply.json(); await expect(refresh(page)).toBeEnabled(); return result; }
-async function refreshParent(page) { await refresh(page).click(); await expect(page.getByRole('status').filter({ hasText: /Saved (history refreshed|response and review history refreshed)/ })).toBeVisible(); await expect(refresh(page)).toBeEnabled(); }
-async function manualResponse(value, id, text) { const history = await api(value, submissions(id)); return api(value, submissions(id), 'POST', { response: text, expectedAttempt: Math.max(0, ...history.map(item => item.attempt)), clientSubmissionId: crypto.randomUUID() }, 201); }
-async function manualFeedback(value, id, target, text) { const history = await api(value, submissions(id) + '/' + target + '/feedback'); return api(value, submissions(id) + '/' + target + '/feedback', 'POST', { feedback: text, reviewed: true, expectedRevision: Math.max(0, ...history.map(item => item.revision)), clientFeedbackId: crypto.randomUUID() }, 201); }
-async function manualWindow(value, id, state) { const current = await api(value, windowPath(id)); return api(value, windowPath(id), 'POST', { state, closesAt: null, reason, reviewConfirmed: true, expectedRevision: current.revision, clientPolicyId: crypto.randomUUID() }, 201); }
-async function prepareFeedback(page, text) { await feedbackField(page).fill(text); await feedbackReview(page).check(); await expect(feedbackSave(page)).toBeEnabled(); }
-async function prepareWindow(page, state) { await windowSelection(page).selectOption(state); await page.getByLabel('Reason for window change', { exact: true }).fill(reason); await windowReview(page).check(); await expect(windowSave(page)).toBeEnabled(); }
-async function widths(page) { assert.equal(await page.locator('input:not([type=hidden]),select,textarea').evaluateAll(items => items.filter(item => !item.labels?.length && !item.getAttribute('aria-label') && !item.getAttribute('aria-labelledby')).length), 0); const size = await page.evaluate(() => ({ width: innerWidth, scroll: document.documentElement.scrollWidth })); assert.ok(size.scroll <= size.width + 1, JSON.stringify(size)); }
-async function shot(page, name) { await page.bringToFront(); await page.evaluate(async () => { await document.fonts.ready; document.documentElement.style.outline = '1px solid transparent'; const frames = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); document.body.getBoundingClientRect(); await frames(); scrollTo(0, document.documentElement.scrollHeight); await frames(); scrollTo(0, 0); await frames(); }); const path = '/private/tmp/saha-learner-recovery-ui-' + name + '.png'; await page.screenshot({ path, fullPage: true }); screenshots.push(path); }
-try {
-  const teacher = await context('teacher-a'), learner = await context('student-user-a'), guardian = await context('guardian-a'), other = await context('teacher-other');
-  async function assignment(kind) { const content = { title: 'Synthetic recovery ' + kind + ' ' + suffix, type: 'worksheet', curriculum: 'Synthetic pilot', gradeLevel: '8', subject: 'Mathematics', language: 'en-IN', objectives: 'Explain a synthetic comparison.', body: '<script>window.__learnerInjected=true</script> Compare one half and one quarter.', teacherNotes: 'PRIVATE_RECOVERY_NOTE', answerKey: 'PRIVATE_RECOVERY_KEY' }; const resource = await api(teacher, '/api/resources', 'POST', { content, clientResourceId: crypto.randomUUID() }, 201); await api(teacher, '/api/resources/' + resource.id + '/approve', 'POST', { versionId: resource.latest.id }); return api(teacher, '/api/resources/' + resource.id + '/assign', 'POST', { versionId: resource.latest.id, classId: 'class-a', dueDate: '2020-01-01' }, 201); }
-  const assigned = await assignment('responses'), reviewed = await assignment('feedback'), policy = await assignment('window');
-  const page = await learner.newPage(); await open(page, assigned.id);
-  await check('Learner sees exact approved material and informational due date without private teacher content', async () => { await expect(page.locator('[data-assigned-material]')).toContainText(assigned.resource.body); await expect(page.locator('body')).not.toContainText('PRIVATE_RECOVERY_NOTE'); await expect(page.locator('body')).not.toContainText('PRIVATE_RECOVERY_KEY'); await expect(page.locator('script').filter({ hasText: 'window.__learnerInjected' })).toHaveCount(0); assert.equal(await page.evaluate(() => window.__learnerInjected), undefined); });
-  await check('Normal learner save creates one immutable attempt and a distinct confirmed receipt', async () => { await responseField(page).fill('First synthetic response ' + suffix); const saved = await postButton(page, responseSave(page), submissions(assigned.id)); await expect(page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toContainText(saved.response); await expect(page.locator('[data-submission-attempt]')).toHaveCount(1); });
-  await check('Same-frame native learner submits create one POST and one new attempt', async () => { await responseField(page).fill('Second synthetic response ' + suffix); let count = 0; const observe = request => { if (new URL(request.url()).pathname === submissions(assigned.id) && request.method() === 'POST') count++; }; page.on('request', observe); try { await responseSave(page).evaluate(button => { button.form.requestSubmit(); button.form.requestSubmit(); }); await expect(page.locator('[data-submission-attempt]')).toHaveCount(2); await expect(refresh(page)).toBeEnabled(); } finally { page.off('request', observe); } assert.equal(count, 1); assert.equal((await api(learner, submissions(assigned.id))).length, 2); });
-  let originalResponse;
-  await check('Lost learner acknowledgement retains original bytes and locks edits while a newer attempt and closure commit', async () => {
-    await responseField(page).fill('Original pending response ' + suffix); const match = url => url.pathname === submissions(assigned.id), lose = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); originalResponse = route.request().postData(); const reply = await routeFetch(route, 'student-user-a'); assert.equal(reply.status(), 201); await reply.body(); await manualResponse(learner, assigned.id, 'Later legitimate response ' + suffix); await manualWindow(teacher, assigned.id, 'closed'); return route.abort('failed'); }); await page.route(match, lose);
-    try { await responseSave(page).click(); await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.'); } finally { await page.unroute(match, lose); }
-    await expect(responseField(page)).toBeDisabled(); await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toBeDisabled();
+async function routeFetch(route, actor) {
+  const url = new URL(route.request().url());
+  assert.equal(url.origin, base.origin);
+  try {
+    return await route.fetch({
+      timeout: 15000,
+      maxRedirects: 0,
+      headers: { ...(await route.request().allHeaders()), cookie: sessions[actor] },
+    });
+  } catch {
+    throw new Error('Local routed transport unavailable: ' + route.request().method() + ' ' + url.pathname);
+  }
+}
+function guarded(work) {
+  return async (route) => {
+    try {
+      return await work(route);
+    } catch (error) {
+      injectionErrors.push(error);
+      return route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: '{"error":"Local injection failed"}',
+      });
+    }
+  };
+}
+const submissions = (id) => '/api/assignments/' + id + '/submissions',
+  windowPath = (id) => '/api/assignments/' + id + '/submission-window';
+const responseField = (page) => page.getByRole('textbox', { name: 'Your response *', exact: true });
+const responseSelection = (page) => page.getByRole('combobox', { name: /^Saved response to review/ });
+const windowSelection = (page) => page.getByRole('combobox', { name: /^New response access/ });
+const feedbackField = (page) =>
+  page.getByRole('textbox', { name: /^(Formative feedback|New formative feedback revision) \*$/ });
+const responseSave = (page) => page.getByRole('button', { name: /^Save response attempt / });
+const feedbackSave = (page) => page.getByRole('button', { name: /^Save reviewed feedback revision / });
+const feedbackReview = (page) => page.getByRole('checkbox', { name: /I reviewed this feedback against/ });
+const refresh = (page) =>
+  page.getByRole('button', { name: 'Refresh saved history (keep text)', exact: true });
+const windowReview = (page) =>
+  page.getByRole('checkbox', {
+    name: 'I reviewed this change to new response access and its closing time for this assignment.',
+    exact: true,
   });
-  await check('Current denial hides material and attempts while preserving pending learner UUID for authorised recovery', async () => { const match = url => url.pathname === submissions(assigned.id), deny = route => route.request().method() === 'GET' ? route.fulfill({ status: 403, contentType: 'application/json', body: '{"error":"Forbidden"}' }) : route.continue(); await page.route(match, deny); try { await refresh(page).click(); await expect(page.getByRole('alert')).toContainText('does not have permission'); await expect(page.locator('[data-assigned-material],[data-submission-attempt],[data-confirmed-original-save]')).toHaveCount(0); await expect(responseField(page)).toHaveCount(0); } finally { await page.unroute(match, deny); } await refreshParent(page); await expect(responseField(page)).toHaveValue('Original pending response ' + suffix); await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toBeEnabled(); });
-  await check('Exact pending learner replay works after closure and confirms original without creating a fifth attempt', async () => { const awaited = page.waitForResponse(reply => new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST'); await page.getByRole('button', { name: 'Retry pending response', exact: true }).click(); const reply = await awaited; assert.equal(reply.status(), 201); assert.equal(reply.request().postData(), originalResponse); const saved = await reply.json(); assert.equal(saved.attempt, 3); await expect(page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toContainText('Original pending response'); await expect(page.locator('[data-submission-attempt]')).toHaveCount(4); await expect(responseField(page)).toHaveValue('Later legitimate response ' + suffix); await expect(responseSave(page)).toBeDisabled(); assert.equal((await api(learner, submissions(assigned.id))).length, 4); });
-  await manualWindow(teacher, assigned.id, 'open'); await refreshParent(page);
-  await check('Altered success receipt with same UUID stays pending until exact correlated replay', async () => { await responseField(page).fill('Correlated learner receipt ' + suffix); const match = url => url.pathname === submissions(assigned.id); let original; const alter = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); original = route.request().postData(); const reply = await routeFetch(route, 'student-user-a'), saved = await reply.json(); saved.assignmentId = 'wrong-assignment'; return route.fulfill({ status: reply.status(), contentType: 'application/json', body: JSON.stringify(saved) }); }); await page.route(match, alter); try { await responseSave(page).click(); await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.'); } finally { await page.unroute(match, alter); } await refreshParent(page); const awaited = page.waitForResponse(reply => new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST'); await page.getByRole('button', { name: 'Retry pending response', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), original); const saved = await reply.json(); await expect(page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toBeVisible(); assert.equal((await api(learner, submissions(assigned.id))).length, 5); });
-  await check('Definitively rejected learner input retains text and releases pending state without a false save', async () => { await responseField(page).fill('Rejected learner draft ' + suffix); const match = url => url.pathname === submissions(assigned.id), reject = route => route.request().method() === 'POST' ? route.fulfill({ status: 400, contentType: 'application/json', body: '{"error":"Invalid request"}' }) : route.continue(); await page.route(match, reject); try { await responseSave(page).click(); await expect(page.getByRole('alert')).toContainText('Enter valid plain text'); await expect(responseField(page)).toHaveValue('Rejected learner draft ' + suffix); await expect(responseField(page)).toBeEnabled(); await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toHaveCount(0); } finally { await page.unroute(match, reject); } assert.equal((await api(learner, submissions(assigned.id))).length, 5); });
-  await check('Real concurrent learner attempt produces409 and explicit reload preserves intended text', async () => { await responseField(page).fill('Intended after conflict ' + suffix); await manualResponse(learner, assigned.id, 'Concurrent sixth response ' + suffix); await postButton(page, responseSave(page), submissions(assigned.id), 409); await expect(responseSave(page)).toBeDisabled(); await expect(responseField(page)).toHaveValue('Intended after conflict ' + suffix); await refreshParent(page); await expect(responseField(page)).toHaveValue('Intended after conflict ' + suffix); const saved = await postButton(page, responseSave(page), submissions(assigned.id)); assert.equal(saved.attempt, 7); });
-  await check('Committed learner401/403/404 acknowledgements hide private views and recover exact original IDs', async () => { for (const denial of [401, 403, 404]) { await responseField(page).fill('Learner denied acknowledgement ' + denial + ' ' + suffix); let original; const match = url => url.pathname === submissions(assigned.id), deny = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); original = route.request().postData(); const reply = await routeFetch(route, 'student-user-a'); assert.equal(reply.status(), 201); await reply.body(); return route.fulfill({ status: denial, contentType: 'application/json', body: '{"error":"Unavailable"}' }); }); await page.route(match, deny); try { await responseSave(page).click(); await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.'); await expect(page.locator('[data-assigned-material],[data-submission-attempt],[data-confirmed-original-save]')).toHaveCount(0); assert.equal(new URL(page.url()).pathname, '/assignments/' + assigned.id); if (denial === 401) await expect(page.getByRole('link', { name: 'Sign in again in another tab', exact: true })).toHaveAttribute('target', '_blank'); } finally { await page.unroute(match, deny); } await refreshParent(page); const awaited = page.waitForResponse(reply => new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST'); await page.getByRole('button', { name: 'Retry pending response', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), original); const saved = await reply.json(); await expect(page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toBeVisible(); } assert.equal((await api(learner, submissions(assigned.id))).length, 10); });
-  await check('Known learner commit with failed refresh keeps receipt and blocks new saves until explicit read', async () => { await responseField(page).fill('Known save failed refresh ' + suffix); let committed = false, saved; const match = url => url.pathname === submissions(assigned.id), fail = guarded(async route => { if (route.request().method() === 'POST') { const reply = await routeFetch(route, 'student-user-a'); saved = await reply.json(); committed = true; return route.fulfill({ response: reply }); } if (committed) return route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' }); return route.continue(); }); await page.route(match, fail); try { await responseSave(page).click(); await expect(page.getByRole('status').filter({ hasText: 'The original save was confirmed.' })).toContainText('Current history could not refresh'); await expect(page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toBeVisible(); await expect(responseSave(page)).toBeDisabled(); } finally { await page.unroute(match, fail); } await refresh(page).click(); await expect(responseField(page)).toHaveValue(saved.response); await expect(responseSave(page)).toBeDisabled(); });
-  const target = await manualResponse(learner, reviewed.id, 'Exact staff feedback target ' + suffix), staffPage = await teacher.newPage(); await open(staffPage, reviewed.id);
-  await check('Staff feedback requires explicit review of the exact selected attempt and resets on text edits', async () => { await feedbackField(staffPage).fill('Normal formative feedback ' + suffix); await expect(feedbackSave(staffPage)).toBeDisabled(); await feedbackReview(staffPage).check(); await feedbackField(staffPage).fill('Reviewed normal feedback ' + suffix); await expect(feedbackReview(staffPage)).not.toBeChecked(); await feedbackReview(staffPage).check(); const saved = await postButton(staffPage, feedbackSave(staffPage), submissions(reviewed.id) + '/' + target.id + '/feedback'); assert.equal(saved.submissionId, target.id); assert.equal(saved.revision, 1); });
-  await check('Same-frame staff submits create one POST and one reviewed revision', async () => { await prepareFeedback(staffPage, 'Second reviewed feedback ' + suffix); let count = 0; const endpoint = submissions(reviewed.id) + '/' + target.id + '/feedback', observe = request => { if (new URL(request.url()).pathname === endpoint && request.method() === 'POST') count++; }; staffPage.on('request', observe); try { await feedbackSave(staffPage).evaluate(button => { button.form.requestSubmit(); button.form.requestSubmit(); }); await expect(staffPage.locator('[data-feedback-id]')).toHaveCount(2); await expect(refresh(staffPage)).toBeEnabled(); } finally { staffPage.off('request', observe); } assert.equal(count, 1); });
+const windowSave = (page) =>
+  page.getByRole('button', { name: 'Save reviewed submission window', exact: true });
+async function open(page, id) {
+  await page.goto(base.origin + '/assignments/' + id, { waitUntil: 'domcontentloaded', timeout: 20000 });
+  await expect(
+    page.getByRole('heading', { name: 'Assignment responses and feedback', exact: true }),
+  ).toBeVisible();
+  await expect(page.locator('[data-assigned-material=' + JSON.stringify(id) + ']')).toBeVisible();
+  await expect(refresh(page)).toBeEnabled();
+}
+async function postButton(page, button, path, expected = 201) {
+  const awaited = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === path && response.request().method() === 'POST',
+  );
+  await button.click();
+  const reply = await awaited;
+  assert.equal(reply.status(), expected);
+  const result = await reply.json();
+  await expect(refresh(page)).toBeEnabled();
+  return result;
+}
+async function refreshParent(page) {
+  await refresh(page).click();
+  await expect(
+    page
+      .getByRole('status')
+      .filter({ hasText: /Saved (history refreshed|response and review history refreshed)/ }),
+  ).toBeVisible();
+  await expect(refresh(page)).toBeEnabled();
+}
+async function manualResponse(value, id, text) {
+  const history = await api(value, submissions(id));
+  return api(
+    value,
+    submissions(id),
+    'POST',
+    {
+      response: text,
+      expectedAttempt: Math.max(0, ...history.map((item) => item.attempt)),
+      clientSubmissionId: crypto.randomUUID(),
+    },
+    201,
+  );
+}
+async function manualFeedback(value, id, target, text) {
+  const history = await api(value, submissions(id) + '/' + target + '/feedback');
+  return api(
+    value,
+    submissions(id) + '/' + target + '/feedback',
+    'POST',
+    {
+      feedback: text,
+      reviewed: true,
+      expectedRevision: Math.max(0, ...history.map((item) => item.revision)),
+      clientFeedbackId: crypto.randomUUID(),
+    },
+    201,
+  );
+}
+async function manualWindow(value, id, state) {
+  const current = await api(value, windowPath(id));
+  return api(
+    value,
+    windowPath(id),
+    'POST',
+    {
+      state,
+      closesAt: null,
+      reason,
+      reviewConfirmed: true,
+      expectedRevision: current.revision,
+      clientPolicyId: crypto.randomUUID(),
+    },
+    201,
+  );
+}
+async function prepareFeedback(page, text) {
+  await feedbackField(page).fill(text);
+  await feedbackReview(page).check();
+  await expect(feedbackSave(page)).toBeEnabled();
+}
+async function prepareWindow(page, state) {
+  await windowSelection(page).selectOption(state);
+  await page.getByLabel('Reason for window change', { exact: true }).fill(reason);
+  await windowReview(page).check();
+  await expect(windowSave(page)).toBeEnabled();
+}
+async function widths(page) {
+  assert.equal(
+    await page
+      .locator('input:not([type=hidden]),select,textarea')
+      .evaluateAll(
+        (items) =>
+          items.filter(
+            (item) =>
+              !item.labels?.length &&
+              !item.getAttribute('aria-label') &&
+              !item.getAttribute('aria-labelledby'),
+          ).length,
+      ),
+    0,
+  );
+  const size = await page.evaluate(() => ({
+    width: innerWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+  assert.ok(size.scroll <= size.width + 1, JSON.stringify(size));
+}
+async function shot(page, name) {
+  await page.bringToFront();
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    document.documentElement.style.outline = '1px solid transparent';
+    const frames = () =>
+      new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    document.body.getBoundingClientRect();
+    await frames();
+    scrollTo(0, document.documentElement.scrollHeight);
+    await frames();
+    scrollTo(0, 0);
+    await frames();
+  });
+  const path = '/private/tmp/saha-learner-recovery-ui-' + name + '.png';
+  await page.screenshot({ path, fullPage: true });
+  screenshots.push(path);
+}
+try {
+  const teacher = await context('teacher-a'),
+    learner = await context('student-user-a'),
+    guardian = await context('guardian-a'),
+    other = await context('teacher-other');
+  async function assignment(kind) {
+    const content = {
+      title: 'Synthetic recovery ' + kind + ' ' + suffix,
+      type: 'worksheet',
+      curriculum: 'Synthetic pilot',
+      gradeLevel: '8',
+      subject: 'Mathematics',
+      language: 'en-IN',
+      objectives: 'Explain a synthetic comparison.',
+      body: '<script>window.__learnerInjected=true</script> Compare one half and one quarter.',
+      teacherNotes: 'PRIVATE_RECOVERY_NOTE',
+      answerKey: 'PRIVATE_RECOVERY_KEY',
+    };
+    const resource = await api(
+      teacher,
+      '/api/resources',
+      'POST',
+      { content, clientResourceId: crypto.randomUUID() },
+      201,
+    );
+    await api(teacher, '/api/resources/' + resource.id + '/approve', 'POST', {
+      versionId: resource.latest.id,
+    });
+    return api(
+      teacher,
+      '/api/resources/' + resource.id + '/assign',
+      'POST',
+      { versionId: resource.latest.id, classId: 'class-a', dueDate: '2020-01-01' },
+      201,
+    );
+  }
+  const assigned = await assignment('responses'),
+    reviewed = await assignment('feedback'),
+    policy = await assignment('window');
+  const page = await learner.newPage();
+  await open(page, assigned.id);
+  await check(
+    'Learner sees exact approved material and informational due date without private teacher content',
+    async () => {
+      await expect(page.locator('[data-assigned-material]')).toContainText(assigned.resource.body);
+      await expect(page.locator('body')).not.toContainText('PRIVATE_RECOVERY_NOTE');
+      await expect(page.locator('body')).not.toContainText('PRIVATE_RECOVERY_KEY');
+      await expect(page.locator('script').filter({ hasText: 'window.__learnerInjected' })).toHaveCount(0);
+      assert.equal(await page.evaluate(() => window.__learnerInjected), undefined);
+    },
+  );
+  await check(
+    'Normal learner save creates one immutable attempt and a distinct confirmed receipt',
+    async () => {
+      await responseField(page).fill('First synthetic response ' + suffix);
+      const saved = await postButton(page, responseSave(page), submissions(assigned.id));
+      await expect(
+        page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+      ).toContainText(saved.response);
+      await expect(page.locator('[data-submission-attempt]')).toHaveCount(1);
+    },
+  );
+  await check('Same-frame native learner submits create one POST and one new attempt', async () => {
+    await responseField(page).fill('Second synthetic response ' + suffix);
+    let count = 0;
+    const observe = (request) => {
+      if (new URL(request.url()).pathname === submissions(assigned.id) && request.method() === 'POST')
+        count++;
+    };
+    page.on('request', observe);
+    try {
+      await responseSave(page).evaluate((button) => {
+        button.form.requestSubmit();
+        button.form.requestSubmit();
+      });
+      await expect(page.locator('[data-submission-attempt]')).toHaveCount(2);
+      await expect(refresh(page)).toBeEnabled();
+    } finally {
+      page.off('request', observe);
+    }
+    assert.equal(count, 1);
+    assert.equal((await api(learner, submissions(assigned.id))).length, 2);
+  });
+  let originalResponse;
+  await check(
+    'Lost learner acknowledgement retains original bytes and locks edits while a newer attempt and closure commit',
+    async () => {
+      await responseField(page).fill('Original pending response ' + suffix);
+      const match = (url) => url.pathname === submissions(assigned.id),
+        lose = guarded(async (route) => {
+          if (route.request().method() !== 'POST') return route.continue();
+          originalResponse = route.request().postData();
+          const reply = await routeFetch(route, 'student-user-a');
+          assert.equal(reply.status(), 201);
+          await reply.body();
+          await manualResponse(learner, assigned.id, 'Later legitimate response ' + suffix);
+          await manualWindow(teacher, assigned.id, 'closed');
+          return route.abort('failed');
+        });
+      await page.route(match, lose);
+      try {
+        await responseSave(page).click();
+        await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+      } finally {
+        await page.unroute(match, lose);
+      }
+      await expect(responseField(page)).toBeDisabled();
+      await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toBeDisabled();
+    },
+  );
+  await check(
+    'Current denial hides material and attempts while preserving pending learner UUID for authorised recovery',
+    async () => {
+      const match = (url) => url.pathname === submissions(assigned.id),
+        deny = (route) =>
+          route.request().method() === 'GET'
+            ? route.fulfill({ status: 403, contentType: 'application/json', body: '{"error":"Forbidden"}' })
+            : route.continue();
+      await page.route(match, deny);
+      try {
+        await refresh(page).click();
+        await expect(page.getByRole('alert')).toContainText('does not have permission');
+        await expect(
+          page.locator('[data-assigned-material],[data-submission-attempt],[data-confirmed-original-save]'),
+        ).toHaveCount(0);
+        await expect(responseField(page)).toHaveCount(0);
+      } finally {
+        await page.unroute(match, deny);
+      }
+      await refreshParent(page);
+      await expect(responseField(page)).toHaveValue('Original pending response ' + suffix);
+      await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toBeEnabled();
+    },
+  );
+  await check(
+    'Exact pending learner replay works after closure and confirms original without creating a fifth attempt',
+    async () => {
+      const awaited = page.waitForResponse(
+        (reply) =>
+          new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST',
+      );
+      await page.getByRole('button', { name: 'Retry pending response', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.status(), 201);
+      assert.equal(reply.request().postData(), originalResponse);
+      const saved = await reply.json();
+      assert.equal(saved.attempt, 3);
+      await expect(
+        page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+      ).toContainText('Original pending response');
+      await expect(page.locator('[data-submission-attempt]')).toHaveCount(4);
+      await expect(responseField(page)).toHaveValue('Later legitimate response ' + suffix);
+      await expect(responseSave(page)).toBeDisabled();
+      assert.equal((await api(learner, submissions(assigned.id))).length, 4);
+    },
+  );
+  await manualWindow(teacher, assigned.id, 'open');
+  await refreshParent(page);
+  await check(
+    'Altered success receipt with same UUID stays pending until exact correlated replay',
+    async () => {
+      await responseField(page).fill('Correlated learner receipt ' + suffix);
+      const match = (url) => url.pathname === submissions(assigned.id);
+      let original;
+      const alter = guarded(async (route) => {
+        if (route.request().method() !== 'POST') return route.continue();
+        original = route.request().postData();
+        const reply = await routeFetch(route, 'student-user-a'),
+          saved = await reply.json();
+        saved.assignmentId = 'wrong-assignment';
+        return route.fulfill({
+          status: reply.status(),
+          contentType: 'application/json',
+          body: JSON.stringify(saved),
+        });
+      });
+      await page.route(match, alter);
+      try {
+        await responseSave(page).click();
+        await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+      } finally {
+        await page.unroute(match, alter);
+      }
+      await refreshParent(page);
+      const awaited = page.waitForResponse(
+        (reply) =>
+          new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST',
+      );
+      await page.getByRole('button', { name: 'Retry pending response', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.request().postData(), original);
+      const saved = await reply.json();
+      await expect(
+        page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+      ).toBeVisible();
+      assert.equal((await api(learner, submissions(assigned.id))).length, 5);
+    },
+  );
+  await check(
+    'Definitively rejected learner input retains text and releases pending state without a false save',
+    async () => {
+      await responseField(page).fill('Rejected learner draft ' + suffix);
+      const match = (url) => url.pathname === submissions(assigned.id),
+        reject = (route) =>
+          route.request().method() === 'POST'
+            ? route.fulfill({
+                status: 400,
+                contentType: 'application/json',
+                body: '{"error":"Invalid request"}',
+              })
+            : route.continue();
+      await page.route(match, reject);
+      try {
+        await responseSave(page).click();
+        await expect(page.getByRole('alert')).toContainText('Enter valid plain text');
+        await expect(responseField(page)).toHaveValue('Rejected learner draft ' + suffix);
+        await expect(responseField(page)).toBeEnabled();
+        await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toHaveCount(
+          0,
+        );
+      } finally {
+        await page.unroute(match, reject);
+      }
+      assert.equal((await api(learner, submissions(assigned.id))).length, 5);
+    },
+  );
+  await check(
+    'Real concurrent learner attempt produces409 and explicit reload preserves intended text',
+    async () => {
+      await responseField(page).fill('Intended after conflict ' + suffix);
+      await manualResponse(learner, assigned.id, 'Concurrent sixth response ' + suffix);
+      await postButton(page, responseSave(page), submissions(assigned.id), 409);
+      await expect(responseSave(page)).toBeDisabled();
+      await expect(responseField(page)).toHaveValue('Intended after conflict ' + suffix);
+      await refreshParent(page);
+      await expect(responseField(page)).toHaveValue('Intended after conflict ' + suffix);
+      const saved = await postButton(page, responseSave(page), submissions(assigned.id));
+      assert.equal(saved.attempt, 7);
+    },
+  );
+  await check(
+    'Committed learner401/403/404 acknowledgements hide private views and recover exact original IDs',
+    async () => {
+      for (const denial of [401, 403, 404]) {
+        await responseField(page).fill('Learner denied acknowledgement ' + denial + ' ' + suffix);
+        let original;
+        const match = (url) => url.pathname === submissions(assigned.id),
+          deny = guarded(async (route) => {
+            if (route.request().method() !== 'POST') return route.continue();
+            original = route.request().postData();
+            const reply = await routeFetch(route, 'student-user-a');
+            assert.equal(reply.status(), 201);
+            await reply.body();
+            return route.fulfill({
+              status: denial,
+              contentType: 'application/json',
+              body: '{"error":"Unavailable"}',
+            });
+          });
+        await page.route(match, deny);
+        try {
+          await responseSave(page).click();
+          await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+          await expect(
+            page.locator('[data-assigned-material],[data-submission-attempt],[data-confirmed-original-save]'),
+          ).toHaveCount(0);
+          assert.equal(new URL(page.url()).pathname, '/assignments/' + assigned.id);
+          if (denial === 401)
+            await expect(
+              page.getByRole('link', { name: 'Sign in again in another tab', exact: true }),
+            ).toHaveAttribute('target', '_blank');
+        } finally {
+          await page.unroute(match, deny);
+        }
+        await refreshParent(page);
+        const awaited = page.waitForResponse(
+          (reply) =>
+            new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST',
+        );
+        await page.getByRole('button', { name: 'Retry pending response', exact: true }).click();
+        const reply = await awaited;
+        assert.equal(reply.request().postData(), original);
+        const saved = await reply.json();
+        await expect(
+          page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+        ).toBeVisible();
+      }
+      assert.equal((await api(learner, submissions(assigned.id))).length, 10);
+    },
+  );
+  await check(
+    'Known learner commit with failed refresh keeps receipt and blocks new saves until explicit read',
+    async () => {
+      await responseField(page).fill('Known save failed refresh ' + suffix);
+      let committed = false,
+        saved;
+      const match = (url) => url.pathname === submissions(assigned.id),
+        fail = guarded(async (route) => {
+          if (route.request().method() === 'POST') {
+            const reply = await routeFetch(route, 'student-user-a');
+            saved = await reply.json();
+            committed = true;
+            return route.fulfill({ response: reply });
+          }
+          if (committed)
+            return route.fulfill({
+              status: 503,
+              contentType: 'application/json',
+              body: '{"error":"Unavailable"}',
+            });
+          return route.continue();
+        });
+      await page.route(match, fail);
+      try {
+        await responseSave(page).click();
+        await expect(
+          page.getByRole('status').filter({ hasText: 'The original save was confirmed.' }),
+        ).toContainText('Current history could not refresh');
+        await expect(
+          page.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+        ).toBeVisible();
+        await expect(responseSave(page)).toBeDisabled();
+      } finally {
+        await page.unroute(match, fail);
+      }
+      await refresh(page).click();
+      await expect(responseField(page)).toHaveValue(saved.response);
+      await expect(responseSave(page)).toBeDisabled();
+    },
+  );
+  const target = await manualResponse(learner, reviewed.id, 'Exact staff feedback target ' + suffix),
+    staffPage = await teacher.newPage();
+  await open(staffPage, reviewed.id);
+  await check(
+    'Staff feedback requires explicit review of the exact selected attempt and resets on text edits',
+    async () => {
+      await feedbackField(staffPage).fill('Normal formative feedback ' + suffix);
+      await expect(feedbackSave(staffPage)).toBeDisabled();
+      await feedbackReview(staffPage).check();
+      await feedbackField(staffPage).fill('Reviewed normal feedback ' + suffix);
+      await expect(feedbackReview(staffPage)).not.toBeChecked();
+      await feedbackReview(staffPage).check();
+      const saved = await postButton(
+        staffPage,
+        feedbackSave(staffPage),
+        submissions(reviewed.id) + '/' + target.id + '/feedback',
+      );
+      assert.equal(saved.submissionId, target.id);
+      assert.equal(saved.revision, 1);
+    },
+  );
+  await check('Same-frame staff submits create one POST and one reviewed revision', async () => {
+    await prepareFeedback(staffPage, 'Second reviewed feedback ' + suffix);
+    let count = 0;
+    const endpoint = submissions(reviewed.id) + '/' + target.id + '/feedback',
+      observe = (request) => {
+        if (new URL(request.url()).pathname === endpoint && request.method() === 'POST') count++;
+      };
+    staffPage.on('request', observe);
+    try {
+      await feedbackSave(staffPage).evaluate((button) => {
+        button.form.requestSubmit();
+        button.form.requestSubmit();
+      });
+      await expect(staffPage.locator('[data-feedback-id]')).toHaveCount(2);
+      await expect(refresh(staffPage)).toBeEnabled();
+    } finally {
+      staffPage.off('request', observe);
+    }
+    assert.equal(count, 1);
+  });
   let originalFeedback, newerAttempt;
-  await check('Lost feedback acknowledgement locks original selection while later feedback and learner attempt commit', async () => { await prepareFeedback(staffPage, 'Original pending feedback ' + suffix); const endpoint = submissions(reviewed.id) + '/' + target.id + '/feedback', match = url => url.pathname === endpoint, lose = guarded(async route => { originalFeedback = route.request().postData(); const reply = await routeFetch(route, 'teacher-a'); assert.equal(reply.status(), 201); await reply.body(); await manualFeedback(teacher, reviewed.id, target.id, 'Later reviewed feedback ' + suffix); newerAttempt = await manualResponse(learner, reviewed.id, 'Later learner response for staff ' + suffix); return route.abort('failed'); }); await staffPage.route(match, lose); try { await feedbackSave(staffPage).click(); await expect(staffPage.getByRole('alert')).toContainText('The save outcome is not confirmed.'); } finally { await staffPage.unroute(match, lose); } await expect(feedbackField(staffPage)).toBeDisabled(); await expect(responseSelection(staffPage)).toBeDisabled(); });
-  await check('Feedback refresh/retry retains original endpoint/bytes and never follows the newer learner draft', async () => { await refreshParent(staffPage); await expect(responseSelection(staffPage)).toHaveValue(target.id); const endpoint = submissions(reviewed.id) + '/' + target.id + '/feedback', awaited = staffPage.waitForResponse(reply => new URL(reply.url()).pathname === endpoint && reply.request().method() === 'POST'); await staffPage.getByRole('button', { name: 'Retry pending feedback', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), originalFeedback); const saved = await reply.json(); assert.equal(saved.revision, 3); await expect(staffPage.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toContainText('Original pending feedback'); await expect(feedbackField(staffPage)).toHaveValue('Later reviewed feedback ' + suffix); assert.equal((await api(teacher, endpoint)).length, 4); });
-  await check('Selecting a different saved attempt resets review and explicitly targets that immutable attempt', async () => { await feedbackReview(staffPage).check(); await responseSelection(staffPage).selectOption(newerAttempt.id); await expect(feedbackReview(staffPage)).not.toBeChecked(); await prepareFeedback(staffPage, 'Feedback for newer exact attempt ' + suffix); const saved = await postButton(staffPage, feedbackSave(staffPage), submissions(reviewed.id) + '/' + newerAttempt.id + '/feedback'); assert.equal(saved.submissionId, newerAttempt.id); });
-  await check('Mounted window-history401 cannot navigate away or discard pending parent feedback UUID', async () => { await prepareFeedback(staffPage, 'Parent feedback pending across child denial ' + suffix); let original; const endpoint = submissions(reviewed.id) + '/' + newerAttempt.id + '/feedback', match = url => url.pathname === endpoint, lose = guarded(async route => { original = route.request().postData(); const reply = await routeFetch(route, 'teacher-a'); assert.equal(reply.status(), 201); await reply.body(); return route.abort('failed'); }); await staffPage.route(match, lose); try { await feedbackSave(staffPage).click(); await expect(staffPage.getByRole('alert')).toContainText('The save outcome is not confirmed.'); } finally { await staffPage.unroute(match, lose); } const historyMatch = url => url.pathname === windowPath(reviewed.id) + '/history', deny = route => route.fulfill({ status: 401, contentType: 'application/json', body: '{"error":"Unauthorized"}' }); await staffPage.route(historyMatch, deny); try { await staffPage.getByRole('button', { name: 'Refresh submission window', exact: true }).click(); await expect(staffPage.locator('[data-assigned-material],[data-selected-submission],[data-confirmed-original-save]')).toHaveCount(0); assert.equal(new URL(staffPage.url()).pathname, '/assignments/' + reviewed.id); await expect(staffPage.getByRole('link', { name: 'Sign in again in another tab', exact: true })).toBeVisible(); } finally { await staffPage.unroute(historyMatch, deny); } await refreshParent(staffPage); const awaited = staffPage.waitForResponse(reply => new URL(reply.url()).pathname === endpoint && reply.request().method() === 'POST'); await staffPage.getByRole('button', { name: 'Retry pending feedback', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), original); const saved = await reply.json(); await expect(staffPage.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']')).toBeVisible(); assert.equal((await api(teacher, endpoint)).length, 2); });
-  const windowPage = await teacher.newPage(); await open(windowPage, policy.id);
-  await check('Normal window review explicitly closes new responses and retains approved material', async () => { await prepareWindow(windowPage, 'closed'); const saved = await postButton(windowPage, windowSave(windowPage), windowPath(policy.id)); assert.equal(saved.review.revision, 1); await expect(windowPage.getByText('New responses are closed.', { exact: true })).toBeVisible(); await expect(windowPage.locator('[data-assigned-material]')).toBeVisible(); });
-  await check('Same-frame window submits yield one POST and one immutable review', async () => { await prepareWindow(windowPage, 'open'); let count = 0; const observe = request => { if (new URL(request.url()).pathname === windowPath(policy.id) && request.method() === 'POST') count++; }; windowPage.on('request', observe); try { await windowSave(windowPage).evaluate(button => { button.form.requestSubmit(); button.form.requestSubmit(); }); await expect(windowPage.getByRole('status').filter({ hasText: 'Window review revision 2 saved.' })).toBeVisible(); } finally { windowPage.off('request', observe); } assert.equal(count, 1); assert.equal((await api(teacher, windowPath(policy.id) + '/history')).length, 2); });
+  await check(
+    'Lost feedback acknowledgement locks original selection while later feedback and learner attempt commit',
+    async () => {
+      await prepareFeedback(staffPage, 'Original pending feedback ' + suffix);
+      const endpoint = submissions(reviewed.id) + '/' + target.id + '/feedback',
+        match = (url) => url.pathname === endpoint,
+        lose = guarded(async (route) => {
+          originalFeedback = route.request().postData();
+          const reply = await routeFetch(route, 'teacher-a');
+          assert.equal(reply.status(), 201);
+          await reply.body();
+          await manualFeedback(teacher, reviewed.id, target.id, 'Later reviewed feedback ' + suffix);
+          newerAttempt = await manualResponse(
+            learner,
+            reviewed.id,
+            'Later learner response for staff ' + suffix,
+          );
+          return route.abort('failed');
+        });
+      await staffPage.route(match, lose);
+      try {
+        await feedbackSave(staffPage).click();
+        await expect(staffPage.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+      } finally {
+        await staffPage.unroute(match, lose);
+      }
+      await expect(feedbackField(staffPage)).toBeDisabled();
+      await expect(responseSelection(staffPage)).toBeDisabled();
+    },
+  );
+  await check(
+    'Feedback refresh/retry retains original endpoint/bytes and never follows the newer learner draft',
+    async () => {
+      await refreshParent(staffPage);
+      await expect(responseSelection(staffPage)).toHaveValue(target.id);
+      const endpoint = submissions(reviewed.id) + '/' + target.id + '/feedback',
+        awaited = staffPage.waitForResponse(
+          (reply) => new URL(reply.url()).pathname === endpoint && reply.request().method() === 'POST',
+        );
+      await staffPage.getByRole('button', { name: 'Retry pending feedback', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.request().postData(), originalFeedback);
+      const saved = await reply.json();
+      assert.equal(saved.revision, 3);
+      await expect(
+        staffPage.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+      ).toContainText('Original pending feedback');
+      await expect(feedbackField(staffPage)).toHaveValue('Later reviewed feedback ' + suffix);
+      assert.equal((await api(teacher, endpoint)).length, 4);
+    },
+  );
+  await check(
+    'Selecting a different saved attempt resets review and explicitly targets that immutable attempt',
+    async () => {
+      await feedbackReview(staffPage).check();
+      await responseSelection(staffPage).selectOption(newerAttempt.id);
+      await expect(feedbackReview(staffPage)).not.toBeChecked();
+      await prepareFeedback(staffPage, 'Feedback for newer exact attempt ' + suffix);
+      const saved = await postButton(
+        staffPage,
+        feedbackSave(staffPage),
+        submissions(reviewed.id) + '/' + newerAttempt.id + '/feedback',
+      );
+      assert.equal(saved.submissionId, newerAttempt.id);
+    },
+  );
+  await check(
+    'Mounted window-history401 cannot navigate away or discard pending parent feedback UUID',
+    async () => {
+      await prepareFeedback(staffPage, 'Parent feedback pending across child denial ' + suffix);
+      let original;
+      const endpoint = submissions(reviewed.id) + '/' + newerAttempt.id + '/feedback',
+        match = (url) => url.pathname === endpoint,
+        lose = guarded(async (route) => {
+          original = route.request().postData();
+          const reply = await routeFetch(route, 'teacher-a');
+          assert.equal(reply.status(), 201);
+          await reply.body();
+          return route.abort('failed');
+        });
+      await staffPage.route(match, lose);
+      try {
+        await feedbackSave(staffPage).click();
+        await expect(staffPage.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+      } finally {
+        await staffPage.unroute(match, lose);
+      }
+      const historyMatch = (url) => url.pathname === windowPath(reviewed.id) + '/history',
+        deny = (route) =>
+          route.fulfill({ status: 401, contentType: 'application/json', body: '{"error":"Unauthorized"}' });
+      await staffPage.route(historyMatch, deny);
+      try {
+        await staffPage.getByRole('button', { name: 'Refresh submission window', exact: true }).click();
+        await expect(
+          staffPage.locator(
+            '[data-assigned-material],[data-selected-submission],[data-confirmed-original-save]',
+          ),
+        ).toHaveCount(0);
+        assert.equal(new URL(staffPage.url()).pathname, '/assignments/' + reviewed.id);
+        await expect(
+          staffPage.getByRole('link', { name: 'Sign in again in another tab', exact: true }),
+        ).toBeVisible();
+      } finally {
+        await staffPage.unroute(historyMatch, deny);
+      }
+      await refreshParent(staffPage);
+      const awaited = staffPage.waitForResponse(
+        (reply) => new URL(reply.url()).pathname === endpoint && reply.request().method() === 'POST',
+      );
+      await staffPage.getByRole('button', { name: 'Retry pending feedback', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.request().postData(), original);
+      const saved = await reply.json();
+      await expect(
+        staffPage.locator('[data-confirmed-original-save=' + JSON.stringify(saved.id) + ']'),
+      ).toBeVisible();
+      assert.equal((await api(teacher, endpoint)).length, 2);
+    },
+  );
+  const windowPage = await teacher.newPage();
+  await open(windowPage, policy.id);
+  await check(
+    'Normal window review explicitly closes new responses and retains approved material',
+    async () => {
+      await prepareWindow(windowPage, 'closed');
+      const saved = await postButton(windowPage, windowSave(windowPage), windowPath(policy.id));
+      assert.equal(saved.review.revision, 1);
+      await expect(windowPage.getByText('New responses are closed.', { exact: true })).toBeVisible();
+      await expect(windowPage.locator('[data-assigned-material]')).toBeVisible();
+    },
+  );
+  await check('Same-frame window submits yield one POST and one immutable review', async () => {
+    await prepareWindow(windowPage, 'open');
+    let count = 0;
+    const observe = (request) => {
+      if (new URL(request.url()).pathname === windowPath(policy.id) && request.method() === 'POST') count++;
+    };
+    windowPage.on('request', observe);
+    try {
+      await windowSave(windowPage).evaluate((button) => {
+        button.form.requestSubmit();
+        button.form.requestSubmit();
+      });
+      await expect(
+        windowPage.getByRole('status').filter({ hasText: 'Window review revision 2 saved.' }),
+      ).toBeVisible();
+    } finally {
+      windowPage.off('request', observe);
+    }
+    assert.equal(count, 1);
+    assert.equal((await api(teacher, windowPath(policy.id) + '/history')).length, 2);
+  });
   let originalWindow;
-  await check('Lost window reply preserves exact request while a later reviewed policy becomes current', async () => { await prepareWindow(windowPage, 'closed'); const match = url => url.pathname === windowPath(policy.id), lose = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); originalWindow = route.request().postData(); const reply = await routeFetch(route, 'teacher-a'); assert.equal(reply.status(), 201); await reply.body(); await manualWindow(teacher, policy.id, 'open'); return route.abort('failed'); }); await windowPage.route(match, lose); try { await windowSave(windowPage).click(); await expect(windowPage.getByRole('alert')).toContainText('The window review outcome could not be confirmed.'); } finally { await windowPage.unroute(match, lose); } await expect(windowSelection(windowPage)).toBeDisabled(); await expect(windowSave(windowPage)).toBeDisabled(); });
-  await check('Window refresh/exact retry returns original review and leaves later current policy intact', async () => { await refreshParent(windowPage); const awaited = windowPage.waitForResponse(reply => new URL(reply.url()).pathname === windowPath(policy.id) && reply.request().method() === 'POST'); await windowPage.getByRole('button', { name: 'Retry pending window review', exact: true }).click(); const reply = await awaited; assert.equal(reply.status(), 201); assert.equal(reply.request().postData(), originalWindow); const saved = await reply.json(); assert.equal(saved.review.revision, 3); assert.equal(saved.review.state, 'closed'); assert.equal(saved.window.revision, 4); assert.equal(saved.window.state, 'open'); await expect(windowPage.getByText('New responses are open.', { exact: true })).toBeVisible(); assert.equal((await api(teacher, windowPath(policy.id) + '/history')).length, 4); });
-  await check('Window401/403/404 delivery denial hides parent material while mounted child retains original UUID', async () => { for (const denial of [401, 403, 404]) { await prepareWindow(windowPage, 'closed'); let original; const match = url => url.pathname === windowPath(policy.id), deny = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); original = route.request().postData(); const reply = await routeFetch(route, 'teacher-a'); assert.equal(reply.status(), 201); await reply.body(); return route.fulfill({ status: denial, contentType: 'application/json', body: '{"error":"Unavailable"}' }); }); await windowPage.route(match, deny); try { await windowSave(windowPage).click(); await expect(windowPage.locator('[data-assigned-material],[data-selected-submission],[data-confirmed-original-save]')).toHaveCount(0); await expect(windowPage.getByLabel('Reason for window change', { exact: true })).toHaveCount(0); await expect(windowPage.getByRole('button', { name: 'Retry pending window review', exact: true })).toBeDisabled(); assert.equal(new URL(windowPage.url()).pathname, '/assignments/' + policy.id); } finally { await windowPage.unroute(match, deny); } await refreshParent(windowPage); const awaited = windowPage.waitForResponse(reply => new URL(reply.url()).pathname === windowPath(policy.id) && reply.request().method() === 'POST'); await windowPage.getByRole('button', { name: 'Retry pending window review', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), original); await reply.body(); await expect(windowPage.getByRole('button', { name: 'Retry pending window review', exact: true })).toHaveCount(0); } assert.equal((await api(teacher, windowPath(policy.id) + '/history')).length, 7); });
-  await check('Window history availability failure never substitutes a false empty history or hides valid material', async () => { const match = url => url.pathname === windowPath(policy.id) + '/history', fail = route => route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' }); await windowPage.route(match, fail); try { await windowPage.getByRole('button', { name: 'Refresh submission window', exact: true }).click(); await windowPage.getByText('Window review history (latest 100)', { exact: true }).click(); await expect(windowPage.getByText('Review history is unavailable. Refresh the window to try again.', { exact: true })).toBeVisible(); await expect(windowPage.getByText('No window reviews yet.', { exact: true })).toHaveCount(0); await expect(windowPage.locator('[data-assigned-material]')).toBeVisible(); } finally { await windowPage.unroute(match, fail); } });
-  await check('Partial network read failure keeps pending learner request and allows a later verified exact retry', async () => { await responseField(page).fill('Partial read recovery response ' + suffix); let original; const match = url => url.pathname === submissions(assigned.id), lose = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); original = route.request().postData(); const reply = await routeFetch(route, 'student-user-a'); assert.equal(reply.status(), 201); await reply.body(); return route.abort('failed'); }); await page.route(match, lose); try { await responseSave(page).click(); await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.'); } finally { await page.unroute(match, lose); } const partialMatch = url => url.pathname === windowPath(assigned.id), fail = route => route.abort('failed'); await page.route(partialMatch, fail); try { await refresh(page).click(); await expect(page.getByRole('alert')).toBeVisible(); await expect(responseField(page)).toBeDisabled(); await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toBeDisabled(); } finally { await page.unroute(partialMatch, fail); } await refreshParent(page); const awaited = page.waitForResponse(reply => new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST'); await page.getByRole('button', { name: 'Retry pending response', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), original); await reply.body(); await expect(refresh(page)).toBeEnabled(); });
-  await check('Actual synthetic account switch cannot rebase or replay another actor’s pending learner request', async () => { await responseField(page).fill('Actor-bound pending response ' + suffix); let original; const match = url => url.pathname === submissions(assigned.id), lose = guarded(async route => { if (route.request().method() !== 'POST') return route.continue(); original = route.request().postData(); const reply = await routeFetch(route, 'student-user-a'); assert.equal(reply.status(), 201); await reply.body(); return route.abort('failed'); }); await page.route(match, lose); try { await responseSave(page).click(); await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.'); } finally { await page.unroute(match, lose); } await switchActor(learner, 'admin-a'); try { await refresh(page).click(); await expect(page.getByRole('alert')).toContainText('pending request belongs to the original signed-in account'); await expect(page.locator('[data-assigned-material],[data-submission-attempt]')).toHaveCount(0); await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toHaveCount(0); } finally { await switchActor(learner, 'student-user-a'); } await refreshParent(page); const awaited = page.waitForResponse(reply => new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST'); await page.getByRole('button', { name: 'Retry pending response', exact: true }).click(); const reply = await awaited; assert.equal(reply.request().postData(), original); await reply.body(); await expect(refresh(page)).toBeEnabled(); });
-  await check('Guardian and unrelated staff receive denial without private assignment material', async () => { const familyPage = await guardian.newPage(); await familyPage.goto(base.origin + '/assignments/' + assigned.id, { waitUntil: 'domcontentloaded' }); await expect(familyPage.getByText('Responses and formative feedback are available to enrolled students and school staff. Guardian access is not available.', { exact: true })).toBeVisible(); await expect(familyPage.locator('[data-assigned-material]')).toHaveCount(0); await api(guardian, submissions(assigned.id), 'GET', undefined, 403); await familyPage.close(); const otherPage = await other.newPage(); await otherPage.goto(base.origin + '/assignments/' + assigned.id, { waitUntil: 'domcontentloaded' }); await expect(otherPage.getByRole('alert')).toContainText('unavailable to your account'); await expect(otherPage.locator('[data-assigned-material]')).toHaveCount(0); await otherPage.close(); });
-  await check('Desktop learner page has labelled controls, distinct original receipt and no overflow', async () => { await widths(page); await expect(page.getByRole('main')).toHaveCount(1); await expect(page.locator('[data-confirmed-original-save]')).toBeVisible(); }); await shot(page, 'desktop');
+  await check(
+    'Lost window reply preserves exact request while a later reviewed policy becomes current',
+    async () => {
+      await prepareWindow(windowPage, 'closed');
+      const match = (url) => url.pathname === windowPath(policy.id),
+        lose = guarded(async (route) => {
+          if (route.request().method() !== 'POST') return route.continue();
+          originalWindow = route.request().postData();
+          const reply = await routeFetch(route, 'teacher-a');
+          assert.equal(reply.status(), 201);
+          await reply.body();
+          await manualWindow(teacher, policy.id, 'open');
+          return route.abort('failed');
+        });
+      await windowPage.route(match, lose);
+      try {
+        await windowSave(windowPage).click();
+        await expect(windowPage.getByRole('alert')).toContainText(
+          'The window review outcome could not be confirmed.',
+        );
+      } finally {
+        await windowPage.unroute(match, lose);
+      }
+      await expect(windowSelection(windowPage)).toBeDisabled();
+      await expect(windowSave(windowPage)).toBeDisabled();
+    },
+  );
+  await check(
+    'Window refresh/exact retry returns original review and leaves later current policy intact',
+    async () => {
+      await refreshParent(windowPage);
+      const awaited = windowPage.waitForResponse(
+        (reply) =>
+          new URL(reply.url()).pathname === windowPath(policy.id) && reply.request().method() === 'POST',
+      );
+      await windowPage.getByRole('button', { name: 'Retry pending window review', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.status(), 201);
+      assert.equal(reply.request().postData(), originalWindow);
+      const saved = await reply.json();
+      assert.equal(saved.review.revision, 3);
+      assert.equal(saved.review.state, 'closed');
+      assert.equal(saved.window.revision, 4);
+      assert.equal(saved.window.state, 'open');
+      await expect(windowPage.getByText('New responses are open.', { exact: true })).toBeVisible();
+      assert.equal((await api(teacher, windowPath(policy.id) + '/history')).length, 4);
+    },
+  );
+  await check(
+    'Window401/403/404 delivery denial hides parent material while mounted child retains original UUID',
+    async () => {
+      for (const denial of [401, 403, 404]) {
+        await prepareWindow(windowPage, 'closed');
+        let original;
+        const match = (url) => url.pathname === windowPath(policy.id),
+          deny = guarded(async (route) => {
+            if (route.request().method() !== 'POST') return route.continue();
+            original = route.request().postData();
+            const reply = await routeFetch(route, 'teacher-a');
+            assert.equal(reply.status(), 201);
+            await reply.body();
+            return route.fulfill({
+              status: denial,
+              contentType: 'application/json',
+              body: '{"error":"Unavailable"}',
+            });
+          });
+        await windowPage.route(match, deny);
+        try {
+          await windowSave(windowPage).click();
+          await expect(
+            windowPage.locator(
+              '[data-assigned-material],[data-selected-submission],[data-confirmed-original-save]',
+            ),
+          ).toHaveCount(0);
+          await expect(windowPage.getByLabel('Reason for window change', { exact: true })).toHaveCount(0);
+          await expect(
+            windowPage.getByRole('button', { name: 'Retry pending window review', exact: true }),
+          ).toBeDisabled();
+          assert.equal(new URL(windowPage.url()).pathname, '/assignments/' + policy.id);
+        } finally {
+          await windowPage.unroute(match, deny);
+        }
+        await refreshParent(windowPage);
+        const awaited = windowPage.waitForResponse(
+          (reply) =>
+            new URL(reply.url()).pathname === windowPath(policy.id) && reply.request().method() === 'POST',
+        );
+        await windowPage.getByRole('button', { name: 'Retry pending window review', exact: true }).click();
+        const reply = await awaited;
+        assert.equal(reply.request().postData(), original);
+        await reply.body();
+        await expect(
+          windowPage.getByRole('button', { name: 'Retry pending window review', exact: true }),
+        ).toHaveCount(0);
+      }
+      assert.equal((await api(teacher, windowPath(policy.id) + '/history')).length, 7);
+    },
+  );
+  await check(
+    'Window history availability failure never substitutes a false empty history or hides valid material',
+    async () => {
+      const match = (url) => url.pathname === windowPath(policy.id) + '/history',
+        fail = (route) =>
+          route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Unavailable"}' });
+      await windowPage.route(match, fail);
+      try {
+        await windowPage.getByRole('button', { name: 'Refresh submission window', exact: true }).click();
+        await windowPage.getByText('Window review history (latest 100)', { exact: true }).click();
+        await expect(
+          windowPage.getByText('Review history is unavailable. Refresh the window to try again.', {
+            exact: true,
+          }),
+        ).toBeVisible();
+        await expect(windowPage.getByText('No window reviews yet.', { exact: true })).toHaveCount(0);
+        await expect(windowPage.locator('[data-assigned-material]')).toBeVisible();
+      } finally {
+        await windowPage.unroute(match, fail);
+      }
+    },
+  );
+  await check(
+    'Partial network read failure keeps pending learner request and allows a later verified exact retry',
+    async () => {
+      await responseField(page).fill('Partial read recovery response ' + suffix);
+      let original;
+      const match = (url) => url.pathname === submissions(assigned.id),
+        lose = guarded(async (route) => {
+          if (route.request().method() !== 'POST') return route.continue();
+          original = route.request().postData();
+          const reply = await routeFetch(route, 'student-user-a');
+          assert.equal(reply.status(), 201);
+          await reply.body();
+          return route.abort('failed');
+        });
+      await page.route(match, lose);
+      try {
+        await responseSave(page).click();
+        await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+      } finally {
+        await page.unroute(match, lose);
+      }
+      const partialMatch = (url) => url.pathname === windowPath(assigned.id),
+        fail = (route) => route.abort('failed');
+      await page.route(partialMatch, fail);
+      try {
+        await refresh(page).click();
+        await expect(page.getByRole('alert')).toBeVisible();
+        await expect(responseField(page)).toBeDisabled();
+        await expect(
+          page.getByRole('button', { name: 'Retry pending response', exact: true }),
+        ).toBeDisabled();
+      } finally {
+        await page.unroute(partialMatch, fail);
+      }
+      await refreshParent(page);
+      const awaited = page.waitForResponse(
+        (reply) =>
+          new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST',
+      );
+      await page.getByRole('button', { name: 'Retry pending response', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.request().postData(), original);
+      await reply.body();
+      await expect(refresh(page)).toBeEnabled();
+    },
+  );
+  await check(
+    'Actual synthetic account switch cannot rebase or replay another actor’s pending learner request',
+    async () => {
+      await responseField(page).fill('Actor-bound pending response ' + suffix);
+      let original;
+      const match = (url) => url.pathname === submissions(assigned.id),
+        lose = guarded(async (route) => {
+          if (route.request().method() !== 'POST') return route.continue();
+          original = route.request().postData();
+          const reply = await routeFetch(route, 'student-user-a');
+          assert.equal(reply.status(), 201);
+          await reply.body();
+          return route.abort('failed');
+        });
+      await page.route(match, lose);
+      try {
+        await responseSave(page).click();
+        await expect(page.getByRole('alert')).toContainText('The save outcome is not confirmed.');
+      } finally {
+        await page.unroute(match, lose);
+      }
+      await switchActor(learner, 'admin-a');
+      try {
+        await refresh(page).click();
+        await expect(page.getByRole('alert')).toContainText(
+          'pending request belongs to the original signed-in account',
+        );
+        await expect(page.locator('[data-assigned-material],[data-submission-attempt]')).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Retry pending response', exact: true })).toHaveCount(
+          0,
+        );
+      } finally {
+        await switchActor(learner, 'student-user-a');
+      }
+      await refreshParent(page);
+      const awaited = page.waitForResponse(
+        (reply) =>
+          new URL(reply.url()).pathname === submissions(assigned.id) && reply.request().method() === 'POST',
+      );
+      await page.getByRole('button', { name: 'Retry pending response', exact: true }).click();
+      const reply = await awaited;
+      assert.equal(reply.request().postData(), original);
+      await reply.body();
+      await expect(refresh(page)).toBeEnabled();
+    },
+  );
+  await check('Guardian and unrelated staff receive denial without private assignment material', async () => {
+    const familyPage = await guardian.newPage();
+    await familyPage.goto(base.origin + '/assignments/' + assigned.id, { waitUntil: 'domcontentloaded' });
+    await expect(
+      familyPage.getByText(
+        'Responses and formative feedback are available to enrolled students and school staff. Guardian access is not available.',
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(familyPage.locator('[data-assigned-material]')).toHaveCount(0);
+    await api(guardian, submissions(assigned.id), 'GET', undefined, 403);
+    await familyPage.close();
+    const otherPage = await other.newPage();
+    await otherPage.goto(base.origin + '/assignments/' + assigned.id, { waitUntil: 'domcontentloaded' });
+    await expect(otherPage.getByRole('alert')).toContainText('unavailable to your account');
+    await expect(otherPage.locator('[data-assigned-material]')).toHaveCount(0);
+    await otherPage.close();
+  });
+  await check(
+    'Desktop learner page has labelled controls, distinct original receipt and no overflow',
+    async () => {
+      await widths(page);
+      await expect(page.getByRole('main')).toHaveCount(1);
+      await expect(page.locator('[data-confirmed-original-save]')).toBeVisible();
+    },
+  );
+  await shot(page, 'desktop');
   await page.setViewportSize({ width: 390, height: 844 });
-  await check('390px learner and staff pages wrap records and support native keyboard controls', async () => { await widths(page); await responseField(page).focus(); await expect(responseField(page)).toBeFocused(); await staffPage.setViewportSize({ width: 390, height: 844 }); await widths(staffPage); await responseSelection(staffPage).focus(); await expect(responseSelection(staffPage)).toBeFocused(); }); await shot(page, 'mobile'); await shot(staffPage, 'staff-mobile');
-  await check('Native assigned-learning link loads authorised current cards', async () => { await page.getByRole('link', { name: '← Assigned learning', exact: true }).click(); await expect(page).toHaveURL(base.origin + '/learning'); await expect(page.getByRole('heading', { name: 'Assigned learning', exact: true })).toBeVisible(); });
-  await check('All observed browser requests remain local with no page errors or failed assets', async () => { assert.deepEqual(errors, []); assert.deepEqual(external, []); assert.deepEqual(assets, []); });
-  const result = { executedAt: new Date().toISOString(), passed, failed: 0, skipped: 0, externalRequests: external.length, pageErrors: errors.length, checks, screenshots, limits: ['Final built localhost Worker and synthetic session cookies only.', 'Lost/denied/altered acknowledgements and partial read failure are named local delivery injections; underlying commits/newer attempts/reviews/closure and account switch are actual local authorised actions.', 'Suffix-only resources/assignments/attempts/reviews were created. Base profiles, roles and enrolment states were unchanged.', 'Pending requests live privately in the mounted tab only; full browser navigation/reload discards the in-memory pending request.', 'No provider login, external messaging, educational grading policy, hosted deployment, accessibility certification or UAT acceptance was exercised.'] }; writeFileSync('/private/tmp/saha-learner-recovery-ui-results.json', JSON.stringify(result, null, 2) + '\n'); console.log(JSON.stringify({ passed, failed: 0, skipped: 0, externalRequests: external.length, pageErrors: errors.length }));
-} catch (error) { writeFileSync('/private/tmp/saha-learner-recovery-ui-results.json', JSON.stringify({ executedAt: new Date().toISOString(), passed, failed: 1, checks, screenshots, failure: error instanceof Error ? error.message : String(error), externalRequests: external.length, pageErrors: errors.length }, null, 2) + '\n'); for (const value of contexts) for (const page of value.pages()) if (page.url().startsWith(base.origin)) console.error('Local screen ' + new URL(page.url()).pathname + '\n' + (await page.locator('body').innerText()).slice(0, 1400)); throw error;
-} finally { for (const value of contexts) await value.close(); await browser.close(); }
+  await check('390px learner and staff pages wrap records and support native keyboard controls', async () => {
+    await widths(page);
+    await responseField(page).focus();
+    await expect(responseField(page)).toBeFocused();
+    await staffPage.setViewportSize({ width: 390, height: 844 });
+    await widths(staffPage);
+    await responseSelection(staffPage).focus();
+    await expect(responseSelection(staffPage)).toBeFocused();
+  });
+  await shot(page, 'mobile');
+  await shot(staffPage, 'staff-mobile');
+  await check('Native assigned-learning link loads authorised current cards', async () => {
+    await page.getByRole('link', { name: '← Assigned learning', exact: true }).click();
+    await expect(page).toHaveURL(base.origin + '/learning');
+    await expect(page.getByRole('heading', { name: 'Assigned learning', exact: true })).toBeVisible();
+  });
+  await check('All observed browser requests remain local with no page errors or failed assets', async () => {
+    assert.deepEqual(errors, []);
+    assert.deepEqual(external, []);
+    assert.deepEqual(assets, []);
+  });
+  const result = {
+    executedAt: new Date().toISOString(),
+    passed,
+    failed: 0,
+    skipped: 0,
+    externalRequests: external.length,
+    pageErrors: errors.length,
+    checks,
+    screenshots,
+    limits: [
+      'Final built localhost Worker and synthetic session cookies only.',
+      'Lost/denied/altered acknowledgements and partial read failure are named local delivery injections; underlying commits/newer attempts/reviews/closure and account switch are actual local authorised actions.',
+      'Suffix-only resources/assignments/attempts/reviews were created. Base profiles, roles and enrolment states were unchanged.',
+      'Pending requests live privately in the mounted tab only; full browser navigation/reload discards the in-memory pending request.',
+      'No provider login, external messaging, educational grading policy, hosted deployment, accessibility certification or UAT acceptance was exercised.',
+    ],
+  };
+  writeFileSync('/private/tmp/saha-learner-recovery-ui-results.json', JSON.stringify(result, null, 2) + '\n');
+  console.log(
+    JSON.stringify({
+      passed,
+      failed: 0,
+      skipped: 0,
+      externalRequests: external.length,
+      pageErrors: errors.length,
+    }),
+  );
+} catch (error) {
+  writeFileSync(
+    '/private/tmp/saha-learner-recovery-ui-results.json',
+    JSON.stringify(
+      {
+        executedAt: new Date().toISOString(),
+        passed,
+        failed: 1,
+        checks,
+        screenshots,
+        failure: error instanceof Error ? error.message : String(error),
+        externalRequests: external.length,
+        pageErrors: errors.length,
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+  for (const value of contexts)
+    for (const page of value.pages())
+      if (page.url().startsWith(base.origin))
+        console.error(
+          'Local screen ' +
+            new URL(page.url()).pathname +
+            '\n' +
+            (await page.locator('body').innerText()).slice(0, 1400),
+        );
+  throw error;
+} finally {
+  for (const value of contexts) await value.close();
+  await browser.close();
+}

@@ -9,27 +9,62 @@ export const DASHBOARD_LIMITS = { classes: 100, assessments: 100, profiles: 50, 
 export type DashboardList<T> = { items: T[]; total: number; limit: number; truncated: boolean };
 type DashboardBase = { schoolId: string; asOf: string };
 export type AdminDashboard = DashboardBase & {
-  role: 'admin'; school: { id: string; name: string };
+  role: 'admin';
+  school: { id: string; name: string };
   counts: { students: number; courses: number; classes: number; enabledMappedTeachers: number };
 };
-export type DashboardClass = { id: string; name: string; courseId: string; courseTitle: string | null; term: string; activeStudents: number };
+export type DashboardClass = {
+  id: string;
+  name: string;
+  courseId: string;
+  courseTitle: string | null;
+  term: string;
+  activeStudents: number;
+};
 export type DashboardCoverage = {
   state: 'no-current-roster' | 'missing-results' | 'recorded-for-current-roster' | 'needs-review';
-  activeStudents: number; recordedStudents: number; missingStudents: number;
-  ambiguousEnrolmentStudents: number; ambiguousResultStudents: number; invalidResultStudents: number; invalidMaximum: boolean;
+  activeStudents: number;
+  recordedStudents: number;
+  missingStudents: number;
+  ambiguousEnrolmentStudents: number;
+  ambiguousResultStudents: number;
+  invalidResultStudents: number;
+  invalidMaximum: boolean;
 };
-export type DashboardAssessment = { id: string; classId: string; title: string; kind: string; date: string; maxScore: number | null; coverage: DashboardCoverage };
-export type TeacherDashboard = DashboardBase & { role: 'teacher'; classes: DashboardList<DashboardClass>; assessments: DashboardList<DashboardAssessment> };
+export type DashboardAssessment = {
+  id: string;
+  classId: string;
+  title: string;
+  kind: string;
+  date: string;
+  maxScore: number | null;
+  coverage: DashboardCoverage;
+};
+export type TeacherDashboard = DashboardBase & {
+  role: 'teacher';
+  classes: DashboardList<DashboardClass>;
+  assessments: DashboardList<DashboardAssessment>;
+};
 export type DashboardAttendance = {
-  recordedRows: number; counts: { present: number; absent: number; late: number; excused: number; other: number };
-  firstDate: string | null; lastDate: string | null; invalidDateRows: number;
+  recordedRows: number;
+  counts: { present: number; absent: number; late: number; excused: number; other: number };
+  firstDate: string | null;
+  lastDate: string | null;
+  invalidDateRows: number;
 };
 export type DashboardReport = { id: string; term: string; overallGrade: string; publishedAt: string };
 export type DashboardProfile = {
-  id: string; firstName: string; lastName: string; admissionNumber: string;
-  attendance: DashboardAttendance; reports: DashboardList<DashboardReport>;
+  id: string;
+  firstName: string;
+  lastName: string;
+  admissionNumber: string;
+  attendance: DashboardAttendance;
+  reports: DashboardList<DashboardReport>;
 };
-export type FamilyDashboard = DashboardBase & { role: 'guardian' | 'student'; profiles: DashboardList<DashboardProfile> };
+export type FamilyDashboard = DashboardBase & {
+  role: 'guardian' | 'student';
+  profiles: DashboardList<DashboardProfile>;
+};
 export type RoleDashboard = AdminDashboard | TeacherDashboard | FamilyDashboard;
 
 // JSON must retain its subtype across subquery boundaries on SQLite and D1.
@@ -101,11 +136,14 @@ function teacherPayload(principal: Principal): SQL {
 }
 
 function familyPayload(principal: Principal): SQL {
-  const reports = listPayload(sql`select json_group_array(json_object('id', displayed_report.id,
+  const reports = listPayload(
+    sql`select json_group_array(json_object('id', displayed_report.id,
     'term', displayed_report.term, 'overallGrade', displayed_report.overall_grade, 'publishedAt', displayed_report.published_at))
     from (select * from published_reports where student_id = p.id
       order by published_at desc, id desc limit ${DASHBOARD_LIMITS.reports}) displayed_report`,
-  sql`select count(*) from published_reports where student_id = p.id`, DASHBOARD_LIMITS.reports);
+    sql`select count(*) from published_reports where student_id = p.id`,
+    DASHBOARD_LIMITS.reports,
+  );
   const profiles = sql`select json_group_array(json_object('id', p.id, 'firstName', p.first_name, 'lastName', p.last_name,
     'admissionNumber', p.admission_number,
     'attendance', json_object('recordedRows', coalesce(stats.recorded_rows, 0),
@@ -146,11 +184,22 @@ function familyPayload(principal: Principal): SQL {
  */
 export async function getRoleDashboard(principal: Principal): Promise<RoleDashboard | null> {
   assertPrincipal(principal);
-  const payload = principal.role === 'admin' ? adminPayload(principal)
-    : principal.role === 'teacher' ? teacherPayload(principal) : familyPayload(principal);
-  const [row] = await getDb().select({ payload: sql<string>`${payload}` }).from(users).where(and(
-    eq(users.id, principal.id), livePrincipalScope(principal),
-    sql`exists (select 1 from schools where schools.id = ${principal.schoolId})`
-  )).limit(1);
-  return row ? JSON.parse(row.payload) as RoleDashboard : null;
+  const payload =
+    principal.role === 'admin'
+      ? adminPayload(principal)
+      : principal.role === 'teacher'
+        ? teacherPayload(principal)
+        : familyPayload(principal);
+  const [row] = await getDb()
+    .select({ payload: sql<string>`${payload}` })
+    .from(users)
+    .where(
+      and(
+        eq(users.id, principal.id),
+        livePrincipalScope(principal),
+        sql`exists (select 1 from schools where schools.id = ${principal.schoolId})`,
+      ),
+    )
+    .limit(1);
+  return row ? (JSON.parse(row.payload) as RoleDashboard) : null;
 }

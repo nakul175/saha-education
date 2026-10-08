@@ -8,18 +8,34 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-const root = fileURLToPath(new URL('../../', import.meta.url));  // repo root (test files live in tests/<layer>/)
-registerHooks({ resolve(spec, ctx, next) {
-  if (spec === '@/db' || spec === '@/db/index') return { url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;', shortCircuit: true };
-  if (/^next\/[a-z-]+$/.test(spec)) return next(spec + '.js', ctx);
-  let s = spec; if (s.startsWith('@/')) s = pathToFileURL(join(root, s.slice(2))).href;
-  if ((s.startsWith('.') || s.startsWith('file:')) && !/\.[cm]?[jt]sx?$/.test(s)) { const base = new URL(s, ctx.parentURL); for (const ext of ['.ts', '.tsx', '/index.ts']) { const u = new URL(base.href + ext); if (existsSync(u)) return { url: u.href, shortCircuit: true }; } }
-  return next(s, ctx); } });
+const root = fileURLToPath(new URL('../../', import.meta.url)); // repo root (test files live in tests/<layer>/)
+registerHooks({
+  resolve(spec, ctx, next) {
+    if (spec === '@/db' || spec === '@/db/index')
+      return {
+        url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;',
+        shortCircuit: true,
+      };
+    if (/^next\/[a-z-]+$/.test(spec)) return next(spec + '.js', ctx);
+    let s = spec;
+    if (s.startsWith('@/')) s = pathToFileURL(join(root, s.slice(2))).href;
+    if ((s.startsWith('.') || s.startsWith('file:')) && !/\.[cm]?[jt]sx?$/.test(s)) {
+      const base = new URL(s, ctx.parentURL);
+      for (const ext of ['.ts', '.tsx', '/index.ts']) {
+        const u = new URL(base.href + ext);
+        if (existsSync(u)) return { url: u.href, shortCircuit: true };
+      }
+    }
+    return next(s, ctx);
+  },
+});
 
 function freshDb() {
   const sqlite = new DatabaseSync(':memory:');
-  for (const f of readdirSync(join(root, 'drizzle')).filter((f) => /^\d.*\.sql$/.test(f)).sort()) 
-    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint')) 
+  for (const f of readdirSync(join(root, 'drizzle'))
+    .filter((f) => /^\d.*\.sql$/.test(f))
+    .sort())
+    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint'))
       if (st.trim()) sqlite.exec(st);
   return sqlite;
 }
@@ -28,18 +44,27 @@ const { drizzle } = await import('drizzle-orm/sqlite-proxy');
 const schema = await import(pathToFileURL(join(root, 'db/schema.ts')).href);
 
 function installTestDb(sqlite) {
-  globalThis.__sahaTestDb = drizzle(async (sql, params, method) => {
-    const st = sqlite.prepare(sql);
-    if (method === 'run') { st.run(...params); return { rows: [] }; }
-    if (method === 'get') { const r = st.get(...params); return { rows: r ? Object.values(r) : undefined }; }
-    return { rows: st.all(...params).map((r) => Object.values(r)) };
-  }, { schema });
+  globalThis.__sahaTestDb = drizzle(
+    async (sql, params, method) => {
+      const st = sqlite.prepare(sql);
+      if (method === 'run') {
+        st.run(...params);
+        return { rows: [] };
+      }
+      if (method === 'get') {
+        const r = st.get(...params);
+        return { rows: r ? Object.values(r) : undefined };
+      }
+      return { rows: st.all(...params).map((r) => Object.values(r)) };
+    },
+    { schema },
+  );
 }
 
 let sqlite = freshDb();
 installTestDb(sqlite);
 
-const { 
+const {
   schoolSchema,
   userSchema,
   studentSchema,
@@ -52,7 +77,7 @@ const {
   assessmentSchema,
   assessmentResultSchema,
   reportCardSchema,
-  notificationSchema
+  notificationSchema,
 } = await import(pathToFileURL(join(root, 'lib/education/validation.ts')).href);
 
 // School validation tests
@@ -62,9 +87,9 @@ test('school schema - valid input', () => {
     name: 'Test School',
     address: '123 Main St',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = schoolSchema.safeParse(validSchool);
   assert.ok(result.success, 'Valid school should parse successfully');
   assert.equal(result.data.name, 'Test School');
@@ -75,9 +100,9 @@ test('school schema - invalid name', () => {
   const invalidSchool = {
     id: 'school-1',
     name: '',
-    address: '123 Main St'
+    address: '123 Main St',
   };
-  
+
   const result = schoolSchema.safeParse(invalidSchool);
   assert.ok(!result.success, 'School with empty name should be rejected');
 });
@@ -91,9 +116,9 @@ test('user schema - valid input', () => {
     role: 'teacher',
     schoolId: 'school-1',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = userSchema.safeParse(validUser);
   assert.ok(result.success, 'Valid user should parse successfully');
   assert.equal(result.data.name, 'John Doe');
@@ -106,9 +131,9 @@ test('user schema - invalid email', () => {
     id: 'user-1',
     name: 'John Doe',
     email: 'invalid-email',
-    role: 'teacher'
+    role: 'teacher',
   };
-  
+
   const result = userSchema.safeParse(invalidUser);
   assert.ok(!result.success, 'User with invalid email should be rejected');
 });
@@ -118,9 +143,9 @@ test('user schema - invalid role', () => {
     id: 'user-1',
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'invalid-role'
+    role: 'invalid-role',
   };
-  
+
   const result = userSchema.safeParse(invalidUser);
   assert.ok(!result.success, 'User with invalid role should be rejected');
 });
@@ -136,9 +161,9 @@ test('student schema - valid input', () => {
     admissionNumber: 'ADMS-001',
     gradeLevel: '5th Grade',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = studentSchema.safeParse(validStudent);
   assert.ok(result.success, 'Valid student should parse successfully');
   assert.equal(result.data.firstName, 'John');
@@ -152,7 +177,7 @@ test('student schema - missing required fields', () => {
     firstName: 'John',
     // missing lastName, dateOfBirth, admissionNumber, gradeLevel
   };
-  
+
   const result = studentSchema.safeParse(invalidStudent);
   assert.ok(!result.success, 'Student with missing required fields should be rejected');
 });
@@ -167,9 +192,9 @@ test('guardian schema - valid input', () => {
     email: 'jane@example.com',
     relationship: 'Mother',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = guardianSchema.safeParse(validGuardian);
   assert.ok(result.success, 'Valid guardian should parse successfully');
   assert.equal(result.data.name, 'Jane Doe');
@@ -179,9 +204,9 @@ test('guardian schema - invalid email', () => {
   const invalidGuardian = {
     id: 'guardian-1',
     name: 'Jane Doe',
-    email: 'invalid-email'
+    email: 'invalid-email',
   };
-  
+
   const result = guardianSchema.safeParse(invalidGuardian);
   assert.ok(!result.success, 'Guardian with invalid email should be rejected');
 });
@@ -191,9 +216,9 @@ test('studentGuardian schema - valid input', () => {
   const validStudentGuardian = {
     studentId: 'student-1',
     guardianId: 'guardian-1',
-    isPrimary: true
+    isPrimary: true,
   };
-  
+
   const result = studentGuardianSchema.safeParse(validStudentGuardian);
   assert.ok(result.success, 'Valid student-guardian relationship should parse successfully');
   assert.equal(result.data.studentId, 'student-1');
@@ -201,10 +226,10 @@ test('studentGuardian schema - valid input', () => {
 
 test('studentGuardian schema - missing required fields', () => {
   const invalidStudentGuardian = {
-    studentId: 'student-1'
+    studentId: 'student-1',
     // missing guardianId
   };
-  
+
   const result = studentGuardianSchema.safeParse(invalidStudentGuardian);
   assert.ok(!result.success, 'Student-guardian relationship with missing required fields should be rejected');
 });
@@ -219,9 +244,9 @@ test('course schema - valid input', () => {
     description: 'Basic math course',
     gradeLevel: '5th Grade',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = courseSchema.safeParse(validCourse);
   assert.ok(result.success, 'Valid course should parse successfully');
   assert.equal(result.data.code, 'MATH101');
@@ -234,7 +259,7 @@ test('course schema - missing required fields', () => {
     code: 'MATH101',
     // missing title
   };
-  
+
   const result = courseSchema.safeParse(invalidCourse);
   assert.ok(!result.success, 'Course with missing required fields should be rejected');
 });
@@ -249,9 +274,9 @@ test('class schema - valid input', () => {
     name: 'Mathematics 5A',
     term: 'Spring 2023',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = classSchema.safeParse(validClass);
   assert.ok(result.success, 'Valid class should parse successfully');
   assert.equal(result.data.name, 'Mathematics 5A');
@@ -264,7 +289,7 @@ test('class schema - missing required fields', () => {
     courseId: 'course-1',
     // missing teacherId and name
   };
-  
+
   const result = classSchema.safeParse(invalidClass);
   assert.ok(!result.success, 'Class with missing required fields should be rejected');
 });
@@ -278,9 +303,9 @@ test('enrolment schema - valid input', () => {
     status: 'active',
     enrolledAt: '2023-01-01',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = enrolmentSchema.safeParse(validEnrolment);
   assert.ok(result.success, 'Valid enrolment should parse successfully');
   assert.equal(result.data.status, 'active');
@@ -291,9 +316,9 @@ test('enrolment schema - invalid status', () => {
     id: 'enrolment-1',
     studentId: 'student-1',
     classId: 'class-1',
-    status: 'invalid-status'
+    status: 'invalid-status',
   };
-  
+
   const result = enrolmentSchema.safeParse(invalidEnrolment);
   assert.ok(!result.success, 'Enrolment with invalid status should be rejected');
 });
@@ -308,9 +333,9 @@ test('attendance schema - valid input', () => {
     status: 'present',
     recordedBy: 'teacher-1',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = attendanceSchema.safeParse(validAttendance);
   assert.ok(result.success, 'Valid attendance should parse successfully');
   assert.equal(result.data.status, 'present');
@@ -323,9 +348,9 @@ test('attendance schema - invalid status', () => {
     studentId: 'student-1',
     date: '2023-01-01',
     status: 'invalid-status',
-    recordedBy: 'teacher-1'
+    recordedBy: 'teacher-1',
   };
-  
+
   const result = attendanceSchema.safeParse(invalidAttendance);
   assert.ok(!result.success, 'Attendance with invalid status should be rejected');
 });
@@ -340,9 +365,9 @@ test('assessment schema - valid input', () => {
     maxScore: 100,
     date: '2023-01-01',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = assessmentSchema.safeParse(validAssessment);
   assert.ok(result.success, 'Valid assessment should parse successfully');
   assert.equal(result.data.kind, 'exam');
@@ -354,9 +379,9 @@ test('assessment schema - invalid kind', () => {
     id: 'assessment-1',
     classId: 'class-1',
     title: 'Mathematics Test',
-    kind: 'invalid-kind'
+    kind: 'invalid-kind',
   };
-  
+
   const result = assessmentSchema.safeParse(invalidAssessment);
   assert.ok(!result.success, 'Assessment with invalid kind should be rejected');
 });
@@ -371,9 +396,9 @@ test('assessmentResult schema - valid input', () => {
     grade: 'B',
     feedback: 'Good work',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = assessmentResultSchema.safeParse(validAssessmentResult);
   assert.ok(result.success, 'Valid assessment result should parse successfully');
   assert.equal(result.data.score, 85);
@@ -384,9 +409,9 @@ test('assessmentResult schema - negative score', () => {
     id: 'result-1',
     assessmentId: 'assessment-1',
     studentId: 'student-1',
-    score: -5
+    score: -5,
   };
-  
+
   const result = assessmentResultSchema.safeParse(invalidAssessmentResult);
   assert.ok(!result.success, 'Assessment result with negative score should be rejected');
 });
@@ -401,9 +426,9 @@ test('reportCard schema - valid input', () => {
     overallGrade: 'B+',
     publishedAt: '2023-06-01T00:00:00Z',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = reportCardSchema.safeParse(validReportCard);
   assert.ok(result.success, 'Valid report card should parse successfully');
   assert.equal(result.data.term, 'Spring 2023');
@@ -415,7 +440,7 @@ test('reportCard schema - missing required fields', () => {
     studentId: 'student-1',
     // missing term and overallGrade
   };
-  
+
   const result = reportCardSchema.safeParse(invalidReportCard);
   assert.ok(!result.success, 'Report card with missing required fields should be rejected');
 });
@@ -429,9 +454,9 @@ test('notification schema - valid input', () => {
     title: 'Test Notification',
     body: 'This is a test notification',
     createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z'
+    updatedAt: '2023-01-01T00:00:00Z',
   };
-  
+
   const result = notificationSchema.safeParse(validNotification);
   assert.ok(result.success, 'Valid notification should parse successfully');
   assert.equal(result.data.channel, 'email');
@@ -442,9 +467,9 @@ test('notification schema - invalid channel', () => {
     id: 'notification-1',
     userId: 'user-1',
     channel: 'invalid-channel',
-    title: 'Test Notification'
+    title: 'Test Notification',
   };
-  
+
   const result = notificationSchema.safeParse(invalidNotification);
   assert.ok(!result.success, 'Notification with invalid channel should be rejected');
 });

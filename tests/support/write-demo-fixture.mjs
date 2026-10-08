@@ -8,9 +8,16 @@ import { demoSql } from '../../scripts/seed-demo.mjs';
 
 export const FIXTURE_ANCHOR = '2026-10-06';
 const [sqlPath, sessionPath, manifestPath] = process.argv.slice(2);
-if (!sqlPath || !sessionPath || !manifestPath) throw new Error('Supply SQL, session and manifest output paths.');
-const made = demoSql({ anchor: process.env.SAHA_DEMO_ANCHOR || FIXTURE_ANCHOR, withSchema: true, sessions: true });
+if (!sqlPath || !sessionPath || !manifestPath)
+  throw new Error('Supply SQL, session and manifest output paths.');
+const made = demoSql({
+  anchor: process.env.SAHA_DEMO_ANCHOR || FIXTURE_ANCHOR,
+  withSchema: true,
+  sessions: true,
+});
 writeFileSync(sqlPath, made.sql, { mode: 0o600 });
 writeFileSync(sessionPath, JSON.stringify(made.cookies), { mode: 0o600 });
 writeFileSync(manifestPath, JSON.stringify(made.manifest, null, 2) + '\n', { mode: 0o600 });
-console.log('Synthetic demo school SQL, private sessions and manifest created; demo mode must be enabled on the Worker.');
+console.log(
+  'Synthetic demo school SQL, private sessions and manifest created; demo mode must be enabled on the Worker.',
+);

@@ -23,8 +23,15 @@ function configuredOrfUrl(): string | null {
   if (!value) return null;
   try {
     const url = new URL(value);
-    if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash ||
-        /[?#\\\s]/.test(value)) return null;
+    if (
+      url.protocol !== 'https:' ||
+      url.username ||
+      url.password ||
+      url.search ||
+      url.hash ||
+      /[?#\\\s]/.test(value)
+    )
+      return null;
     return value;
   } catch {
     return null;
@@ -38,21 +45,28 @@ export function assertExternalAppStaff(principal: Principal): void {
 
 export function listExternalApps(principal: Principal): ExternalAppMetadata[] {
   assertPrincipal(principal);
-  return [{
-    id: ORF_ID,
-    title: 'Oral reading fluency',
-    available: STAFF_ROLES.includes(principal.role) && configuredOrfUrl() !== null,
-    allowedRoles: [...STAFF_ROLES],
-    capability: 'launch-only',
-    signIn: 'separate',
-    resultSync: false,
-  }];
+  return [
+    {
+      id: ORF_ID,
+      title: 'Oral reading fluency',
+      available: STAFF_ROLES.includes(principal.role) && configuredOrfUrl() !== null,
+      allowedRoles: [...STAFF_ROLES],
+      capability: 'launch-only',
+      signIn: 'separate',
+      resultSync: false,
+    },
+  ];
 }
 
-export async function launchExternalApp(principal: Principal, id: string, input: { studentId?: string } = {}): Promise<{ url: string; signIn: 'separate'; resultSync: false }> {
+export async function launchExternalApp(
+  principal: Principal,
+  id: string,
+  input: { studentId?: string } = {},
+): Promise<{ url: string; signIn: 'separate'; resultSync: false }> {
   assertExternalAppStaff(principal);
   if (id !== ORF_ID) throw new AuthError('Application not found', 404);
-  if (input.studentId && !await getStudent(principal, input.studentId)) throw new AuthError('Student not found', 404);
+  if (input.studentId && !(await getStudent(principal, input.studentId)))
+    throw new AuthError('Student not found', 404);
   const url = configuredOrfUrl();
   if (!url) throw new AuthError('Application unavailable', 503);
   return { url, signIn: 'separate', resultSync: false };

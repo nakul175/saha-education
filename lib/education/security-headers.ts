@@ -25,7 +25,7 @@ export function securityHeaders(requestUrl: string): Record<string, string> {
   const headers: Record<string, string> = {
     'Content-Security-Policy': CONTENT_SECURITY_POLICY,
     'X-Content-Type-Options': 'nosniff',
-    
+
     'X-Frame-Options': 'DENY',
     'Referrer-Policy': 'no-referrer',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()',
@@ -46,6 +46,7 @@ export function withSecurityHeaders(request: Request, response: Response): Respo
   for (const [name, value] of Object.entries(securityHeaders(request.url))) secured.headers.set(name, value);
   const { pathname } = new URL(request.url);
   const cacheControl = secured.headers.get('Cache-Control') ?? '';
-  if (!PUBLIC_ASSET.test(pathname) && !/\bno-store\b/i.test(cacheControl)) secured.headers.set('Cache-Control', 'no-store');
+  if (!PUBLIC_ASSET.test(pathname) && !/\bno-store\b/i.test(cacheControl))
+    secured.headers.set('Cache-Control', 'no-store');
   return secured;
 }

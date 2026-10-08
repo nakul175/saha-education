@@ -11,45 +11,132 @@ import type { Principal } from './types';
 const identifier = z.string().min(1).max(120);
 const rawNumber = z.union([z.number().finite(), z.string().max(100000), z.null()]);
 const storageType = z.enum(['integer', 'real', 'text', 'blob', 'null']);
-const metadataSchema = z.object({ id: identifier, classId: identifier, title: z.string().max(100000), kind: z.string().max(100000),
-  maxScore: rawNumber, date: z.string().max(100000), createdAt: z.string().max(100000), updatedAt: z.string().max(100000), maxScoreType: storageType }).strict();
-const recordSchema = z.object({ id: identifier, assessmentId: identifier, studentId: identifier, score: rawNumber, scoreType: storageType,
-  grade: z.string().max(100000).nullable(), feedback: z.string().max(100000).nullable(), createdAt: z.string().max(100000), updatedAt: z.string().max(100000) }).strict();
-export const assessmentResultReviewSchema = z.object({
-  clientRequestId: z.string().uuid(), reviewConfirmed: z.literal(true),
-  reason: z.string().trim().refine(value => [...value].length >= 10 && [...value].length <= 500).refine(value => !/[\x00-\x1f\x7f]/.test(value)),
-  expectedAssessment: metadataSchema,
-  entries: z.array(z.object({ studentId: identifier, score: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
-    grade: z.string().max(100000).nullable(), feedback: z.string().max(100000).nullable(), expectedRecord: recordSchema.nullable() }).strict()).min(1).max(100),
-}).strict().superRefine((value, context) => {
-  if (new Set(value.entries.map(entry => entry.studentId)).size !== value.entries.length) context.addIssue({ code: 'custom', message: 'Duplicate pupil' });
-  for (const entry of value.entries) {
-    const before = entry.expectedRecord;
-    if (before?.scoreType === 'integer' && before.score === entry.score && before.grade === entry.grade && before.feedback === entry.feedback) {
-      context.addIssue({ code: 'custom', message: 'Only changed results can be reviewed' });
+const metadataSchema = z
+  .object({
+    id: identifier,
+    classId: identifier,
+    title: z.string().max(100000),
+    kind: z.string().max(100000),
+    maxScore: rawNumber,
+    date: z.string().max(100000),
+    createdAt: z.string().max(100000),
+    updatedAt: z.string().max(100000),
+    maxScoreType: storageType,
+  })
+  .strict();
+const recordSchema = z
+  .object({
+    id: identifier,
+    assessmentId: identifier,
+    studentId: identifier,
+    score: rawNumber,
+    scoreType: storageType,
+    grade: z.string().max(100000).nullable(),
+    feedback: z.string().max(100000).nullable(),
+    createdAt: z.string().max(100000),
+    updatedAt: z.string().max(100000),
+  })
+  .strict();
+export const assessmentResultReviewSchema = z
+  .object({
+    clientRequestId: z.string().uuid(),
+    reviewConfirmed: z.literal(true),
+    reason: z
+      .string()
+      .trim()
+      .refine((value) => [...value].length >= 10 && [...value].length <= 500)
+      .refine((value) => !/[\x00-\x1f\x7f]/.test(value)),
+    expectedAssessment: metadataSchema,
+    entries: z
+      .array(
+        z
+          .object({
+            studentId: identifier,
+            score: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER),
+            grade: z.string().max(100000).nullable(),
+            feedback: z.string().max(100000).nullable(),
+            expectedRecord: recordSchema.nullable(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(100),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.entries.map((entry) => entry.studentId)).size !== value.entries.length)
+      context.addIssue({ code: 'custom', message: 'Duplicate pupil' });
+    for (const entry of value.entries) {
+      const before = entry.expectedRecord;
+      if (
+        before?.scoreType === 'integer' &&
+        before.score === entry.score &&
+        before.grade === entry.grade &&
+        before.feedback === entry.feedback
+      ) {
+        context.addIssue({ code: 'custom', message: 'Only changed results can be reviewed' });
+      }
+      if (
+        (entry.grade !== null && [...entry.grade].length > 2000 && entry.grade !== before?.grade) ||
+        (entry.feedback !== null && [...entry.feedback].length > 2000 && entry.feedback !== before?.feedback)
+      ) {
+        context.addIssue({
+          code: 'custom',
+          message: 'New or replacement grade and feedback text is limited to 2000 characters',
+        });
+      }
     }
-    if ((entry.grade !== null && [...entry.grade].length > 2000 && entry.grade !== before?.grade)
-      || (entry.feedback !== null && [...entry.feedback].length > 2000 && entry.feedback !== before?.feedback)) {
-      context.addIssue({ code: 'custom', message: 'New or replacement grade and feedback text is limited to 2000 characters' });
-    }
-  }
-});
+  });
 export type AssessmentMetadataSnapshot = z.infer<typeof metadataSchema>;
 export type AssessmentResultSnapshot = z.infer<typeof recordSchema>;
 export type AssessmentResultReviewInput = z.infer<typeof assessmentResultReviewSchema>;
-export type AssessmentResultEditorRow = { student: { id: string; firstName: string; lastName: string; admissionNumber: string };
-  record: AssessmentResultSnapshot | null; records: AssessmentResultSnapshot[]; resultRows: number; recordsTruncated: boolean;
-  enrolmentRows: number; needsReview: boolean; invalidResult: boolean };
-export type AssessmentResultEditorSnapshot = { assessment: AssessmentMetadataSnapshot; class: { id: string; name: string }; asOf: string;
-  invalidMaximum: boolean; invalidDate: boolean; canReview: boolean;
-  roster: { items: AssessmentResultEditorRow[]; total: number; limit: 100; truncated: boolean } };
-export type AssessmentResultReview = { id: string; assessmentId: string; classId: string; assessment: AssessmentMetadataSnapshot;
-  reviewedBy: string; reason: string; createdAt: string;
-  changes: { studentId: string; beforeRecord: AssessmentResultSnapshot | null; afterRecord: AssessmentResultSnapshot }[] };
+export type AssessmentResultEditorRow = {
+  student: { id: string; firstName: string; lastName: string; admissionNumber: string };
+  record: AssessmentResultSnapshot | null;
+  records: AssessmentResultSnapshot[];
+  resultRows: number;
+  recordsTruncated: boolean;
+  enrolmentRows: number;
+  needsReview: boolean;
+  invalidResult: boolean;
+};
+export type AssessmentResultEditorSnapshot = {
+  assessment: AssessmentMetadataSnapshot;
+  class: { id: string; name: string };
+  asOf: string;
+  invalidMaximum: boolean;
+  invalidDate: boolean;
+  canReview: boolean;
+  roster: { items: AssessmentResultEditorRow[]; total: number; limit: 100; truncated: boolean };
+};
+export type AssessmentResultReview = {
+  id: string;
+  assessmentId: string;
+  classId: string;
+  assessment: AssessmentMetadataSnapshot;
+  reviewedBy: string;
+  reason: string;
+  createdAt: string;
+  changes: {
+    studentId: string;
+    beforeRecord: AssessmentResultSnapshot | null;
+    afterRecord: AssessmentResultSnapshot;
+  }[];
+};
 export type AssessmentResultReviewResult = { review: AssessmentResultReview; replayed: boolean };
-export type AssessmentResultReviewHistory = { items: AssessmentResultReview[]; total: number; limit: 100; truncated: boolean };
+export type AssessmentResultReviewHistory = {
+  items: AssessmentResultReview[];
+  total: number;
+  limit: 100;
+  truncated: boolean;
+};
 export class AssessmentResultReviewConflict extends AccessError {
-  constructor() { super('Assessment review conflict; reload and compare saved results and metadata before a new review', 409); }
+  constructor() {
+    super(
+      'Assessment review conflict; reload and compare saved results and metadata before a new review',
+      409,
+    );
+  }
 }
 
 const clock = sql`strftime('%Y-%m-%dT%H:%M:%fZ','now')`;
@@ -71,8 +158,12 @@ function recordPayload(alias: string): SQL {
       else ${field('score')} end,'scoreType',typeof(${field('score')}),
     'grade',${field('grade')},'feedback',${field('feedback')},'createdAt',${field('created_at')},'updatedAt',${field('updated_at')})`;
 }
-export async function getAssessmentResultEditor(principal: Principal, assessmentId: string): Promise<AssessmentResultEditorSnapshot> {
-  assertAcademicStaff(principal); identifier.parse(assessmentId);
+export async function getAssessmentResultEditor(
+  principal: Principal,
+  assessmentId: string,
+): Promise<AssessmentResultEditorSnapshot> {
+  assertAcademicStaff(principal);
+  identifier.parse(assessmentId);
   const payload = sql<string>`(with pupils as (
     select distinct pupil.id,pupil.first_name,pupil.last_name,pupil.admission_number,
       (select count(*) from enrolments pair where pair.class_id=assessments.class_id and pair.student_id=pupil.id) pair_rows,
@@ -99,7 +190,11 @@ export async function getAssessmentResultEditor(principal: Principal, assessment
       'total',(select count(*) from pupils),'limit',100,'truncated',json(case when (select count(*) from pupils)>100 then 'true' else 'false' end)),
     'canReview',json(case when (select count(*) from pupils) between 1 and 100 and typeof(assessments.max_score)='integer' and assessments.max_score between 0 and 9007199254740991
       and not exists(select 1 from pupils where pair_rows>1 or result_rows>1 or opaque_result) then 'true' else 'false' end)))`;
-  const [row] = await getDb().select({ payload }).from(assessments).where(and(eq(assessments.id, assessmentId), academicClassWrite(principal, sql`${assessments.classId}`))).limit(1);
+  const [row] = await getDb()
+    .select({ payload })
+    .from(assessments)
+    .where(and(eq(assessments.id, assessmentId), academicClassWrite(principal, sql`${assessments.classId}`)))
+    .limit(1);
   if (!row) throw new AccessError('Assessment not found', 404);
   return JSON.parse(row.payload) as AssessmentResultEditorSnapshot;
 }
@@ -120,10 +215,27 @@ function reviewPayload(alias: string): SQL {
       'beforeRecord',case when event.before_record is null then json('null') else json(event.before_record) end,'afterRecord',json(event.after_record))),'[]')
       from (select * from assessment_review_entries where review_id=${field('id')} order by student_id) event)))`;
 }
-async function retry(principal: Principal, assessmentId: string, data: AssessmentResultReviewInput, hash: string): Promise<AssessmentResultReviewResult | null> {
-  const [row] = await getDb().select({ requestHash: assessmentReviews.requestHash, reviewedBy: assessmentReviews.reviewedBy,
-    payload: sql<string>`${reviewPayload('assessment_reviews')}` }).from(assessmentReviews).where(and(eq(assessmentReviews.id, data.clientRequestId),
-    eq(assessmentReviews.assessmentId, assessmentId), receiptScope(principal, 'assessment_reviews'))).limit(1);
+async function retry(
+  principal: Principal,
+  assessmentId: string,
+  data: AssessmentResultReviewInput,
+  hash: string,
+): Promise<AssessmentResultReviewResult | null> {
+  const [row] = await getDb()
+    .select({
+      requestHash: assessmentReviews.requestHash,
+      reviewedBy: assessmentReviews.reviewedBy,
+      payload: sql<string>`${reviewPayload('assessment_reviews')}`,
+    })
+    .from(assessmentReviews)
+    .where(
+      and(
+        eq(assessmentReviews.id, data.clientRequestId),
+        eq(assessmentReviews.assessmentId, assessmentId),
+        receiptScope(principal, 'assessment_reviews'),
+      ),
+    )
+    .limit(1);
   if (!row) return null;
   if (row.reviewedBy !== principal.id || row.requestHash !== hash) throw new AssessmentResultReviewConflict();
   return { review: JSON.parse(row.payload) as AssessmentResultReview, replayed: true };
@@ -136,41 +248,89 @@ function recognizedConflict(error: unknown): boolean {
   }
   return false;
 }
-export async function reviewAssessmentResults(principal: Principal, assessmentId: string, input: AssessmentResultReviewInput): Promise<AssessmentResultReviewResult> {
-  assertAcademicStaff(principal); identifier.parse(assessmentId);
+export async function reviewAssessmentResults(
+  principal: Principal,
+  assessmentId: string,
+  input: AssessmentResultReviewInput,
+): Promise<AssessmentResultReviewResult> {
+  assertAcademicStaff(principal);
+  identifier.parse(assessmentId);
   const data = assessmentResultReviewSchema.parse(input);
-  const entries = [...data.entries].sort((a, b) => a.studentId < b.studentId ? -1 : a.studentId > b.studentId ? 1 : 0);
-  const hash = await digest(JSON.stringify({ actorId: principal.id, schoolId: principal.schoolId, assessmentId, expectedAssessment: data.expectedAssessment, reason: data.reason, entries }));
+  const entries = [...data.entries].sort((a, b) =>
+    a.studentId < b.studentId ? -1 : a.studentId > b.studentId ? 1 : 0,
+  );
+  const hash = await digest(
+    JSON.stringify({
+      actorId: principal.id,
+      schoolId: principal.schoolId,
+      assessmentId,
+      expectedAssessment: data.expectedAssessment,
+      reason: data.reason,
+      entries,
+    }),
+  );
   const snapshot = await getAssessmentResultEditor(principal, assessmentId);
   const prior = await retry(principal, assessmentId, data, hash);
   if (prior) return prior;
-  if (!snapshot.canReview || Object.keys(snapshot.assessment).some(key => snapshot.assessment[key as keyof AssessmentMetadataSnapshot] !== data.expectedAssessment[key as keyof AssessmentMetadataSnapshot])) {
+  if (
+    !snapshot.canReview ||
+    Object.keys(snapshot.assessment).some(
+      (key) =>
+        snapshot.assessment[key as keyof AssessmentMetadataSnapshot] !==
+        data.expectedAssessment[key as keyof AssessmentMetadataSnapshot],
+    )
+  ) {
     throw new AssessmentResultReviewConflict();
   }
-  if (typeof snapshot.assessment.maxScore !== 'number' || entries.some(entry => entry.score > (snapshot.assessment.maxScore as number))) throw new AccessError('Score exceeds the maximum', 400);
+  if (
+    typeof snapshot.assessment.maxScore !== 'number' ||
+    entries.some((entry) => entry.score > (snapshot.assessment.maxScore as number))
+  )
+    throw new AccessError('Score exceeds the maximum', 400);
   const now = new Date().toISOString();
-  const payload = JSON.stringify(entries.map(entry => ({ ...entry, resultId: entry.expectedRecord?.id ?? crypto.randomUUID() })));
+  const payload = JSON.stringify(
+    entries.map((entry) => ({ ...entry, resultId: entry.expectedRecord?.id ?? crypto.randomUUID() })),
+  );
   let committed = false;
   try {
-    const rows = await getDb().insert(assessmentReviews).select(sql`select ${data.clientRequestId},${principal.schoolId},${assessmentId},${snapshot.assessment.classId},
-      ${JSON.stringify(data.expectedAssessment)},${principal.id},${data.reason},${hash},${payload},${now} where ${academicClassWrite(principal, snapshot.assessment.classId)}`)
-      .onConflictDoNothing({ target: assessmentReviews.id }).returning();
+    const rows = await getDb()
+      .insert(assessmentReviews)
+      .select(
+        sql`select ${data.clientRequestId},${principal.schoolId},${assessmentId},${snapshot.assessment.classId},
+      ${JSON.stringify(data.expectedAssessment)},${principal.id},${data.reason},${hash},${payload},${now} where ${academicClassWrite(principal, snapshot.assessment.classId)}`,
+      )
+      .onConflictDoNothing({ target: assessmentReviews.id })
+      .returning();
     committed = rows.length === 1;
-  } catch (error) { if (!recognizedConflict(error)) throw error; }
+  } catch (error) {
+    if (!recognizedConflict(error)) throw error;
+  }
   const outcome = await retry(principal, assessmentId, data, hash);
   if (outcome) return { ...outcome, replayed: !committed };
   if (committed) throw new AccessError('Review evidence is no longer available', 404);
   throw new AssessmentResultReviewConflict();
 }
-export async function listAssessmentResultReviews(principal: Principal, assessmentId: string, filter: { studentId?: string } = {}): Promise<AssessmentResultReviewHistory> {
-  assertAcademicStaff(principal); identifier.parse(assessmentId);
+export async function listAssessmentResultReviews(
+  principal: Principal,
+  assessmentId: string,
+  filter: { studentId?: string } = {},
+): Promise<AssessmentResultReviewHistory> {
+  assertAcademicStaff(principal);
+  identifier.parse(assessmentId);
   if (filter.studentId !== undefined) identifier.parse(filter.studentId);
-  const pupil = filter.studentId === undefined ? sql`1` : sql`exists(select 1 from assessment_review_entries selected where selected.review_id=receipt.id and selected.student_id=${filter.studentId})`;
+  const pupil =
+    filter.studentId === undefined
+      ? sql`1`
+      : sql`exists(select 1 from assessment_review_entries selected where selected.review_id=receipt.id and selected.student_id=${filter.studentId})`;
   const payload = sql<string>`(with visible as (select receipt.* from assessment_reviews receipt where receipt.assessment_id=${assessmentId}
     and ${receiptScope(principal, 'receipt')} and ${pupil}) select json_object('items',json((select coalesce(json_group_array(json(${reviewPayload('displayed')})),'[]')
     from (select * from visible order by created_at desc,id desc limit 100) displayed)),'total',(select count(*) from visible),'limit',100,
     'truncated',json(case when (select count(*) from visible)>100 then 'true' else 'false' end)))`;
-  const [row] = await getDb().select({ payload }).from(assessments).where(and(eq(assessments.id, assessmentId), academicClassWrite(principal, sql`${assessments.classId}`))).limit(1);
+  const [row] = await getDb()
+    .select({ payload })
+    .from(assessments)
+    .where(and(eq(assessments.id, assessmentId), academicClassWrite(principal, sql`${assessments.classId}`)))
+    .limit(1);
   if (!row) throw new AccessError('Assessment not found', 404);
   return JSON.parse(row.payload) as AssessmentResultReviewHistory;
 }

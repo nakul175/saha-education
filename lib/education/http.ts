@@ -4,21 +4,45 @@ import { AccessError } from './access';
 import type { Principal } from './types';
 
 /** Every education endpoint authenticates before parsing or accessing records. */
-export async function authenticated(request: Request, mutation: boolean, action: (principal: Principal) => Promise<Response>): Promise<Response> {
+export async function authenticated(
+  request: Request,
+  mutation: boolean,
+  action: (principal: Principal) => Promise<Response>,
+): Promise<Response> {
   try {
     const principal = await getPrincipal(request);
-    if (!principal) return Response.json({ error: 'Authentication required' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
+    if (!principal)
+      return Response.json(
+        { error: 'Authentication required' },
+        { status: 401, headers: { 'Cache-Control': 'no-store' } },
+      );
     if (mutation) requireSameOrigin(request);
     const response = await action(principal);
     response.headers.set('Cache-Control', 'no-store');
     return response;
   } catch (error) {
-    const status = error instanceof AccessError || error instanceof AuthError ? error.status : error instanceof z.ZodError || error instanceof SyntaxError ? 400 : 500;
-    const messages: Record<number, string> = { 400: 'Invalid request', 401: 'Authentication required', 403: 'Forbidden', 404: 'Not found', 409: 'Conflict', 500: 'Internal server error', 503: 'Service unavailable' };
+    const status =
+      error instanceof AccessError || error instanceof AuthError
+        ? error.status
+        : error instanceof z.ZodError || error instanceof SyntaxError
+          ? 400
+          : 500;
+    const messages: Record<number, string> = {
+      400: 'Invalid request',
+      401: 'Authentication required',
+      403: 'Forbidden',
+      404: 'Not found',
+      409: 'Conflict',
+      500: 'Internal server error',
+      503: 'Service unavailable',
+    };
     // A stable lifecycle code (for example `class-full`) lets a client explain a conflict; it never carries record contents.
     const rawCode = error instanceof AccessError ? (error as unknown as { code?: unknown }).code : undefined;
     const code = typeof rawCode === 'string' && /^[a-z-]{1,40}$/.test(rawCode) ? rawCode : undefined;
-    return Response.json({ error: messages[status] || messages[500], ...(code ? { code } : {}) }, { status, headers: { 'Cache-Control': 'no-store' } });
+    return Response.json(
+      { error: messages[status] || messages[500], ...(code ? { code } : {}) },
+      { status, headers: { 'Cache-Control': 'no-store' } },
+    );
   }
 }
 
@@ -47,12 +71,20 @@ export async function boundedText(request: Request, options: { required?: boolea
       }
       chunks.push(value);
     }
-  } finally { reader.releaseLock(); }
+  } finally {
+    reader.releaseLock();
+  }
   const bytes = new Uint8Array(size);
   let offset = 0;
-  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-  try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); }
-  catch { throw new SyntaxError('Invalid JSON encoding'); }
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    throw new SyntaxError('Invalid JSON encoding');
+  }
 }
 
 export async function body<T>(request: Request, schema: z.ZodSchema<T>): Promise<T> {

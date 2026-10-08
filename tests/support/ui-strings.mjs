@@ -5,17 +5,36 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import ts from 'typescript';
 
-export const READABLE_ATTRIBUTES = new Set(['aria-label', 'title', 'placeholder', 'alt', 'label', 'aria-description']);
-const READABLE_PROPERTIES = new Set(['label', 'title', 'description', 'message', 'text', 'summary', 'help', 'hint', 'heading']);
+export const READABLE_ATTRIBUTES = new Set([
+  'aria-label',
+  'title',
+  'placeholder',
+  'alt',
+  'label',
+  'aria-description',
+]);
+const READABLE_PROPERTIES = new Set([
+  'label',
+  'title',
+  'description',
+  'message',
+  'text',
+  'summary',
+  'help',
+  'hint',
+  'heading',
+]);
 const MESSAGE_CALLEE = /^(set[A-Z]\w*|toast(\.\w+)?|Error|AuthError|ValidationError)$/;
 
 export function listSources(root, directories = ['app', 'components']) {
   const out = [];
-  const walk = directory => {
+  const walk = (directory) => {
     for (const entry of readdirSync(directory)) {
       const path = join(directory, entry);
-      if (statSync(path).isDirectory()) { if (entry === 'ui' || entry === 'api') continue; walk(path); }
-      else if (/\.tsx$/.test(entry)) out.push(path);
+      if (statSync(path).isDirectory()) {
+        if (entry === 'ui' || entry === 'api') continue;
+        walk(path);
+      } else if (/\.tsx$/.test(entry)) out.push(path);
     }
   };
   // components/ui holds generic shadcn primitives with no product wording; app/api never renders pages.
@@ -23,7 +42,9 @@ export function listSources(root, directories = ['app', 'components']) {
   return out.sort();
 }
 
-function clean(value) { return value.replace(/\s+/g, ' ').trim(); }
+function clean(value) {
+  return value.replace(/\s+/g, ' ').trim();
+}
 function looksLikeProse(value) {
   // Needs letters and either a space or a capitalised word; filters class names, ids, paths and enum values.
   if (!/[A-Za-z]{2}/.test(value)) return false;
@@ -41,46 +62,107 @@ export function extractStrings(file, root) {
   const add = (node, text, kind) => {
     const value = clean(text);
     if (seen.has(node.getStart())) return;
-    if (value && looksLikeProse(value)) { seen.add(node.getStart()); found.push({ file: relative(root, file), line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1, text: value, kind }); }
+    if (value && looksLikeProse(value)) {
+      seen.add(node.getStart());
+      found.push({
+        file: relative(root, file),
+        line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1,
+        text: value,
+        kind,
+      });
+    }
   };
   // Any other sentence-like string (for example a role description inside an array of choices). It must be text
   // handed to the reader, not an import path, comparison, switch case, type, object key or non-readable attribute.
-  const isSentenceLiteral = node => {
-    if (!ts.isStringLiteral(node) && !ts.isNoSubstitutionTemplateLiteral(node) && !ts.isTemplateExpression(node)) return false;
+  const isSentenceLiteral = (node) => {
+    if (
+      !ts.isStringLiteral(node) &&
+      !ts.isNoSubstitutionTemplateLiteral(node) &&
+      !ts.isTemplateExpression(node)
+    )
+      return false;
     const parent = node.parent;
-    if (ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent) || ts.isCaseClause(parent) || ts.isLiteralTypeNode(parent) || ts.isElementAccessExpression(parent) || ts.isExternalModuleReference(parent)) return false;
-    if (ts.isJsxAttribute(parent) || (ts.isJsxExpression(parent) && ts.isJsxAttribute(parent.parent))) return false;
-    if (ts.isBinaryExpression(parent) && [ts.SyntaxKind.EqualsEqualsEqualsToken, ts.SyntaxKind.ExclamationEqualsEqualsToken, ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.ExclamationEqualsToken].includes(parent.operatorToken.kind)) return false;
+    if (
+      ts.isImportDeclaration(parent) ||
+      ts.isExportDeclaration(parent) ||
+      ts.isCaseClause(parent) ||
+      ts.isLiteralTypeNode(parent) ||
+      ts.isElementAccessExpression(parent) ||
+      ts.isExternalModuleReference(parent)
+    )
+      return false;
+    if (ts.isJsxAttribute(parent) || (ts.isJsxExpression(parent) && ts.isJsxAttribute(parent.parent)))
+      return false;
+    if (
+      ts.isBinaryExpression(parent) &&
+      [
+        ts.SyntaxKind.EqualsEqualsEqualsToken,
+        ts.SyntaxKind.ExclamationEqualsEqualsToken,
+        ts.SyntaxKind.EqualsEqualsToken,
+        ts.SyntaxKind.ExclamationEqualsToken,
+      ].includes(parent.operatorToken.kind)
+    )
+      return false;
     if (ts.isPropertyAssignment(parent) && parent.name === node) return false;
-    if (ts.isCallExpression(parent) && /^(fetch|cn|clsx|cva|twMerge|require|import|getElementById|querySelector|URL|includes|startsWith|endsWith|has|get|set|redirect|revalidatePath|replace|match|test|split|join)$/.test(parent.expression.getText().split('.').pop())) return false;
+    if (
+      ts.isCallExpression(parent) &&
+      /^(fetch|cn|clsx|cva|twMerge|require|import|getElementById|querySelector|URL|includes|startsWith|endsWith|has|get|set|redirect|revalidatePath|replace|match|test|split|join)$/.test(
+        parent.expression.getText().split('.').pop(),
+      )
+    )
+      return false;
     const value = clean(textOf(node) ?? '');
     return /^[A-Z][A-Za-z’'-]*\s+\S/.test(value) && /\s/.test(value);
   };
-  const textOf = node => ts.isStringLiteralLike(node) ? node.text
-    : ts.isTemplateExpression(node) ? node.head.text + node.templateSpans.map(span => ' ' + span.literal.text).join('') : null;
+  const textOf = (node) =>
+    ts.isStringLiteralLike(node)
+      ? node.text
+      : ts.isTemplateExpression(node)
+        ? node.head.text + node.templateSpans.map((span) => ' ' + span.literal.text).join('')
+        : null;
   const stringsIn = (node, kind) => {
-    const visit = child => {
+    const visit = (child) => {
       const text = textOf(child);
       if (text !== null) add(child, text, kind);
-      else if (ts.isConditionalExpression(child)) { visit(child.whenTrue); visit(child.whenFalse); }
-      else if (ts.isBinaryExpression(child) && [ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken, ts.SyntaxKind.PlusToken].includes(child.operatorToken.kind)) { visit(child.left); visit(child.right); }
-      else if (ts.isParenthesizedExpression(child)) visit(child.expression);
-      else if (ts.isJsxElement(child) || ts.isJsxFragment(child) || ts.isJsxSelfClosingElement(child)) { /* walked separately */ }
+      else if (ts.isConditionalExpression(child)) {
+        visit(child.whenTrue);
+        visit(child.whenFalse);
+      } else if (
+        ts.isBinaryExpression(child) &&
+        [
+          ts.SyntaxKind.AmpersandAmpersandToken,
+          ts.SyntaxKind.BarBarToken,
+          ts.SyntaxKind.QuestionQuestionToken,
+          ts.SyntaxKind.PlusToken,
+        ].includes(child.operatorToken.kind)
+      ) {
+        visit(child.left);
+        visit(child.right);
+      } else if (ts.isParenthesizedExpression(child)) visit(child.expression);
+      else if (ts.isJsxElement(child) || ts.isJsxFragment(child) || ts.isJsxSelfClosingElement(child)) {
+        /* walked separately */
+      }
     };
     visit(node);
   };
-  const walk = node => {
+  const walk = (node) => {
     if (ts.isJsxText(node)) add(node, node.text, 'jsx-text');
     else if (ts.isJsxAttribute(node) && READABLE_ATTRIBUTES.has(node.name.getText())) {
       const initializer = node.initializer;
       if (initializer && ts.isStringLiteral(initializer)) add(initializer, initializer.text, 'attribute');
-      else if (initializer && ts.isJsxExpression(initializer) && initializer.expression) stringsIn(initializer.expression, 'attribute');
+      else if (initializer && ts.isJsxExpression(initializer) && initializer.expression)
+        stringsIn(initializer.expression, 'attribute');
     } else if (ts.isJsxExpression(node) && node.expression && !ts.isJsxAttribute(node.parent)) {
       stringsIn(node.expression, 'jsx-expression');
-    } else if (ts.isPropertyAssignment(node) && (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) && READABLE_PROPERTIES.has(node.name.text)) {
+    } else if (
+      ts.isPropertyAssignment(node) &&
+      (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) &&
+      READABLE_PROPERTIES.has(node.name.text)
+    ) {
       stringsIn(node.initializer, 'property');
     } else if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
-      if (MESSAGE_CALLEE.test(node.expression.getText())) for (const argument of node.arguments ?? []) stringsIn(argument, 'message');
+      if (MESSAGE_CALLEE.test(node.expression.getText()))
+        for (const argument of node.arguments ?? []) stringsIn(argument, 'message');
     } else if (isSentenceLiteral(node)) add(node, textOf(node), 'literal');
     ts.forEachChild(node, walk);
   };
@@ -89,23 +171,31 @@ export function extractStrings(file, root) {
 }
 
 export function allStrings(root, directories) {
-  return listSources(root, directories).flatMap(file => extractStrings(file, root));
+  return listSources(root, directories).flatMap((file) => extractStrings(file, root));
 }
 
 export function countSyllables(word) {
   const w = word.toLowerCase().replace(/[^a-z]/g, '');
   if (w.length <= 3) return 1;
-  const groups = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '').match(/[aeiouy]{1,2}/g);
+  const groups = w
+    .replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
+    .replace(/^y/, '')
+    .match(/[aeiouy]{1,2}/g);
   return Math.max(1, groups ? groups.length : 1);
 }
 
 /** Flesch-Kincaid grade for running text, one sentence per supplied string unless it holds several. */
 export function readingGrade(texts) {
-  let words = 0, sentences = 0, syllables = 0;
+  let words = 0,
+    sentences = 0,
+    syllables = 0;
   for (const text of texts) {
-    const parts = text.split(/(?<=[.!?])\s+/).filter(part => /[A-Za-z]/.test(part));
+    const parts = text.split(/(?<=[.!?])\s+/).filter((part) => /[A-Za-z]/.test(part));
     sentences += Math.max(1, parts.length);
-    for (const word of text.match(/[A-Za-z’']+/g) ?? []) { words++; syllables += countSyllables(word); }
+    for (const word of text.match(/[A-Za-z’']+/g) ?? []) {
+      words++;
+      syllables += countSyllables(word);
+    }
   }
   if (!words || !sentences) return 0;
   return 0.39 * (words / sentences) + 11.8 * (syllables / words) - 15.59;
@@ -120,12 +210,26 @@ export function readingGrade(texts) {
 export function wordLiteralsIn(sourceText, pattern, name = 'source.tsx') {
   const found = [];
   const source = ts.createSourceFile(name, sourceText, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX);
-  const visit = node => {
-    const textual = ts.isJsxText(node) || ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateHead(node) || ts.isTemplateMiddle(node) || ts.isTemplateTail(node);
+  const visit = (node) => {
+    const textual =
+      ts.isJsxText(node) ||
+      ts.isStringLiteral(node) ||
+      ts.isNoSubstitutionTemplateLiteral(node) ||
+      ts.isTemplateHead(node) ||
+      ts.isTemplateMiddle(node) ||
+      ts.isTemplateTail(node);
     if (textual && pattern.test(node.text)) {
       const parent = node.parent;
-      const unread = ts.isImportDeclaration(parent) || ts.isExportDeclaration(parent) || ts.isLiteralTypeNode(parent) || (ts.isJsxAttribute(parent) && !READABLE_ATTRIBUTES.has(parent.name.getText()));
-      if (!unread) found.push({ line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1, text: node.text.replace(/\s+/g, ' ').trim() });
+      const unread =
+        ts.isImportDeclaration(parent) ||
+        ts.isExportDeclaration(parent) ||
+        ts.isLiteralTypeNode(parent) ||
+        (ts.isJsxAttribute(parent) && !READABLE_ATTRIBUTES.has(parent.name.getText()));
+      if (!unread)
+        found.push({
+          line: source.getLineAndCharacterOfPosition(node.getStart()).line + 1,
+          text: node.text.replace(/\s+/g, ' ').trim(),
+        });
     }
     ts.forEachChild(node, visit);
   };
@@ -134,5 +238,10 @@ export function wordLiteralsIn(sourceText, pattern, name = 'source.tsx') {
 }
 
 export function wordLiterals(root, pattern, directories) {
-  return listSources(root, directories).flatMap(file => wordLiteralsIn(readFileSync(file, 'utf8'), pattern, file).map(entry => ({ file: relative(root, file), ...entry })));
+  return listSources(root, directories).flatMap((file) =>
+    wordLiteralsIn(readFileSync(file, 'utf8'), pattern, file).map((entry) => ({
+      file: relative(root, file),
+      ...entry,
+    })),
+  );
 }

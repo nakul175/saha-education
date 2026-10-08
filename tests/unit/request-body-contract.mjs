@@ -8,18 +8,34 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-const root = fileURLToPath(new URL('../../', import.meta.url));  // repo root (test files live in tests/<layer>/)
-registerHooks({ resolve(spec, ctx, next) {
-  if (spec === '@/db' || spec === '@/db/index') return { url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;', shortCircuit: true };
-  if (/^next\/[a-z-]+$/.test(spec)) return next(spec + '.js', ctx);
-  let s = spec; if (s.startsWith('@/')) s = pathToFileURL(join(root, s.slice(2))).href;
-  if ((s.startsWith('.') || s.startsWith('file:')) && !/\.[cm]?[jt]sx?$/.test(s)) { const base = new URL(s, ctx.parentURL); for (const ext of ['.ts', '.tsx', '/index.ts']) { const u = new URL(base.href + ext); if (existsSync(u)) return { url: u.href, shortCircuit: true }; } }
-  return next(s, ctx); } });
+const root = fileURLToPath(new URL('../../', import.meta.url)); // repo root (test files live in tests/<layer>/)
+registerHooks({
+  resolve(spec, ctx, next) {
+    if (spec === '@/db' || spec === '@/db/index')
+      return {
+        url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;',
+        shortCircuit: true,
+      };
+    if (/^next\/[a-z-]+$/.test(spec)) return next(spec + '.js', ctx);
+    let s = spec;
+    if (s.startsWith('@/')) s = pathToFileURL(join(root, s.slice(2))).href;
+    if ((s.startsWith('.') || s.startsWith('file:')) && !/\.[cm]?[jt]sx?$/.test(s)) {
+      const base = new URL(s, ctx.parentURL);
+      for (const ext of ['.ts', '.tsx', '/index.ts']) {
+        const u = new URL(base.href + ext);
+        if (existsSync(u)) return { url: u.href, shortCircuit: true };
+      }
+    }
+    return next(s, ctx);
+  },
+});
 
 function freshDb() {
   const sqlite = new DatabaseSync(':memory:');
-  for (const f of readdirSync(join(root, 'drizzle')).filter((f) => /^\d.*\.sql$/.test(f)).sort()) 
-    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint')) 
+  for (const f of readdirSync(join(root, 'drizzle'))
+    .filter((f) => /^\d.*\.sql$/.test(f))
+    .sort())
+    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint'))
       if (st.trim()) sqlite.exec(st);
   return sqlite;
 }
@@ -28,12 +44,21 @@ const { drizzle } = await import('drizzle-orm/sqlite-proxy');
 const schema = await import(pathToFileURL(join(root, 'db/schema.ts')).href);
 
 function installTestDb(sqlite) {
-  globalThis.__sahaTestDb = drizzle(async (sql, params, method) => {
-    const st = sqlite.prepare(sql);
-    if (method === 'run') { st.run(...params); return { rows: [] }; }
-    if (method === 'get') { const r = st.get(...params); return { rows: r ? Object.values(r) : undefined }; }
-    return { rows: st.all(...params).map((r) => Object.values(r)) };
-  }, { schema });
+  globalThis.__sahaTestDb = drizzle(
+    async (sql, params, method) => {
+      const st = sqlite.prepare(sql);
+      if (method === 'run') {
+        st.run(...params);
+        return { rows: [] };
+      }
+      if (method === 'get') {
+        const r = st.get(...params);
+        return { rows: r ? Object.values(r) : undefined };
+      }
+      return { rows: st.all(...params).map((r) => Object.values(r)) };
+    },
+    { schema },
+  );
 }
 
 let sqlite = freshDb();
@@ -41,7 +66,12 @@ installTestDb(sqlite);
 
 // Actual tests
 import assert from 'node:assert/strict';
-import { parseRequestBody, parseRequestBodyWithErrorHandling, parseFormData, parseSearchParams } from '../../lib/education/request-body.ts';
+import {
+  parseRequestBody,
+  parseRequestBodyWithErrorHandling,
+  parseFormData,
+  parseSearchParams,
+} from '../../lib/education/request-body.ts';
 
 // Test 1: Valid JSON parses correctly
 test('parseRequestBody with valid JSON', async () => {
@@ -50,13 +80,13 @@ test('parseRequestBody with valid JSON', async () => {
       assert.equal(data.name, 'John');
       assert.equal(data.age, 30);
       return data;
-    }
+    },
   };
-  
-  const request = new Request('http://localhost/x', { 
+
+  const request = new Request('http://localhost/x', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name: 'John', age: 30 })
+    body: JSON.stringify({ name: 'John', age: 30 }),
   });
 
   const result = await parseRequestBody(schema, request);
@@ -67,13 +97,13 @@ test('parseRequestBody with valid JSON', async () => {
 // Test 2: Invalid JSON throws error
 test('parseRequestBody with invalid JSON', async () => {
   const schema = {
-    parse: (data) => data
+    parse: (data) => data,
   };
-  
-  const request = new Request('http://localhost/x', { 
+
+  const request = new Request('http://localhost/x', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: '{ invalid json }'
+    body: '{ invalid json }',
   });
 
   try {
@@ -91,13 +121,13 @@ test('parseRequestBody with schema violation', async () => {
     parse: (data) => {
       if (data.age < 0) throw new Error('Age must be positive');
       return data;
-    }
+    },
   };
-  
-  const request = new Request('http://localhost/x', { 
+
+  const request = new Request('http://localhost/x', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name: 'John', age: -1 })
+    body: JSON.stringify({ name: 'John', age: -1 }),
   });
 
   try {
@@ -111,13 +141,13 @@ test('parseRequestBody with schema violation', async () => {
 // Test 4: parseRequestBodyWithErrorHandling with valid JSON
 test('parseRequestBodyWithErrorHandling with valid JSON', async () => {
   const schema = {
-    parse: (data) => data
+    parse: (data) => data,
   };
-  
-  const request = new Request('http://localhost/x', { 
+
+  const request = new Request('http://localhost/x', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name: 'John', age: 30 })
+    body: JSON.stringify({ name: 'John', age: 30 }),
   });
 
   const result = await parseRequestBodyWithErrorHandling(schema, request);
@@ -129,13 +159,13 @@ test('parseRequestBodyWithErrorHandling with valid JSON', async () => {
 // Test 5: parseRequestBodyWithErrorHandling with invalid JSON
 test('parseRequestBodyWithErrorHandling with invalid JSON', async () => {
   const schema = {
-    parse: (data) => data
+    parse: (data) => data,
   };
-  
-  const request = new Request('http://localhost/x', { 
+
+  const request = new Request('http://localhost/x', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: '{ invalid json }'
+    body: '{ invalid json }',
   });
 
   const result = await parseRequestBodyWithErrorHandling(schema, request);
@@ -149,13 +179,13 @@ test('parseRequestBodyWithErrorHandling with schema violation', async () => {
     parse: (data) => {
       if (data.age < 0) throw new Error('Age must be positive');
       return data;
-    }
+    },
   };
-  
-  const request = new Request('http://localhost/x', { 
+
+  const request = new Request('http://localhost/x', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name: 'John', age: -1 })
+    body: JSON.stringify({ name: 'John', age: -1 }),
   });
 
   const result = await parseRequestBodyWithErrorHandling(schema, request);
@@ -170,17 +200,17 @@ test('parseFormData with valid form data', async () => {
       assert.equal(data.name, 'John');
       assert.equal(data.age, '30');
       return data;
-    }
+    },
   };
-  
+
   const formData = new FormData();
   formData.append('name', 'John');
   formData.append('age', '30');
-  
+
   // Request supplies the multipart boundary; overriding it makes parsing fail.
-  const request = new Request('http://localhost/x', { 
+  const request = new Request('http://localhost/x', {
     method: 'POST',
-    body: formData
+    body: formData,
   });
 
   const result = await parseFormData(schema, request);
@@ -194,13 +224,13 @@ test('parseFormData with schema violation', async () => {
     parse: (data) => {
       if (data.value < 0) throw new Error('Value must be positive');
       return data;
-    }
+    },
   };
-  
+
   const formData = new FormData();
   formData.append('value', '-1');
-  
-  const request = new Request('http://localhost/x', {method: 'POST', body: formData});
+
+  const request = new Request('http://localhost/x', { method: 'POST', body: formData });
   await assert.rejects(parseFormData(schema, request), /Value must be positive/);
 });
 
@@ -210,9 +240,9 @@ test('parseSearchParams with valid search params', async () => {
     parse: (data) => {
       assert.equal(data.name, 'John');
       return data;
-    }
+    },
   };
-  
+
   const params = new URLSearchParams('name=John&age=30');
   const result = parseSearchParams(schema, params);
   assert.equal(result.name, 'John');
@@ -224,11 +254,11 @@ test('parseSearchParams with schema violation', async () => {
     parse: (data) => {
       if (data.age < 0) throw new Error('Age must be positive');
       return data;
-    }
+    },
   };
-  
+
   const params = new URLSearchParams('name=John&age=-1');
-  
+
   try {
     parseSearchParams(schema, params);
     assert.fail('Should have thrown');

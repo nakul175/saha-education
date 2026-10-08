@@ -7,5 +7,6 @@ import { withSecurityHeaders } from '../lib/education/security-headers';
 
 export default {
   // Every response, including framework-generated 404/500 pages, passes through the browser security headers (NFR-01).
-  fetch: async (request: Request, env: unknown, ctx: ExecutionContext) => withSecurityHeaders(request, await handler.fetch(request, env, ctx)),
+  fetch: async (request: Request, env: unknown, ctx: ExecutionContext) =>
+    withSecurityHeaders(request, await handler.fetch(request, env, ctx)),
 };

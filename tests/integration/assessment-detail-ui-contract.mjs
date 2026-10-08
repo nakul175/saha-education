@@ -6,232 +6,1791 @@ import ts from 'typescript';
 import { drizzle } from 'drizzle-orm/d1';
 import { freshDatabase, seedSecurityData, load, bindings, root } from '../support/security-db.mjs';
 import { serverWork, settleQuiet } from '../support/quiescence.mjs';
-const origin = 'https://education.example.invalid'; bindings.SAHA_ALLOWED_ORIGINS = origin;
-const routes = { session: await load('app/api/session/route.ts'), editor: await load('app/api/assessments/[id]/result-editor/route.ts'), history: await load('app/api/assessments/[id]/result-editor/history/route.ts'), legacy: await load('app/api/assessments/[id]/results/route.ts') };
+const origin = 'https://education.example.invalid';
+bindings.SAHA_ALLOWED_ORIGINS = origin;
+const routes = {
+  session: await load('app/api/session/route.ts'),
+  editor: await load('app/api/assessments/[id]/result-editor/route.ts'),
+  history: await load('app/api/assessments/[id]/result-editor/history/route.ts'),
+  legacy: await load('app/api/assessments/[id]/results/route.ts'),
+};
 const sessions = await load('lib/education/session.ts');
-globalThis.__sahaAssessmentDetailTimestamp = (await load('lib/education/stored-timestamp.ts')).isExactStoredTimestamp;
-let checks = 0, scenarios = 0, requests = 0, externalRequests = 0, activeUI;
-const check = (actual, expected, message) => { assert.deepEqual(actual, expected, message); checks++; };
-const okay = (actual, message) => { assert.ok(actual, message); checks++; };
-const oldFetch = globalThis.fetch, oldWindow = globalThis.window;
-const redirects = []; globalThis.window = { location: { origin, assign(path) { redirects.push(path); } } };
-const nodes = value => Array.isArray(value) ? value.flatMap(nodes) : value && typeof value === 'object' ? [value, ...nodes(value.props?.children)] : [];
-const text = value => Array.isArray(value) ? value.map(text).join('') : value && typeof value === 'object' ? text(value.props?.children) : value == null || typeof value === 'boolean' ? '' : String(value);
+globalThis.__sahaAssessmentDetailTimestamp = (
+  await load('lib/education/stored-timestamp.ts')
+).isExactStoredTimestamp;
+let checks = 0,
+  scenarios = 0,
+  requests = 0,
+  externalRequests = 0,
+  activeUI;
+const check = (actual, expected, message) => {
+  assert.deepEqual(actual, expected, message);
+  checks++;
+};
+const okay = (actual, message) => {
+  assert.ok(actual, message);
+  checks++;
+};
+const oldFetch = globalThis.fetch,
+  oldWindow = globalThis.window;
+const redirects = [];
+globalThis.window = {
+  location: {
+    origin,
+    assign(path) {
+      redirects.push(path);
+    },
+  },
+};
+const nodes = (value) =>
+  Array.isArray(value)
+    ? value.flatMap(nodes)
+    : value && typeof value === 'object'
+      ? [value, ...nodes(value.props?.children)]
+      : [];
+const text = (value) =>
+  Array.isArray(value)
+    ? value.map(text).join('')
+    : value && typeof value === 'object'
+      ? text(value.props?.children)
+      : value == null || typeof value === 'boolean'
+        ? ''
+        : String(value);
 globalThis.__sahaAssessmentDetailReact = {
-  createElement(type, props, ...children) { const values = { ...props, children: children.length === 1 ? children[0] : children }; return typeof type === 'function' ? type(values) : { type, props: values }; },
-  useState(initial) { const ui = activeUI, index = ui.index++; if (!ui.cells[index]) ui.cells[index] = { value: typeof initial === 'function' ? initial() : initial }; return [ui.cells[index].value, value => { ui.cells[index].value = typeof value === 'function' ? value(ui.cells[index].value) : value; }]; },
-  useRef(initial) { const ui = activeUI, index = ui.index++; if (!ui.cells[index]) ui.cells[index] = { current: initial }; return ui.cells[index]; },
-  useCallback(callback, deps) { const ui = activeUI, index = ui.index++, old = ui.cells[index]; if (!old || deps.some((value, index) => value !== old.deps[index])) ui.cells[index] = { deps, callback }; return ui.cells[index].callback; },
-  useEffect(callback, deps) { const ui = activeUI, index = ui.index++, old = ui.cells[index]; if (!old || !deps || !old.deps || deps.some((value, index) => value !== old.deps[index])) { old?.cleanup?.(); ui.cells[index] = { deps }; ui.effects.push(() => { ui.cells[index].cleanup = callback(); }); } },
-  useLayoutEffect(callback, deps) { return globalThis.__sahaAssessmentDetailReact.useEffect(callback, deps); },
+  createElement(type, props, ...children) {
+    const values = { ...props, children: children.length === 1 ? children[0] : children };
+    return typeof type === 'function' ? type(values) : { type, props: values };
+  },
+  useState(initial) {
+    const ui = activeUI,
+      index = ui.index++;
+    if (!ui.cells[index]) ui.cells[index] = { value: typeof initial === 'function' ? initial() : initial };
+    return [
+      ui.cells[index].value,
+      (value) => {
+        ui.cells[index].value = typeof value === 'function' ? value(ui.cells[index].value) : value;
+      },
+    ];
+  },
+  useRef(initial) {
+    const ui = activeUI,
+      index = ui.index++;
+    if (!ui.cells[index]) ui.cells[index] = { current: initial };
+    return ui.cells[index];
+  },
+  useCallback(callback, deps) {
+    const ui = activeUI,
+      index = ui.index++,
+      old = ui.cells[index];
+    if (!old || deps.some((value, index) => value !== old.deps[index])) ui.cells[index] = { deps, callback };
+    return ui.cells[index].callback;
+  },
+  useEffect(callback, deps) {
+    const ui = activeUI,
+      index = ui.index++,
+      old = ui.cells[index];
+    if (!old || !deps || !old.deps || deps.some((value, index) => value !== old.deps[index])) {
+      old?.cleanup?.();
+      ui.cells[index] = { deps };
+      ui.effects.push(() => {
+        ui.cells[index].cleanup = callback();
+      });
+    }
+  },
+  useLayoutEffect(callback, deps) {
+    return globalThis.__sahaAssessmentDetailReact.useEffect(callback, deps);
+  },
 };
 async function client(path) {
-  const compiled = ts.transpileModule(readFileSync(root + path, 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.React } }).outputText;
-  const prefix = 'const React=globalThis.__sahaAssessmentDetailReact;const {useState,useRef,useCallback,useEffect,useLayoutEffect}=React;const isExactStoredTimestamp=globalThis.__sahaAssessmentDetailTimestamp;const AppShell="app-shell",Button="button",Input="input",Label="label",Card="section",CardContent="div",CardDescription="p",CardHeader="header",CardTitle="h2",Table="table",TableBody="tbody",TableCell="td",TableHead="th",TableHeader="thead",TableRow="tr";\n';
-  return import('data:text/javascript;base64,' + Buffer.from(prefix + compiled.replace(/^import[^\n]*;\n/gm, '')).toString('base64'));
+  const compiled = ts.transpileModule(readFileSync(root + path, 'utf8'), {
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.React },
+  }).outputText;
+  const prefix =
+    'const React=globalThis.__sahaAssessmentDetailReact;const {useState,useRef,useCallback,useEffect,useLayoutEffect}=React;const isExactStoredTimestamp=globalThis.__sahaAssessmentDetailTimestamp;const AppShell="app-shell",Button="button",Input="input",Label="label",Card="section",CardContent="div",CardDescription="p",CardHeader="header",CardTitle="h2",Table="table",TableBody="tbody",TableCell="td",TableHead="th",TableHeader="thead",TableRow="tr";\n';
+  return import(
+    'data:text/javascript;base64,' +
+      Buffer.from(prefix + compiled.replace(/^import[^\n]*;\n/gm, '')).toString('base64')
+  );
 }
 const AssessmentDetail = (await client('app/assessments/[id]/page.tsx')).default;
 const settle = () => settleQuiet();
 function driver(Component, props) {
-  const ui = { cells: [], effects: [], index: 0, tree: null, props,
-    render() { activeUI = ui; ui.index = 0; ui.effects = []; ui.tree = Component(ui.props); for (const effect of ui.effects) effect(); },
-    all(predicate) { return nodes(ui.tree).filter(predicate); },
-    one(predicate) { const found = ui.all(predicate); assert.equal(found.length, 1, 'Exactly one intended native control'); return found[0]; },
-    button(label) { return ui.one(item => item.type === 'button' && text(item) === label); },
-    async flush() { await settle(); ui.render(); await settle(); ui.render(); },
-    async click(label) { const item = ui.button(label); okay(!item.props.disabled, 'Intended action is enabled'); await item.props.onClick(); await ui.flush(); },
-    async change(id, value) { const item = ui.one(item => ['input', 'textarea'].includes(item.type) && item.props.id === id); okay(!item.props.disabled, 'Native selection is enabled'); item.props.onChange({ target: { value } }); await ui.flush(); },
-    async submit(kind = 'new') { const item = ui.one(item => item.type === 'form' && item.props['data-assessment-review-form'] === kind); await item.props.onSubmit({ preventDefault() {} }); await ui.flush(); },
-    async review(value = true) { ui.one(item => item.type === 'input' && item.props.type === 'checkbox').props.onChange({ target: { checked: value } }); await ui.flush(); },
-    value(id) { return ui.one(item => ['input', 'textarea'].includes(item.type) && item.props.id === id).props.value; },
-    dispose() { for (const cell of ui.cells) cell?.cleanup?.(); },
-  }; ui.render(); return ui;
+  const ui = {
+    cells: [],
+    effects: [],
+    index: 0,
+    tree: null,
+    props,
+    render() {
+      activeUI = ui;
+      ui.index = 0;
+      ui.effects = [];
+      ui.tree = Component(ui.props);
+      for (const effect of ui.effects) effect();
+    },
+    all(predicate) {
+      return nodes(ui.tree).filter(predicate);
+    },
+    one(predicate) {
+      const found = ui.all(predicate);
+      assert.equal(found.length, 1, 'Exactly one intended native control');
+      return found[0];
+    },
+    button(label) {
+      return ui.one((item) => item.type === 'button' && text(item) === label);
+    },
+    async flush() {
+      await settle();
+      ui.render();
+      await settle();
+      ui.render();
+    },
+    async click(label) {
+      const item = ui.button(label);
+      okay(!item.props.disabled, 'Intended action is enabled');
+      await item.props.onClick();
+      await ui.flush();
+    },
+    async change(id, value) {
+      const item = ui.one((item) => ['input', 'textarea'].includes(item.type) && item.props.id === id);
+      okay(!item.props.disabled, 'Native selection is enabled');
+      item.props.onChange({ target: { value } });
+      await ui.flush();
+    },
+    async submit(kind = 'new') {
+      const item = ui.one(
+        (item) => item.type === 'form' && item.props['data-assessment-review-form'] === kind,
+      );
+      await item.props.onSubmit({ preventDefault() {} });
+      await ui.flush();
+    },
+    async review(value = true) {
+      ui.one((item) => item.type === 'input' && item.props.type === 'checkbox').props.onChange({
+        target: { checked: value },
+      });
+      await ui.flush();
+    },
+    value(id) {
+      return ui.one((item) => ['input', 'textarea'].includes(item.type) && item.props.id === id).props.value;
+    },
+    dispose() {
+      for (const cell of ui.cells) cell?.cleanup?.();
+    },
+  };
+  ui.render();
+  return ui;
 }
 const has = (ui, value) => text(ui.tree).includes(value);
-const rowIds = (ui, attr) => ui.all(item => item.props?.[attr]).map(item => item.props[attr]).sort();
-const shell = ui => ui.one(item => item.type === 'app-shell').props.principal;
-const pupils = ui => rowIds(ui, 'data-result-student');
-const receipts = ui => rowIds(ui, 'data-confirmed-result-review');
-const histories = ui => rowIds(ui, 'data-result-review');
-const pending = ui => ui.all(item => item.props?.['aria-label'] === 'Pending reviewed request');
-const submitCallback = (ui, kind = 'new') => ui.one(item => item.type === 'form' && item.props['data-assessment-review-form'] === kind).props.onSubmit;
-const candidate = async (ui, score = '0', reason = 'Synthetic reviewed correction for this learner.') => { await ui.change('score-student-a', score); await ui.change('result-reason', reason); await ui.review(); };
-const deferred = () => { let resolve; const promise = new Promise(done => { resolve = done; }); return { promise, resolve }; };
-const noPrivate = ui => { check(shell(ui), null, 'No unverified header principal'); check(pupils(ui), [], 'No stale saved pupil evidence'); check(receipts(ui), [], 'No private original receipt'); check(histories(ui), [], 'No private review history'); check(ui.all(item => ['input', 'textarea'].includes(item.type)).length, 0, 'No private edit fields or reason'); };
+const rowIds = (ui, attr) =>
+  ui
+    .all((item) => item.props?.[attr])
+    .map((item) => item.props[attr])
+    .sort();
+const shell = (ui) => ui.one((item) => item.type === 'app-shell').props.principal;
+const pupils = (ui) => rowIds(ui, 'data-result-student');
+const receipts = (ui) => rowIds(ui, 'data-confirmed-result-review');
+const histories = (ui) => rowIds(ui, 'data-result-review');
+const pending = (ui) => ui.all((item) => item.props?.['aria-label'] === 'Pending reviewed request');
+const submitCallback = (ui, kind = 'new') =>
+  ui.one((item) => item.type === 'form' && item.props['data-assessment-review-form'] === kind).props.onSubmit;
+const candidate = async (ui, score = '0', reason = 'Synthetic reviewed correction for this learner.') => {
+  await ui.change('score-student-a', score);
+  await ui.change('result-reason', reason);
+  await ui.review();
+};
+const deferred = () => {
+  let resolve;
+  const promise = new Promise((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+};
+const noPrivate = (ui) => {
+  check(shell(ui), null, 'No unverified header principal');
+  check(pupils(ui), [], 'No stale saved pupil evidence');
+  check(receipts(ui), [], 'No private original receipt');
+  check(histories(ui), [], 'No private review history');
+  check(
+    ui.all((item) => ['input', 'textarea'].includes(item.type)).length,
+    0,
+    'No private edit fields or reason',
+  );
+};
 async function scenario(name, action, initialActor = 'admin-a', legacySetup) {
-  const fixture = freshDatabase(legacySetup ? { beforeMigration: '0009_academic_integrity.sql' } : undefined); await seedSecurityData(fixture.db, fixture.schema); const { sqlite, schema } = fixture;
-  if (legacySetup) { await legacySetup(fixture); const files = readdirSync(root + 'drizzle').filter(file => /^\d.*\.sql$/.test(file)).sort(); for (const file of files.slice(files.indexOf('0009_academic_integrity.sql'))) sqlite.exec(readFileSync(root + 'drizzle/' + file, 'utf8').replaceAll('--> statement-breakpoint', '')); }
-  function prepare(query, values = []) { return { bind(...params) { return prepare(query, params); }, async raw() { const statement = sqlite.prepare(query); statement.setReturnArrays(true); return statement.all(...values); }, async all() { return { success: true, results: sqlite.prepare(query).all(...values), meta: {} }; }, async run() { const statement = sqlite.prepare(query); if (statement.columns().length) return { success: true, results: statement.all(...values), meta: {} }; const result = statement.run(...values); return { success: true, results: [], meta: { changes: Number(result.changes) } }; } }; }
-  globalThis.__sahaTestDb = drizzle({ prepare, async batch(statements) { sqlite.exec('BEGIN'); try { const result = []; for (const statement of statements) result.push(await statement.run()); sqlite.exec('COMMIT'); return result; } catch (error) { sqlite.exec('ROLLBACK'); throw error; } } }, { schema });
-  const cookies = {}; for (const id of ['admin-a', 'admin-b', 'teacher-a', 'teacher-other', 'guardian-a', 'student-user-a']) cookies[id] = (await sessions.createSession(id)).split(';')[0];
-  let actor = initialActor, intercept;
-  const trace = [], responses = [], uis = [];
-  function api(...args) { return serverWork(() => routeApi(...args)); }
+  const fixture = freshDatabase(legacySetup ? { beforeMigration: '0009_academic_integrity.sql' } : undefined);
+  await seedSecurityData(fixture.db, fixture.schema);
+  const { sqlite, schema } = fixture;
+  if (legacySetup) {
+    await legacySetup(fixture);
+    const files = readdirSync(root + 'drizzle')
+      .filter((file) => /^\d.*\.sql$/.test(file))
+      .sort();
+    for (const file of files.slice(files.indexOf('0009_academic_integrity.sql')))
+      sqlite.exec(readFileSync(root + 'drizzle/' + file, 'utf8').replaceAll('--> statement-breakpoint', ''));
+  }
+  function prepare(query, values = []) {
+    return {
+      bind(...params) {
+        return prepare(query, params);
+      },
+      async raw() {
+        const statement = sqlite.prepare(query);
+        statement.setReturnArrays(true);
+        return statement.all(...values);
+      },
+      async all() {
+        return { success: true, results: sqlite.prepare(query).all(...values), meta: {} };
+      },
+      async run() {
+        const statement = sqlite.prepare(query);
+        if (statement.columns().length) return { success: true, results: statement.all(...values), meta: {} };
+        const result = statement.run(...values);
+        return { success: true, results: [], meta: { changes: Number(result.changes) } };
+      },
+    };
+  }
+  globalThis.__sahaTestDb = drizzle(
+    {
+      prepare,
+      async batch(statements) {
+        sqlite.exec('BEGIN');
+        try {
+          const result = [];
+          for (const statement of statements) result.push(await statement.run());
+          sqlite.exec('COMMIT');
+          return result;
+        } catch (error) {
+          sqlite.exec('ROLLBACK');
+          throw error;
+        }
+      },
+    },
+    { schema },
+  );
+  const cookies = {};
+  for (const id of ['admin-a', 'admin-b', 'teacher-a', 'teacher-other', 'guardian-a', 'student-user-a'])
+    cookies[id] = (await sessions.createSession(id)).split(';')[0];
+  let actor = initialActor,
+    intercept;
+  const trace = [],
+    responses = [],
+    uis = [];
+  function api(...args) {
+    return serverWork(() => routeApi(...args));
+  }
   async function routeApi(path, method = 'GET', payload, user = actor) {
-    const url = new URL(path, origin); if (url.origin !== origin) { externalRequests++; throw new Error('Contracts are local synthetic only'); }
-    requests++; const headers = { origin, ...(user ? { cookie: cookies[user] } : {}) };
-    const request = new Request(url, { method, headers: { ...headers, ...(payload === undefined ? {} : { 'content-type': 'application/json' }) }, ...(payload === undefined ? {} : { body: typeof payload === 'string' ? payload : JSON.stringify(payload) }) });
+    const url = new URL(path, origin);
+    if (url.origin !== origin) {
+      externalRequests++;
+      throw new Error('Contracts are local synthetic only');
+    }
+    requests++;
+    const headers = { origin, ...(user ? { cookie: cookies[user] } : {}) };
+    const request = new Request(url, {
+      method,
+      headers: { ...headers, ...(payload === undefined ? {} : { 'content-type': 'application/json' }) },
+      ...(payload === undefined
+        ? {}
+        : { body: typeof payload === 'string' ? payload : JSON.stringify(payload) }),
+    });
     if (url.pathname === '/api/session') return routes.session[method](request);
     const match = /^\/api\/assessments\/([^/]+)\/(result-editor(?:\/history)?|results)$/.exec(url.pathname);
-    if (match) { const route = match[2] === 'results' ? routes.legacy : match[2].endsWith('/history') ? routes.history : routes.editor; return route[method](request, { params: Promise.resolve({ id: decodeURIComponent(match[1]) }) }); }
+    if (match) {
+      const route =
+        match[2] === 'results'
+          ? routes.legacy
+          : match[2].endsWith('/history')
+            ? routes.history
+            : routes.editor;
+      return route[method](request, { params: Promise.resolve({ id: decodeURIComponent(match[1]) }) });
+    }
     throw new Error('Unexpected local contract route');
   }
   globalThis.fetch = async (path, options = {}) => {
     const response = await api(String(path), options.method || 'GET', options.body);
-    trace.push({ path: String(path), method: options.method || 'GET', status: response.status, ...(options.body ? { body: options.body } : {}) });
-    const result = intercept ? await intercept({ path: String(path), options, response }) : response; if (result) responses.push(result); return result;
+    trace.push({
+      path: String(path),
+      method: options.method || 'GET',
+      status: response.status,
+      ...(options.body ? { body: options.body } : {}),
+    });
+    const result = intercept ? await intercept({ path: String(path), options, response }) : response;
+    if (result) responses.push(result);
+    return result;
   };
-  async function mount(props = { params: Promise.resolve({ id: 'assessment-a' }) }) { const ui = driver(AssessmentDetail, props); uis.push(ui); await ui.flush(); return ui; }
-  const writes = () => trace.filter(row => row.method === 'POST');
-  const saved = (studentId = 'student-a', assessmentId = 'assessment-a') => { const row = sqlite.prepare("SELECT json_object('id',id,'assessmentId',assessment_id,'studentId',student_id,'score',case when typeof(score)='blob' then null else score end,'grade',grade,'feedback',feedback,'createdAt',created_at,'updatedAt',updated_at,'scoreType',typeof(score)) payload FROM assessment_results WHERE assessment_id=? AND student_id=?").get(assessmentId, studentId); return row ? JSON.parse(row.payload) : null; };
+  async function mount(props = { params: Promise.resolve({ id: 'assessment-a' }) }) {
+    const ui = driver(AssessmentDetail, props);
+    uis.push(ui);
+    await ui.flush();
+    return ui;
+  }
+  const writes = () => trace.filter((row) => row.method === 'POST');
+  const saved = (studentId = 'student-a', assessmentId = 'assessment-a') => {
+    const row = sqlite
+      .prepare(
+        "SELECT json_object('id',id,'assessmentId',assessment_id,'studentId',student_id,'score',case when typeof(score)='blob' then null else score end,'grade',grade,'feedback',feedback,'createdAt',created_at,'updatedAt',updated_at,'scoreType',typeof(score)) payload FROM assessment_results WHERE assessment_id=? AND student_id=?",
+      )
+      .get(assessmentId, studentId);
+    return row ? JSON.parse(row.payload) : null;
+  };
   const count = () => sqlite.prepare('SELECT count(*) total FROM assessment_reviews').get().total;
-  const drained = () => check(responses.every(response => response.bodyUsed), true, 'Every delivered success/error response is drained');
-  try { await action({ ...fixture, mount, api, trace, writes, saved, count, drained, setActor(value) { actor = value; }, intercept(value) { intercept = value; } }); scenarios++; }
-  finally { for (const ui of uis) ui.dispose(); intercept = undefined; await settle(); sqlite.close(); }
+  const drained = () =>
+    check(
+      responses.every((response) => response.bodyUsed),
+      true,
+      'Every delivered success/error response is drained',
+    );
+  try {
+    await action({
+      ...fixture,
+      mount,
+      api,
+      trace,
+      writes,
+      saved,
+      count,
+      drained,
+      setActor(value) {
+        actor = value;
+      },
+      intercept(value) {
+        intercept = value;
+      },
+    });
+    scenarios++;
+  } finally {
+    for (const ui of uis) ui.dispose();
+    intercept = undefined;
+    await settle();
+    sqlite.close();
+  }
 }
 try {
-  await scenario('initial current-session failure can explicitly retry', async ({ mount, intercept, writes, drained }) => {
-    let once=false; intercept(async ({path,response}) => { if(path==='/api/session' && !once) { once=true; await response.text(); return new Response('{}',{status:503}); } return response; });
-    const ui=await mount(); check(ui.all(item=>item.type==='button' && text(item)==='Reload current results').length,1,'Initial unavailable session has a native explicit reload'); noPrivate(ui); check(writes().length,0,'Failed initial read cannot save'); intercept(undefined); await ui.click('Reload current results'); check(pupils(ui),['student-a'],'Fresh actual current scoped pupil restored'); drained();
-  });
-  for (const actor of ['guardian-a', 'student-user-a']) await scenario('family is truthfully denied private staff review ' + actor, async ({ mount, trace, writes, drained }) => {
-    const ui = await mount(); noPrivate(ui); okay(has(ui, 'authorised school staff'), 'Staff-only policy stated'); check(trace.length, 1, 'Family session does not initiate staff editor request'); check(writes().length, 0, 'No family review'); check(ui.button('Reload current results').props.disabled, false, 'Read failure remains explicitly retryable'); drained();
-  }, actor);
-  for (const actor of ['admin-b', 'teacher-other']) await scenario('actual unavailable school or teaching scope ' + actor, async ({ mount, trace, writes, drained }) => {
-    const ui = await mount(); noPrivate(ui); check(trace[1].status, 404, 'Actual handler denies unavailable assessment'); okay(has(ui, 'unavailable'), 'Unavailability explicit'); check(writes().length, 0, 'Unavailable context never reviews'); drained();
-  }, actor);
-  await scenario('complete current staff snapshot/history/session and native labels', async ({ mount, trace, saved, writes, drained }) => {
-    const ui = await mount(); check(shell(ui).id, 'admin-a', 'Explicit shell has fresh current administrator'); check(pupils(ui), ['student-a'], 'One actual active learner'); check(saved(), null, 'No invented result exists'); check(ui.value('score-student-a'), '', 'Absence is blank, never implicit zero'); check(ui.value('grade-student-a'), '', 'Null grade presentation remains blank'); check(ui.value('feedback-student-a'), '', 'Null feedback presentation remains blank');
-    check(trace.map(row => row.path), ['/api/session', '/api/assessments/assessment-a/result-editor', '/api/assessments/assessment-a/result-editor/history', '/api/session'], 'Whole scoped snapshot and history bracketed by current actor checks');
-    for (const id of ['score-student-a', 'grade-student-a', 'feedback-student-a', 'result-reason']) check(ui.all(item => item.type === 'label' && item.props.htmlFor === id).length, 1, 'Native editor label is bound'); check(ui.one(item => item.type === 'a' && text(item) === 'Assessments').props.href, '/assessments', 'Native index navigation'); check(ui.button('Save reviewed results').props.disabled, true, 'Empty unrevised candidate cannot save'); check(writes().length, 0, 'Opening detail does not review'); drained();
-  });
-  for (const status of [401, 403, 404, 503]) await scenario('failed current editor read hides identity/evidence/reason and fresh same-actor read restores deliberate draft ' + status, async ({ mount, intercept, writes, drained }) => {
-    const ui = await mount(); await candidate(ui, '7', 'Private unsent review explanation.'); intercept(async ({ path, response }) => { if (path.endsWith('/result-editor')) { await response.text(); return new Response('{}', { status }); } return response; });
-    ui.button('Reload current results').props.onClick(); ui.render(); noPrivate(ui); await ui.flush(); noPrivate(ui); check(has(ui, 'Private unsent review explanation.'), false, 'Private unsent reason is hidden'); check(has(ui, 'No active students'), false, 'Failed read is not verified empty'); check(ui.button('Reload current results').props.disabled, false, 'Failure allows fresh retry');
-    intercept(undefined); await ui.click('Reload current results'); check(ui.value('score-student-a'), '7', 'Same-actor deliberate score retained'); check(ui.value('result-reason'), 'Private unsent review explanation.', 'Same-actor deliberate reason retained'); check(ui.one(item => item.type === 'input' && item.props.type === 'checkbox').props.checked, false, 'Fresh context requires renewed review'); check(writes().length, 0, 'Read retry never saves'); drained();
-  });
-  for (const status of [401, 403, 404]) await scenario('history denial hides entire current private view ' + status, async ({ mount, intercept, writes, drained }) => {
-    const ui = await mount(); await candidate(ui, '4', 'Private history-denied candidate.'); intercept(async ({ path, response }) => { if (path.endsWith('/history')) { await response.text(); return new Response('{}', { status }); } return response; });
-    await ui.click('Reload current results'); noPrivate(ui); check(has(ui, 'Private history-denied candidate.'), false, 'History denial clears displayed reason'); check(has(ui, 'No saved result reviews'), false, 'History denial is not empty history'); check(writes().length, 0, 'Denied history never saves'); drained();
-  });
-  await scenario('history503 stays separate after final fresh same-actor verification', async ({ mount, intercept, trace, writes, drained }) => {
-    intercept(async ({ path, response }) => { if (path.endsWith('/history')) { await response.text(); return new Response('{}', { status: 503 }); } return response; }); const ui = await mount(); check(shell(ui).id, 'admin-a', 'Snapshot retains final verified actor'); check(pupils(ui), ['student-a'], 'Fresh snapshot remains visible'); okay(has(ui, 'Review history could not be loaded'), 'History failure explicit'); check(has(ui, 'No saved result reviews'), false, 'History503 is not empty history'); check(trace.at(-1).path, '/api/session', 'Final fresh session checked despite history503'); check(writes().length, 0, 'Unavailable history not a review'); drained();
-  });
-  await scenario('actor changes between history and final session prevent publication', async ({ mount, intercept, setActor, writes, drained }) => {
-    intercept(async ({ path, response }) => { if (path.endsWith('/history')) setActor('admin-b'); return response; }); const ui = await mount(); noPrivate(ui); okay(has(ui, 'account changed'), 'Changing actor not published'); check(writes().length, 0, 'Mixed actor snapshot cannot review'); drained();
-  });
-  for (const projection of ['wrong-assessment', 'wrong-class', 'duplicate-pupil', 'missing-scoreType', 'incomplete-row', 'wrong-limit', 'wrong-total', 'wrong-status']) await scenario('incoherent current snapshot is unavailable ' + projection, async ({ mount, intercept, writes, drained }) => {
-    intercept(async ({ path, response }) => { if (!path.endsWith('/result-editor')) return response; const value = await response.json(); if (projection === 'wrong-assessment') value.assessment.id = 'assessment-b'; else if (projection === 'wrong-class') value.class.id = 'class-b'; else if (projection === 'duplicate-pupil') { value.roster.items.push(value.roster.items[0]); value.roster.total++; } else if (projection === 'missing-scoreType') delete value.assessment.maxScoreType; else if (projection === 'incomplete-row') delete value.roster.items[0].enrolmentRows; else if (projection === 'wrong-limit') value.roster.limit=101; else if (projection === 'wrong-total') value.roster.total++; return new Response(JSON.stringify(value), { status: projection === 'wrong-status' ? 201 : 200 }); });
-    const ui = await mount(); noPrivate(ui); check(writes().length, 0, 'Invalid current evidence never saves'); check(ui.button('Reload current results').props.disabled, false, 'Projection can be retried explicitly'); drained();
-  });
-  await scenario('late obsolete read never restores old actor/marks/reason', async ({ mount, intercept, setActor, trace, drained }) => {
-    const ui = await mount(); await candidate(ui, '8', 'Old actor private intended reason.'); const held=deferred(); let once=false;
-    intercept(async ({ path, response }) => { if (path.endsWith('/result-editor') && !once) { once=true; await held.promise; } return response; }); ui.button('Reload current results').props.onClick(); await settle(); ui.render(); noPrivate(ui); setActor('teacher-a'); await ui.click('Reload current results'); check(shell(ui).id, 'teacher-a', 'New current same-class teacher is published'); check(ui.value('score-student-a'), '', 'Other actor cannot inherit original score'); check(ui.value('result-reason'), '', 'Other actor cannot inherit original reason'); const length=trace.length; held.resolve(); await ui.flush(); check(trace.length,length,'Obsolete response starts no history/final-session request'); check(shell(ui).id,'teacher-a','Obsolete header cannot return'); check(has(ui,'Old actor private intended reason.'),false,'Obsolete reason remains hidden'); drained();
-  });
-  await scenario('old queued controls and unmounted read cannot publish or save', async ({ mount, intercept, writes, trace, drained }) => {
-    const ui = await mount(); await candidate(ui); const submit=submitCallback(ui), edit=ui.one(item=>item.props?.id==='result-reason').props.onChange; const held=deferred(); let once=false; intercept(async ({path,response})=>{if(path==='/api/session'&&!once){once=true;await held.promise;}return response;}); ui.button('Reload current results').props.onClick(); await submit({preventDefault(){}}); edit({target:{value:'Obsolete reason'}}); await settle(); check(writes().length,0,'Old controls invalid as soon as reload begins'); ui.dispose(); const cells=ui.cells.map(cell=>cell?.value), length=trace.length; held.resolve(); await settle(); check(trace.length,length,'Unmounted response cannot start next read'); check(ui.cells.map(cell=>cell?.value),cells,'Unmounted read cannot publish'); drained();
-  });
-  await scenario('new explicit zero review acknowledges exact original public tuple', async ({ mount, writes, saved, count, drained }) => {
-    const ui=await mount(); await candidate(ui,'0'); await ui.submit(); check(writes().length,1,'One explicit new review'); check(writes()[0].status,201,'Actual new immutable review uses201'); const input=JSON.parse(writes()[0].body); check(input.entries,[{studentId:'student-a',score:0,grade:null,feedback:null,expectedRecord:null}],'Only dirty pupil with legitimatezero/null original absence'); check(saved().score,0,'Actual zero saved'); check(saved().scoreType,'integer','Actual normalized score type'); check(saved().grade,null,'Actual null grade'); check(saved().feedback,null,'Actual null feedback'); check(count(),1,'One immutable history receipt'); check(receipts(ui),[input.clientRequestId],'Correlated original UUID privately confirmed'); check(histories(ui),[input.clientRequestId],'Actual saved history'); check(pending(ui).length,0,'Only matched public receipt clears pending'); check(ui.value('score-student-a'),'0','Current fresh saved zero'); check(ui.value('result-reason'),'','Known save resets reason'); drained();
-  });
-  await scenario('explicit empty and no-text actions preserve null versus empty', async ({ mount, writes, saved, drained }) => {
-    const ui=await mount(); await candidate(ui,'1'); await ui.change('grade-student-a',''); await ui.change('feedback-student-a',''); await ui.review(); await ui.submit(); check(saved().grade,'','Explicit empty grade stored'); check(saved().feedback,'','Explicit empty feedback stored'); check(JSON.parse(writes()[0].body).entries[0].grade,'','Empty grade not normalized to null'); await ui.click('Set no grade for student-a Synthetic'); await ui.click('Set no feedback for student-a Synthetic'); await ui.change('result-reason','Explicit supplied null text review.'); await ui.review(); await ui.submit(); check(saved().grade,null,'Explicit no-grade restores null'); check(saved().feedback,null,'Explicit no-feedback restores null'); check(writes().length,2,'Text-only explicit change is reviewed without score re-entry'); check(saved().score,1,'Text-only change preserves saved integer score'); drained();
-  });
-  for (const invalid of ['blank', 'negative', 'fractional', 'above-maximum', 'short-reason', 'multiline-reason', 'long-grade']) await scenario('invalid candidate is blocked without POST ' + invalid, async ({ mount, writes, count, drained }) => {
-    const ui=await mount(); await candidate(ui,invalid==='blank'?'':invalid==='negative'?'-1':invalid==='fractional'?'1.5':invalid==='above-maximum'?'21':'2',invalid==='short-reason'?'short':invalid==='multiline-reason'?'A reviewed\nmultiline reason':'Synthetic valid candidate review.'); if(invalid==='long-grade'){await ui.change('grade-student-a','😀'.repeat(2001));await ui.review();} check(ui.button('Save reviewed results').props.disabled,true,'Invalid candidate save disabled'); await ui.submit(); check(writes().length,0,'Invalid candidate neverPOSTs'); check(count(),0,'Invalid candidate creates no receipt'); drained();
-  });
-  await scenario('unchanged long text/raw scoreType repair and invalid stored calendar remain explicit', async ({ api, sqlite, mount, writes, saved, drained }) => {
-    const longGrade='G'.repeat(2100),longFeedback='F'.repeat(2200); const response=await api('/api/assessments/assessment-a/results','POST',{results:[{studentId:'student-a',score:4,grade:longGrade,feedback:longFeedback}]});await response.text(); sqlite.prepare('UPDATE assessment_results SET score=? WHERE student_id=?').run('not a number','student-a'); sqlite.prepare('UPDATE assessments SET date=? WHERE id=?').run('2026-02-30','assessment-a'); const before=saved(); const ui=await mount(); check(ui.value('score-student-a'),'not a number','Raw TEXT score displayed unchanged'); okay(has(ui,'(text)'),'SQLite raw scoreType disclosed'); okay(has(ui,'stored assessment date requires review'),'Invalid stored calendar displayed without inference'); check(ui.value('grade-student-a'),longGrade,'Unchanged long grade intact'); check(ui.value('feedback-student-a'),longFeedback,'Unchanged long feedback intact'); await candidate(ui,'0'); await ui.submit(); check(writes()[0].status,201,'Explicit whole-number repair can review invalid raw single result'); const entry=JSON.parse(writes()[0].body).entries[0];check(entry.expectedRecord,before,'Every raw original field/type preserved in CAS');check(saved().grade,longGrade,'Unchanged long supplied grade remains');check(saved().feedback,longFeedback,'Unchanged long feedback remains');check(saved().score,0,'Explicit zero repair persists');check(saved().scoreType,'integer','Repair integer type');drained();
-  });
-  await scenario('synchronous duplicate save and unmount preflight guard', async ({ mount, intercept, writes, drained }) => {
-    const ui=await mount();await candidate(ui);const held=deferred();let once=false;intercept(async({path,response})=>{if(path==='/api/session'&&!once){once=true;await held.promise;}return response;}); const submit=submitCallback(ui);submit({preventDefault(){}});submit({preventDefault(){}});await settle();ui.render();noPrivate(ui);check(writes().length,0,'Held preflight not yet posted');held.resolve();await ui.flush();check(writes().length,1,'Same-frame duplicate uses one immutable request');drained();
-  });
-  for (const fault of ['lost', '503', 'malformed']) await scenario('unconfirmed real commit recovers exact original body UUID with original200 replay ' + fault, async ({ mount, intercept, writes, saved, count, api, drained }) => {
-    const ui=await mount();await candidate(ui,'3','Original private reviewed reason.');intercept(async({options,response})=>{if(options.method!=='POST')return response;await response.text();if(fault==='lost')throw new TypeError('Named synthetic lost committed reply');return new Response(fault==='malformed'?'{':'{}',{status:fault==='503'?503:201});});await ui.submit();check(saved().score,3,'Unmodified actual review committed before named fault');check(count(),1,'Immutable original receipt actually exists');noPrivate(ui);check(pending(ui).length,1,'Exact original pending survives unknown');check(has(ui,'Original private reviewed reason.'),false,'Unknown private reason hidden');check(writes().length,1,'Unknown never autoPOSTs');const original=writes()[0].body,request=JSON.parse(original);
-    intercept(undefined);const later=await api('/api/assessments/assessment-a/results','POST',{results:[{studentId:'student-a',score:11,grade:'Later grade',feedback:''}]});await later.text();await ui.click('Reload current results');check(ui.value('score-student-a'),'11','Current later marks stay separate');okay(has(ui,'Original intended score: 3'),'Original intended score separately displayed');okay(has(ui,'Original reason: Original private reviewed reason.'),'Original reason only after fresh original scope');check(ui.one(item=>item.type==='fieldset').props.disabled,true,'Pending blocks new review');await ui.submit('retry');check(writes().length,2,'Recovery requires explicit retry');check(writes()[1].body,original,'Endpoint/request bytes and UUID reused exactly');check(writes()[1].path,writes()[0].path,'Exact original endpoint reused');check(writes()[1].status,200,'Actual replay acknowledges original200');check(saved().score,11,'Original receipt retry never overwrites later current mark');check(count(),1,'Replay creates no new receipt');check(receipts(ui),[request.clientRequestId],'Original private receipt confirmed');check(pending(ui).length,0,'Strictly correlated replay clears original pending');drained();
-  });
-  for (const projection of ['uuid', 'reviewer', 'assessment-id', 'class-id', 'metadata-title', 'metadata-type', 'reason', 'pupil-key', 'extra-change', 'before-null', 'after-score', 'after-type', 'after-grade', 'after-feedback', 'after-updated', 'created-invalid', 'replay-flag', 'wrong-status']) await scenario('unmatched public receipt projection after actual201 commit is retained pending ' + projection, async ({ mount, intercept, writes, saved, count, drained }) => {
-    const ui=await mount();await candidate(ui,'2','Exact projected receipt reason.');intercept(async({options,response})=>{if(options.method!=='POST')return response;const value=await response.json(),r=value.review,c=r.changes[0];if(projection==='uuid')r.id=crypto.randomUUID();else if(projection==='reviewer')r.reviewedBy='teacher-a';else if(projection==='assessment-id')r.assessmentId='assessment-b';else if(projection==='class-id')r.classId='class-b';else if(projection==='metadata-title')r.assessment.title+=' changed';else if(projection==='metadata-type')r.assessment.maxScoreType='real';else if(projection==='reason')r.reason='Different attributable review reason';else if(projection==='pupil-key')c.studentId='student-other';else if(projection==='extra-change')r.changes.push(structuredClone(c));else if(projection==='before-null')c.beforeRecord={...c.afterRecord};else if(projection==='after-score')c.afterRecord.score=3;else if(projection==='after-type')c.afterRecord.scoreType='real';else if(projection==='after-grade')c.afterRecord.grade='';else if(projection==='after-feedback')c.afterRecord.feedback='';else if(projection==='after-updated')c.afterRecord.updatedAt='2000-01-01T00:00:00.000Z';else if(projection==='created-invalid')r.createdAt='2026-02-30T00:00:00.000Z';else if(projection==='replay-flag')value.replayed=true;return new Response(JSON.stringify(value),{status:projection==='wrong-status'?200:201});});
-    // Named delivered projections follow an unmodified real201 commit. These
-    // checks never claim rollback/no effect, school/hash/entriesJson disclosure,
-    // or a receipt field that the public DTO does not provide.
-    await ui.submit();check(writes()[0].status,201,'Actual unmodified new save returned201');check(saved().score,2,'Actual committed pupil score');check(count(),1,'Actual immutable receipt exists');noPrivate(ui);check(pending(ui).length,1,'Unmatched receipt never clears exact pending');check(receipts(ui),[],'Unmatched receipt never confirms');check(has(ui,'Result review saved.'),false,'No false known acknowledgement');check(writes().length,1,'No automatic receipt recovery');intercept(undefined);await ui.click('Reload current results');await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Explicit recovery preserves original exact body');check(writes()[1].status,200,'Actual original receipt replay recovered');check(pending(ui).length,0,'Actual correlated original replay clears');check(count(),1,'Projection recovery creates no extra receipt');drained();
-  });
-  await scenario('server-sorted changed pupils are correlated by key without roster-order assumption', async ({ db, schema, sqlite, mount, writes, saved, count, drained }) => {
-    await db.insert(schema.enrolments).values({id:'second-current-enrolment',studentId:'student-other',classId:'class-a',status:'active',enrolledAt:'2026-10-05',createdAt:'2026-10-05',updatedAt:'2026-10-05'}); sqlite.prepare('UPDATE students SET first_name=? WHERE id=?').run('Zulu','student-a');sqlite.prepare('UPDATE students SET first_name=? WHERE id=?').run('Alpha','student-other');const ui=await mount();await candidate(ui,'4');await ui.change('score-student-other','0');await ui.review();await ui.submit();check(JSON.parse(writes()[0].body).entries.map(entry=>entry.studentId),['student-other','student-a'],'Roster display/input order intentionally reverses server sorted receipt keys');check(saved().score,4,'First actual pupil saved');check(saved('student-other').score,0,'Second actual pupil zero saved');check(count(),1,'One batch immutable receipt');check(pending(ui).length,0,'Sorted real receipt correlated by pupil keys');check(receipts(ui).length,1,'One confirmed batch');drained();
-  });
-  await scenario('unknown request stays private across another same-class actor and returns unchanged', async ({ mount, intercept, setActor, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui,'5','Original account private reason.');intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named synthetic lost committed reply');}return response;});await ui.submit();intercept(undefined);setActor('teacher-a');await ui.click('Reload current results');check(shell(ui).id,'teacher-a','Different current authorized actor shown');check(text(pending(ui)[0]).includes('Original account private reason.'),false,'Original pending intent hidden from other same-class actor; authorized persisted history is separate');check(ui.value('result-reason'),'','Other actor cannot inherit original private reason draft');check(receipts(ui),[],'Other actor cannot inherit original private confirmation');check(ui.all(item=>item.type==='form'&&item.props['data-assessment-review-form']==='retry').length,0,'Different actor cannot retry');check(ui.all(item=>item.type==='button'&&text(item).startsWith('Discard pending')).length,0,'Different actor cannot discard');check(ui.one(item=>item.type==='fieldset').props.disabled,true,'Different actor cannot start another pending-overwriting review');setActor('admin-a');await ui.click('Reload current results');okay(has(ui,'Original reason: Original account private reason.'),'Original private request intact after actor return');await ui.submit('retry');check(writes().length,2,'Only original attempt and explicit original retry');check(writes()[1].body,writes()[0].body,'Original unchanged bytes');check(count(),1,'No duplicate review');drained();
-  });
-  await scenario('actual CAS409 has no effect and explicit fresh discard permits separate reviewed request', async ({ mount, api, writes, saved, count, drained }) => {
-    const ui=await mount();await candidate(ui,'6','Reviewed now-stale original results.');const later=await api('/api/assessments/assessment-a/results','POST',{results:[{studentId:'student-a',score:9,grade:'Current grade',feedback:''}]});check(later.status,200,'Actual concurrent legacy handler update persisted');await later.text();await ui.submit();check(writes()[0].status,409,'Actual original absence CAS is rejected');check(saved().score,9,'Actual CAS rejection preserves newer result');check(count(),0,'Actual CAS409 creates no receipt');noPrivate(ui);check(pending(ui).length,1,'Original conflict request retained privately');okay(has(ui,'last review response rejected'),'Known rejection distinguished from unknown save');check(has(ui,'Result review saved.'),false,'Conflict never acknowledged');const original=JSON.parse(writes()[0].body);
-    await ui.click('Reload current results');check(ui.value('score-student-a'),'9','Fresh current score shown separately');await ui.click('Discard pending request and review current results');check(writes().length,1,'Discard does zeroPOST');check(pending(ui).length,0,'Explicit verified original discard clears page pending');check(ui.value('score-student-a'),'9','Discard leaves fresh saved mark');check(ui.value('result-reason'),'','Discard clears reason');check(ui.one(item=>item.type==='input'&&item.props.type==='checkbox').props.checked,false,'Discard requires separate reviewed confirmation');okay(has(ui,'does not cancel or confirm a started save'),'No false cancellation/ack claim');await ui.submit();check(writes().length,1,'Discard never auto-generates another save');await candidate(ui,'10','Separate current reviewed correction.');await ui.submit();check(writes().length,2,'New save requires distinct edit/review/action');check(JSON.parse(writes()[1].body).clientRequestId===original.clientRequestId,false,'Separate explicit review uses new UUID');check(saved().score,10,'New reviewed current tuple persists');check(count(),1,'Only new successful review exists');drained();
-  });
-  await scenario('unknown explicit discard preserves committed history and future separate review', async ({ mount, intercept, writes, saved, count, drained }) => {
-    const ui=await mount();await candidate(ui,'4');intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost committed reply');}return response;});await ui.submit();const original=JSON.parse(writes()[0].body);intercept(undefined);await ui.click('Reload current results');await ui.click('Discard pending request and review current results');check(writes().length,1,'Discard makes no extraPOST');check(count(),1,'Discard leaves actual original receipt history');check(histories(ui),[original.clientRequestId],'Original history still displayed');check(receipts(ui),[],'Discard does not confirm original private receipt');check(saved().score,4,'Discard leaves actually committed mark');await candidate(ui,'5','New separate reviewed current score.');await ui.submit();check(count(),2,'Separate new review appends immutable history');okay(histories(ui).includes(original.clientRequestId),'Original history preserved beside newreview');check(JSON.parse(writes()[1].body).clientRequestId===original.clientRequestId,false,'No UUID reuse for separately reviewed new action');drained();
-  });
-  await scenario('changed actor/context at discard completion cannot erase original pending', async ({ mount, intercept, setActor, writes, drained }) => {
-    const ui=await mount();await candidate(ui);intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost committed reply');}return response;});await ui.submit();intercept(undefined);await ui.click('Reload current results');setActor('teacher-a');await ui.click('Discard pending request and review current results');noPrivate(ui);check(pending(ui).length,1,'Fresh other actor cannot discard original request');check(writes().length,1,'Changed discard context does zeroPOST');setActor('admin-a');await ui.click('Reload current results');await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Original request survived failed discard');drained();
-  });
-  await scenario('failed post-confirmation read preserves known generic fact and later original private receipt', async ({ mount, intercept, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui,'3');let committed=false;intercept(async({path,options,response})=>{if(options.method==='POST')committed=true;if(committed&&path.endsWith('/result-editor')&&options.method!=='POST'){await response.text();return new Response('{}',{status:503});}return response;});await ui.submit();noPrivate(ui);okay(has(ui,'original reviewed update was acknowledged'),'Known matched acknowledgement survives failed reload');check(pending(ui).length,0,'Knownsave is not pending');check(count(),1,'Actual review persisted');check(writes().length,1,'Failed read does not autoPOST');intercept(undefined);await ui.click('Reload current results');check(receipts(ui),[JSON.parse(writes()[0].body).clientRequestId],'Original private receipt restored after fresh scope');check(writes().length,1,'Restoring receipt does not repeat save');drained();
-  });
-  for (const phase of ['preflight', 'posted']) await scenario('unmount prevents unsent save or safely drains started save ' + phase, async ({ mount, intercept, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui);const held=deferred();let once=false;intercept(async({path,options,response})=>{if((phase==='preflight'?path==='/api/session':options.method==='POST')&&!once){once=true;await held.promise;}return response;});submitCallback(ui)({preventDefault(){}});await settle();check(writes().length,phase==='posted'?1:0,'Started state is exact before unmount');check(count(),phase==='posted'?1:0,'Only actually started handler can persist');ui.dispose();const cells=ui.cells.map(cell=>cell?.value);held.resolve();await settle();check(ui.cells.map(cell=>cell?.value),cells,'Unmounted response cannot publish private state');check(writes().length,phase==='posted'?1:0,'No additional unmountedPOST');drained();
-  });
-  for (const field of ['id','assessmentId','studentId','score','scoreType','grade','feedback','createdAt','updatedAt']) await scenario('full original before tuple mismatch cannot confirm corrected record ' + field, async ({ api, mount, intercept, saved, writes, count, drained }) => {
-    const initial=await api('/api/assessments/assessment-a/results','POST',{results:[{studentId:'student-a',score:3,grade:'Original grade',feedback:'Original feedback'}]});check(initial.status,200,'Actual original legacy result seeded');await initial.text();const before=saved();const ui=await mount();await candidate(ui,'5');intercept(async({options,response})=>{if(options.method!=='POST')return response;const value=await response.json(),record=value.review.changes[0].beforeRecord;record[field]=field==='score'?4:field==='scoreType'?'real':String(record[field])+' changed';return new Response(JSON.stringify(value),{status:201});});await ui.submit();check(saved().score,5,'Actual correction committed before named projection');check(count(),1,'Actual correction receipt exists');noPrivate(ui);check(pending(ui).length,1,'Each immutable original field is correlated');check(writes().length,1,'Mismatch does not autoPOST');intercept(undefined);await ui.click('Reload current results');await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Exact original correction remains recoverable');check(JSON.parse(writes()[1].body).entries[0].expectedRecord,before,'Original full tuple never rebased');check(pending(ui).length,0,'Actual correctly correlated200 replay recovered');drained();
-  });
-  for (const actor of ['teacher-a','admin-b','guardian-a']) await scenario('changed preflight actor never receives original new review ' + actor, async ({ mount, setActor, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui,'2','Original preflight private reason.');setActor(actor);await ui.submit();noPrivate(ui);check(writes().length,0,'Changed actual preflight actor blocks originalPOST');check(count(),0,'No receipt created');check(pending(ui).length,1,'Exact unsent reviewed intent retained privately');check(has(ui,'Original preflight private reason.'),false,'Original reason hidden');okay(has(ui,'has not been sent'),'Unsent status not mislabeled lost commit');setActor('admin-a');await ui.click('Reload current results');await ui.submit('retry');check(writes().length,1,'Original account may explicitly send exact previously unsent request');check(writes()[0].status,201,'Unsent original creates new201 only once');drained();
-  });
-  await scenario('same-frame duplicate retry posts original body only once', async ({ mount, intercept, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui);intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost commit');}return response;});await ui.submit();intercept(undefined);await ui.click('Reload current results');const retry=submitCallback(ui,'retry'),held=deferred();let once=false;intercept(async({path,response})=>{if(path==='/api/session'&&!once){once=true;await held.promise;}return response;});retry({preventDefault(){}});retry({preventDefault(){}});await settle();check(writes().length,1,'Held retry has no new POST yet');held.resolve();await ui.flush();check(writes().length,2,'Exactly one explicit retry despite same-frame duplicate');check(writes()[1].body,writes()[0].body,'Original request bytes stable');check(count(),1,'No duplicate receipt');drained();
-  });
-  await scenario('history denial during original retry preflight preserves original and sends noPOST', async ({ mount, intercept, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui);intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost commit');}return response;});await ui.submit();intercept(undefined);await ui.click('Reload current results');intercept(async({path,response})=>{if(path.endsWith('/history')){await response.text();return new Response('{}',{status:403});}return response;});await ui.submit('retry');noPrivate(ui);check(pending(ui).length,1,'History denial does not discard original pending');check(writes().length,1,'Denied retry preflight sends noPOST');check(count(),1,'Original actual receipt preserved');intercept(undefined);await ui.click('Reload current results');await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Original preserved through denied retry');drained();
-  });
-  await scenario('route change immediately hides old view and captured controls while old commit response waits', async ({ mount, intercept, setActor, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui,'7','Original route private reason.');const oldSubmit=submitCallback(ui),oldReason=ui.one(item=>item.props?.id==='result-reason').props.onChange,held=deferred();intercept(async({options,response})=>{if(options.method==='POST')await held.promise;return response;});oldSubmit({preventDefault(){}});await settle();check(count(),1,'Original actual review committed before route transition');setActor('admin-b');ui.props={params:Promise.resolve({id:'assessment-b'})};ui.render();noPrivate(ui);oldReason({target:{value:'Obsolete route reason'}});oldSubmit({preventDefault(){}});await ui.flush();check(shell(ui).id,'admin-b','New route/current account verified');check(pupils(ui),['student-b'],'New route only current pupil');check(text(pending(ui)[0]).includes('Original route private reason.'),false,'Other route has generic pending only');held.resolve();await ui.flush();check(receipts(ui),[],'Late original route acknowledgment not published in new route');check(pending(ui).length,1,'Late original response does not discard original recoverable request');check(writes().length,1,'No obsolete route follow-upPOST');setActor('admin-a');ui.props={params:Promise.resolve({id:'assessment-a'})};await ui.flush();await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Original route recovery retains original request bytes');check(count(),1,'Returning route replay preserves original immutable receipt');drained();
-  });
-  await scenario('class changes during fresh discard verification keep exact pending', async ({ mount, intercept, sqlite, writes, drained }) => {
-    const ui=await mount();await candidate(ui);intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost commit');}return response;});await ui.submit();intercept(undefined);await ui.click('Reload current results');sqlite.prepare('UPDATE assessments SET class_id=? WHERE id=?').run('class-other','assessment-a');await ui.click('Discard pending request and review current results');noPrivate(ui);check(pending(ui).length,1,'Changed exact class prevents discard completion');check(writes().length,1,'Changed class discard has noPOST');sqlite.prepare('UPDATE assessments SET class_id=? WHERE id=?').run('class-a','assessment-a');await ui.click('Reload current results');await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Original request retained across context instability');drained();
-  });
-  await scenario('failed discard read and duplicate action retain original until one explicit stable completion', async ({ mount, intercept, writes, drained }) => {
-    const ui=await mount();await candidate(ui);intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost commit');}return response;});await ui.submit();intercept(undefined);await ui.click('Reload current results');intercept(async({path,response})=>{if(path.endsWith('/result-editor')){await response.text();return new Response('{}',{status:503});}return response;});await ui.click('Discard pending request and review current results');noPrivate(ui);check(pending(ui).length,1,'Failed discard read preserves original');intercept(undefined);await ui.click('Reload current results');const discard=ui.button('Discard pending request and review current results').props.onClick;discard();discard();await ui.flush();check(pending(ui).length,0,'One fresh original completion clears');check(writes().length,1,'Failed and duplicate discard all zeroPOST');check(ui.value('result-reason'),'','Completion clears private reason');check(ui.button('Save reviewed results').props.disabled,true,'Completion does not create reviewed candidate');drained();
-  });
-  await scenario('queued captured field/checkbox after unmount cannot mutate abandoned form', async ({ mount, writes, drained }) => {
-    const ui=await mount(),change=ui.one(item=>item.props?.id==='score-student-a').props.onChange,reason=ui.one(item=>item.props?.id==='result-reason').props.onChange,review=ui.one(item=>item.type==='input'&&item.props.type==='checkbox').props.onChange;ui.dispose();const cells=ui.cells.map(cell=>cell?.value);change({target:{value:'8'}});reason({target:{value:'Abandoned reason edit'}});review({target:{checked:true}});check(ui.cells.map(cell=>cell?.value),cells,'Unmounted captured fields cannot publish');check(writes().length,0,'Unmounted controls neverPOST');drained();
-  });
-  await scenario('empty current roster is verified empty and read-only', async ({ sqlite, mount, writes, drained }) => {
-    sqlite.prepare('UPDATE enrolments SET status=? WHERE id=?').run('withdrawn','student-a-enrolment');const ui=await mount();check(shell(ui).id,'admin-a','Empty scope still fresh current actor');check(pupils(ui),[],'Verified empty roster');okay(has(ui,'No active students are available'),'Truthful empty view');check(ui.one(item=>item.type==='fieldset').props.disabled,true,'Empty roster cannot invent marks');await ui.submit();check(writes().length,0,'No reviewed empty batch');drained();
-  });
-  for (const total of [100,101]) await scenario('exact current roster cap preserved ' + total, async ({ db, schema, mount, writes, count, drained }) => {
-    const stamp='2026-10-05T00:00:00.000Z';for(let index=1;index<total;index++){const id='synthetic-cap-'+index;await db.insert(schema.students).values({id,schoolId:'a',firstName:'Pupil'+index,lastName:'Synthetic',dateOfBirth:'2012-01-01',admissionNumber:id,gradeLevel:'8',createdAt:stamp,updatedAt:stamp});await db.insert(schema.enrolments).values({id:id+'-enrolment',studentId:id,classId:'class-a',status:'active',enrolledAt:stamp,createdAt:stamp,updatedAt:stamp});}const ui=await mount();check(pupils(ui).length,100,'Bounded100 real current rows');check(ui.one(item=>item.type==='fieldset').props.disabled,total===101,'Over-cap disables entire review');if(total===100){await candidate(ui);await ui.submit();check(writes()[0].status,201,'Exact-cap explicit dirty subset allowed');check(count(),1,'Exact-cap saves one attributable review');}else{okay(has(ui,'exceeds the editor limit'),'Over-cap limit disclosed');await ui.submit();check(writes().length,0,'Over-cap does notPOST partial roster');check(count(),0,'Over-cap creates no receipt');}drained();
-  });
-  for (const maximum of ['invalid',-1,0]) await scenario('stored maximum raw invalid or legitimatezero semantics ' + maximum, async ({ sqlite, mount, writes, count, drained }) => {
-    sqlite.prepare('UPDATE assessments SET max_score=? WHERE id=?').run(maximum,'assessment-a');const ui=await mount();check(pupils(ui),['student-a'],'Raw maximum evidence remains visible');if(maximum===0){await candidate(ui,'0');await ui.submit();check(writes()[0].status,201,'Legitimate zero maximum accepts explicit zero');check(count(),1,'Zero maximum has attributable review');}else{okay(has(ui,'stored maximum score requires review'),'Raw invalid maximum disclosed');check(ui.one(item=>item.type==='fieldset').props.disabled,true,'Invalid maximum read-only');await ui.submit();check(writes().length,0,'Invalid maximum never normalizes via save');}drained();
-  });
-  await scenario('preserved duplicate results show bounded raw evidence and choose no arbitrary record', async ({ mount, sqlite, writes, count, drained }) => {
-    const ui=await mount();check(pupils(ui),['student-a'],'Duplicate row remains scoped');okay(has(ui,'12 stored result records'),'Exact duplicate count disclosed');okay(has(ui,'Only 10 stored records are displayed'),'Bounded duplicate preview disclosed');check(ui.value('score-student-a'),'','No arbitrary duplicate populates current input');check(ui.one(item=>item.type==='fieldset').props.disabled,true,'Duplicate review read-only');await ui.submit();check(writes().length,0,'Duplicate save neverPOSTs');check(sqlite.prepare('SELECT count(*) total FROM assessment_results').get().total,12,'All preserved duplicates intact');check(count(),0,'No fabricated review');drained();
-  },'admin-a',async({db,schema})=>{for(let index=0;index<12;index++)await db.insert(schema.assessmentResults).values({id:'legacy-duplicate-'+index,assessmentId:'assessment-a',studentId:'student-a',score:index,grade:'Original grade '+index,feedback:null,createdAt:'legacy-original',updatedAt:'legacy-original'});});
-  await scenario('preserved duplicate enrolment evidence stays read-only', async ({ mount, writes, drained }) => {
-    const ui=await mount();okay(has(ui,'Multiple enrolment records require review'),'Whole pair ambiguity visible');check(ui.one(item=>item.type==='fieldset').props.disabled,true,'Pair ambiguity disables reviewed changes');await ui.submit();check(writes().length,0,'No automatic pair repair');drained();
-  },'admin-a',async({db,schema})=>{await db.insert(schema.enrolments).values({id:'legacy-second-pair',studentId:'student-a',classId:'class-a',status:'withdrawn',enrolledAt:'legacy',createdAt:'legacy',updatedAt:'legacy'});});
-  await scenario('bounded current history cap remains explicit and immutable', async ({ api, saved, mount, count, drained }) => {
-    const initial=await api('/api/assessments/assessment-a/result-editor');const metadata=(await initial.json()).assessment;for(let index=0;index<101;index++){const response=await api('/api/assessments/assessment-a/result-editor','POST',{clientRequestId:crypto.randomUUID(),reviewConfirmed:true,reason:'Synthetic distinct current history review.',expectedAssessment:metadata,entries:[{studentId:'student-a',score:index%2,grade:null,feedback:null,expectedRecord:saved()}]});check(response.status,201,'Actual distinct history review appended');await response.text();}const ui=await mount();check(count(),101,'Actual immutable total preserved');check(histories(ui).length,100,'History preview bounded100');okay(has(ui,'Showing 100 of 101 saved reviews'),'Exact history cap/total disclosed');okay(has(ui,'Earlier evidence is not loaded here'),'Earlier history not falsely presented complete');drained();
-  });
-  for (const invalid of ['score','reason','grade']) await scenario('obsolete captured submit cannot bypass current candidate validation ' + invalid, async ({ mount, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui,'2');const oldSubmit=submitCallback(ui);if(invalid==='score')await ui.change('score-student-a','21');else if(invalid==='reason')await ui.change('result-reason','short');else await ui.change('grade-student-a','😀'.repeat(2001));await ui.review();oldSubmit({preventDefault(){}});await ui.flush();check(writes().length,0,'Captured submit revalidates current exact intended candidate');check(count(),0,'Current invalid candidate cannot create review');drained();
-  });
-  for (const denied of [401,403,404]) await scenario('denied delivered original POST preserves exact recovery after actual commit ' + denied, async ({ mount, intercept, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui,'2','Original denied-response private reason.');intercept(async({options,response})=>{if(options.method==='POST'){await response.text();return new Response('{}',{status:denied});}return response;});await ui.submit();check(writes()[0].status,201,'Unmodified actual201 precedes named denied delivery projection');check(count(),1,'This projection is real committed evidence, not rollback or no-effect');noPrivate(ui);check(pending(ui).length,1,'Denied outcome retains exact original pending');check(has(ui,'Original denied-response private reason.'),false,'Denied view hides private reason');check(writes().length,1,'Denied reply never automatically retries');intercept(undefined);await ui.click('Reload current results');await ui.submit('retry');check(writes()[1].body,writes()[0].body,'Denied recovery retains original UUID and exact bytes');check(writes()[1].status,200,'Original real receipt recovered');check(count(),1,'Denied recovery does not create new receipt');drained();
-  });
-  for (const projection of ['reason','flag']) await scenario('unmatched real200 replay acknowledgement remains pending until explicit correlated retry ' + projection, async ({ mount, intercept, writes, count, drained }) => {
-    const ui=await mount();await candidate(ui);intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost initial real201 reply');}return response;});await ui.submit();intercept(undefined);await ui.click('Reload current results');intercept(async({options,response})=>{if(options.method!=='POST')return response;const value=await response.json();if(projection==='reason')value.review.reason='Uncorrelated replay reason.';else value.replayed=false;return new Response(JSON.stringify(value),{status:200});});await ui.submit('retry');check(writes()[1].status,200,'Actual backend replay occurs before named200 projection');noPrivate(ui);check(pending(ui).length,1,'Wrong replay public evidence cannot clear original');check(receipts(ui),[],'Wrong replay cannot confirm');check(count(),1,'Replay/projection preserves exactly one original review');intercept(undefined);await ui.click('Reload current results');await ui.submit('retry');check(writes().length,3,'Only separate explicit attempts exist');check(writes().every(row=>row.body===writes()[0].body),true,'Every attempt uses identical original serialized request');check(pending(ui).length,0,'Only correctly correlated original replay clears');drained();
-  });
-  await scenario('fresh empty roster and revised metadata still recover original immutable receipt without rebasing', async ({ mount, intercept, sqlite, writes, saved, count, drained }) => {
-    const ui=await mount();await candidate(ui,'3','Original before roster withdrawal review.');intercept(async({options,response})=>{if(options.method==='POST'){await response.text();throw new TypeError('Named lost committed response');}return response;});await ui.submit();const original=JSON.parse(writes()[0].body);intercept(undefined);sqlite.prepare('UPDATE enrolments SET status=? WHERE id=?').run('withdrawn','student-a-enrolment');sqlite.prepare('UPDATE assessments SET title=?,max_score=?,date=? WHERE id=?').run('Current revised assessment',0,'2026-02-30','assessment-a');await ui.click('Reload current results');check(pupils(ui),[],'Fresh current empty roster is shown honestly');okay(has(ui,'Current revised assessment'),'Current revised metadata separate');okay(has(ui,'Original assessment: Synthetic quiz'),'Original pending metadata unchanged');await ui.submit('retry');check(writes()[1].status,200,'Actual original authorized receipt recovery remains valid with empty current roster');check(writes()[1].body,writes()[0].body,'Original expectations not rebased to revised metadata/current roster');check(receipts(ui),[original.clientRequestId],'Original receipt privately confirmed');check(saved().score,3,'Original receipt recovery does not alter saved withdrawn mark');check(count(),1,'No second immutable review');drained();
-  });
-  console.log(JSON.stringify({passed:checks,failed:0,skipped:0,scenarios,requests,externalRequests,scope:'actual opaque sessions/routes/production D1 SQLite; candidate callbacks with substituted hooks/elements/AppShell; not mounted-browser/full-shell/accessibility evidence'}));
-} finally { globalThis.fetch=oldFetch;globalThis.window=oldWindow;delete globalThis.__sahaAssessmentDetailReact;delete globalThis.__sahaAssessmentDetailTimestamp; }
+  await scenario(
+    'initial current-session failure can explicitly retry',
+    async ({ mount, intercept, writes, drained }) => {
+      let once = false;
+      intercept(async ({ path, response }) => {
+        if (path === '/api/session' && !once) {
+          once = true;
+          await response.text();
+          return new Response('{}', { status: 503 });
+        }
+        return response;
+      });
+      const ui = await mount();
+      check(
+        ui.all((item) => item.type === 'button' && text(item) === 'Reload current results').length,
+        1,
+        'Initial unavailable session has a native explicit reload',
+      );
+      noPrivate(ui);
+      check(writes().length, 0, 'Failed initial read cannot save');
+      intercept(undefined);
+      await ui.click('Reload current results');
+      check(pupils(ui), ['student-a'], 'Fresh actual current scoped pupil restored');
+      drained();
+    },
+  );
+  for (const actor of ['guardian-a', 'student-user-a'])
+    await scenario(
+      'family is truthfully denied private staff review ' + actor,
+      async ({ mount, trace, writes, drained }) => {
+        const ui = await mount();
+        noPrivate(ui);
+        okay(has(ui, 'authorised school staff'), 'Staff-only policy stated');
+        check(trace.length, 1, 'Family session does not initiate staff editor request');
+        check(writes().length, 0, 'No family review');
+        check(
+          ui.button('Reload current results').props.disabled,
+          false,
+          'Read failure remains explicitly retryable',
+        );
+        drained();
+      },
+      actor,
+    );
+  for (const actor of ['admin-b', 'teacher-other'])
+    await scenario(
+      'actual unavailable school or teaching scope ' + actor,
+      async ({ mount, trace, writes, drained }) => {
+        const ui = await mount();
+        noPrivate(ui);
+        check(trace[1].status, 404, 'Actual handler denies unavailable assessment');
+        okay(has(ui, 'unavailable'), 'Unavailability explicit');
+        check(writes().length, 0, 'Unavailable context never reviews');
+        drained();
+      },
+      actor,
+    );
+  await scenario(
+    'complete current staff snapshot/history/session and native labels',
+    async ({ mount, trace, saved, writes, drained }) => {
+      const ui = await mount();
+      check(shell(ui).id, 'admin-a', 'Explicit shell has fresh current administrator');
+      check(pupils(ui), ['student-a'], 'One actual active learner');
+      check(saved(), null, 'No invented result exists');
+      check(ui.value('score-student-a'), '', 'Absence is blank, never implicit zero');
+      check(ui.value('grade-student-a'), '', 'Null grade presentation remains blank');
+      check(ui.value('feedback-student-a'), '', 'Null feedback presentation remains blank');
+      check(
+        trace.map((row) => row.path),
+        [
+          '/api/session',
+          '/api/assessments/assessment-a/result-editor',
+          '/api/assessments/assessment-a/result-editor/history',
+          '/api/session',
+        ],
+        'Whole scoped snapshot and history bracketed by current actor checks',
+      );
+      for (const id of ['score-student-a', 'grade-student-a', 'feedback-student-a', 'result-reason'])
+        check(
+          ui.all((item) => item.type === 'label' && item.props.htmlFor === id).length,
+          1,
+          'Native editor label is bound',
+        );
+      check(
+        ui.one((item) => item.type === 'a' && text(item) === 'Assessments').props.href,
+        '/assessments',
+        'Native index navigation',
+      );
+      check(ui.button('Save reviewed results').props.disabled, true, 'Empty unrevised candidate cannot save');
+      check(writes().length, 0, 'Opening detail does not review');
+      drained();
+    },
+  );
+  for (const status of [401, 403, 404, 503])
+    await scenario(
+      'failed current editor read hides identity/evidence/reason and fresh same-actor read restores deliberate draft ' +
+        status,
+      async ({ mount, intercept, writes, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '7', 'Private unsent review explanation.');
+        intercept(async ({ path, response }) => {
+          if (path.endsWith('/result-editor')) {
+            await response.text();
+            return new Response('{}', { status });
+          }
+          return response;
+        });
+        ui.button('Reload current results').props.onClick();
+        ui.render();
+        noPrivate(ui);
+        await ui.flush();
+        noPrivate(ui);
+        check(has(ui, 'Private unsent review explanation.'), false, 'Private unsent reason is hidden');
+        check(has(ui, 'No active students'), false, 'Failed read is not verified empty');
+        check(ui.button('Reload current results').props.disabled, false, 'Failure allows fresh retry');
+        intercept(undefined);
+        await ui.click('Reload current results');
+        check(ui.value('score-student-a'), '7', 'Same-actor deliberate score retained');
+        check(
+          ui.value('result-reason'),
+          'Private unsent review explanation.',
+          'Same-actor deliberate reason retained',
+        );
+        check(
+          ui.one((item) => item.type === 'input' && item.props.type === 'checkbox').props.checked,
+          false,
+          'Fresh context requires renewed review',
+        );
+        check(writes().length, 0, 'Read retry never saves');
+        drained();
+      },
+    );
+  for (const status of [401, 403, 404])
+    await scenario(
+      'history denial hides entire current private view ' + status,
+      async ({ mount, intercept, writes, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '4', 'Private history-denied candidate.');
+        intercept(async ({ path, response }) => {
+          if (path.endsWith('/history')) {
+            await response.text();
+            return new Response('{}', { status });
+          }
+          return response;
+        });
+        await ui.click('Reload current results');
+        noPrivate(ui);
+        check(has(ui, 'Private history-denied candidate.'), false, 'History denial clears displayed reason');
+        check(has(ui, 'No saved result reviews'), false, 'History denial is not empty history');
+        check(writes().length, 0, 'Denied history never saves');
+        drained();
+      },
+    );
+  await scenario(
+    'history503 stays separate after final fresh same-actor verification',
+    async ({ mount, intercept, trace, writes, drained }) => {
+      intercept(async ({ path, response }) => {
+        if (path.endsWith('/history')) {
+          await response.text();
+          return new Response('{}', { status: 503 });
+        }
+        return response;
+      });
+      const ui = await mount();
+      check(shell(ui).id, 'admin-a', 'Snapshot retains final verified actor');
+      check(pupils(ui), ['student-a'], 'Fresh snapshot remains visible');
+      okay(has(ui, 'Review history could not be loaded'), 'History failure explicit');
+      check(has(ui, 'No saved result reviews'), false, 'History503 is not empty history');
+      check(trace.at(-1).path, '/api/session', 'Final fresh session checked despite history503');
+      check(writes().length, 0, 'Unavailable history not a review');
+      drained();
+    },
+  );
+  await scenario(
+    'actor changes between history and final session prevent publication',
+    async ({ mount, intercept, setActor, writes, drained }) => {
+      intercept(async ({ path, response }) => {
+        if (path.endsWith('/history')) setActor('admin-b');
+        return response;
+      });
+      const ui = await mount();
+      noPrivate(ui);
+      okay(has(ui, 'account changed'), 'Changing actor not published');
+      check(writes().length, 0, 'Mixed actor snapshot cannot review');
+      drained();
+    },
+  );
+  for (const projection of [
+    'wrong-assessment',
+    'wrong-class',
+    'duplicate-pupil',
+    'missing-scoreType',
+    'incomplete-row',
+    'wrong-limit',
+    'wrong-total',
+    'wrong-status',
+  ])
+    await scenario(
+      'incoherent current snapshot is unavailable ' + projection,
+      async ({ mount, intercept, writes, drained }) => {
+        intercept(async ({ path, response }) => {
+          if (!path.endsWith('/result-editor')) return response;
+          const value = await response.json();
+          if (projection === 'wrong-assessment') value.assessment.id = 'assessment-b';
+          else if (projection === 'wrong-class') value.class.id = 'class-b';
+          else if (projection === 'duplicate-pupil') {
+            value.roster.items.push(value.roster.items[0]);
+            value.roster.total++;
+          } else if (projection === 'missing-scoreType') delete value.assessment.maxScoreType;
+          else if (projection === 'incomplete-row') delete value.roster.items[0].enrolmentRows;
+          else if (projection === 'wrong-limit') value.roster.limit = 101;
+          else if (projection === 'wrong-total') value.roster.total++;
+          return new Response(JSON.stringify(value), { status: projection === 'wrong-status' ? 201 : 200 });
+        });
+        const ui = await mount();
+        noPrivate(ui);
+        check(writes().length, 0, 'Invalid current evidence never saves');
+        check(
+          ui.button('Reload current results').props.disabled,
+          false,
+          'Projection can be retried explicitly',
+        );
+        drained();
+      },
+    );
+  await scenario(
+    'late obsolete read never restores old actor/marks/reason',
+    async ({ mount, intercept, setActor, trace, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '8', 'Old actor private intended reason.');
+      const held = deferred();
+      let once = false;
+      intercept(async ({ path, response }) => {
+        if (path.endsWith('/result-editor') && !once) {
+          once = true;
+          await held.promise;
+        }
+        return response;
+      });
+      ui.button('Reload current results').props.onClick();
+      await settle();
+      ui.render();
+      noPrivate(ui);
+      setActor('teacher-a');
+      await ui.click('Reload current results');
+      check(shell(ui).id, 'teacher-a', 'New current same-class teacher is published');
+      check(ui.value('score-student-a'), '', 'Other actor cannot inherit original score');
+      check(ui.value('result-reason'), '', 'Other actor cannot inherit original reason');
+      const length = trace.length;
+      held.resolve();
+      await ui.flush();
+      check(trace.length, length, 'Obsolete response starts no history/final-session request');
+      check(shell(ui).id, 'teacher-a', 'Obsolete header cannot return');
+      check(has(ui, 'Old actor private intended reason.'), false, 'Obsolete reason remains hidden');
+      drained();
+    },
+  );
+  await scenario(
+    'old queued controls and unmounted read cannot publish or save',
+    async ({ mount, intercept, writes, trace, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      const submit = submitCallback(ui),
+        edit = ui.one((item) => item.props?.id === 'result-reason').props.onChange;
+      const held = deferred();
+      let once = false;
+      intercept(async ({ path, response }) => {
+        if (path === '/api/session' && !once) {
+          once = true;
+          await held.promise;
+        }
+        return response;
+      });
+      ui.button('Reload current results').props.onClick();
+      await submit({ preventDefault() {} });
+      edit({ target: { value: 'Obsolete reason' } });
+      await settle();
+      check(writes().length, 0, 'Old controls invalid as soon as reload begins');
+      ui.dispose();
+      const cells = ui.cells.map((cell) => cell?.value),
+        length = trace.length;
+      held.resolve();
+      await settle();
+      check(trace.length, length, 'Unmounted response cannot start next read');
+      check(
+        ui.cells.map((cell) => cell?.value),
+        cells,
+        'Unmounted read cannot publish',
+      );
+      drained();
+    },
+  );
+  await scenario(
+    'new explicit zero review acknowledges exact original public tuple',
+    async ({ mount, writes, saved, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '0');
+      await ui.submit();
+      check(writes().length, 1, 'One explicit new review');
+      check(writes()[0].status, 201, 'Actual new immutable review uses201');
+      const input = JSON.parse(writes()[0].body);
+      check(
+        input.entries,
+        [{ studentId: 'student-a', score: 0, grade: null, feedback: null, expectedRecord: null }],
+        'Only dirty pupil with legitimatezero/null original absence',
+      );
+      check(saved().score, 0, 'Actual zero saved');
+      check(saved().scoreType, 'integer', 'Actual normalized score type');
+      check(saved().grade, null, 'Actual null grade');
+      check(saved().feedback, null, 'Actual null feedback');
+      check(count(), 1, 'One immutable history receipt');
+      check(receipts(ui), [input.clientRequestId], 'Correlated original UUID privately confirmed');
+      check(histories(ui), [input.clientRequestId], 'Actual saved history');
+      check(pending(ui).length, 0, 'Only matched public receipt clears pending');
+      check(ui.value('score-student-a'), '0', 'Current fresh saved zero');
+      check(ui.value('result-reason'), '', 'Known save resets reason');
+      drained();
+    },
+  );
+  await scenario(
+    'explicit empty and no-text actions preserve null versus empty',
+    async ({ mount, writes, saved, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '1');
+      await ui.change('grade-student-a', '');
+      await ui.change('feedback-student-a', '');
+      await ui.review();
+      await ui.submit();
+      check(saved().grade, '', 'Explicit empty grade stored');
+      check(saved().feedback, '', 'Explicit empty feedback stored');
+      check(JSON.parse(writes()[0].body).entries[0].grade, '', 'Empty grade not normalized to null');
+      await ui.click('Set no grade for student-a Synthetic');
+      await ui.click('Set no feedback for student-a Synthetic');
+      await ui.change('result-reason', 'Explicit supplied null text review.');
+      await ui.review();
+      await ui.submit();
+      check(saved().grade, null, 'Explicit no-grade restores null');
+      check(saved().feedback, null, 'Explicit no-feedback restores null');
+      check(writes().length, 2, 'Text-only explicit change is reviewed without score re-entry');
+      check(saved().score, 1, 'Text-only change preserves saved integer score');
+      drained();
+    },
+  );
+  for (const invalid of [
+    'blank',
+    'negative',
+    'fractional',
+    'above-maximum',
+    'short-reason',
+    'multiline-reason',
+    'long-grade',
+  ])
+    await scenario(
+      'invalid candidate is blocked without POST ' + invalid,
+      async ({ mount, writes, count, drained }) => {
+        const ui = await mount();
+        await candidate(
+          ui,
+          invalid === 'blank'
+            ? ''
+            : invalid === 'negative'
+              ? '-1'
+              : invalid === 'fractional'
+                ? '1.5'
+                : invalid === 'above-maximum'
+                  ? '21'
+                  : '2',
+          invalid === 'short-reason'
+            ? 'short'
+            : invalid === 'multiline-reason'
+              ? 'A reviewed\nmultiline reason'
+              : 'Synthetic valid candidate review.',
+        );
+        if (invalid === 'long-grade') {
+          await ui.change('grade-student-a', '😀'.repeat(2001));
+          await ui.review();
+        }
+        check(ui.button('Save reviewed results').props.disabled, true, 'Invalid candidate save disabled');
+        await ui.submit();
+        check(writes().length, 0, 'Invalid candidate neverPOSTs');
+        check(count(), 0, 'Invalid candidate creates no receipt');
+        drained();
+      },
+    );
+  await scenario(
+    'unchanged long text/raw scoreType repair and invalid stored calendar remain explicit',
+    async ({ api, sqlite, mount, writes, saved, drained }) => {
+      const longGrade = 'G'.repeat(2100),
+        longFeedback = 'F'.repeat(2200);
+      const response = await api('/api/assessments/assessment-a/results', 'POST', {
+        results: [{ studentId: 'student-a', score: 4, grade: longGrade, feedback: longFeedback }],
+      });
+      await response.text();
+      sqlite
+        .prepare('UPDATE assessment_results SET score=? WHERE student_id=?')
+        .run('not a number', 'student-a');
+      sqlite.prepare('UPDATE assessments SET date=? WHERE id=?').run('2026-02-30', 'assessment-a');
+      const before = saved();
+      const ui = await mount();
+      check(ui.value('score-student-a'), 'not a number', 'Raw TEXT score displayed unchanged');
+      okay(has(ui, '(text)'), 'SQLite raw scoreType disclosed');
+      okay(
+        has(ui, 'stored assessment date requires review'),
+        'Invalid stored calendar displayed without inference',
+      );
+      check(ui.value('grade-student-a'), longGrade, 'Unchanged long grade intact');
+      check(ui.value('feedback-student-a'), longFeedback, 'Unchanged long feedback intact');
+      await candidate(ui, '0');
+      await ui.submit();
+      check(writes()[0].status, 201, 'Explicit whole-number repair can review invalid raw single result');
+      const entry = JSON.parse(writes()[0].body).entries[0];
+      check(entry.expectedRecord, before, 'Every raw original field/type preserved in CAS');
+      check(saved().grade, longGrade, 'Unchanged long supplied grade remains');
+      check(saved().feedback, longFeedback, 'Unchanged long feedback remains');
+      check(saved().score, 0, 'Explicit zero repair persists');
+      check(saved().scoreType, 'integer', 'Repair integer type');
+      drained();
+    },
+  );
+  await scenario(
+    'synchronous duplicate save and unmount preflight guard',
+    async ({ mount, intercept, writes, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      const held = deferred();
+      let once = false;
+      intercept(async ({ path, response }) => {
+        if (path === '/api/session' && !once) {
+          once = true;
+          await held.promise;
+        }
+        return response;
+      });
+      const submit = submitCallback(ui);
+      submit({ preventDefault() {} });
+      submit({ preventDefault() {} });
+      await settle();
+      ui.render();
+      noPrivate(ui);
+      check(writes().length, 0, 'Held preflight not yet posted');
+      held.resolve();
+      await ui.flush();
+      check(writes().length, 1, 'Same-frame duplicate uses one immutable request');
+      drained();
+    },
+  );
+  for (const fault of ['lost', '503', 'malformed'])
+    await scenario(
+      'unconfirmed real commit recovers exact original body UUID with original200 replay ' + fault,
+      async ({ mount, intercept, writes, saved, count, api, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '3', 'Original private reviewed reason.');
+        intercept(async ({ options, response }) => {
+          if (options.method !== 'POST') return response;
+          await response.text();
+          if (fault === 'lost') throw new TypeError('Named synthetic lost committed reply');
+          return new Response(fault === 'malformed' ? '{' : '{}', { status: fault === '503' ? 503 : 201 });
+        });
+        await ui.submit();
+        check(saved().score, 3, 'Unmodified actual review committed before named fault');
+        check(count(), 1, 'Immutable original receipt actually exists');
+        noPrivate(ui);
+        check(pending(ui).length, 1, 'Exact original pending survives unknown');
+        check(has(ui, 'Original private reviewed reason.'), false, 'Unknown private reason hidden');
+        check(writes().length, 1, 'Unknown never autoPOSTs');
+        const original = writes()[0].body,
+          request = JSON.parse(original);
+        intercept(undefined);
+        const later = await api('/api/assessments/assessment-a/results', 'POST', {
+          results: [{ studentId: 'student-a', score: 11, grade: 'Later grade', feedback: '' }],
+        });
+        await later.text();
+        await ui.click('Reload current results');
+        check(ui.value('score-student-a'), '11', 'Current later marks stay separate');
+        okay(has(ui, 'Original intended score: 3'), 'Original intended score separately displayed');
+        okay(
+          has(ui, 'Original reason: Original private reviewed reason.'),
+          'Original reason only after fresh original scope',
+        );
+        check(ui.one((item) => item.type === 'fieldset').props.disabled, true, 'Pending blocks new review');
+        await ui.submit('retry');
+        check(writes().length, 2, 'Recovery requires explicit retry');
+        check(writes()[1].body, original, 'Endpoint/request bytes and UUID reused exactly');
+        check(writes()[1].path, writes()[0].path, 'Exact original endpoint reused');
+        check(writes()[1].status, 200, 'Actual replay acknowledges original200');
+        check(saved().score, 11, 'Original receipt retry never overwrites later current mark');
+        check(count(), 1, 'Replay creates no new receipt');
+        check(receipts(ui), [request.clientRequestId], 'Original private receipt confirmed');
+        check(pending(ui).length, 0, 'Strictly correlated replay clears original pending');
+        drained();
+      },
+    );
+  for (const projection of [
+    'uuid',
+    'reviewer',
+    'assessment-id',
+    'class-id',
+    'metadata-title',
+    'metadata-type',
+    'reason',
+    'pupil-key',
+    'extra-change',
+    'before-null',
+    'after-score',
+    'after-type',
+    'after-grade',
+    'after-feedback',
+    'after-updated',
+    'created-invalid',
+    'replay-flag',
+    'wrong-status',
+  ])
+    await scenario(
+      'unmatched public receipt projection after actual201 commit is retained pending ' + projection,
+      async ({ mount, intercept, writes, saved, count, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '2', 'Exact projected receipt reason.');
+        intercept(async ({ options, response }) => {
+          if (options.method !== 'POST') return response;
+          const value = await response.json(),
+            r = value.review,
+            c = r.changes[0];
+          if (projection === 'uuid') r.id = crypto.randomUUID();
+          else if (projection === 'reviewer') r.reviewedBy = 'teacher-a';
+          else if (projection === 'assessment-id') r.assessmentId = 'assessment-b';
+          else if (projection === 'class-id') r.classId = 'class-b';
+          else if (projection === 'metadata-title') r.assessment.title += ' changed';
+          else if (projection === 'metadata-type') r.assessment.maxScoreType = 'real';
+          else if (projection === 'reason') r.reason = 'Different attributable review reason';
+          else if (projection === 'pupil-key') c.studentId = 'student-other';
+          else if (projection === 'extra-change') r.changes.push(structuredClone(c));
+          else if (projection === 'before-null') c.beforeRecord = { ...c.afterRecord };
+          else if (projection === 'after-score') c.afterRecord.score = 3;
+          else if (projection === 'after-type') c.afterRecord.scoreType = 'real';
+          else if (projection === 'after-grade') c.afterRecord.grade = '';
+          else if (projection === 'after-feedback') c.afterRecord.feedback = '';
+          else if (projection === 'after-updated') c.afterRecord.updatedAt = '2000-01-01T00:00:00.000Z';
+          else if (projection === 'created-invalid') r.createdAt = '2026-02-30T00:00:00.000Z';
+          else if (projection === 'replay-flag') value.replayed = true;
+          return new Response(JSON.stringify(value), { status: projection === 'wrong-status' ? 200 : 201 });
+        });
+        // Named delivered projections follow an unmodified real201 commit. These
+        // checks never claim rollback/no effect, school/hash/entriesJson disclosure,
+        // or a receipt field that the public DTO does not provide.
+        await ui.submit();
+        check(writes()[0].status, 201, 'Actual unmodified new save returned201');
+        check(saved().score, 2, 'Actual committed pupil score');
+        check(count(), 1, 'Actual immutable receipt exists');
+        noPrivate(ui);
+        check(pending(ui).length, 1, 'Unmatched receipt never clears exact pending');
+        check(receipts(ui), [], 'Unmatched receipt never confirms');
+        check(has(ui, 'Result review saved.'), false, 'No false known acknowledgement');
+        check(writes().length, 1, 'No automatic receipt recovery');
+        intercept(undefined);
+        await ui.click('Reload current results');
+        await ui.submit('retry');
+        check(writes()[1].body, writes()[0].body, 'Explicit recovery preserves original exact body');
+        check(writes()[1].status, 200, 'Actual original receipt replay recovered');
+        check(pending(ui).length, 0, 'Actual correlated original replay clears');
+        check(count(), 1, 'Projection recovery creates no extra receipt');
+        drained();
+      },
+    );
+  await scenario(
+    'server-sorted changed pupils are correlated by key without roster-order assumption',
+    async ({ db, schema, sqlite, mount, writes, saved, count, drained }) => {
+      await db.insert(schema.enrolments).values({
+        id: 'second-current-enrolment',
+        studentId: 'student-other',
+        classId: 'class-a',
+        status: 'active',
+        enrolledAt: '2026-10-05',
+        createdAt: '2026-10-05',
+        updatedAt: '2026-10-05',
+      });
+      sqlite.prepare('UPDATE students SET first_name=? WHERE id=?').run('Zulu', 'student-a');
+      sqlite.prepare('UPDATE students SET first_name=? WHERE id=?').run('Alpha', 'student-other');
+      const ui = await mount();
+      await candidate(ui, '4');
+      await ui.change('score-student-other', '0');
+      await ui.review();
+      await ui.submit();
+      check(
+        JSON.parse(writes()[0].body).entries.map((entry) => entry.studentId),
+        ['student-other', 'student-a'],
+        'Roster display/input order intentionally reverses server sorted receipt keys',
+      );
+      check(saved().score, 4, 'First actual pupil saved');
+      check(saved('student-other').score, 0, 'Second actual pupil zero saved');
+      check(count(), 1, 'One batch immutable receipt');
+      check(pending(ui).length, 0, 'Sorted real receipt correlated by pupil keys');
+      check(receipts(ui).length, 1, 'One confirmed batch');
+      drained();
+    },
+  );
+  await scenario(
+    'unknown request stays private across another same-class actor and returns unchanged',
+    async ({ mount, intercept, setActor, writes, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '5', 'Original account private reason.');
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named synthetic lost committed reply');
+        }
+        return response;
+      });
+      await ui.submit();
+      intercept(undefined);
+      setActor('teacher-a');
+      await ui.click('Reload current results');
+      check(shell(ui).id, 'teacher-a', 'Different current authorized actor shown');
+      check(
+        text(pending(ui)[0]).includes('Original account private reason.'),
+        false,
+        'Original pending intent hidden from other same-class actor; authorized persisted history is separate',
+      );
+      check(ui.value('result-reason'), '', 'Other actor cannot inherit original private reason draft');
+      check(receipts(ui), [], 'Other actor cannot inherit original private confirmation');
+      check(
+        ui.all((item) => item.type === 'form' && item.props['data-assessment-review-form'] === 'retry')
+          .length,
+        0,
+        'Different actor cannot retry',
+      );
+      check(
+        ui.all((item) => item.type === 'button' && text(item).startsWith('Discard pending')).length,
+        0,
+        'Different actor cannot discard',
+      );
+      check(
+        ui.one((item) => item.type === 'fieldset').props.disabled,
+        true,
+        'Different actor cannot start another pending-overwriting review',
+      );
+      setActor('admin-a');
+      await ui.click('Reload current results');
+      okay(
+        has(ui, 'Original reason: Original account private reason.'),
+        'Original private request intact after actor return',
+      );
+      await ui.submit('retry');
+      check(writes().length, 2, 'Only original attempt and explicit original retry');
+      check(writes()[1].body, writes()[0].body, 'Original unchanged bytes');
+      check(count(), 1, 'No duplicate review');
+      drained();
+    },
+  );
+  await scenario(
+    'actual CAS409 has no effect and explicit fresh discard permits separate reviewed request',
+    async ({ mount, api, writes, saved, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '6', 'Reviewed now-stale original results.');
+      const later = await api('/api/assessments/assessment-a/results', 'POST', {
+        results: [{ studentId: 'student-a', score: 9, grade: 'Current grade', feedback: '' }],
+      });
+      check(later.status, 200, 'Actual concurrent legacy handler update persisted');
+      await later.text();
+      await ui.submit();
+      check(writes()[0].status, 409, 'Actual original absence CAS is rejected');
+      check(saved().score, 9, 'Actual CAS rejection preserves newer result');
+      check(count(), 0, 'Actual CAS409 creates no receipt');
+      noPrivate(ui);
+      check(pending(ui).length, 1, 'Original conflict request retained privately');
+      okay(has(ui, 'last review response rejected'), 'Known rejection distinguished from unknown save');
+      check(has(ui, 'Result review saved.'), false, 'Conflict never acknowledged');
+      const original = JSON.parse(writes()[0].body);
+      await ui.click('Reload current results');
+      check(ui.value('score-student-a'), '9', 'Fresh current score shown separately');
+      await ui.click('Discard pending request and review current results');
+      check(writes().length, 1, 'Discard does zeroPOST');
+      check(pending(ui).length, 0, 'Explicit verified original discard clears page pending');
+      check(ui.value('score-student-a'), '9', 'Discard leaves fresh saved mark');
+      check(ui.value('result-reason'), '', 'Discard clears reason');
+      check(
+        ui.one((item) => item.type === 'input' && item.props.type === 'checkbox').props.checked,
+        false,
+        'Discard requires separate reviewed confirmation',
+      );
+      okay(has(ui, 'does not cancel or confirm a started save'), 'No false cancellation/ack claim');
+      await ui.submit();
+      check(writes().length, 1, 'Discard never auto-generates another save');
+      await candidate(ui, '10', 'Separate current reviewed correction.');
+      await ui.submit();
+      check(writes().length, 2, 'New save requires distinct edit/review/action');
+      check(
+        JSON.parse(writes()[1].body).clientRequestId === original.clientRequestId,
+        false,
+        'Separate explicit review uses new UUID',
+      );
+      check(saved().score, 10, 'New reviewed current tuple persists');
+      check(count(), 1, 'Only new successful review exists');
+      drained();
+    },
+  );
+  await scenario(
+    'unknown explicit discard preserves committed history and future separate review',
+    async ({ mount, intercept, writes, saved, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '4');
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost committed reply');
+        }
+        return response;
+      });
+      await ui.submit();
+      const original = JSON.parse(writes()[0].body);
+      intercept(undefined);
+      await ui.click('Reload current results');
+      await ui.click('Discard pending request and review current results');
+      check(writes().length, 1, 'Discard makes no extraPOST');
+      check(count(), 1, 'Discard leaves actual original receipt history');
+      check(histories(ui), [original.clientRequestId], 'Original history still displayed');
+      check(receipts(ui), [], 'Discard does not confirm original private receipt');
+      check(saved().score, 4, 'Discard leaves actually committed mark');
+      await candidate(ui, '5', 'New separate reviewed current score.');
+      await ui.submit();
+      check(count(), 2, 'Separate new review appends immutable history');
+      okay(histories(ui).includes(original.clientRequestId), 'Original history preserved beside newreview');
+      check(
+        JSON.parse(writes()[1].body).clientRequestId === original.clientRequestId,
+        false,
+        'No UUID reuse for separately reviewed new action',
+      );
+      drained();
+    },
+  );
+  await scenario(
+    'changed actor/context at discard completion cannot erase original pending',
+    async ({ mount, intercept, setActor, writes, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost committed reply');
+        }
+        return response;
+      });
+      await ui.submit();
+      intercept(undefined);
+      await ui.click('Reload current results');
+      setActor('teacher-a');
+      await ui.click('Discard pending request and review current results');
+      noPrivate(ui);
+      check(pending(ui).length, 1, 'Fresh other actor cannot discard original request');
+      check(writes().length, 1, 'Changed discard context does zeroPOST');
+      setActor('admin-a');
+      await ui.click('Reload current results');
+      await ui.submit('retry');
+      check(writes()[1].body, writes()[0].body, 'Original request survived failed discard');
+      drained();
+    },
+  );
+  await scenario(
+    'failed post-confirmation read preserves known generic fact and later original private receipt',
+    async ({ mount, intercept, writes, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '3');
+      let committed = false;
+      intercept(async ({ path, options, response }) => {
+        if (options.method === 'POST') committed = true;
+        if (committed && path.endsWith('/result-editor') && options.method !== 'POST') {
+          await response.text();
+          return new Response('{}', { status: 503 });
+        }
+        return response;
+      });
+      await ui.submit();
+      noPrivate(ui);
+      okay(
+        has(ui, 'original reviewed update was acknowledged'),
+        'Known matched acknowledgement survives failed reload',
+      );
+      check(pending(ui).length, 0, 'Knownsave is not pending');
+      check(count(), 1, 'Actual review persisted');
+      check(writes().length, 1, 'Failed read does not autoPOST');
+      intercept(undefined);
+      await ui.click('Reload current results');
+      check(
+        receipts(ui),
+        [JSON.parse(writes()[0].body).clientRequestId],
+        'Original private receipt restored after fresh scope',
+      );
+      check(writes().length, 1, 'Restoring receipt does not repeat save');
+      drained();
+    },
+  );
+  for (const phase of ['preflight', 'posted'])
+    await scenario(
+      'unmount prevents unsent save or safely drains started save ' + phase,
+      async ({ mount, intercept, writes, count, drained }) => {
+        const ui = await mount();
+        await candidate(ui);
+        const held = deferred();
+        let once = false;
+        intercept(async ({ path, options, response }) => {
+          if ((phase === 'preflight' ? path === '/api/session' : options.method === 'POST') && !once) {
+            once = true;
+            await held.promise;
+          }
+          return response;
+        });
+        submitCallback(ui)({ preventDefault() {} });
+        await settle();
+        check(writes().length, phase === 'posted' ? 1 : 0, 'Started state is exact before unmount');
+        check(count(), phase === 'posted' ? 1 : 0, 'Only actually started handler can persist');
+        ui.dispose();
+        const cells = ui.cells.map((cell) => cell?.value);
+        held.resolve();
+        await settle();
+        check(
+          ui.cells.map((cell) => cell?.value),
+          cells,
+          'Unmounted response cannot publish private state',
+        );
+        check(writes().length, phase === 'posted' ? 1 : 0, 'No additional unmountedPOST');
+        drained();
+      },
+    );
+  for (const field of [
+    'id',
+    'assessmentId',
+    'studentId',
+    'score',
+    'scoreType',
+    'grade',
+    'feedback',
+    'createdAt',
+    'updatedAt',
+  ])
+    await scenario(
+      'full original before tuple mismatch cannot confirm corrected record ' + field,
+      async ({ api, mount, intercept, saved, writes, count, drained }) => {
+        const initial = await api('/api/assessments/assessment-a/results', 'POST', {
+          results: [
+            { studentId: 'student-a', score: 3, grade: 'Original grade', feedback: 'Original feedback' },
+          ],
+        });
+        check(initial.status, 200, 'Actual original legacy result seeded');
+        await initial.text();
+        const before = saved();
+        const ui = await mount();
+        await candidate(ui, '5');
+        intercept(async ({ options, response }) => {
+          if (options.method !== 'POST') return response;
+          const value = await response.json(),
+            record = value.review.changes[0].beforeRecord;
+          record[field] =
+            field === 'score' ? 4 : field === 'scoreType' ? 'real' : String(record[field]) + ' changed';
+          return new Response(JSON.stringify(value), { status: 201 });
+        });
+        await ui.submit();
+        check(saved().score, 5, 'Actual correction committed before named projection');
+        check(count(), 1, 'Actual correction receipt exists');
+        noPrivate(ui);
+        check(pending(ui).length, 1, 'Each immutable original field is correlated');
+        check(writes().length, 1, 'Mismatch does not autoPOST');
+        intercept(undefined);
+        await ui.click('Reload current results');
+        await ui.submit('retry');
+        check(writes()[1].body, writes()[0].body, 'Exact original correction remains recoverable');
+        check(
+          JSON.parse(writes()[1].body).entries[0].expectedRecord,
+          before,
+          'Original full tuple never rebased',
+        );
+        check(pending(ui).length, 0, 'Actual correctly correlated200 replay recovered');
+        drained();
+      },
+    );
+  for (const actor of ['teacher-a', 'admin-b', 'guardian-a'])
+    await scenario(
+      'changed preflight actor never receives original new review ' + actor,
+      async ({ mount, setActor, writes, count, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '2', 'Original preflight private reason.');
+        setActor(actor);
+        await ui.submit();
+        noPrivate(ui);
+        check(writes().length, 0, 'Changed actual preflight actor blocks originalPOST');
+        check(count(), 0, 'No receipt created');
+        check(pending(ui).length, 1, 'Exact unsent reviewed intent retained privately');
+        check(has(ui, 'Original preflight private reason.'), false, 'Original reason hidden');
+        okay(has(ui, 'has not been sent'), 'Unsent status not mislabeled lost commit');
+        setActor('admin-a');
+        await ui.click('Reload current results');
+        await ui.submit('retry');
+        check(writes().length, 1, 'Original account may explicitly send exact previously unsent request');
+        check(writes()[0].status, 201, 'Unsent original creates new201 only once');
+        drained();
+      },
+    );
+  await scenario(
+    'same-frame duplicate retry posts original body only once',
+    async ({ mount, intercept, writes, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost commit');
+        }
+        return response;
+      });
+      await ui.submit();
+      intercept(undefined);
+      await ui.click('Reload current results');
+      const retry = submitCallback(ui, 'retry'),
+        held = deferred();
+      let once = false;
+      intercept(async ({ path, response }) => {
+        if (path === '/api/session' && !once) {
+          once = true;
+          await held.promise;
+        }
+        return response;
+      });
+      retry({ preventDefault() {} });
+      retry({ preventDefault() {} });
+      await settle();
+      check(writes().length, 1, 'Held retry has no new POST yet');
+      held.resolve();
+      await ui.flush();
+      check(writes().length, 2, 'Exactly one explicit retry despite same-frame duplicate');
+      check(writes()[1].body, writes()[0].body, 'Original request bytes stable');
+      check(count(), 1, 'No duplicate receipt');
+      drained();
+    },
+  );
+  await scenario(
+    'history denial during original retry preflight preserves original and sends noPOST',
+    async ({ mount, intercept, writes, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost commit');
+        }
+        return response;
+      });
+      await ui.submit();
+      intercept(undefined);
+      await ui.click('Reload current results');
+      intercept(async ({ path, response }) => {
+        if (path.endsWith('/history')) {
+          await response.text();
+          return new Response('{}', { status: 403 });
+        }
+        return response;
+      });
+      await ui.submit('retry');
+      noPrivate(ui);
+      check(pending(ui).length, 1, 'History denial does not discard original pending');
+      check(writes().length, 1, 'Denied retry preflight sends noPOST');
+      check(count(), 1, 'Original actual receipt preserved');
+      intercept(undefined);
+      await ui.click('Reload current results');
+      await ui.submit('retry');
+      check(writes()[1].body, writes()[0].body, 'Original preserved through denied retry');
+      drained();
+    },
+  );
+  await scenario(
+    'route change immediately hides old view and captured controls while old commit response waits',
+    async ({ mount, intercept, setActor, writes, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '7', 'Original route private reason.');
+      const oldSubmit = submitCallback(ui),
+        oldReason = ui.one((item) => item.props?.id === 'result-reason').props.onChange,
+        held = deferred();
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') await held.promise;
+        return response;
+      });
+      oldSubmit({ preventDefault() {} });
+      await settle();
+      check(count(), 1, 'Original actual review committed before route transition');
+      setActor('admin-b');
+      ui.props = { params: Promise.resolve({ id: 'assessment-b' }) };
+      ui.render();
+      noPrivate(ui);
+      oldReason({ target: { value: 'Obsolete route reason' } });
+      oldSubmit({ preventDefault() {} });
+      await ui.flush();
+      check(shell(ui).id, 'admin-b', 'New route/current account verified');
+      check(pupils(ui), ['student-b'], 'New route only current pupil');
+      check(
+        text(pending(ui)[0]).includes('Original route private reason.'),
+        false,
+        'Other route has generic pending only',
+      );
+      held.resolve();
+      await ui.flush();
+      check(receipts(ui), [], 'Late original route acknowledgment not published in new route');
+      check(pending(ui).length, 1, 'Late original response does not discard original recoverable request');
+      check(writes().length, 1, 'No obsolete route follow-upPOST');
+      setActor('admin-a');
+      ui.props = { params: Promise.resolve({ id: 'assessment-a' }) };
+      await ui.flush();
+      await ui.submit('retry');
+      check(writes()[1].body, writes()[0].body, 'Original route recovery retains original request bytes');
+      check(count(), 1, 'Returning route replay preserves original immutable receipt');
+      drained();
+    },
+  );
+  await scenario(
+    'class changes during fresh discard verification keep exact pending',
+    async ({ mount, intercept, sqlite, writes, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost commit');
+        }
+        return response;
+      });
+      await ui.submit();
+      intercept(undefined);
+      await ui.click('Reload current results');
+      sqlite.prepare('UPDATE assessments SET class_id=? WHERE id=?').run('class-other', 'assessment-a');
+      await ui.click('Discard pending request and review current results');
+      noPrivate(ui);
+      check(pending(ui).length, 1, 'Changed exact class prevents discard completion');
+      check(writes().length, 1, 'Changed class discard has noPOST');
+      sqlite.prepare('UPDATE assessments SET class_id=? WHERE id=?').run('class-a', 'assessment-a');
+      await ui.click('Reload current results');
+      await ui.submit('retry');
+      check(writes()[1].body, writes()[0].body, 'Original request retained across context instability');
+      drained();
+    },
+  );
+  await scenario(
+    'failed discard read and duplicate action retain original until one explicit stable completion',
+    async ({ mount, intercept, writes, drained }) => {
+      const ui = await mount();
+      await candidate(ui);
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost commit');
+        }
+        return response;
+      });
+      await ui.submit();
+      intercept(undefined);
+      await ui.click('Reload current results');
+      intercept(async ({ path, response }) => {
+        if (path.endsWith('/result-editor')) {
+          await response.text();
+          return new Response('{}', { status: 503 });
+        }
+        return response;
+      });
+      await ui.click('Discard pending request and review current results');
+      noPrivate(ui);
+      check(pending(ui).length, 1, 'Failed discard read preserves original');
+      intercept(undefined);
+      await ui.click('Reload current results');
+      const discard = ui.button('Discard pending request and review current results').props.onClick;
+      discard();
+      discard();
+      await ui.flush();
+      check(pending(ui).length, 0, 'One fresh original completion clears');
+      check(writes().length, 1, 'Failed and duplicate discard all zeroPOST');
+      check(ui.value('result-reason'), '', 'Completion clears private reason');
+      check(
+        ui.button('Save reviewed results').props.disabled,
+        true,
+        'Completion does not create reviewed candidate',
+      );
+      drained();
+    },
+  );
+  await scenario(
+    'queued captured field/checkbox after unmount cannot mutate abandoned form',
+    async ({ mount, writes, drained }) => {
+      const ui = await mount(),
+        change = ui.one((item) => item.props?.id === 'score-student-a').props.onChange,
+        reason = ui.one((item) => item.props?.id === 'result-reason').props.onChange,
+        review = ui.one((item) => item.type === 'input' && item.props.type === 'checkbox').props.onChange;
+      ui.dispose();
+      const cells = ui.cells.map((cell) => cell?.value);
+      change({ target: { value: '8' } });
+      reason({ target: { value: 'Abandoned reason edit' } });
+      review({ target: { checked: true } });
+      check(
+        ui.cells.map((cell) => cell?.value),
+        cells,
+        'Unmounted captured fields cannot publish',
+      );
+      check(writes().length, 0, 'Unmounted controls neverPOST');
+      drained();
+    },
+  );
+  await scenario(
+    'empty current roster is verified empty and read-only',
+    async ({ sqlite, mount, writes, drained }) => {
+      sqlite.prepare('UPDATE enrolments SET status=? WHERE id=?').run('withdrawn', 'student-a-enrolment');
+      const ui = await mount();
+      check(shell(ui).id, 'admin-a', 'Empty scope still fresh current actor');
+      check(pupils(ui), [], 'Verified empty roster');
+      okay(has(ui, 'No active students are available'), 'Truthful empty view');
+      check(
+        ui.one((item) => item.type === 'fieldset').props.disabled,
+        true,
+        'Empty roster cannot invent marks',
+      );
+      await ui.submit();
+      check(writes().length, 0, 'No reviewed empty batch');
+      drained();
+    },
+  );
+  for (const total of [100, 101])
+    await scenario(
+      'exact current roster cap preserved ' + total,
+      async ({ db, schema, mount, writes, count, drained }) => {
+        const stamp = '2026-10-05T00:00:00.000Z';
+        for (let index = 1; index < total; index++) {
+          const id = 'synthetic-cap-' + index;
+          await db.insert(schema.students).values({
+            id,
+            schoolId: 'a',
+            firstName: 'Pupil' + index,
+            lastName: 'Synthetic',
+            dateOfBirth: '2012-01-01',
+            admissionNumber: id,
+            gradeLevel: '8',
+            createdAt: stamp,
+            updatedAt: stamp,
+          });
+          await db.insert(schema.enrolments).values({
+            id: id + '-enrolment',
+            studentId: id,
+            classId: 'class-a',
+            status: 'active',
+            enrolledAt: stamp,
+            createdAt: stamp,
+            updatedAt: stamp,
+          });
+        }
+        const ui = await mount();
+        check(pupils(ui).length, 100, 'Bounded100 real current rows');
+        check(
+          ui.one((item) => item.type === 'fieldset').props.disabled,
+          total === 101,
+          'Over-cap disables entire review',
+        );
+        if (total === 100) {
+          await candidate(ui);
+          await ui.submit();
+          check(writes()[0].status, 201, 'Exact-cap explicit dirty subset allowed');
+          check(count(), 1, 'Exact-cap saves one attributable review');
+        } else {
+          okay(has(ui, 'exceeds the editor limit'), 'Over-cap limit disclosed');
+          await ui.submit();
+          check(writes().length, 0, 'Over-cap does notPOST partial roster');
+          check(count(), 0, 'Over-cap creates no receipt');
+        }
+        drained();
+      },
+    );
+  for (const maximum of ['invalid', -1, 0])
+    await scenario(
+      'stored maximum raw invalid or legitimatezero semantics ' + maximum,
+      async ({ sqlite, mount, writes, count, drained }) => {
+        sqlite.prepare('UPDATE assessments SET max_score=? WHERE id=?').run(maximum, 'assessment-a');
+        const ui = await mount();
+        check(pupils(ui), ['student-a'], 'Raw maximum evidence remains visible');
+        if (maximum === 0) {
+          await candidate(ui, '0');
+          await ui.submit();
+          check(writes()[0].status, 201, 'Legitimate zero maximum accepts explicit zero');
+          check(count(), 1, 'Zero maximum has attributable review');
+        } else {
+          okay(has(ui, 'stored maximum score requires review'), 'Raw invalid maximum disclosed');
+          check(ui.one((item) => item.type === 'fieldset').props.disabled, true, 'Invalid maximum read-only');
+          await ui.submit();
+          check(writes().length, 0, 'Invalid maximum never normalizes via save');
+        }
+        drained();
+      },
+    );
+  await scenario(
+    'preserved duplicate results show bounded raw evidence and choose no arbitrary record',
+    async ({ mount, sqlite, writes, count, drained }) => {
+      const ui = await mount();
+      check(pupils(ui), ['student-a'], 'Duplicate row remains scoped');
+      okay(has(ui, '12 stored result records'), 'Exact duplicate count disclosed');
+      okay(has(ui, 'Only 10 stored records are displayed'), 'Bounded duplicate preview disclosed');
+      check(ui.value('score-student-a'), '', 'No arbitrary duplicate populates current input');
+      check(ui.one((item) => item.type === 'fieldset').props.disabled, true, 'Duplicate review read-only');
+      await ui.submit();
+      check(writes().length, 0, 'Duplicate save neverPOSTs');
+      check(
+        sqlite.prepare('SELECT count(*) total FROM assessment_results').get().total,
+        12,
+        'All preserved duplicates intact',
+      );
+      check(count(), 0, 'No fabricated review');
+      drained();
+    },
+    'admin-a',
+    async ({ db, schema }) => {
+      for (let index = 0; index < 12; index++)
+        await db.insert(schema.assessmentResults).values({
+          id: 'legacy-duplicate-' + index,
+          assessmentId: 'assessment-a',
+          studentId: 'student-a',
+          score: index,
+          grade: 'Original grade ' + index,
+          feedback: null,
+          createdAt: 'legacy-original',
+          updatedAt: 'legacy-original',
+        });
+    },
+  );
+  await scenario(
+    'preserved duplicate enrolment evidence stays read-only',
+    async ({ mount, writes, drained }) => {
+      const ui = await mount();
+      okay(has(ui, 'Multiple enrolment records require review'), 'Whole pair ambiguity visible');
+      check(
+        ui.one((item) => item.type === 'fieldset').props.disabled,
+        true,
+        'Pair ambiguity disables reviewed changes',
+      );
+      await ui.submit();
+      check(writes().length, 0, 'No automatic pair repair');
+      drained();
+    },
+    'admin-a',
+    async ({ db, schema }) => {
+      await db.insert(schema.enrolments).values({
+        id: 'legacy-second-pair',
+        studentId: 'student-a',
+        classId: 'class-a',
+        status: 'withdrawn',
+        enrolledAt: 'legacy',
+        createdAt: 'legacy',
+        updatedAt: 'legacy',
+      });
+    },
+  );
+  await scenario(
+    'bounded current history cap remains explicit and immutable',
+    async ({ api, saved, mount, count, drained }) => {
+      const initial = await api('/api/assessments/assessment-a/result-editor');
+      const metadata = (await initial.json()).assessment;
+      for (let index = 0; index < 101; index++) {
+        const response = await api('/api/assessments/assessment-a/result-editor', 'POST', {
+          clientRequestId: crypto.randomUUID(),
+          reviewConfirmed: true,
+          reason: 'Synthetic distinct current history review.',
+          expectedAssessment: metadata,
+          entries: [
+            {
+              studentId: 'student-a',
+              score: index % 2,
+              grade: null,
+              feedback: null,
+              expectedRecord: saved(),
+            },
+          ],
+        });
+        check(response.status, 201, 'Actual distinct history review appended');
+        await response.text();
+      }
+      const ui = await mount();
+      check(count(), 101, 'Actual immutable total preserved');
+      check(histories(ui).length, 100, 'History preview bounded100');
+      okay(has(ui, 'Showing 100 of 101 saved reviews'), 'Exact history cap/total disclosed');
+      okay(has(ui, 'Earlier evidence is not loaded here'), 'Earlier history not falsely presented complete');
+      drained();
+    },
+  );
+  for (const invalid of ['score', 'reason', 'grade'])
+    await scenario(
+      'obsolete captured submit cannot bypass current candidate validation ' + invalid,
+      async ({ mount, writes, count, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '2');
+        const oldSubmit = submitCallback(ui);
+        if (invalid === 'score') await ui.change('score-student-a', '21');
+        else if (invalid === 'reason') await ui.change('result-reason', 'short');
+        else await ui.change('grade-student-a', '😀'.repeat(2001));
+        await ui.review();
+        oldSubmit({ preventDefault() {} });
+        await ui.flush();
+        check(writes().length, 0, 'Captured submit revalidates current exact intended candidate');
+        check(count(), 0, 'Current invalid candidate cannot create review');
+        drained();
+      },
+    );
+  for (const denied of [401, 403, 404])
+    await scenario(
+      'denied delivered original POST preserves exact recovery after actual commit ' + denied,
+      async ({ mount, intercept, writes, count, drained }) => {
+        const ui = await mount();
+        await candidate(ui, '2', 'Original denied-response private reason.');
+        intercept(async ({ options, response }) => {
+          if (options.method === 'POST') {
+            await response.text();
+            return new Response('{}', { status: denied });
+          }
+          return response;
+        });
+        await ui.submit();
+        check(writes()[0].status, 201, 'Unmodified actual201 precedes named denied delivery projection');
+        check(count(), 1, 'This projection is real committed evidence, not rollback or no-effect');
+        noPrivate(ui);
+        check(pending(ui).length, 1, 'Denied outcome retains exact original pending');
+        check(has(ui, 'Original denied-response private reason.'), false, 'Denied view hides private reason');
+        check(writes().length, 1, 'Denied reply never automatically retries');
+        intercept(undefined);
+        await ui.click('Reload current results');
+        await ui.submit('retry');
+        check(writes()[1].body, writes()[0].body, 'Denied recovery retains original UUID and exact bytes');
+        check(writes()[1].status, 200, 'Original real receipt recovered');
+        check(count(), 1, 'Denied recovery does not create new receipt');
+        drained();
+      },
+    );
+  for (const projection of ['reason', 'flag'])
+    await scenario(
+      'unmatched real200 replay acknowledgement remains pending until explicit correlated retry ' +
+        projection,
+      async ({ mount, intercept, writes, count, drained }) => {
+        const ui = await mount();
+        await candidate(ui);
+        intercept(async ({ options, response }) => {
+          if (options.method === 'POST') {
+            await response.text();
+            throw new TypeError('Named lost initial real201 reply');
+          }
+          return response;
+        });
+        await ui.submit();
+        intercept(undefined);
+        await ui.click('Reload current results');
+        intercept(async ({ options, response }) => {
+          if (options.method !== 'POST') return response;
+          const value = await response.json();
+          if (projection === 'reason') value.review.reason = 'Uncorrelated replay reason.';
+          else value.replayed = false;
+          return new Response(JSON.stringify(value), { status: 200 });
+        });
+        await ui.submit('retry');
+        check(writes()[1].status, 200, 'Actual backend replay occurs before named200 projection');
+        noPrivate(ui);
+        check(pending(ui).length, 1, 'Wrong replay public evidence cannot clear original');
+        check(receipts(ui), [], 'Wrong replay cannot confirm');
+        check(count(), 1, 'Replay/projection preserves exactly one original review');
+        intercept(undefined);
+        await ui.click('Reload current results');
+        await ui.submit('retry');
+        check(writes().length, 3, 'Only separate explicit attempts exist');
+        check(
+          writes().every((row) => row.body === writes()[0].body),
+          true,
+          'Every attempt uses identical original serialized request',
+        );
+        check(pending(ui).length, 0, 'Only correctly correlated original replay clears');
+        drained();
+      },
+    );
+  await scenario(
+    'fresh empty roster and revised metadata still recover original immutable receipt without rebasing',
+    async ({ mount, intercept, sqlite, writes, saved, count, drained }) => {
+      const ui = await mount();
+      await candidate(ui, '3', 'Original before roster withdrawal review.');
+      intercept(async ({ options, response }) => {
+        if (options.method === 'POST') {
+          await response.text();
+          throw new TypeError('Named lost committed response');
+        }
+        return response;
+      });
+      await ui.submit();
+      const original = JSON.parse(writes()[0].body);
+      intercept(undefined);
+      sqlite.prepare('UPDATE enrolments SET status=? WHERE id=?').run('withdrawn', 'student-a-enrolment');
+      sqlite
+        .prepare('UPDATE assessments SET title=?,max_score=?,date=? WHERE id=?')
+        .run('Current revised assessment', 0, '2026-02-30', 'assessment-a');
+      await ui.click('Reload current results');
+      check(pupils(ui), [], 'Fresh current empty roster is shown honestly');
+      okay(has(ui, 'Current revised assessment'), 'Current revised metadata separate');
+      okay(has(ui, 'Original assessment: Synthetic quiz'), 'Original pending metadata unchanged');
+      await ui.submit('retry');
+      check(
+        writes()[1].status,
+        200,
+        'Actual original authorized receipt recovery remains valid with empty current roster',
+      );
+      check(
+        writes()[1].body,
+        writes()[0].body,
+        'Original expectations not rebased to revised metadata/current roster',
+      );
+      check(receipts(ui), [original.clientRequestId], 'Original receipt privately confirmed');
+      check(saved().score, 3, 'Original receipt recovery does not alter saved withdrawn mark');
+      check(count(), 1, 'No second immutable review');
+      drained();
+    },
+  );
+  console.log(
+    JSON.stringify({
+      passed: checks,
+      failed: 0,
+      skipped: 0,
+      scenarios,
+      requests,
+      externalRequests,
+      scope:
+        'actual opaque sessions/routes/production D1 SQLite; candidate callbacks with substituted hooks/elements/AppShell; not mounted-browser/full-shell/accessibility evidence',
+    }),
+  );
+} finally {
+  globalThis.fetch = oldFetch;
+  globalThis.window = oldWindow;
+  delete globalThis.__sahaAssessmentDetailReact;
+  delete globalThis.__sahaAssessmentDetailTimestamp;
+}

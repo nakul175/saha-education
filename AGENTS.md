@@ -25,7 +25,7 @@ The initial GitHub source import is the complete Release 3 working tree. Earlier
 ## Commands
 
 - `pnpm install` - Install project dependencies
-- `pnpm dev` - Run development server 
+- `pnpm dev` - Run development server
 - `pnpm build` - Build for production
 - `pnpm test` - Run all tests
 - `pnpm db:generate` - Generate database schema migrations
@@ -33,7 +33,7 @@ The initial GitHub source import is the complete Release 3 working tree. Earlier
 ## Conventions
 
 - Use TypeScript with strict mode enabled
-- Follow Next.js 16 app directory conventions 
+- Follow Next.js 16 app directory conventions
 - Components are in components/ui/
 - Business logic is in lib/education/
 - Database migrations are in drizzle/ directory
@@ -43,7 +43,7 @@ The initial GitHub source import is the complete Release 3 working tree. Earlier
 
 ## Where things live
 
-- App pages: app/ directory - Next.js 16 app directory structure 
+- App pages: app/ directory - Next.js 16 app directory structure
 - Components: components/ directory - shadcn UI components
 - Business logic: lib/education/ directory - TypeScript modules for application layer
 - Database schema: drizzle/ directory - Drizzle ORM migrations and schema

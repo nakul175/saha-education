@@ -2,16 +2,16 @@
 
 Date: 5 October 2026. Candidate: working tree on `feat/education-auth-access` immediately before its implementation commit. Synthetic data only; no live provider, remote database or deployment.
 
-| Check | Result | Evidence / limits |
-|---|---|---|
-| Production Worker build | Passed | `node scripts/run-framework.mjs build`; final build completed, routes generated |
-| TypeScript and test catalogue | Passed | `node scripts/test.mjs static unit integration --fast`; fast flag reused the separately verified final build |
-| Unit suites | 75 passed, 0 failed | Six suites; auth suite has six grouped cases, including real signed tokens with mocked discovery/token/JWKS |
-| Integration suites | 88 passed, 0 failed | 62 isolated route guards plus 26 actual SQLite persistence/service/handler cases |
-| Served local Worker | 23 passed, 0 failed | `tests/worker-access-check.mjs` against built workerd and isolated local D1 with injected synthetic sessions |
-| Affected ESLint | Passed: 0 errors, 15 warnings | Mostly existing unused imports/hooks; one client navigation warning. Warnings remain for follow-up |
-| Documentation and requirements checks | Passed: 20 Markdown files, 20 requirements | Local links/titles/baseline and register/UAT consistency only |
-| Whitespace checks | Passed | Before commit |
+| Check                                 | Result                                     | Evidence / limits                                                                                            |
+| ------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Production Worker build               | Passed                                     | `node scripts/run-framework.mjs build`; final build completed, routes generated                              |
+| TypeScript and test catalogue         | Passed                                     | `node scripts/test.mjs static unit integration --fast`; fast flag reused the separately verified final build |
+| Unit suites                           | 75 passed, 0 failed                        | Six suites; auth suite has six grouped cases, including real signed tokens with mocked discovery/token/JWKS  |
+| Integration suites                    | 88 passed, 0 failed                        | 62 isolated route guards plus 26 actual SQLite persistence/service/handler cases                             |
+| Served local Worker                   | 23 passed, 0 failed                        | `tests/worker-access-check.mjs` against built workerd and isolated local D1 with injected synthetic sessions |
+| Affected ESLint                       | Passed: 0 errors, 15 warnings              | Mostly existing unused imports/hooks; one client navigation warning. Warnings remain for follow-up           |
+| Documentation and requirements checks | Passed: 20 Markdown files, 20 requirements | Local links/titles/baseline and register/UAT consistency only                                                |
+| Whitespace checks                     | Passed                                     | Before commit                                                                                                |
 
 ## Served evidence
 
@@ -59,14 +59,14 @@ Final built application verification passed 23/23 served resource scenarios and 
 
 5 October 2026, `docs/platform-specification`, application source `5488bc0`. The BRD was written first, followed by FSD, HLD and LLD; QA/data/contracts were developed in parallel against one canonical register. This stage changes documentation, consistency tooling and the test-count baseline; application behavior is unchanged.
 
-| Check | Observed result | Limits |
-|---|---|---|
-| Documentation and historical audit | 43 Markdown files and 20 historical requirements passed | Offline links/source/register consistency |
-| New specification consistency | 12 BR, 35 FR/NFR, 101 cases; 20 tables/156 fields; 31 routes/55 handlers | CSV/JSON/trace parity, actual migrated columns and exported route methods checked |
-| Existing static/unit/integration | 482 checks passed: 75 unit, 407 integration; three static steps | Synthetic fixtures; fast mode reused the previously verified unchanged application build |
-| Regression baseline and guarded recheck | Eleven meaningful unit/integration suites; guard passed, zero quarantine exemptions | Counts detect lost assertions, not semantic completeness or business acceptance |
-| Clickable wireframe review | Twenty checks passed; desktop/mobile inspected, zero network calls | Isolated fictional prototype; no formal accessibility certification |
-| Affected-script lint | Zero errors, one pre-existing unused-variable warning | Limited to specification checker and test runner |
+| Check                                   | Observed result                                                                     | Limits                                                                                   |
+| --------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Documentation and historical audit      | 43 Markdown files and 20 historical requirements passed                             | Offline links/source/register consistency                                                |
+| New specification consistency           | 12 BR, 35 FR/NFR, 101 cases; 20 tables/156 fields; 31 routes/55 handlers            | CSV/JSON/trace parity, actual migrated columns and exported route methods checked        |
+| Existing static/unit/integration        | 482 checks passed: 75 unit, 407 integration; three static steps                     | Synthetic fixtures; fast mode reused the previously verified unchanged application build |
+| Regression baseline and guarded recheck | Eleven meaningful unit/integration suites; guard passed, zero quarantine exemptions | Counts detect lost assertions, not semantic completeness or business acceptance          |
+| Clickable wireframe review              | Twenty checks passed; desktop/mobile inspected, zero network calls                  | Isolated fictional prototype; no formal accessibility certification                      |
+| Affected-script lint                    | Zero errors, one pre-existing unused-variable warning                               | Limited to specification checker and test runner                                         |
 
 See the [execution record](docs/specification/TEST-EXECUTION.md) and [sanitized machine-readable evidence](docs/specification/EXECUTION-SUMMARY.json). All 101 designed cases remain `not-run-for-this-specification`; existing-suite success does not execute those procedures. The vacuous smoke placeholder is excluded from the baseline and meaningful evidence. No live identity/ORF/AI provider, real learner record, external message, database migration, acceptance approval or hosted deployment occurred in this stage.
 
@@ -74,20 +74,20 @@ See the [execution record](docs/specification/TEST-EXECUTION.md) and [sanitized 
 
 5 October 2026, `feat/specification-delivery`, based on documentation parent `d53adcf` and historical application source `5488bc0`. This slice implements reviewed account administration, immutable manual curriculum references/source-bound draft copies, learner text attempts/reviewed formative feedback, and append-only reading corrections/comparable history. Ten workstreams were delivered in groups within the four-concurrent-agent session limit. New additive migrations were exercised only against disposable synthetic local databases.
 
-| Check | Observed result | Limits |
-|---|---|---|
-| Fresh final-source production Worker build | Passed | `node scripts/run-framework.mjs build`; no hosted deployment |
-| Static checks | Three steps passed | Catalogue, TypeScript and specification consistency |
-| Unit checks | 94 passed, zero failed/skipped | Eight suites, including streamed JSON limits and catalogue context |
-| Integration checks | 1,182 passed, zero failed/skipped | Eleven suites; actual synthetic sessions, route handlers and SQLite/D1-compatible adapter |
-| Executed smoke checks | 56 passed, zero failed/skipped | Real route/migration/session/origin checks replace the vacuous placeholder |
-| Final combined guarded run | 1,332 checks passed across 20 suites | `node scripts/test.mjs static unit integration smoke --fast --guard`; reused the separately verified fresh build |
-| Regression baseline | Twenty suites checked, zero quarantine exemptions | Nine suites added and two thresholds raised from actual counts; zero thresholds lowered or removed |
-| Affected-file lint | 53 files; zero errors, one pre-existing warning | Unused `interrupted` variable in the inherited test runner |
-| Documentation, historical audit and whitespace | Passed | 44 Markdown files, 20 historical requirements; 28 tables/225 fields, 44 API routes/74 handlers, 12 BR/35 FR+NFR and 101 designed cases |
-| Built local Worker checks | 146 passed, zero failed/skipped | Isolated local workerd/D1 and injected synthetic sessions; account/source/attempt/review/correction workflows and scope denial |
-| Real-browser workflows | 38 passed, zero failed/skipped | Native forms, same-UUID lost-response recovery, exact feedback history, review resets, staff/family denial and mobile labels/width; zero external requests or unhandled page errors |
-| Visual review | Desktop/mobile captures inspected | Synthetic application screens; no formal usability/accessibility acceptance |
+| Check                                          | Observed result                                   | Limits                                                                                                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fresh final-source production Worker build     | Passed                                            | `node scripts/run-framework.mjs build`; no hosted deployment                                                                                                                        |
+| Static checks                                  | Three steps passed                                | Catalogue, TypeScript and specification consistency                                                                                                                                 |
+| Unit checks                                    | 94 passed, zero failed/skipped                    | Eight suites, including streamed JSON limits and catalogue context                                                                                                                  |
+| Integration checks                             | 1,182 passed, zero failed/skipped                 | Eleven suites; actual synthetic sessions, route handlers and SQLite/D1-compatible adapter                                                                                           |
+| Executed smoke checks                          | 56 passed, zero failed/skipped                    | Real route/migration/session/origin checks replace the vacuous placeholder                                                                                                          |
+| Final combined guarded run                     | 1,332 checks passed across 20 suites              | `node scripts/test.mjs static unit integration smoke --fast --guard`; reused the separately verified fresh build                                                                    |
+| Regression baseline                            | Twenty suites checked, zero quarantine exemptions | Nine suites added and two thresholds raised from actual counts; zero thresholds lowered or removed                                                                                  |
+| Affected-file lint                             | 53 files; zero errors, one pre-existing warning   | Unused `interrupted` variable in the inherited test runner                                                                                                                          |
+| Documentation, historical audit and whitespace | Passed                                            | 44 Markdown files, 20 historical requirements; 28 tables/225 fields, 44 API routes/74 handlers, 12 BR/35 FR+NFR and 101 designed cases                                              |
+| Built local Worker checks                      | 146 passed, zero failed/skipped                   | Isolated local workerd/D1 and injected synthetic sessions; account/source/attempt/review/correction workflows and scope denial                                                      |
+| Real-browser workflows                         | 38 passed, zero failed/skipped                    | Native forms, same-UUID lost-response recovery, exact feedback history, review resets, staff/family denial and mobile labels/width; zero external requests or unhandled page errors |
+| Visual review                                  | Desktop/mobile captures inspected                 | Synthetic application screens; no formal usability/accessibility acceptance                                                                                                         |
 
 Security review first reproduced stale-authority defects in original resource creation and account-event retries. The fixes recheck enabled actor, trusted identity, role, school and parent record authority in the actual mutation/evidence SQL. Targeted tests cover authority changes between earlier validation and later reads/writes, atomic status/session/event decisions, concurrent requests, reviewed immutable history and rollback. Original resource checks still pass. The resource library now uses one scoped latest-version query; this does not establish representative latency/capacity targets.
 
@@ -101,18 +101,18 @@ See [sanitized implementation evidence](docs/current/SPECIFICATION-EXECUTION.jso
 
 5 October 2026, `feat/specification-delivery`, implementation parent `398df9c8bf57659a5fd97718f76fe962011cf7d2`. Implements reviewed profile ownership, academic integrity/editor safeguards, staged normalized reading imports/receipts and explicit submission windows. [Batch boundary](docs/current/DEVELOPMENT-BATCH-1.md), [sanitized actual evidence](docs/current/DEVELOPMENT-BATCH-1-EXECUTION.json) and [timed progress](docs/current/FOUR-HOUR-DEVELOPMENT.md) distinguish this stage from prior observations.
 
-| Check | Observed result | Limits |
-|---|---|---|
-| Fresh final-source production build | Passed | After recovery-message and mobile fixes; no hosted deployment |
-| Final guarded static/unit/integration/smoke | 2,302 checks passed; 25 meaningful suites plus three static steps | 94 unit, 2,115 integration, 93 executed smoke; zero failed/skipped, zero quarantine exemptions |
-| Regression baseline update | Five suites added, two thresholds raised, none lowered/removed | Based on executed checks, not newly designed case procedures |
-| Affected lint | 57 files, zero errors, one existing warning | Unused attendance date setter; no whole-repository lint claim |
-| New built local workflows | 172 passed | Profile decisions/replay, import preview/confirm/dedup/reject, window closure/reopen/retry/history, academic pairs/results; synthetic injected sessions |
-| Existing served/browser regression | 146 served and 38 browser passed | Prior journeys rerun on this batch; old status locators distinguish new window status |
-| New final-source browser journeys | 57 passed, zero failures/skips | Real drained-response aborts and same UUID recovery, review resets, exact UTC/local cutoff, preserved scores/grades/text, six mobile screens; zero external requests/page errors |
-| Populated encrypted local recovery | 188 passed, included in integration total | Existing recovery helper; exact 34-table/72-index/20-trigger restore, current scope, immutable/duplicate guards and retries; no hosted export/cutover/key custody/scheduling claim |
-| Offline wireframe prototype | 37 passed across 12 screens | Desktop/mobile labels, heading focus, width and illustrative review transitions; zero network/page errors; separately counted prototype evidence |
-| Specification/documentation/whitespace | Passed | 47 Markdown files; 20 historical requirements; 34 tables/288 fields, 51 routes/84 handlers, 12 BR/35 FR+NFR, 133 cases/22 scenarios; API CSV/MD parity |
+| Check                                       | Observed result                                                   | Limits                                                                                                                                                                             |
+| ------------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fresh final-source production build         | Passed                                                            | After recovery-message and mobile fixes; no hosted deployment                                                                                                                      |
+| Final guarded static/unit/integration/smoke | 2,302 checks passed; 25 meaningful suites plus three static steps | 94 unit, 2,115 integration, 93 executed smoke; zero failed/skipped, zero quarantine exemptions                                                                                     |
+| Regression baseline update                  | Five suites added, two thresholds raised, none lowered/removed    | Based on executed checks, not newly designed case procedures                                                                                                                       |
+| Affected lint                               | 57 files, zero errors, one existing warning                       | Unused attendance date setter; no whole-repository lint claim                                                                                                                      |
+| New built local workflows                   | 172 passed                                                        | Profile decisions/replay, import preview/confirm/dedup/reject, window closure/reopen/retry/history, academic pairs/results; synthetic injected sessions                            |
+| Existing served/browser regression          | 146 served and 38 browser passed                                  | Prior journeys rerun on this batch; old status locators distinguish new window status                                                                                              |
+| New final-source browser journeys           | 57 passed, zero failures/skips                                    | Real drained-response aborts and same UUID recovery, review resets, exact UTC/local cutoff, preserved scores/grades/text, six mobile screens; zero external requests/page errors   |
+| Populated encrypted local recovery          | 188 passed, included in integration total                         | Existing recovery helper; exact 34-table/72-index/20-trigger restore, current scope, immutable/duplicate guards and retries; no hosted export/cutover/key custody/scheduling claim |
+| Offline wireframe prototype                 | 37 passed across 12 screens                                       | Desktop/mobile labels, heading focus, width and illustrative review transitions; zero network/page errors; separately counted prototype evidence                                   |
+| Specification/documentation/whitespace      | Passed                                                            | 47 Markdown files; 20 historical requirements; 34 tables/288 fields, 51 routes/84 handlers, 12 BR/35 FR+NFR, 133 cases/22 scenarios; API CSV/MD parity                             |
 
 Browser review found three concrete UI issues: native lost-import errors lacked the retained-ID recovery instruction, profile action buttons overflowed on mobile, and enrolment name/actions shared an overflowing horizontal row. All were fixed and the complete final-source browser run passed. The assessment editor and controlled enrolment selector also now preserve intended confirmed values/actions. A local test-server auto reload retained a stale static-asset registry after rebuilding; a complete restart restored matching script/CSS files. This was a harness state issue, recorded separately from the application fixes. Desktop/mobile application and prototype captures were visually inspected. Assessment 409 was deliberately injected in the browser to verify retained editor text; actual service concurrency/conflicts have independent SQLite coverage.
 
@@ -124,17 +124,17 @@ All 133 designed TC procedures remain `not-run-for-this-specification`; all requ
 
 5 October 2026, `feat/specification-delivery`, parent `82f20ce9ae023bdb78d53aecc229331b57bce5eb`. Implements original-domain current actor/reference guards, one-statement report publication/receipt/current guardian notices, and role-appropriate school/course/class/report/notification screens. [Scope](docs/current/DEVELOPMENT-BATCH-2.md), [actual sanitized execution](docs/current/DEVELOPMENT-BATCH-2-EXECUTION.json) and [timed progress](docs/current/FOUR-HOUR-DEVELOPMENT.md) keep this stage separate from prior observations.
 
-| Check | Observed result | Limits |
-|---|---|---|
-| Fresh final-source production build | Passed | Includes native report anchor, synchronous draft-submit lock and mobile detail wrapping; no hosted deployment |
-| Final guarded static/unit/integration/smoke | 3,619 passed; 28 meaningful suites plus three static steps | 94 unit, 3,408 integration, 117 smoke; zero failures/skips, 28 baseline suites and zero quarantine exemptions |
-| Baseline and affected lint | Three suites added, two thresholds raised, none lowered/removed; 34 affected files lint clean | Executed counts; zero lint errors/warnings, no whole-repository lint claim |
-| New built-Worker workflows | 104 passed | School/course/class/roster/role privacy, report winner/retry/current guardian notice, stable read markers and legacy no-backfill; synthetic real local workerd/D1 |
-| New final-source browser workflows | 36 report/notice and 26 structure checks passed | Actual forms, role controls, same-frame native submit, exact detail navigation, lost acknowledgements, stale selection/list failure, save/refresh truthfulness and mobile labels/width; zero external requests/page errors |
-| Earlier served/browser regression | 172/146 served and 57/38 browser passed | Prior development/specification journeys rerun; shared synthetic fixture isolation restored |
-| Automated rendered accessibility sample | 54 page/viewport samples passed | Four roles, desktop/mobile resting pages and selected WCAG A/AA rules; zero external requests/page errors; incomplete checks and formal keyboard/screen-reader/all-state acceptance remain separate |
-| Populated encrypted local recovery | 202 passed, included in integration total | Exact 35-table/74-index/24-trigger recovery includes actual publication receipt/notice, retries and immutable guards; no hosted export/cutover/key custody/scheduling claim |
-| Offline wireframe/documentation parity | 37 prototype checks and documentation/specification/historical audit passed | 12 fictional screens; 35 tables/294 fields, 51 routes/84 handlers, 157 unrun designed cases/25 scenarios; exact API CSV/MD and field parity |
+| Check                                       | Observed result                                                                               | Limits                                                                                                                                                                                                                     |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fresh final-source production build         | Passed                                                                                        | Includes native report anchor, synchronous draft-submit lock and mobile detail wrapping; no hosted deployment                                                                                                              |
+| Final guarded static/unit/integration/smoke | 3,619 passed; 28 meaningful suites plus three static steps                                    | 94 unit, 3,408 integration, 117 smoke; zero failures/skips, 28 baseline suites and zero quarantine exemptions                                                                                                              |
+| Baseline and affected lint                  | Three suites added, two thresholds raised, none lowered/removed; 34 affected files lint clean | Executed counts; zero lint errors/warnings, no whole-repository lint claim                                                                                                                                                 |
+| New built-Worker workflows                  | 104 passed                                                                                    | School/course/class/roster/role privacy, report winner/retry/current guardian notice, stable read markers and legacy no-backfill; synthetic real local workerd/D1                                                          |
+| New final-source browser workflows          | 36 report/notice and 26 structure checks passed                                               | Actual forms, role controls, same-frame native submit, exact detail navigation, lost acknowledgements, stale selection/list failure, save/refresh truthfulness and mobile labels/width; zero external requests/page errors |
+| Earlier served/browser regression           | 172/146 served and 57/38 browser passed                                                       | Prior development/specification journeys rerun; shared synthetic fixture isolation restored                                                                                                                                |
+| Automated rendered accessibility sample     | 54 page/viewport samples passed                                                               | Four roles, desktop/mobile resting pages and selected WCAG A/AA rules; zero external requests/page errors; incomplete checks and formal keyboard/screen-reader/all-state acceptance remain separate                        |
+| Populated encrypted local recovery          | 202 passed, included in integration total                                                     | Exact 35-table/74-index/24-trigger recovery includes actual publication receipt/notice, retries and immutable guards; no hosted export/cutover/key custody/scheduling claim                                                |
+| Offline wireframe/documentation parity      | 37 prototype checks and documentation/specification/historical audit passed                   | 12 fictional screens; 35 tables/294 fields, 51 routes/84 handlers, 157 unrun designed cases/25 scenarios; exact API CSV/MD and field parity                                                                                |
 
 Independent fixed-behavior verification addresses the five original-domain finding groups with 783 assertions across 142 fresh actual-session/SQLite scenarios. Focused structure/publication contracts contribute 275/221 checks within the integration total. Tests exercise post-validation actor/reference changes, current guardian identity/link eligibility, zero-row and concurrent publication, forced notice rollback, private receipt preservation, legacy no-backfill and post-commit response withholding. The historical diagnostic's unsafe outcomes remain separate; no diagnostic assertions are counted as successful regression evidence.
 
@@ -166,7 +166,6 @@ Independent QA found Unicode reason validation inconsistent with SQLite characte
 
 Canonical v2.5 matches 37 tables/309 fields, 54 routes/88 handlers and 205 designed cases across 31 scenarios. All designed cases remain unrun and approvals remain false. FR-09 stays partial: calendars, correction governance, legacy API bypass, retention, educator/UAT and representative load/accessibility remain open. Principal carries no session hash, so session-only revocation after its resolution remains outside the snapshot contract. Live providers, real records/messages, main merge and hosted deployment remain pending. The next slice addresses independently reproduced assessment-editor stale replacement and uncertain-retry risks through a separate reviewed workflow.
 
-
 ## Four-hour continuation: reviewed assessment results
 
 5 October 2026, fifth batch on `feat/specification-delivery`, parent `f31288162e1f55ec28ad710ab990ec56ac37ce3c`. The staff-only result editor loads one current-scoped snapshot, preserves zero/null/empty and exact legacy storage types, checks complete original result and assessment metadata and atomically saves immutable reviewed before/after evidence. Exact UUID replay returns the original receipt without restoring older marks. The original replacement API remains unchanged. Raw calendar dates remain literal; invalid/unsafe list maxima explicitly require review. See [scope](docs/current/DEVELOPMENT-BATCH-5.md), [actual evidence](docs/current/DEVELOPMENT-BATCH-5-EXECUTION.json) and [assessment design](docs/specification/ASSESSMENT-DESIGN.md).
@@ -178,7 +177,6 @@ Final built localhost Worker passed 249 API checks across 102 drained requests a
 Independent QA reproduced unsafe INTEGER JSON rounding and nonfinite substitution; final exact text/read-only gates preserve that evidence, including an untouched classmate query-time gate. An editor 200/history 403 diagnostic retained private data before the coordinated denial fix; it contributes no passing credit. Final browser procedures verify pending/known-committed denial handling and separate availability failure. Initial harness/fixture/environment errors occurred before corrected final verification; details remain separate in the sanitized evidence. Canonical v2.6 matches 39 tables/325 fields, 56 routes/91 handlers and 229 designed cases/34 scenarios; all procedures remain unrun and approvals false. Five separately reproduced learner/window/feedback UI diagnostics are next-batch work, not assessment passing evidence. No educational policy, provider, real record/message, main merge or hosted release is activated.
 
 Final automated accessibility sample passed 92 page/viewport samples, zero violations/external requests/page errors, with incomplete rules outside acceptance. Prior complete local development 172 and specification 146 pass; the specification first attempt and two domain attempts observed 503 instead of 403 on denied writes. The unchanged specification repeat passed. Domain 104 success remains the historical fourth-batch result and is not counted as a new fifth pass; no causal fix/load guarantee is claimed.
-
 
 ## Four-hour continuation: original-action recovery and current privacy
 
@@ -192,7 +190,6 @@ Earlier development API attempts returned 503 at expected 201 and 403 responses;
 
 Pending recovery exists only while the page stays mounted; hard reload/navigation loses it. Durable/cross-device recovery, Principal session-only revocation, provider configuration, real records/messages, AI, educational policy, representative accessibility/load and hosted operations remain pending. A separate read-only registry diagnosis reproduced seven student/guardian client races/creation issues with 48 actual local route requests; those are next work, not sixth passing evidence. No main merge or deployment occurred.
 
-
 ## Four-hour continuation: registry scope and creation recovery
 
 5 October 2026, seventh batch, parent `e813af2f43f6d7c707f084c4472e5a6da8e50125`. Student and guardian lists clear prior principal/rows and verify session/list/session with generation and abort guards. Student search filters loaded authorized names/admission numbers with exact totals/up to 200 displayed matches. Synchronous create locks send one in-page POST. Only correlated 201 acknowledges a saved profile; refresh failure preserves the saved fact. Every unknown create clears private displayed scope and requires original-administrator authorized reload/manual comparison before a blank new draft, without automatic replay. Native Student View navigation, visible retained-input400 rejection and labelled keyboard-focusable guardian scroll region are verified. See [scope](docs/current/DEVELOPMENT-BATCH-7.md), [actual evidence](docs/current/DEVELOPMENT-BATCH-7-EXECUTION.json) and [design](docs/specification/REGISTRY-DESIGN.md).
@@ -204,7 +201,6 @@ Final mounted registry browser repeat passed 30 procedures at 11:17:36.925Z, zer
 Initial registry diagnosis 7 unsafe observations/48 route requests, a separate 26-request unknown-acknowledgement privacy diagnosis and an actual StudentView failed-transition probe receive no passing credit. First browser fixture-school assumption/partial15/modal-detachment attempts and prefocus 30 remain separate. Initial accessibility sample had 99 pass/1 fail on the guardian scrollable region; final full 100 repeat passes after narrow fix, without crediting earlier 99. Current development API first attempt returned 503 instead of 403 on origin denial; unchanged full 172 repeat passes. No causal 503 source fix or hosted load guarantee is inferred.
 
 Canonical v2.8 matches 39 tables/325 fields, 56 routes/91 handlers, 253 designed cases/37 scenarios and 60 Markdown parity checks; all designed cases remain unrun and approvals false. Backend creation remains non-idempotent; multi-tab/device duplicate prevention, durable unknown-create recovery and continuous cross-tab account monitoring remain open. Existing validators/date/legacy API semantics remain. Identity/ORF configuration, paidAI, real learners/messages, educator/UAT, representative load/accessibility, main merge and hosted operations remain pending. No deployment occurred.
-
 
 Closing read-only handover audit found stale README schema 34/288 and common release migration 0000–0011 references; current pointers now say 39/325 and 0000–0014, while dated historical sections remain preserved. The missing staging reference now documents unverified main-trigger/freeze wiring and explicit operator verification boundaries. Closing documentation/local-link and historical requirement checks pass 61 Markdown files/20 draft mappings; application source hashes and final executed suite/browser evidence remain unchanged.
 
@@ -256,14 +252,14 @@ Fresh build of main after merging #11 to #22. Guarded run: 78 suites, 62,583 ass
 
 Source: `feat/calm-workspace-redesign` from main `75e9f97`, immediately before publication. Synthetic local evidence only; [implementation, screenshots, failures corrected and deployment limits](docs/current/CALM-WORKSPACE-REDESIGN.md).
 
-| Check | Actual result | Boundary |
-|---|---|---|
-| Final framework build | Passed | Node 24.19.0; application build, not hosted success |
-| Guarded static/unit/integration/smoke | 79 suites; 62,627 assertions; 0 failed/skipped | 78 existing regression baselines pass; new 36-assertion navigation suite passes separately |
-| TypeScript | Passed | Included in static checks |
-| Repository lint | 0 errors, 12 warnings | Declared generated-output exclusions; warnings retained |
-| Manual synthetic browser sample | Teacher/admin/guardian/student homes; resources, profile/reading link and reviewed attendance save inspected | Phone 390px resources/family home and 320px attendance had no document overflow; menu Escape returns focus. No complete UAT/axe/screen-reader claim |
-| Deployment | Pending authenticated host evidence | Outer host returned 401. Main publication alone cannot prove the deployed revision |
+| Check                                 | Actual result                                                                                                | Boundary                                                                                                                                            |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Final framework build                 | Passed                                                                                                       | Node 24.19.0; application build, not hosted success                                                                                                 |
+| Guarded static/unit/integration/smoke | 79 suites; 62,627 assertions; 0 failed/skipped                                                               | 78 existing regression baselines pass; new 36-assertion navigation suite passes separately                                                          |
+| TypeScript                            | Passed                                                                                                       | Included in static checks                                                                                                                           |
+| Repository lint                       | 0 errors, 12 warnings                                                                                        | Declared generated-output exclusions; warnings retained                                                                                             |
+| Manual synthetic browser sample       | Teacher/admin/guardian/student homes; resources, profile/reading link and reviewed attendance save inspected | Phone 390px resources/family home and 320px attendance had no document overflow; menu Escape returns focus. No complete UAT/axe/screen-reader claim |
+| Deployment                            | Pending authenticated host evidence                                                                          | Outer host returned 401. Main publication alone cannot prove the deployed revision                                                                  |
 
 The first local navigation-source assertion was adapted to the canonical grouped menu. Old system Python lacked `Connection.setlimit`; the supported Python required native SQLite library discovery for its statically built module. All limit calibrations and prior baselines remain intact in the passing run. Canonical cases/approval flags are unchanged.
 

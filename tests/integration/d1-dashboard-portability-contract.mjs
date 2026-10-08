@@ -10,9 +10,14 @@ import { bindings, freshDatabase, load, root, stamp } from '../support/security-
 
 const origin = 'https://education.example.invalid';
 const originalFetch = globalThis.fetch;
-let passed = 0, externalRequests = 0, fixture;
+let passed = 0,
+  externalRequests = 0,
+  fixture;
 class PortabilityFailure extends Error {
-  constructor(label) { super(label); this.name = 'PortabilityFailure'; }
+  constructor(label) {
+    super(label);
+    this.name = 'PortabilityFailure';
+  }
 }
 function check(actual, expected, label) {
   if (!isDeepStrictEqual(actual, expected)) throw new PortabilityFailure(label);
@@ -57,105 +62,260 @@ finally:
 `;
 function compile(query) {
   const result = spawnSync('python3', ['-c', nativeCompiler], {
-    input: JSON.stringify({ query, migrations: join(root, 'drizzle') }), encoding: 'utf8', timeout: 10000,
+    input: JSON.stringify({ query, migrations: join(root, 'drizzle') }),
+    encoding: 'utf8',
+    timeout: 10000,
   });
   if (result.status !== 0) throw new PortabilityFailure('Native compiler process unavailable');
-  try { return JSON.parse(result.stdout); }
-  catch { throw new PortabilityFailure('Native compiler returned no safe result'); }
+  try {
+    return JSON.parse(result.stdout);
+  } catch {
+    throw new PortabilityFailure('Native compiler returned no safe result');
+  }
 }
 function enforcePortableQuery(query, parameters) {
   check(Buffer.byteLength(query) <= 100000, true, 'Dashboard SQL exceeds 100KB');
   check(parameters.length <= 100, true, 'Dashboard exceeds 100 bound parameters');
   // Native prepare alone does not evaluate GLOB. This statement's patterns are
   // SQL literals; check their decoded byte lengths before normal data execution.
-  const patterns = [...query.matchAll(/\b(?:glob|like)\s+'((?:''|[^'])*)'/gi)].map(match => match[1].replaceAll("''", "'"));
-  for (const pattern of patterns) check(Buffer.byteLength(pattern) <= 50, true, 'Dashboard literal pattern exceeds 50 bytes');
+  const patterns = [...query.matchAll(/\b(?:glob|like)\s+'((?:''|[^'])*)'/gi)].map((match) =>
+    match[1].replaceAll("''", "'"),
+  );
+  for (const pattern of patterns)
+    check(Buffer.byteLength(pattern) <= 50, true, 'Dashboard literal pattern exceeds 50 bytes');
   const prepared = compile(query);
-  if (!prepared.ok) throw new PortabilityFailure('Runtime compilation failed: ' + prepared.errorClass + '/' + prepared.classification);
+  if (!prepared.ok)
+    throw new PortabilityFailure(
+      'Runtime compilation failed: ' + prepared.errorClass + '/' + prepared.classification,
+    );
   passed++;
 }
 
 try {
-  globalThis.fetch = async () => { externalRequests++; throw new PortabilityFailure('External request forbidden'); };
+  globalThis.fetch = async () => {
+    externalRequests++;
+    throw new PortabilityFailure('External request forbidden');
+  };
   fixture = freshDatabase();
-  let bounded = false, executions = 0;
+  let bounded = false,
+    executions = 0;
   const metrics = [];
   function prepare(query, parameters = []) {
     return {
-      bind(...values) { return prepare(query, values); },
+      bind(...values) {
+        return prepare(query, values);
+      },
       async raw() {
         if (bounded) {
           enforcePortableQuery(query, parameters);
-          metrics.push({ sqlBytes: Buffer.byteLength(query), boundParameters: parameters.length }); executions++;
+          metrics.push({ sqlBytes: Buffer.byteLength(query), boundParameters: parameters.length });
+          executions++;
         }
-        const statement = fixture.sqlite.prepare(query); statement.setReturnArrays(true); return statement.all(...parameters);
+        const statement = fixture.sqlite.prepare(query);
+        statement.setReturnArrays(true);
+        return statement.all(...parameters);
       },
-      async all() { return { success: true, results: fixture.sqlite.prepare(query).all(...parameters), meta: {} }; },
+      async all() {
+        return { success: true, results: fixture.sqlite.prepare(query).all(...parameters), meta: {} };
+      },
       async run() {
         const statement = fixture.sqlite.prepare(query);
-        if (statement.columns().length) return { success: true, results: statement.all(...parameters), meta: {} };
-        const result = statement.run(...parameters); return { success: true, results: [], meta: { changes: Number(result.changes) } };
+        if (statement.columns().length)
+          return { success: true, results: statement.all(...parameters), meta: {} };
+        const result = statement.run(...parameters);
+        return { success: true, results: [], meta: { changes: Number(result.changes) } };
       },
     };
   }
-  globalThis.__sahaTestDb = drizzle({ prepare, async batch(statements) {
-    fixture.sqlite.exec('BEGIN');
-    try { const results = []; for (const statement of statements) results.push(await statement.run()); fixture.sqlite.exec('COMMIT'); return results; }
-    catch (error) { fixture.sqlite.exec('ROLLBACK'); throw error; }
-  } }, { schema: fixture.schema });
-  bindings.SAHA_ALLOWED_ORIGINS = origin; bindings.SAHA_DEMO_ENABLED = 'true';
+  globalThis.__sahaTestDb = drizzle(
+    {
+      prepare,
+      async batch(statements) {
+        fixture.sqlite.exec('BEGIN');
+        try {
+          const results = [];
+          for (const statement of statements) results.push(await statement.run());
+          fixture.sqlite.exec('COMMIT');
+          return results;
+        } catch (error) {
+          fixture.sqlite.exec('ROLLBACK');
+          throw error;
+        }
+      },
+    },
+    { schema: fixture.schema },
+  );
+  bindings.SAHA_ALLOWED_ORIGINS = origin;
+  bindings.SAHA_DEMO_ENABLED = 'true';
   bindings.SAHA_DEMO_INSTALLATION_ID = '908df258-dff2-43d4-a540-503b2c7e7d13';
-  const demo = await load('app/api/demo/route.ts'), session = await load('lib/education/session.ts'), dashboard = await load('lib/education/dashboard.ts');
+  const demo = await load('app/api/demo/route.ts'),
+    session = await load('lib/education/session.ts'),
+    dashboard = await load('lib/education/dashboard.ts');
   const actors = {};
   for (const role of ['admin', 'teacher', 'guardian', 'student']) {
-    const response = await demo.POST(new Request(origin + '/api/demo', { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify({ role, syntheticAcknowledged: true }) }));
+    const response = await demo.POST(
+      new Request(origin + '/api/demo', {
+        method: 'POST',
+        headers: { origin, 'content-type': 'application/json' },
+        body: JSON.stringify({ role, syntheticAcknowledged: true }),
+      }),
+    );
     check(response.status, 200, 'Ordinary real demo sign-in succeeds');
     const cookie = response.headers.get('set-cookie')?.split(';')[0];
     if (!cookie) throw new PortabilityFailure('Demo returned no ordinary secure session');
     const actor = await session.principalForToken(cookie.slice(cookie.indexOf('=') + 1));
-    check(actor?.role, role, 'Real demo session resolves its selected ordinary role'); actors[role] = actor;
+    check(actor?.role, role, 'Real demo session resolves its selected ordinary role');
+    actors[role] = actor;
   }
 
   // Ordinary static scope controls: an unrelated existing pupil, unpublished
   // report and attendance in a class with no current family membership.
-  fixture.sqlite.prepare('INSERT INTO report_cards (id,student_id,term,overall_grade,published_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?)')
-    .run('portability-unlinked-report', 'saha-demo-learner-3', 'Synthetic other report', 'Sample', stamp, stamp, stamp);
-  fixture.sqlite.prepare('INSERT INTO classes (id,school_id,course_id,teacher_id,name,term,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)')
-    .run('portability-other-class', 'saha-demo-school', 'saha-demo-course', 'saha-demo-teacher', 'Synthetic other class', 'Demo term', stamp, stamp);
-  fixture.sqlite.prepare('INSERT INTO attendance (id,class_id,student_id,date,status,recorded_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)')
-    .run('portability-other-attendance', 'portability-other-class', 'saha-demo-learner-1', '2026-01-01', 'absent', 'saha-demo-teacher', stamp, stamp);
-  const tables = ['schools', 'users', 'students', 'guardians', 'student_guardians', 'courses', 'classes', 'enrolments', 'attendance', 'report_cards'];
-  const rows = () => tables.map(table => fixture.sqlite.prepare('SELECT * FROM "' + table + '" ORDER BY rowid').all());
+  fixture.sqlite
+    .prepare(
+      'INSERT INTO report_cards (id,student_id,term,overall_grade,published_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?)',
+    )
+    .run(
+      'portability-unlinked-report',
+      'saha-demo-learner-3',
+      'Synthetic other report',
+      'Sample',
+      stamp,
+      stamp,
+      stamp,
+    );
+  fixture.sqlite
+    .prepare(
+      'INSERT INTO classes (id,school_id,course_id,teacher_id,name,term,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)',
+    )
+    .run(
+      'portability-other-class',
+      'saha-demo-school',
+      'saha-demo-course',
+      'saha-demo-teacher',
+      'Synthetic other class',
+      'Demo term',
+      stamp,
+      stamp,
+    );
+  fixture.sqlite
+    .prepare(
+      'INSERT INTO attendance (id,class_id,student_id,date,status,recorded_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)',
+    )
+    .run(
+      'portability-other-attendance',
+      'portability-other-class',
+      'saha-demo-learner-1',
+      '2026-01-01',
+      'absent',
+      'saha-demo-teacher',
+      stamp,
+      stamp,
+    );
+  const tables = [
+    'schools',
+    'users',
+    'students',
+    'guardians',
+    'student_guardians',
+    'courses',
+    'classes',
+    'enrolments',
+    'attendance',
+    'report_cards',
+  ];
+  const rows = () =>
+    tables.map((table) => fixture.sqlite.prepare('SELECT * FROM "' + table + '" ORDER BY rowid').all());
   const originalRows = rows();
 
-  check(compile('select ' + Array(102).fill('1').join(' + ')).classification, 'ExpressionDepth', 'Native expression-depth100 calibration');
-  check(compile('select json_array(' + Array(33).fill('1').join(',') + ')').classification, 'FunctionArguments', 'Native function32 calibration');
+  check(
+    compile('select ' + Array(102).fill('1').join(' + ')).classification,
+    'ExpressionDepth',
+    'Native expression-depth100 calibration',
+  );
+  check(
+    compile('select json_array(' + Array(33).fill('1').join(',') + ')').classification,
+    'FunctionArguments',
+    'Native function32 calibration',
+  );
   const views = {};
   for (const role of ['admin', 'teacher', 'guardian', 'student']) {
-    bounded = false; const ordinary = await dashboard.getRoleDashboard(actors[role]);
-    const before = executions; bounded = true; const limited = await dashboard.getRoleDashboard(actors[role]); bounded = false;
+    bounded = false;
+    const ordinary = await dashboard.getRoleDashboard(actors[role]);
+    const before = executions;
+    bounded = true;
+    const limited = await dashboard.getRoleDashboard(actors[role]);
+    bounded = false;
     check(executions - before, 1, 'Each constrained role snapshot executes one actual D1 statement');
     check(limited?.role, role, 'Constrained snapshot retains its ordinary role');
-    check({ ...limited, asOf: null }, { ...ordinary, asOf: null }, 'Runtime limits preserve the complete ordinary snapshot');
-    check(typeof limited.asOf, 'string', 'Current SQL snapshot time remains present'); views[role] = limited;
+    check(
+      { ...limited, asOf: null },
+      { ...ordinary, asOf: null },
+      'Runtime limits preserve the complete ordinary snapshot',
+    );
+    check(typeof limited.asOf, 'string', 'Current SQL snapshot time remains present');
+    views[role] = limited;
   }
-  check(views.guardian.profiles.items.map(row => row.id).sort(), ['saha-demo-learner-1', 'saha-demo-learner-2'], 'Guardian retains only explicitly linked profiles');
-  check(views.student.profiles.items.map(row => row.id), ['saha-demo-learner-1'], 'Student retains only its own linked profile');
+  check(
+    views.guardian.profiles.items.map((row) => row.id).sort(),
+    ['saha-demo-learner-1', 'saha-demo-learner-2'],
+    'Guardian retains only explicitly linked profiles',
+  );
+  check(
+    views.student.profiles.items.map((row) => row.id),
+    ['saha-demo-learner-1'],
+    'Student retains only its own linked profile',
+  );
   for (const role of ['guardian', 'student']) {
-    const profile = views[role].profiles.items.find(row => row.id === 'saha-demo-learner-1');
+    const profile = views[role].profiles.items.find((row) => row.id === 'saha-demo-learner-1');
     check(profile.attendance.recordedRows, 1, 'Currently ineligible other-class attendance is excluded');
-    check(profile.attendance.counts.absent, 0, 'Other-class absence does not alter eligible observed evidence');
-    check(profile.reports.items.map(row => row.id), ['saha-demo-report-published'], 'Only current published own-profile report is shown');
+    check(
+      profile.attendance.counts.absent,
+      0,
+      'Other-class absence does not alter eligible observed evidence',
+    );
+    check(
+      profile.reports.items.map((row) => row.id),
+      ['saha-demo-report-published'],
+      'Only current published own-profile report is shown',
+    );
   }
-  check(views.guardian.profiles.items.find(row => row.id === 'saha-demo-learner-2').reports.total, 0, 'Linked learner draft stays private');
+  check(
+    views.guardian.profiles.items.find((row) => row.id === 'saha-demo-learner-2').reports.total,
+    0,
+    'Linked learner draft stays private',
+  );
   check(rows(), originalRows, 'Ordinary dashboard reads preserve every synthetic domain row');
   check(externalRequests, 0, 'Ordinary portability checks make no external calls');
-  console.log(JSON.stringify({ passed, failed: 0, skipped: 0, scenarios: 4, dashboardStatements: executions, statementMetrics: metrics, externalRequests,
-    limits: 'Native SQLite C prepare: expression100/function32/SQL100KB/bind100; explicit byte/bind/literal-pattern50 checks before production D1 mapping over SQLite. Seed/migration statements and full Worker/browser execution are outside this check.' }));
+  console.log(
+    JSON.stringify({
+      passed,
+      failed: 0,
+      skipped: 0,
+      scenarios: 4,
+      dashboardStatements: executions,
+      statementMetrics: metrics,
+      externalRequests,
+      limits:
+        'Native SQLite C prepare: expression100/function32/SQL100KB/bind100; explicit byte/bind/literal-pattern50 checks before production D1 mapping over SQLite. Seed/migration statements and full Worker/browser execution are outside this check.',
+    }),
+  );
 } catch (error) {
   // Drizzle errors can contain SQL and bind values. Never render their message,
   // stack, causes or query. Only this test's bounded static labels are emitted.
-  console.error(JSON.stringify({ passed, failed: 1, skipped: 0, failureClass: error.name,
-    detail: error instanceof PortabilityFailure ? error.message : 'Ordinary portability contract failed; underlying query details withheld.' }));
+  console.error(
+    JSON.stringify({
+      passed,
+      failed: 1,
+      skipped: 0,
+      failureClass: error.name,
+      detail:
+        error instanceof PortabilityFailure
+          ? error.message
+          : 'Ordinary portability contract failed; underlying query details withheld.',
+    }),
+  );
   process.exitCode = 1;
-} finally { fixture?.sqlite.close(); globalThis.fetch = originalFetch; }
+} finally {
+  fixture?.sqlite.close();
+  globalThis.fetch = originalFetch;
+}

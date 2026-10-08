@@ -8,11 +8,15 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
-const root = fileURLToPath(new URL('../../', import.meta.url));  // repo root (test files live in tests/<layer>/)
+const root = fileURLToPath(new URL('../../', import.meta.url)); // repo root (test files live in tests/<layer>/)
 
 registerHooks({
   resolve(spec, ctx, next) {
-    if (spec === '@/db' || spec === '@/db/index') return { url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;', shortCircuit: true };
+    if (spec === '@/db' || spec === '@/db/index')
+      return {
+        url: 'data:text/javascript,export const getDb = () => globalThis.__sahaTestDb;',
+        shortCircuit: true,
+      };
     if (/^next\/[a-z-]+$/.test(spec)) return next(spec + '.js', ctx);
     let s = spec;
     if (s.startsWith('@/')) s = pathToFileURL(join(root, s.slice(2))).href;
@@ -24,13 +28,15 @@ registerHooks({
       }
     }
     return next(s, ctx);
-  }
+  },
 });
 
 function freshDb() {
   const sqlite = new DatabaseSync(':memory:');
-  for (const f of readdirSync(join(root, 'drizzle')).filter((f) => /^\d.*\.sql$/.test(f)).sort()) 
-    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint')) 
+  for (const f of readdirSync(join(root, 'drizzle'))
+    .filter((f) => /^\d.*\.sql$/.test(f))
+    .sort())
+    for (const st of readFileSync(join(root, 'drizzle', f), 'utf8').split('--> statement-breakpoint'))
       if (st.trim()) sqlite.exec(st);
   return sqlite;
 }
@@ -39,18 +45,21 @@ const { drizzle } = await import('drizzle-orm/sqlite-proxy');
 const schema = await import(pathToFileURL(join(root, 'db/schema.ts')).href);
 
 function useDb(sqlite) {
-  globalThis.__sahaTestDb = drizzle(async (sql, params, method) => {
-    const st = sqlite.prepare(sql);
-    if (method === 'run') { 
-      st.run(...params); 
-      return { rows: [] }; 
-    }
-    if (method === 'get') { 
-      const r = st.get(...params); 
-      return { rows: r ? Object.values(r) : undefined }; 
-    } 
-    return { rows: st.all(...params).map((r) => Object.values(r)) };
-  }, { schema });
+  globalThis.__sahaTestDb = drizzle(
+    async (sql, params, method) => {
+      const st = sqlite.prepare(sql);
+      if (method === 'run') {
+        st.run(...params);
+        return { rows: [] };
+      }
+      if (method === 'get') {
+        const r = st.get(...params);
+        return { rows: r ? Object.values(r) : undefined };
+      }
+      return { rows: st.all(...params).map((r) => Object.values(r)) };
+    },
+    { schema },
+  );
 }
 
 // Import assertions
@@ -63,7 +72,7 @@ const { ROLES, canRead, canWrite, canDelete } = rolesModule;
 // Test that ROLES contains exactly admin, teacher, guardian and student
 test('ROLES contains exactly admin, teacher, guardian and student', () => {
   assert.equal(ROLES.length, 4);
-  
+
   const expectedRoles = ['admin', 'teacher', 'guardian', 'student'];
   for (const role of expectedRoles) {
     assert.ok(ROLES.includes(role), `Missing role: ${role}`);
@@ -83,11 +92,11 @@ for (const [role, expectedRead, expectedWrite, expectedDelete] of PERMISSION_TES
   test(`canRead for ${role}`, () => {
     assert.equal(canRead(role), expectedRead);
   });
-  
+
   test(`canWrite for ${role}`, () => {
     assert.equal(canWrite(role), expectedWrite);
   });
-  
+
   test(`canDelete for ${role}`, () => {
     assert.equal(canDelete(role), expectedDelete);
   });

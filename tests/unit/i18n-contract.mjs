@@ -8,45 +8,45 @@ import { getLocale, t } from '../../lib/education/i18n.ts';
 // Test getLocale function
 test('getLocale should pick locale from Accept-Language header', () => {
   const request = new Request('https://example.com', {
-    headers: new Headers({ 'accept-language': 'fr-FR,fr;q=0.9,en;q=0.8' })
+    headers: new Headers({ 'accept-language': 'fr-FR,fr;q=0.9,en;q=0.8' }),
   });
-  
+
   const locale = getLocale(request);
   assert.equal(locale, 'fr');
 });
 
 test('getLocale should fall back to English when no Accept-Language header', () => {
   const request = new Request('https://example.com', {
-    headers: new Headers()
+    headers: new Headers(),
   });
-  
+
   const locale = getLocale(request);
   assert.equal(locale, 'en');
 });
 
 test('getLocale should fall back to English when unsupported locale', () => {
   const request = new Request('https://example.com', {
-    headers: new Headers({ 'accept-language': 'de-DE,de;q=0.9' })
+    headers: new Headers({ 'accept-language': 'de-DE,de;q=0.9' }),
   });
-  
+
   const locale = getLocale(request);
   assert.equal(locale, 'en');
 });
 
 test('getLocale should handle locale variants correctly', () => {
   const request = new Request('https://example.com', {
-    headers: new Headers({ 'accept-language': 'en-US,en;q=0.9' })
+    headers: new Headers({ 'accept-language': 'en-US,en;q=0.9' }),
   });
-  
+
   const locale = getLocale(request);
   assert.equal(locale, 'en');
 });
 
 test('getLocale should handle multiple languages with first supported being chosen', () => {
   const request = new Request('https://example.com', {
-    headers: new Headers({ 'accept-language': 'de-DE,fr;q=0.9,en;q=0.8' })
+    headers: new Headers({ 'accept-language': 'de-DE,fr;q=0.9,en;q=0.8' }),
   });
-  
+
   const locale = getLocale(request);
   assert.equal(locale, 'fr');
 });
@@ -78,13 +78,17 @@ test('t should use English as default locale when none provided', () => {
 
 // Verify all locales have same keys
 test('all locales should define exactly the same set of keys as English', () => {
-  const englishKeys = Object.keys(t('', 'en')).filter(key => key !== '');
+  const englishKeys = Object.keys(t('', 'en')).filter((key) => key !== '');
   const locales = ['fr', 'es'];
-  
+
   for (const locale of locales) {
-    const localeKeys = Object.keys(t('', locale)).filter(key => key !== '');
-    assert.equal(localeKeys.length, englishKeys.length, `Locale ${locale} has ${localeKeys.length} keys, expected ${englishKeys.length}`);
-    
+    const localeKeys = Object.keys(t('', locale)).filter((key) => key !== '');
+    assert.equal(
+      localeKeys.length,
+      englishKeys.length,
+      `Locale ${locale} has ${localeKeys.length} keys, expected ${englishKeys.length}`,
+    );
+
     // Check that all english keys are present in the locale
     for (const key of englishKeys) {
       assert.ok(localeKeys.includes(key), `Locale ${locale} is missing key '${key}'`);

@@ -13,12 +13,26 @@ type VerifiedSessionIdentity = Readonly<{
 // client-supplied field. Re-resolving a new valid session creates new evidence.
 const verifiedSessions = new WeakMap<Principal, VerifiedSessionIdentity>();
 
-export function verifiedSessionPrincipal(user: {
-  id: string; role: Role; schoolId: string; identityIssuer: string; identitySubject: string;
-}, tokenHash: string): Principal {
+export function verifiedSessionPrincipal(
+  user: {
+    id: string;
+    role: Role;
+    schoolId: string;
+    identityIssuer: string;
+    identitySubject: string;
+  },
+  tokenHash: string,
+): Principal {
   const principal: Principal = Object.freeze({ id: user.id, role: user.role, schoolId: user.schoolId });
-  verifiedSessions.set(principal, Object.freeze({ tokenHash, userId: user.id,
-    identityIssuer: user.identityIssuer, identitySubject: user.identitySubject }));
+  verifiedSessions.set(
+    principal,
+    Object.freeze({
+      tokenHash,
+      userId: user.id,
+      identityIssuer: user.identityIssuer,
+      identitySubject: user.identitySubject,
+    }),
+  );
   return principal;
 }
 
@@ -29,7 +43,9 @@ export function verifiedSessionPrincipal(user: {
 export function sessionExecutionScope(principal: Principal): SQL {
   const verified = verifiedSessions.get(principal);
   if (!verified) return sql`1`;
-  return and(demoIdentityScope(verified.identityIssuer, principal.schoolId!), sql`exists (select 1 from auth_sessions execution_session
+  return and(
+    demoIdentityScope(verified.identityIssuer, principal.schoolId!),
+    sql`exists (select 1 from auth_sessions execution_session
     join users execution_account on execution_account.id = execution_session.user_id
     where execution_session.token_hash = ${verified.tokenHash}
       and execution_session.user_id = ${verified.userId} and execution_account.id = ${principal.id}
@@ -38,5 +54,6 @@ export function sessionExecutionScope(principal: Principal): SQL {
       and execution_account.school_id = ${principal.schoolId} and execution_account.role = ${principal.role}
       and execution_account.disabled_at is null
       and execution_account.identity_issuer = ${verified.identityIssuer}
-      and execution_account.identity_subject = ${verified.identitySubject})`)!;
+      and execution_account.identity_subject = ${verified.identitySubject})`,
+  )!;
 }
