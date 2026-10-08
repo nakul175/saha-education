@@ -2,7 +2,7 @@
 
 ## Current update — 8 October 2026
 
-The sponsor approved the Calm workspace redesign and authorized its application-wide merge/deployment. Read [the redesign delivery record](docs/current/CALM-WORKSPACE-REDESIGN.md) first for the new navigation, shared layouts, scoped friendly names, dashboards, resource editor, attendance controls, current test evidence and the private-host verification boundary. Source is on `feat/calm-workspace-redesign` from main `75e9f97`. Historical records below retain their original dates and limitations.
+The sponsor approved the Calm workspace redesign and authorized its application-wide merge/deployment. Read [the redesign delivery record](docs/current/CALM-WORKSPACE-REDESIGN.md) first for the new navigation, shared layouts, scoped friendly names, dashboards, resource editor, attendance controls, current test evidence and the private-host verification boundary. The application was merged through [PR30](https://github.com/nakul175/saha-education/pull/30) at `1d3e2cedcce902eac25169928050e90061786a9f`, from tested source `9135113`. All GitHub CI steps passed. The [publication record](docs/current/CALM-WORKSPACE-PUBLICATION.json) distinguishes source merge from unverified hosted deployment. Historical records below retain their original dates and limitations.
 
 ## Current delivery
 
@@ -58,7 +58,7 @@ Use the manifest's Node/pnpm toolchain; current check environment and actual res
 | FR-09 | Partial, unapproved | Reviewed exact attendance snapshots/saves/history and coherent family viewer implemented; school calendars, correction governance, legacy API bypass, retention and UAT remain open |
 | FR-10 | Partial, unapproved | Reviewed result snapshots/saves/history and exact conflicts/retries implemented; legacy replacement API, grade/date/correction/retention policy and family publication remain open |
 | NFR-05/NFR-06 | Partial, unapproved | Approved Calm workspace design implemented; sampled synthetic browser/responsive checks and source contracts pass. Broader accessibility/educator UAT remains open; [dated evidence](docs/current/CALM-WORKSPACE-REDESIGN.md) |
-| Next delivery | Calm workspace source prepared for authorized merge; private hosted verification pending access | Verify the exact merged revision and server deployment status. Existing records and provider/ORF boundaries remain; [current handover](docs/current/CALM-WORKSPACE-REDESIGN.md) |
+| Next delivery | Calm workspace application merged to main; private hosted verification pending access | Verify the server deployment status against merged application `1d3e2ce` (or a later main revision with the same application tree). No authenticated server identity/browser session was available. Existing provider/ORF and acceptance boundaries remain; [current handover](docs/current/CALM-WORKSPACE-REDESIGN.md) |
 
 ## Remaining product gaps
 

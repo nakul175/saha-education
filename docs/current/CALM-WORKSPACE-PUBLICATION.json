@@ -1,0 +1,38 @@
+{
+  "recorded_on": "2026-10-08",
+  "application_source_commit": "913511387f50390c4e3703167b54eba2f469daab",
+  "application_merge_commit": "1d3e2cedcce902eac25169928050e90061786a9f",
+  "pull_request": "https://github.com/nakul175/saha-education/pull/30",
+  "merged_at": "2026-10-08T07:57:34Z",
+  "github_ci": {
+    "run_id": 37746246967,
+    "conclusion": "success",
+    "all_steps_success": true
+  },
+  "local_release": {
+    "suites": 79,
+    "passed_assertions": 62627,
+    "failed": 0,
+    "skipped": 0,
+    "prior_baselines_checked": 78,
+    "quarantined": 0,
+    "new_navigation_assertions": 36,
+    "build": "passed",
+    "typescript": "passed",
+    "lint_errors": 0,
+    "lint_warnings": 12
+  },
+  "deployment": {
+    "target": "https://education.aplyd.org",
+    "status": "unverified-access-unavailable",
+    "deployed_commit": null,
+    "host_http_status": 401,
+    "available_ssh_identities": 0,
+    "main_update_interval_minutes": 3,
+    "timer_execution_confirmed": false,
+    "hosted_browser_checked": false
+  },
+  "acceptance_cases_promoted": 0,
+  "real_providers_enabled": false,
+  "real_recipients_contacted": false
+}
