@@ -9,7 +9,9 @@ User=saha
 Group=saha
 WorkingDirectory=/opt/saha-education/src
 Environment=SITES_RUNTIME_ROOT=/var/lib/saha-education/runtime
-ExecStart=/usr/bin/node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to /var/lib/saha-education/state --ip 127.0.0.1 --port 3200 --inspector-port 0
+# SAHA_HOST is substituted by provision.sh. --local-upstream/--upstream-protocol make request.url carry the public https origin; without them every write is refused with 403 (requireSameOrigin).
+# The three --var switches turn on the synthetic demo sign-in (the kit is for synthetic data only); any SAHA_OIDC_* setting switches the demo off again.
+ExecStart=/usr/bin/node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to /var/lib/saha-education/state --ip 127.0.0.1 --port 3200 --inspector-port 0 --local-upstream SAHA_HOST --upstream-protocol https --var SAHA_DEMO_ENABLED:true --var SAHA_DEMO_INSTALLATION_ID:5a4a0e26-6d0c-4a3e-9c1d-0e2600000a10 --var SAHA_ALLOWED_ORIGINS:https://SAHA_HOST
 Restart=always
 RestartSec=3
 NoNewPrivileges=true

@@ -1,6 +1,6 @@
 # Hosting Saha Education on DigitalOcean
 
-Status: deployment kit, not yet run on a droplet. Synthetic data only. Real identity provider, paid AI and real-recipient delivery stay disabled, as in HANDOVER.md.
+Status: deployment kit, in use since October 2026 on the shared droplet `saha-apps` (64.227.190.72) for the Education demo at `https://education.aplyd.org` (see "Public origin and the demo switches" below for how the running unit differs from this kit). Synthetic data only. Real identity provider, paid AI and real-recipient delivery stay disabled, as in HANDOVER.md.
 
 ## What runs where
 
@@ -33,6 +33,18 @@ cat /var/lib/saha-education/deploy-status.json
 ```
 
 Rollback: revert the commit on `main`; the next timer run redeploys it. Data is untouched by a redeploy.
+
+## Public origin and the demo switches (one host per app)
+
+The unit file passes two upstream flags and three `--var` switches to the Worker, and `provision.sh` substitutes `SAHA_HOST` into the unit as it does into the Caddyfile. Both were missing from the first version of this kit.
+
+Why they exist. On 8 October 2026 the droplet copy of Education refused every browser write with 403. `requireSameOrigin` in `lib/education/identity.ts` accepts a write only when the request's `Origin` header equals the origin of `request.url` and is listed in `SAHA_ALLOWED_ORIGINS`. Under `wrangler dev --local` without an upstream setting, Miniflare gives the Worker `http://127.0.0.1:3200` as its own URL, so behind the proxy no browser origin could ever match. `--local-upstream SAHA_HOST --upstream-protocol https` makes `request.url` carry the public https origin and the writes pass. The same copy had no demo switches at all (`wrangler.json` has `vars: {}` and the unit set no `--var`), so its sign-in page offered a demo entry that answered "demo switched off" and a school sign-in that was not configured.
+
+One origin per process. The Worker serves exactly one origin: `--local-upstream` takes one host, and `SAHA_ALLOWED_ORIGINS` must be exactly `https://SAHA_HOST`. Any second name for the app, such as the `<app>.<ip-dashed>.sslip.io` name after a move to a custom domain, must answer a redirect to `SAHA_HOST` in Caddy and must not be proxied to the app; served under a second name, every write fails again with 403.
+
+The three demo variables. `SAHA_DEMO_ENABLED:true` and `SAHA_DEMO_INSTALLATION_ID:<uuid4>` turn on the synthetic demo sign-in with the role picker; any `SAHA_OIDC_*` setting switches the demo off again (`lib/education/demo-policy.ts`). The kit is for synthetic data only. On the first demo sign-in, when the database is pristine (no school, user or demo installation yet), the app seeds its own small synthetic school. To load the rich demo school instead, generate it with `node scripts/seed-demo.mjs --out seed.sql --installation 5a4a0e26-6d0c-4a3e-9c1d-0e2600000a10` (the same installation id as the unit) and apply it before the first demo sign-in, the way `update.sh` applies migrations: from `/opt/saha-education/src`, with the service stopped, `wrangler d1 execute DB --local --config dist/server/wrangler.json --persist-to /var/lib/saha-education/state --file seed.sql`. Once the small school exists the rich one is not loaded.
+
+State on the shared droplet (8 October 2026). The installed unit predates this change, so the flags live in a systemd drop-in, `/etc/systemd/system/saha-education.service.d/public-origin.conf`, which resets `ExecStart` and repeats it with the flags. The canonical host is `education.aplyd.org`; `education.64-227-190-72.sslip.io` answers 301 to it. The small self-seeded school is in use; the rich `scripts/seed-demo.mjs` school was not loaded. When the unit is next installed from this kit (a re-run of `provision.sh`), delete the drop-in first, so that the two `ExecStart` lines do not drift apart. `docs/governance/ARCHITECTURE-HOSTING.md` and `docs/governance/SECRETS-REGISTER.md` still describe the old state ("droplet value TBD" for `SAHA_ALLOWED_ORIGINS`, and no known path for the demo switch to reach the Worker); they should be corrected in a documentation pass.
 
 ## Known limits
 
