@@ -26,7 +26,9 @@
     "test:uat": "node scripts/test.mjs uat",
     "test:full": "node scripts/test.mjs full",
     "test:regression": "node scripts/test.mjs regression",
-    "test:catalogue": "node scripts/test.mjs --check-catalogue"
+    "test:catalogue": "node scripts/test.mjs --check-catalogue",
+    "docs:index": "node scripts/doc-index.mjs",
+    "docs:index:check": "node scripts/doc-index.mjs --check"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

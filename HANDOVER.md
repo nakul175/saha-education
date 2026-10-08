@@ -1,12 +1,27 @@
 # Saha Education handover
 
+## Status
+
+The one place this repository states its current state (verified 8 October 2026 against `origin/main`, the deployment status files and the CI configuration). Dated sections below are history and say so.
+
+| Item | State |
+|---|---|
+| Application | Next.js 16 / vinext on Cloudflare Workers with D1, verified combined application merged to `main`; v2.12 designs hold unrun cases, so nothing is accepted |
+| Hosting | Private copy on the shared DigitalOcean droplet `saha-apps` at https://education.aplyd.org behind a Caddy password wall, synthetic data only; demo sign-in switched on there (deploy kit and switches: [deploy/README.md](deploy/README.md)). Merging to `main` deploys it within about four minutes. The private Sites hosting failure remains unresolved |
+| CI | `.github/workflows/ci.yml`, job `verify`: Node 24 (Node 22.22's `node:sqlite` truncates strings at the first NUL and fails one harness-only test), lint baseline (0 errors), typecheck, tests |
+| Counts | Not stated here. Designed cases: [docs/specification/TEST-CASES.csv](docs/specification/TEST-CASES.csv); validation record: [VALIDATION.md](VALIDATION.md) |
+| Open | Real provider/ORF settings and acceptance (owner), hosted SQL deployment failure on the old Sites host, paid AI and real recipients disabled |
+| Entry points | [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [docs/DOCUMENTATION-INDEX.md](docs/DOCUMENTATION-INDEX.md); earlier handover notes in [docs/history/](docs/history/) |
+
+The sections below are the accumulated dated updates, newest first where dated, and are kept as written.
+
 ## Current update — 8 October 2026
 
 The sponsor approved the Calm workspace redesign and authorized its application-wide merge/deployment. Read [the redesign delivery record](docs/current/CALM-WORKSPACE-REDESIGN.md) first for the new navigation, shared layouts, scoped friendly names, dashboards, resource editor, attendance controls, current test evidence and the private-host verification boundary. The application was merged through [PR30](https://github.com/nakul175/saha-education/pull/30) at `1d3e2cedcce902eac25169928050e90061786a9f`, from tested source `9135113`. All GitHub CI steps passed. The [publication record](docs/current/CALM-WORKSPACE-PUBLICATION.json) distinguishes source merge from unverified hosted deployment. Historical records below retain their original dates and limitations.
 
 ## Current delivery
 
-The sponsor requested reconciliation and Claude handover during the authorized final-hour merge window. The [final verified school/course batch](docs/current/EIGHT-HOUR-BATCH-4.md) is merged through PR6 as `bdeea544c8fc8d208f4391bac24e506082ea81f7`; [Claude's handover](CLAUDE-HANDOVER.md) is the next-agent entry point and records exact publication and the paused schedule. Fresh build and final 52 suites/20,952 assertions plus 40 new school/course and 26 retained structure mounted procedures pass. Canonical v2.12 has 371 designed cases/51 scenarios; all unrun and approvalsfalse. The unfinished assessment-detail work is preserved separately on `handoff/assessment-detail-2026-10-06`, commit `e1283e78d7d19f6637c0821304e5a4a5cbd438d6`, with partial 1476-check evidence and no final release credit. The [hosted SQL failure](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) remains unresolved with no returned URL. Existing records below retain their historical source/version boundaries; read the current final publication in Claude's handover first.
+The sponsor requested reconciliation and Claude handover during the authorized final-hour merge window. The [final verified school/course batch](docs/current/EIGHT-HOUR-BATCH-4.md) is merged through PR6 as `bdeea544c8fc8d208f4391bac24e506082ea81f7`; [Claude's handover](docs/history/CLAUDE-HANDOVER-2026-10-06.md) is the next-agent entry point and records exact publication and the paused schedule. Fresh build and final 52 suites/20,952 assertions plus 40 new school/course and 26 retained structure mounted procedures pass. Canonical v2.12 has 371 designed cases/51 scenarios; all unrun and approvalsfalse. The unfinished assessment-detail work is preserved separately on `handoff/assessment-detail-2026-10-06`, commit `e1283e78d7d19f6637c0821304e5a4a5cbd438d6`, with partial 1476-check evidence and no final release credit. The [hosted SQL failure](docs/current/HOSTED-DEPLOYMENT-FAILURE.md) remains unresolved with no returned URL. Existing records below retain their historical source/version boundaries; read the current final publication in Claude's handover first.
 
 **Update, 6 October 2026 (continuation):** the preserved commit was cherry-picked onto main, finished and verified without changing application source; it is no longer unfinished. See [assessment detail completion](docs/current/ASSESSMENT-DETAIL-COMPLETION.md): 53 suites/22,428 assertions on Node 22.22 and 24.19, the mounted procedure 43/43 with 0 external requests and 0 page errors, and mutation checks. Explicit discard sends zero POSTs and does not claim cancellation. The statements above are the original hand-off and are kept for history.
 

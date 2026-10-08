@@ -48,6 +48,9 @@ jobs:
       - name: Lint ratchet (error count must not rise above .lint-baseline.json)
         run: pnpm run lint:baseline
 
+      - name: Documentation index is current
+        run: pnpm run docs:index:check
+
       - name: Type check
         run: pnpm run typecheck
 
