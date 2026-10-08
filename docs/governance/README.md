@@ -51,7 +51,7 @@ Status key: **Present** (existed and is mapped), **Partial** (existed, gaps rema
 
 ### Four root handover files
 
-[HANDOVER.md](../../HANDOVER.md) is the entry point. [AGENTS.md](../../AGENTS.md) holds the rules for all coding agents. [CLAUDE.md](../../CLAUDE.md) is a short pointer plus dated updates. [CLAUDE-HANDOVER.md](../../CLAUDE-HANDOVER.md) is the 6 October 2026 continuation record (with a 7 October overnight update): historical for the state it describes. Also at the root: `PLAN.md`, `PROGRESS.md`, `PROGRESS.md.new` are early rebuild planning and progress notes (5 October 2026) and are historical.
+[HANDOVER.md](../../HANDOVER.md) is the entry point. [AGENTS.md](../../AGENTS.md) holds the rules for all coding agents. [CLAUDE.md](../../CLAUDE.md) is a short pointer plus dated updates. [CLAUDE-HANDOVER.md](../../CLAUDE-HANDOVER.md) is the 6 October 2026 continuation record (with a 7 October overnight update): historical for the state it describes. Also at the root: `PLAN.md` and `PROGRESS.md` are early rebuild planning and progress notes (5 October 2026) and are historical.
 
 ### `docs/current/` (69 files)
 
