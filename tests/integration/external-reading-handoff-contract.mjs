@@ -197,8 +197,8 @@ try {
   for (const attribute of ['target="_blank"', 'rel="noopener noreferrer"', 'referrerPolicy="no-referrer"'])
     check(page.includes(attribute), true, 'The opening link carries ' + attribute);
   check(
-    /launch'?,\s*\{method: 'POST', headers: \{'Content-Type': 'application\/json'\}, body: '\{\}'\}/.test(
-      page,
+    /launch'?,\{method:'POST',headers:\{'Content-Type':'application\/json'\},body:'\{\}',?\}/.test(
+      page.replace(/\s+/g, ''),
     ),
     true,
     'The page requests a launch with an empty body only',

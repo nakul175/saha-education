@@ -310,10 +310,12 @@ async function resolveNames(
   ];
   const db = getDb();
   // D1 limits bound parameters per statement, so look names up in small chunks.
-  const chunks = <T>(values: T[]) =>
-    Array.from({ length: Math.ceil(values.length / 40) }, (_, index) =>
+  // A function declaration, not `<T>(...) =>`: the test loader parses .ts files as TSX.
+  function chunks<T>(values: T[]): T[][] {
+    return Array.from({ length: Math.ceil(values.length / 40) }, (_, index) =>
       values.slice(index * 40, index * 40 + 40),
     );
+  }
   const studentRows = (
     await Promise.all(
       chunks(studentIds).map((ids) =>

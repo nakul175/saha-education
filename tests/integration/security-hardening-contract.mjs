@@ -189,19 +189,16 @@ const serverSources = [
   // Reviewed allowlist. Each entry is an exact flagged line plus the reason it is not a credential comparison. The set of flagged
   // lines must equal this list exactly, so a new direct comparison fails and a stale entry fails too.
   const reviewedComparisons = {
-    'lib/education/oidc.ts: if (payload.nonce !== nonce ||':
+    'lib/education/oidc.ts: payload.nonce !== nonce ||':
       'post-signature OIDC nonce check (documented, not remotely timing-exploitable)',
-    // The line is `const hash = await digest(JSON.stringify({... partial: data.partialConfirmed === true }))`. The `===` is a boolean test
-    // inside the object literal and `digest` is the name of the hashing helper. The hash is an idempotency fingerprint of the request
-    // (actor, school, assessment, action, reason). It is compared with the stored request_hash only to tell an exact replay from a reused
-    // client request id (409 request_reused). It contains no credential and is never compared on the strength of secrecy.
-    'lib/education/assessment-lifecycle.ts: const hash = await digest(JSON':
-      'request fingerprint for idempotent replay, not a credential',
+    // The idempotency fingerprint in assessment-lifecycle.ts (`const hash = await digest(JSON.stringify({... partial: data.partialConfirmed === true }))`)
+    // used to be flagged because the whole call sat on one line. Prettier (8 October 2026) split it, so the `===` boolean test and the word
+    // `digest` are no longer on the same line and the line-based scan no longer flags it. It remains a request fingerprint, not a credential.
   };
   equal(
     comparisons.map(({ file, text }) => `${file}: ${text.slice(0, 30)}`).sort(),
     Object.keys(reviewedComparisons).sort(),
-    'Only the post-signature OIDC nonce check and the reviewed idempotent-replay request fingerprint are flagged by the secret-comparison scan',
+    'Only the post-signature OIDC nonce check is flagged by the secret-comparison scan',
   );
 }
 
