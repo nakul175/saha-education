@@ -31,16 +31,22 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Node.js (node:sqlite and module hooks are required by the test harness)
+      - name: Set up Node.js (node:sqlite and module hooks are required by the test harness; 22 LTS matches the hosts)
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
 
       - name: Enable the pinned pnpm (packageManager in package.json)
         run: corepack enable
 
       - name: Install dependencies from the lockfile
         run: pnpm install --frozen-lockfile
+
+      - name: Lint ratchet (error count must not rise above .lint-baseline.json)
+        run: pnpm run lint:baseline
+
+      - name: Type check
+        run: pnpm run typecheck
 
       - name: Original migrations are unmodified (applied history is preserved)
         if: github.event_name == 'pull_request'

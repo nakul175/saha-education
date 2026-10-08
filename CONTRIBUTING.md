@@ -26,6 +26,10 @@ node scripts/check-specification.mjs
 
 `.github/workflows/ci.yml` runs the same commands on pull requests and on pushes to `main`. Local demo: `pnpm demo` ([guide](docs/DEMO.md)).
 
+### Checks
+
+Two further commands run in CI before the build and should pass locally before you push. `pnpm run lint:baseline` runs ESLint and compares the error count with `.lint-baseline.json`; the run fails when the count rises and never because it fell. After fixing lint errors, lower the baseline with `node scripts/lint-baseline.mjs --update` and commit the file in the same pull request; raising it needs a stated reason in the pull request. Warnings are recorded in the file but do not gate. `pnpm run typecheck` runs `tsc --noEmit` on its own, so a type error is reported by name before the longer test run. `.editorconfig` sets the shared whitespace rules (UTF-8, LF, two-space indent, final newline); most editors apply it automatically.
+
 ## Hard rules
 
 - Synthetic data only. No secrets, real student records, local databases, or build output in git.
