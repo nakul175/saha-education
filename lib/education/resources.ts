@@ -18,6 +18,7 @@ import {
   classScope,
   livePrincipalScope,
 } from './access';
+import { uniqueFailure } from './db-errors';
 
 const identifier = z.string().min(1).max(120);
 const short = (max: number) => z.string().trim().min(1).max(max);
@@ -194,13 +195,6 @@ async function originalRetry(
   )
     throw new ResourceConflict();
   return resourceView(row, version);
-}
-function uniqueFailure(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-  return (
-    /UNIQUE constraint failed|PRIMARY KEY constraint failed/i.test(error.message) ||
-    (error.cause !== undefined && uniqueFailure(error.cause))
-  );
 }
 function insertVersion(principal: Principal, version: VersionRow, expectedVersion?: number) {
   const current =

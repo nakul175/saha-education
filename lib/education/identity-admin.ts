@@ -7,6 +7,7 @@ import { AccessError, assertAdmin, livePrincipalScope } from './access';
 import { digest } from './identity';
 import { DEMO_ISSUER, demoRuntimeAllowed } from './demo-policy';
 import type { Principal, Role } from './types';
+import { uniqueFailure } from './db-errors';
 
 export const identifier = z.string().min(1).max(120);
 export const reason = z
@@ -167,13 +168,6 @@ async function retry(principal: Principal, id: string, hash: string): Promise<Id
   const user = await currentUser(principal, event.userId);
   if (!user) throw new IdentityAdminConflict();
   return { user, event: eventView(event) };
-}
-export function uniqueFailure(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    (/UNIQUE constraint failed|PRIMARY KEY constraint failed/i.test(error.message) ||
-      uniqueFailure(error.cause))
-  );
 }
 
 export async function provisionIdentity(

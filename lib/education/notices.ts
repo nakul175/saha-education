@@ -6,6 +6,7 @@ import { notices, noticeRecipients } from '@/db/notices-schema';
 import { AccessError, assertPrincipal, classScope, livePrincipalScope, studentScope } from './access';
 import { digest } from './identity';
 import type { Principal } from './types';
+import { uniqueFailure } from './db-errors';
 
 // Staff notices are in-app only. Every recipient receives an ordinary row in
 // `notifications`; no email, SMS or other provider is contacted from here.
@@ -431,13 +432,6 @@ async function replay(principal: Principal, id: string, hash: string): Promise<N
   if (!row) return null;
   if (row.authorId !== principal.id || row.hash !== hash) throw new NoticeConflict();
   return { notice: sentView(row), replayed: true };
-}
-function uniqueFailure(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    (/UNIQUE constraint failed|PRIMARY KEY constraint failed/i.test(error.message) ||
-      uniqueFailure(error.cause))
-  );
 }
 
 type Prepared = {

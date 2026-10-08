@@ -6,6 +6,7 @@ import { readingCheckInputSchema } from './reading-checks';
 import { AccessError, assertPrincipal, livePrincipalScope } from './access';
 import { digest } from './identity';
 import type { Principal } from './types';
+import { uniqueFailure } from './db-errors';
 
 const identifier = z.string().min(1).max(120);
 const plain = (max: number) =>
@@ -204,13 +205,6 @@ export async function stageReadingImport(
       throw new ReadingImportConflict();
   }
   return getReadingImport(principal, input.clientImportId);
-}
-function uniqueFailure(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    (/UNIQUE constraint failed|PRIMARY KEY constraint failed/i.test(error.message) ||
-      uniqueFailure(error.cause))
-  );
 }
 export async function decideReadingImport(
   principal: Principal,
