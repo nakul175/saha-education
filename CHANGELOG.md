@@ -18,7 +18,7 @@ Reconstructed on 2026-10-08 from `git log origin/main` and the handover files; i
 ## 2026-10-06
 
 - Preserved assessment-detail work finished on a continuation branch ([record](docs/current/ASSESSMENT-DETAIL-COMPLETION.md)).
-- Claude continuation handover published ([CLAUDE-HANDOVER.md](CLAUDE-HANDOVER.md)); PR #6 had merged the verified combined application into `main` as `bdeea544`.
+- Claude continuation handover published ([docs/history/CLAUDE-HANDOVER-2026-10-06.md](docs/history/CLAUDE-HANDOVER-2026-10-06.md)); PR #6 had merged the verified combined application into `main` as `bdeea544`.
 
 ## Earlier (4 to 5 October 2026)
 
