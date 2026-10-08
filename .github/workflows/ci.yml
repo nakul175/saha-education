@@ -31,10 +31,13 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Node.js (node:sqlite and module hooks are required by the test harness; 22 LTS matches the hosts)
+      # Node 24, not the hosts' 22: on Node 22.22 node:sqlite truncates a bound string at its first NUL byte, so
+      # tests/integration/security-hardening-contract.mjs ("stored and returned byte-for-byte") fails in the
+      # harness (run 37758219627, 8 October 2026). The application itself runs under Miniflare/D1, not node:sqlite.
+      - name: Set up Node.js (node:sqlite and module hooks are required by the test harness)
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
 
       - name: Enable the pinned pnpm (packageManager in package.json)
         run: corepack enable
