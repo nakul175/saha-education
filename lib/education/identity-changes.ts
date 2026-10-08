@@ -9,6 +9,7 @@ import {
 } from '@/db/identity-admin-schema';
 import { AccessError } from './access';
 import { DEMO_ISSUER, demoRuntimeAllowed } from './demo-policy';
+import { uniqueFailure } from './db-errors';
 import { digest } from './identity';
 import {
   currentUser,
@@ -18,7 +19,6 @@ import {
   liveActor,
   liveAdmin,
   review,
-  uniqueFailure,
   type AdminUser,
 } from './identity-admin';
 import type { Principal, Role } from './types';

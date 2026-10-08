@@ -6,6 +6,7 @@ import { profileLinkVersions, profileLinkEvents } from '@/db/profile-links-schem
 import { assertAdmin, AccessError, livePrincipalScope } from './access';
 import { digest } from './identity';
 import type { Principal } from './types';
+import { uniqueFailure } from './db-errors';
 
 const identifier = z
   .string()
@@ -190,6 +191,7 @@ export async function listProfileLinkHistory(
     .limit(200);
   return rows.map(eventView);
 }
+const GUARDIAN_LOGIN_LINKED = /Guardian login already linked/i;
 async function retry(principal: Principal, id: string, hash: string): Promise<ProfileLinkResult | null> {
   const [event] = await getDb()
     .select()
@@ -208,15 +210,6 @@ async function retry(principal: Principal, id: string, hash: string): Promise<Pr
   const [profile] = await profileRows(principal, event.profileType as ProfileType, event.profileId);
   if (!profile) throw new ProfileLinkConflict();
   return { profile, event: eventView(event) };
-}
-function uniqueFailure(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    (/UNIQUE constraint failed|PRIMARY KEY constraint failed|Guardian login already linked/i.test(
-      error.message,
-    ) ||
-      uniqueFailure(error.cause))
-  );
 }
 export async function reviewProfileLink(
   principal: Principal,
@@ -327,7 +320,7 @@ export async function reviewProfileLink(
         AND ${authSessions.userId} <> ${principal.id}`),
     ]);
   } catch (error) {
-    if (!uniqueFailure(error)) throw error;
+    if (!uniqueFailure(error, GUARDIAN_LOGIN_LINKED)) throw error;
   }
   await liveAdmin(principal);
   const saved = await retry(principal, input.clientRequestId, hash);
