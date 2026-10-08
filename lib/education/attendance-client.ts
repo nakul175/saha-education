@@ -2,7 +2,12 @@
 // every response is already scoped by the server, and a denial only hides content.
 
 export class AttendanceReadFailure extends Error {
-  constructor(message: string, readonly status: number) { super(message); }
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
 }
 
 /** Reads a same-origin JSON endpoint. 401 sends the person to sign in; other failures become plain-language errors. */
@@ -13,10 +18,23 @@ export async function readAttendanceJson<T>(path: string, signal?: AbortSignal):
     window.location.assign(new URL('/login', window.location.origin).href);
     throw new AttendanceReadFailure('Please sign in again.', 401);
   }
-  if (response.status === 400) throw new AttendanceReadFailure('Check the dates: each must be a real date, and the start cannot be after the end.', 400);
-  if (response.status === 403) throw new AttendanceReadFailure('Your account does not have permission to view this attendance.', 403);
-  if (response.status === 404) throw new AttendanceReadFailure('This record is not available to your account. It may have moved or your access may have changed.', 404);
-  if (!response.ok) throw new AttendanceReadFailure('Attendance could not be loaded. Try again in a moment.', response.status);
+  if (response.status === 400)
+    throw new AttendanceReadFailure(
+      'Check the dates: each must be a real date, and the start cannot be after the end.',
+      400,
+    );
+  if (response.status === 403)
+    throw new AttendanceReadFailure('Your account does not have permission to view this attendance.', 403);
+  if (response.status === 404)
+    throw new AttendanceReadFailure(
+      'This record is not available to your account. It may have moved or your access may have changed.',
+      404,
+    );
+  if (!response.ok)
+    throw new AttendanceReadFailure(
+      'Attendance could not be loaded. Try again in a moment.',
+      response.status,
+    );
   return response.json() as Promise<T>;
 }
 
@@ -39,4 +57,5 @@ export function rangeQuery(from: string, to: string): string {
   return parts.length ? '?' + parts.join('&') : '';
 }
 
-export const statusLabel = (status: string) => status === 'other' ? 'Other saved status' : status[0].toUpperCase() + status.slice(1);
+export const statusLabel = (status: string) =>
+  status === 'other' ? 'Other saved status' : status[0].toUpperCase() + status.slice(1);

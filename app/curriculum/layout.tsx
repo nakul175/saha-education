@@ -7,10 +7,20 @@ export const dynamic = 'force-dynamic';
 export default async function CurriculumLayout({ children }: { children: React.ReactNode }) {
   const principal = await getServerPrincipal();
   if (!principal) redirect('/login');
-  if (principal.role !== 'teacher' && principal.role !== 'admin') return <AppShell principal={principal}><div className="max-w-3xl mx-auto p-6 space-y-4">
-    <a href="/" className="underline">← Dashboard</a>
-    <h1 className="text-2xl font-bold">Curriculum references</h1>
-    <p>This library is available to school staff. Contact your school administrator if your access needs updating.</p>
-  </div></AppShell>;
+  if (principal.role !== 'teacher' && principal.role !== 'admin')
+    return (
+      <AppShell principal={principal}>
+        <div className="max-w-3xl mx-auto p-6 space-y-4">
+          <a href="/" className="underline">
+            ← Dashboard
+          </a>
+          <h1 className="text-2xl font-bold">Curriculum references</h1>
+          <p>
+            This library is available to school staff. Contact your school administrator if your access needs
+            updating.
+          </p>
+        </div>
+      </AppShell>
+    );
   return <AppShell principal={principal}>{children}</AppShell>;
 }

@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
-      CI: "true"
+      CI: 'true'
       # Providers, paid AI and real recipients stay disabled: no SAHA_* provider setting is defined for CI.
-      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - name: Check out the exact commit
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
       - name: Set up Node.js (node:sqlite and module hooks are required by the test harness)
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: '24'
 
       - name: Enable the pinned pnpm (packageManager in package.json)
         run: corepack enable
@@ -48,6 +48,8 @@ jobs:
       - name: Lint ratchet (error count must not rise above .lint-baseline.json)
         run: pnpm run lint:baseline
 
+      - name: Format check (Prettier)
+        run: pnpm run format:check
       - name: Documentation index is current
         run: pnpm run docs:index:check
 

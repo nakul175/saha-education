@@ -7,10 +7,19 @@ export const DEMO_SCHOOL_ID = 'saha-demo-school';
 /** This switch belongs only to a separately provisioned synthetic database.
  * Any school-provider configuration closes the synthetic sign-in path. */
 export function demoRuntimeAllowed(): boolean {
-  return setting('SAHA_DEMO_ENABLED') === 'true'
-    && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(setting('SAHA_DEMO_INSTALLATION_ID'))
-    && !['SAHA_OIDC_ISSUER', 'SAHA_OIDC_CLIENT_ID', 'SAHA_OIDC_CLIENT_SECRET', 'SAHA_OIDC_REDIRECT_URL', 'SAHA_OIDC_TOKEN_AUTH_METHOD']
-      .some(name => Boolean(setting(name)));
+  return (
+    setting('SAHA_DEMO_ENABLED') === 'true' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      setting('SAHA_DEMO_INSTALLATION_ID'),
+    ) &&
+    ![
+      'SAHA_OIDC_ISSUER',
+      'SAHA_OIDC_CLIENT_ID',
+      'SAHA_OIDC_CLIENT_SECRET',
+      'SAHA_OIDC_REDIRECT_URL',
+      'SAHA_OIDC_TOKEN_AUTH_METHOD',
+    ].some((name) => Boolean(setting(name)))
+  );
 }
 
 /** Include at resolution and actual statement time for synthetic sessions. */

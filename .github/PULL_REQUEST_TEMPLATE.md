@@ -2,7 +2,6 @@
 
 ## What and why
 
-
 ## Checks run (paste the exact commands and numbers; say plainly what was not run)
 
 - [ ] `pnpm install --frozen-lockfile`
@@ -22,4 +21,3 @@
 - [ ] Docs updated together: implementation boundary, requirements, evidence (`VALIDATION.md` if code changed)
 
 ## Not verified / open items
-

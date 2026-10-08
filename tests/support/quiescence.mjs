@@ -13,7 +13,11 @@ let active = 0;
 /** Count one in-flight synthetic route/API operation until it settles (resolve or reject). */
 export async function serverWork(operation) {
   active++;
-  try { return await operation(); } finally { active--; }
+  try {
+    return await operation();
+  } finally {
+    active--;
+  }
 }
 
 /**
@@ -24,7 +28,8 @@ export async function settleQuiet({ quietTurns = 60, limitMs = 30000 } = {}) {
   const started = performance.now();
   let quiet = 0;
   while (quiet < quietTurns) {
-    if (performance.now() - started > limitMs) throw new Error('Synthetic page callbacks did not settle within ' + limitMs + 'ms');
+    if (performance.now() - started > limitMs)
+      throw new Error('Synthetic page callbacks did not settle within ' + limitMs + 'ms');
     await turn();
     quiet = active === 0 ? quiet + 1 : 0;
   }

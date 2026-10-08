@@ -5,7 +5,7 @@ import { assertExternalAppStaff, launchExternalApp } from '@/lib/education/exter
 const launchSchema = z.object({ studentId: z.string().min(1).max(200).optional() }).strict();
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return authenticated(request, true, async principal => {
+  return authenticated(request, true, async (principal) => {
     assertExternalAppStaff(principal);
     const { id } = await params;
     const raw = await boundedText(request, { required: false });

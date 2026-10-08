@@ -6,10 +6,16 @@ import ts from 'typescript';
 
 const require = createRequire(import.meta.url);
 class AccessError extends Error {
-  constructor(message, status = 403) { super(message); this.status = status; }
+  constructor(message, status = 403) {
+    super(message);
+    this.status = status;
+  }
 }
 class AuthError extends Error {
-  constructor(message, status = 401) { super(message); this.status = status; }
+  constructor(message, status = 401) {
+    super(message);
+    this.status = status;
+  }
 }
 let principal = null;
 let deniedOrigin = false;
@@ -18,7 +24,9 @@ let calls = 0;
 const auth = {
   AuthError,
   getPrincipal: async () => principal,
-  requireSameOrigin: () => { if (deniedOrigin) throw new AuthError('private origin detail', 403); },
+  requireSameOrigin: () => {
+    if (deniedOrigin) throw new AuthError('private origin detail', 403);
+  },
 };
 const access = { AccessError, assertAdmin() {}, assertPrincipal() {} };
 const cache = new Map();
@@ -39,12 +47,19 @@ function load(path) {
     // for real so the anonymous/cross-origin assertions below exercise it rather than a stub.
     if (name === '@/lib/education/record-support') return load('lib/education/record-support.ts');
     if (name === './http') return load('lib/education/http.ts');
-    if (name === './calendar-date' || name === './stored-timestamp') return load('lib/education/' + name.slice(2) + '.ts');
-    if (name.startsWith('@/lib/education/')) return new Proxy({}, { get: () => async () => {
-      calls++;
-      if (serviceError) throw serviceError;
-      return [];
-    } });
+    if (name === './calendar-date' || name === './stored-timestamp')
+      return load('lib/education/' + name.slice(2) + '.ts');
+    if (name.startsWith('@/lib/education/'))
+      return new Proxy(
+        {},
+        {
+          get: () => async () => {
+            calls++;
+            if (serviceError) throw serviceError;
+            return [];
+          },
+        },
+      );
     if (name.startsWith('@/db/')) return {};
     return require(name);
   }
@@ -53,7 +68,7 @@ function load(path) {
   return loaded.exports;
 }
 function routes(path) {
-  return readdirSync(path, { withFileTypes: true }).flatMap(entry => {
+  return readdirSync(path, { withFileTypes: true }).flatMap((entry) => {
     const next = join(path, entry.name);
     // Demo entry has a separate actual-D1 default-off/fixed-identity contract
     // (synthetic-demo-contract.mjs); it is not a protected school-record API.
@@ -101,9 +116,14 @@ assert.equal(failed.status, 500);
 assert.deepEqual(await failed.json(), { error: 'Internal server error' });
 count++;
 serviceError = null;
-const invalid = await course.PATCH(new Request('https://education.example/api/courses/test', { method: 'PATCH', body: '{invalid' }), context);
+const invalid = await course.PATCH(
+  new Request('https://education.example/api/courses/test', { method: 'PATCH', body: '{invalid' }),
+  context,
+);
 assert.equal(invalid.status, 400);
 count++;
-console.log(`API authentication and origin guards: ${count} checks passed (isolated handler harness; no live provider or database).`);
+console.log(
+  `API authentication and origin guards: ${count} checks passed (isolated handler harness; no live provider or database).`,
+);
 
-console.log(JSON.stringify({passed: count, failed: 0, skipped: 0}));
+console.log(JSON.stringify({ passed: count, failed: 0, skipped: 0 }));

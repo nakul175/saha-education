@@ -8,7 +8,7 @@ import { load, root } from './security-db.mjs';
 export const origin = 'https://education.example.invalid';
 
 function walk(directory, prefix = []) {
-  return readdirSync(join(root, directory), { withFileTypes: true }).flatMap(entry => {
+  return readdirSync(join(root, directory), { withFileTypes: true }).flatMap((entry) => {
     if (entry.isDirectory()) return walk(join(directory, entry.name), [...prefix, entry.name]);
     return entry.name === 'route.ts' ? [{ file: join(directory, entry.name), segments: prefix }] : [];
   });
@@ -16,11 +16,13 @@ function walk(directory, prefix = []) {
 
 /** Every route file under app/api with its URL pattern, sorted for stable reports. */
 export function discoverRoutes() {
-  return walk('app/api').map(({ file, segments }) => ({
-    file: file.split('\\').join('/'),
-    pattern: '/api/' + segments.join('/'),
-    segments,
-  })).sort((a, b) => a.pattern.localeCompare(b.pattern));
+  return walk('app/api')
+    .map(({ file, segments }) => ({
+      file: file.split('\\').join('/'),
+      pattern: '/api/' + segments.join('/'),
+      segments,
+    }))
+    .sort((a, b) => a.pattern.localeCompare(b.pattern));
 }
 
 const routeList = discoverRoutes();
@@ -33,11 +35,16 @@ async function moduleFor(route) {
 /** The exported HTTP method names of a route file, in source order of the module namespace. */
 export async function exportedMethods(route) {
   const loaded = await moduleFor(route);
-  return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].filter(method => typeof loaded[method] === 'function');
+  return ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].filter(
+    (method) => typeof loaded[method] === 'function',
+  );
 }
 
 // Static segments win over dynamic ones, as in the framework router (/admin/users/events before /admin/users/[id]).
-const bySpecificity = [...routeList].sort((a, b) => a.segments.filter(s => /^\[.+\]$/.test(s)).length - b.segments.filter(s => /^\[.+\]$/.test(s)).length);
+const bySpecificity = [...routeList].sort(
+  (a, b) =>
+    a.segments.filter((s) => /^\[.+\]$/.test(s)).length - b.segments.filter((s) => /^\[.+\]$/.test(s)).length,
+);
 export function matchRoute(pathname) {
   const parts = pathname.split('/').filter(Boolean);
   for (const route of bySpecificity) {
@@ -62,8 +69,11 @@ export async function dispatch(request) {
   const loaded = await moduleFor(match.route);
   const methods = await exportedMethods(match.route);
   const method = request.method.toUpperCase();
-  const allow = [...new Set([...methods, ...(methods.includes('GET') ? ['HEAD'] : []), 'OPTIONS'])].join(', ');
-  if (method === 'OPTIONS' && !methods.includes('OPTIONS')) return new Response(null, { status: 204, headers: { Allow: allow } });
+  const allow = [...new Set([...methods, ...(methods.includes('GET') ? ['HEAD'] : []), 'OPTIONS'])].join(
+    ', ',
+  );
+  if (method === 'OPTIONS' && !methods.includes('OPTIONS'))
+    return new Response(null, { status: 204, headers: { Allow: allow } });
   const handler = loaded[method] ?? (method === 'HEAD' ? loaded.GET : undefined);
   if (typeof handler !== 'function') return new Response(null, { status: 405, headers: { Allow: allow } });
   return handler(request, { params: Promise.resolve(match.params) });

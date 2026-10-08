@@ -7,7 +7,10 @@ import { demoSignInSchema, signInToSyntheticDemo } from '@/lib/education/demo';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return Response.json({ available: demoRuntimeAllowed(), synthetic: true }, { headers: { 'Cache-Control': 'no-store' } });
+  return Response.json(
+    { available: demoRuntimeAllowed(), synthetic: true },
+    { headers: { 'Cache-Control': 'no-store' } },
+  );
 }
 
 export async function POST(request: Request) {
@@ -17,7 +20,10 @@ export async function POST(request: Request) {
     return await signInToSyntheticDemo(request, await body(request, demoSignInSchema));
   } catch (error) {
     if (error instanceof z.ZodError || error instanceof SyntaxError) {
-      return Response.json({ error: 'Choose a demo role and acknowledge the fictional data.' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
+      return Response.json(
+        { error: 'Choose a demo role and acknowledge the fictional data.' },
+        { status: 400, headers: { 'Cache-Control': 'no-store' } },
+      );
     }
     return authFailure(error);
   }

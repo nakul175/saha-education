@@ -71,6 +71,7 @@ The application supports the following user roles:
 ## Stack
 
 This project uses:
+
 - Next.js 16 + TypeScript with React 19
 - Cloudflare Workers via vinext/vite/wrangler
 - Drizzle ORM on Cloudflare D1 (sqlite)
@@ -106,22 +107,22 @@ pnpm db:generate
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm dev` | Run development server |
-| `pnpm build` | Build for production |
-| `pnpm test` | Run the default pull-request layers; manual checks need their own fixtures |
-| `pnpm test:static` | Run static analysis |
-| `pnpm test:unit` | Run unit tests |
-| `pnpm test:integration` | Run integration tests |
-| `pnpm test:resilience` | Run resilience/backup tests |
-| `pnpm test:smoke` | Run smoke tests |
-| `pnpm test:ui` | Run UI component tests |
-| `pnpm test:nfr` | Run non-functional requirement tests |
-| `pnpm test:uat` | Run user acceptance tests |
-| `pnpm test:regression` | Run regression tests |
-| `pnpm test:full` | Run all test layers |
-| `pnpm db:generate` | Generate database schema migrations |
+| Script                  | Description                                                                |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `pnpm dev`              | Run development server                                                     |
+| `pnpm build`            | Build for production                                                       |
+| `pnpm test`             | Run the default pull-request layers; manual checks need their own fixtures |
+| `pnpm test:static`      | Run static analysis                                                        |
+| `pnpm test:unit`        | Run unit tests                                                             |
+| `pnpm test:integration` | Run integration tests                                                      |
+| `pnpm test:resilience`  | Run resilience/backup tests                                                |
+| `pnpm test:smoke`       | Run smoke tests                                                            |
+| `pnpm test:ui`          | Run UI component tests                                                     |
+| `pnpm test:nfr`         | Run non-functional requirement tests                                       |
+| `pnpm test:uat`         | Run user acceptance tests                                                  |
+| `pnpm test:regression`  | Run regression tests                                                       |
+| `pnpm test:full`        | Run all test layers                                                        |
+| `pnpm db:generate`      | Generate database schema migrations                                        |
 
 ## Project structure
 
@@ -163,6 +164,7 @@ Database migrations are generated using `pnpm db:generate` command.
 Saha Education defines the following test layers. Static, unit, integration and smoke suites currently run through the catalogue; separate manual Worker/browser procedures cover built synthetic journeys. Recovery, representative load, full accessibility and educator UAT still require their own configured execution. See the [test strategy](docs/specification/TEST-STRATEGY.md) and [actual validation](VALIDATION.md).
 
 ### Test layers:
+
 1. **Static**: Type checking, code analysis
 2. **Unit**: Business logic and function testing in isolation
 3. **Integration**: API endpoints, database operations, and data flows
@@ -173,12 +175,14 @@ Saha Education defines the following test layers. Static, unit, integration and 
 8. **UAT**: User acceptance testing scenarios
 
 ### Test locations:
+
 - Unit tests: `tests/unit/`
 - Integration tests: `tests/integration/`
 - API contract tests: `tests/integration/`
 - Manual built-app browser checks: `tests/worker-specification-ui-check.mjs`
 
 ### Test helpers:
+
 The helpers in `tests/support/` load service modules and create disposable synthetic SQLite fixtures for contract tests. Manual served/browser procedures use the built Worker and isolated local D1 state with synthetic sessions. They refuse remote origins.
 
 Test results are aggregated and reported with counts for each layer, showing passed, failed, and skipped test counts to validate system quality before deployment.

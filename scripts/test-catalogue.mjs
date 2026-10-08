@@ -15,12 +15,19 @@ import { join, posix } from 'node:path';
 
 export const LAYERS = ['static', 'unit', 'integration', 'resilience', 'smoke', 'ui', 'nfr', 'uat', 'manual'];
 /** Layers whose suites are files found by scanning tests/ (static is a list of commands). */
-export const FILE_LAYERS = LAYERS.filter(l => l !== 'static');
+export const FILE_LAYERS = LAYERS.filter((l) => l !== 'static');
 /** Layers a regression baseline can cover (manual suites are run on purpose and are not guarded). */
 export const GUARDED_LAYERS = ['unit', 'integration', 'resilience', 'smoke', 'ui', 'nfr', 'uat'];
 
 const SOURCE_EXT = /\.(mjs|cjs|js|mts|cts|ts|tsx)$/;
-const SKIPPED_DIRS = new Set(['evidence', 'reports', 'node_modules', 'playwright-report', 'test-results', '.git']);
+const SKIPPED_DIRS = new Set([
+  'evidence',
+  'reports',
+  'node_modules',
+  'playwright-report',
+  'test-results',
+  '.git',
+]);
 /** Slice 11f: arguments a suite needs when the runner starts it. Generators run in their drift-check mode so a test run never rewrites
  * tracked documents; the hosted smoke runs its local self-test (the real hosted check runs after each deploy in deploy-staging.yml). */
 export const SUITE_ARGS = {
@@ -34,64 +41,201 @@ export const SUITE_RESULTS = {
   'tests/smoke/hosted-smoke.mjs': ['tests/reports/smoke-hosted-selftest-result.json'],
 };
 const MANUAL = {
-  'tests/worker-school-course-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser school/course current-account privacy, verified reloads and read-only original-save comparison; fictional records only and no automatic mutation retry' },
-  'tests/worker-profile-assessment-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser four-role profile and assessment metadata, native navigation and exact existing guardian-pair recovery; suffix-only fictional profiles and no real recipients' },
-  'tests/worker-reading-practice-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser staff reading practice and approved-source original-draft recovery; fictional sessions and prior manual reading required' },
-  'tests/worker-family-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser family class snapshot and owned inbox exact-read recovery; fictional accounts/in-app notices only' },
-  'tests/worker-notices-audit-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser FR-12 staff notices, recipient inbox paging, corrections and FR-26 administrator audit trail with correction notes; needs tests/support/write-notices-audit-fixture.mjs; synthetic only, in-app only, zero external requests' },
-  'tests/worker-identity-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER'], note: 'local real-browser sign-in and account administration: run once against a pristine demo-enabled D1 (role entry, account page, expiry, disabled account, demo administration) and once against the shared session fixture with demo off (fail-closed sign-in, role change, link/unlink, conflicts, school scope); synthetic only, no provider' },
-  'tests/worker-demo-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER'], note: 'local real-browser fictional demo role sign-in, native header focus and explicit lost sign-out recovery; separate pristine demo-enabled D1 only' },
-  'tests/worker-reviewed-registry-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser reviewed registry exact original UUID recovery and current privacy; synthetic only' },
-  'tests/worker-school-records-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser school setup, student/guardian record administration, scoped views and 375px layout; needs tests/support/write-records-fixture.mjs; synthetic only' },
-  'tests/worker-registry-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser registry current-account privacy, scoped search and truthful non-idempotent creation recovery; synthetic only' },
-  'tests/worker-learner-recovery-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser learner/feedback/window pending recovery and current privacy; synthetic only' },
-  'tests/worker-attendance-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'], note: 'local built reviewed attendance snapshot/save/replay/history and legacy boundaries; synthetic records only' },
-  'tests/worker-attendance-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local reviewed attendance browser preservation, conflict and exact retry journeys; synthetic records only' },
-  'tests/worker-attendance-summary-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local attendance viewer selection/refresh/failure/date/privacy and mobile journeys; synthetic records only' },
-  'tests/worker-attendance-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser attendance school-calendar, roll call, correction, conflict, report and family journeys with the device timezone deliberately different from the school timezone; synthetic records only' },
-  'tests/worker-assessment-review-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'], note: 'local built reviewed result snapshots, atomic save/conflict/retry/history and retained legacy evidence; synthetic only' },
-  'tests/worker-assessment-review-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local reviewed result editor, preservation/conflict/retry and browser/mobile journeys; synthetic only' },
-  'tests/worker-assessment-lifecycle-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser assessment create/edit/publish/unpublish and published report-card journeys for staff, family and learner; needs the tests/support/write-lifecycle-fixture.mjs fixture; synthetic only' },
-  'tests/worker-dashboard-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser role dashboard accuracy, bounded lists, navigation and mobile journeys; synthetic sessions only' },
-  'tests/worker-accessibility-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'automated rendered localhost WCAG-rule sample of role workflows; not formal accessibility acceptance' },
-  'tests/worker-domain-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser report/notice role, review and recovery journeys; synthetic sessions only' },
-  'tests/worker-structure-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser school/class/course scope and save recovery journeys; synthetic sessions only' },
-  'tests/worker-courses-enrolment-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'local real-browser reviewed course/class/enrolment journeys: retire, class settings, teacher reassignment, atomic batch and capacity, withdraw/re-enrol/transfer, lost-reply exact retry, scoped views and 375px layout; synthetic sessions only' },
-  'tests/worker-domain-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local built school/class/report/notification scope and publication workflows; synthetic sessions only' },
-  'tests/worker-demo-journey-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local cross-role journeys on the rich synthetic school: administrator notice, attendance and report sharing reach the right guardian once and only that family; guardian pages checked at 1280px and 375px; demo-enabled Worker with tests/support/write-demo-fixture.mjs; offline, synthetic only' },
-  'tests/worker-demo-experience-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'], note: 'local real-browser first-visit demo flow, guided paths, rich synthetic seed content and a 375px/1280px layout and axe baseline per role; pristine demo-enabled D1 loaded by tests/support/write-demo-fixture.mjs only' },
-  'tests/worker-wireframes-check.mjs': { needsEnv: ['SAHA_TEST_BROWSER'], note: 'offline fictional prototype journeys and desktop/mobile labels/width; no app or acceptance evidence' },
-  'tests/worker-development-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local built development profile/import/window/academic journeys; synthetic sessions only' },
-  'tests/worker-development-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser profile/import/window/academic workflows; synthetic sessions only' },
-  'tests/worker-specification-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served specification delivery lifecycle and access checks; synthetic sessions only' },
-  'tests/worker-specification-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser specification journeys with synthetic sessions; no live provider callback' },
-  'tests/worker-resources-ui-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser journey with synthetic sessions; live provider callback is not exercised' },
-  'tests/worker-curriculum-submissions-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'], note: 'real local browser curriculum library and learner submission journeys over tests/support/write-curriculum-submissions-fixture.mjs; synthetic sessions only; every external request is blocked and counted' },
-  'tests/worker-resources-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served teacher resource lifecycle and learner-safe assigned content; synthetic sessions only' },
-  'tests/worker-reading-review-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER', 'SAHA_ORF_PHASE'], note: 'local real-browser external ORF launch handoff against a loopback fake destination, reviewed return path and reading review/trends; run twice (unconfigured, configured); synthetic data only' },
-  'tests/worker-literacy-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'local served reading checks and disabled external app launch; synthetic sessions only' },
-  'tests/worker-security-demo-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST', 'SAHA_TEST_BROWSER'], note: 'local built Worker NFR-01 review: real response headers/CSP, anonymous and role-by-page access in a real browser, framing and eval enforcement; writer tests/support/write-security-fixture.mjs; synthetic sessions only' },
-  'tests/worker-access-check.mjs': { needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'], note: 'served built Worker and isolated synthetic local D1; no provider login is exercised' },
-  'tests/a11y-audit.mjs': { needsEnv: ['SAHA_A11Y_MODULES', 'SAHA_A11Y_CHROMIUM', 'SAHA_A11Y_ORIGIN'], note: 'axe over 66 screens; needs Playwright and axe-core installed outside the project and a running synthetic Worker (docs/current/DEVELOPMENT-AND-CI.md)' },
-  'tests/load-envelope.mjs': { needsEnv: [], note: 'local load probe toward the BRD planning envelope; builds its own large synthetic database and takes many minutes; needs dist/' },
-  'tests/adapter-overhead-bench.mjs': { needsEnv: [], note: 'local benchmark of per-adapter overhead; in-process, no Worker' },
+  'tests/worker-school-course-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser school/course current-account privacy, verified reloads and read-only original-save comparison; fictional records only and no automatic mutation retry',
+  },
+  'tests/worker-profile-assessment-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser four-role profile and assessment metadata, native navigation and exact existing guardian-pair recovery; suffix-only fictional profiles and no real recipients',
+  },
+  'tests/worker-reading-practice-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser staff reading practice and approved-source original-draft recovery; fictional sessions and prior manual reading required',
+  },
+  'tests/worker-family-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser family class snapshot and owned inbox exact-read recovery; fictional accounts/in-app notices only',
+  },
+  'tests/worker-notices-audit-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser FR-12 staff notices, recipient inbox paging, corrections and FR-26 administrator audit trail with correction notes; needs tests/support/write-notices-audit-fixture.mjs; synthetic only, in-app only, zero external requests',
+  },
+  'tests/worker-identity-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser sign-in and account administration: run once against a pristine demo-enabled D1 (role entry, account page, expiry, disabled account, demo administration) and once against the shared session fixture with demo off (fail-closed sign-in, role change, link/unlink, conflicts, school scope); synthetic only, no provider',
+  },
+  'tests/worker-demo-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser fictional demo role sign-in, native header focus and explicit lost sign-out recovery; separate pristine demo-enabled D1 only',
+  },
+  'tests/worker-reviewed-registry-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser reviewed registry exact original UUID recovery and current privacy; synthetic only',
+  },
+  'tests/worker-school-records-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser school setup, student/guardian record administration, scoped views and 375px layout; needs tests/support/write-records-fixture.mjs; synthetic only',
+  },
+  'tests/worker-registry-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser registry current-account privacy, scoped search and truthful non-idempotent creation recovery; synthetic only',
+  },
+  'tests/worker-learner-recovery-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser learner/feedback/window pending recovery and current privacy; synthetic only',
+  },
+  'tests/worker-attendance-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'],
+    note: 'local built reviewed attendance snapshot/save/replay/history and legacy boundaries; synthetic records only',
+  },
+  'tests/worker-attendance-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local reviewed attendance browser preservation, conflict and exact retry journeys; synthetic records only',
+  },
+  'tests/worker-attendance-summary-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local attendance viewer selection/refresh/failure/date/privacy and mobile journeys; synthetic records only',
+  },
+  'tests/worker-attendance-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser attendance school-calendar, roll call, correction, conflict, report and family journeys with the device timezone deliberately different from the school timezone; synthetic records only',
+  },
+  'tests/worker-assessment-review-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_WORKER_FIXTURE_MANIFEST'],
+    note: 'local built reviewed result snapshots, atomic save/conflict/retry/history and retained legacy evidence; synthetic only',
+  },
+  'tests/worker-assessment-review-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local reviewed result editor, preservation/conflict/retry and browser/mobile journeys; synthetic only',
+  },
+  'tests/worker-assessment-lifecycle-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser assessment create/edit/publish/unpublish and published report-card journeys for staff, family and learner; needs the tests/support/write-lifecycle-fixture.mjs fixture; synthetic only',
+  },
+  'tests/worker-dashboard-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser role dashboard accuracy, bounded lists, navigation and mobile journeys; synthetic sessions only',
+  },
+  'tests/worker-accessibility-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'automated rendered localhost WCAG-rule sample of role workflows; not formal accessibility acceptance',
+  },
+  'tests/worker-domain-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser report/notice role, review and recovery journeys; synthetic sessions only',
+  },
+  'tests/worker-structure-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser school/class/course scope and save recovery journeys; synthetic sessions only',
+  },
+  'tests/worker-courses-enrolment-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'local real-browser reviewed course/class/enrolment journeys: retire, class settings, teacher reassignment, atomic batch and capacity, withdraw/re-enrol/transfer, lost-reply exact retry, scoped views and 375px layout; synthetic sessions only',
+  },
+  'tests/worker-domain-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'local built school/class/report/notification scope and publication workflows; synthetic sessions only',
+  },
+  'tests/worker-demo-journey-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_TEST_BROWSER', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'local cross-role journeys on the rich synthetic school: administrator notice, attendance and report sharing reach the right guardian once and only that family; guardian pages checked at 1280px and 375px; demo-enabled Worker with tests/support/write-demo-fixture.mjs; offline, synthetic only',
+  },
+  'tests/worker-demo-experience-check.mjs': {
+    needsEnv: [
+      'SAHA_WORKER_TEST_URL',
+      'SAHA_TEST_BROWSER',
+      'SAHA_WORKER_SESSION_FIXTURE',
+      'SAHA_WORKER_FIXTURE_MANIFEST',
+    ],
+    note: 'local real-browser first-visit demo flow, guided paths, rich synthetic seed content and a 375px/1280px layout and axe baseline per role; pristine demo-enabled D1 loaded by tests/support/write-demo-fixture.mjs only',
+  },
+  'tests/worker-wireframes-check.mjs': {
+    needsEnv: ['SAHA_TEST_BROWSER'],
+    note: 'offline fictional prototype journeys and desktop/mobile labels/width; no app or acceptance evidence',
+  },
+  'tests/worker-development-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'local built development profile/import/window/academic journeys; synthetic sessions only',
+  },
+  'tests/worker-development-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'real local browser profile/import/window/academic workflows; synthetic sessions only',
+  },
+  'tests/worker-specification-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'local served specification delivery lifecycle and access checks; synthetic sessions only',
+  },
+  'tests/worker-specification-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'real local browser specification journeys with synthetic sessions; no live provider callback',
+  },
+  'tests/worker-resources-ui-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'real local browser journey with synthetic sessions; live provider callback is not exercised',
+  },
+  'tests/worker-curriculum-submissions-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER'],
+    note: 'real local browser curriculum library and learner submission journeys over tests/support/write-curriculum-submissions-fixture.mjs; synthetic sessions only; every external request is blocked and counted',
+  },
+  'tests/worker-resources-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'local served teacher resource lifecycle and learner-safe assigned content; synthetic sessions only',
+  },
+  'tests/worker-reading-review-demo-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE', 'SAHA_TEST_BROWSER', 'SAHA_ORF_PHASE'],
+    note: 'local real-browser external ORF launch handoff against a loopback fake destination, reviewed return path and reading review/trends; run twice (unconfigured, configured); synthetic data only',
+  },
+  'tests/worker-literacy-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'local served reading checks and disabled external app launch; synthetic sessions only',
+  },
+  'tests/worker-security-demo-check.mjs': {
+    needsEnv: [
+      'SAHA_WORKER_TEST_URL',
+      'SAHA_WORKER_SESSION_FIXTURE',
+      'SAHA_WORKER_FIXTURE_MANIFEST',
+      'SAHA_TEST_BROWSER',
+    ],
+    note: 'local built Worker NFR-01 review: real response headers/CSP, anonymous and role-by-page access in a real browser, framing and eval enforcement; writer tests/support/write-security-fixture.mjs; synthetic sessions only',
+  },
+  'tests/worker-access-check.mjs': {
+    needsEnv: ['SAHA_WORKER_TEST_URL', 'SAHA_WORKER_SESSION_FIXTURE'],
+    note: 'served built Worker and isolated synthetic local D1; no provider login is exercised',
+  },
+  'tests/a11y-audit.mjs': {
+    needsEnv: ['SAHA_A11Y_MODULES', 'SAHA_A11Y_CHROMIUM', 'SAHA_A11Y_ORIGIN'],
+    note: 'axe over 66 screens; needs Playwright and axe-core installed outside the project and a running synthetic Worker (docs/current/DEVELOPMENT-AND-CI.md)',
+  },
+  'tests/load-envelope.mjs': {
+    needsEnv: [],
+    note: 'local load probe toward the BRD planning envelope; builds its own large synthetic database and takes many minutes; needs dist/',
+  },
+  'tests/adapter-overhead-bench.mjs': {
+    needsEnv: [],
+    note: 'local benchmark of per-adapter overhead; in-process, no Worker',
+  },
 };
 
 /** Files under tests/ that look like code, as sorted repository-relative POSIX paths. */
 export function listTestFiles(root = process.cwd()) {
   const out = [];
-  const walk = rel => {
+  const walk = (rel) => {
     for (const e of readdirSync(join(root, rel), { withFileTypes: true })) {
       const p = posix.join(rel, e.name);
-      if (e.isDirectory()) { if (!SKIPPED_DIRS.has(e.name)) walk(p); }
-      else if (SOURCE_EXT.test(e.name)) out.push(p);
+      if (e.isDirectory()) {
+        if (!SKIPPED_DIRS.has(e.name)) walk(p);
+      } else if (SOURCE_EXT.test(e.name)) out.push(p);
     }
   };
   if (existsSync(join(root, 'tests'))) walk('tests');
   return out.sort();
 }
 
-const isSupport = p => /(^|\/)(lib|fixtures|helpers|support|utils|pages|data)\//.test(p) || posix.basename(p).startsWith('_') || p === 'tests/database-fixtures.mjs';
+const isSupport = (p) =>
+  /(^|\/)(lib|fixtures|helpers|support|utils|pages|data)\//.test(p) ||
+  posix.basename(p).startsWith('_') ||
+  p === 'tests/database-fixtures.mjs';
 const idOf = (layer, file) => `${layer}/${posix.basename(file).replace(SOURCE_EXT, '')}`;
 
 /**
@@ -100,19 +244,84 @@ const idOf = (layer, file) => `${layer}/${posix.basename(file).replace(SOURCE_EX
  */
 export function classify(file) {
   const base = posix.basename(file);
-  if (file === 'tests/integration/api-auth-guards.mjs') return { layer: 'integration', role: 'suite', tier: 'pr', runner: 'node', reason: 'API authentication/origin negative cases' };
-  if (isSupport(file)) return { layer: null, role: 'support', tier: null, reason: 'shared helper, fixture or entry module; not a suite' };
-  if (file === 'tests/api-smoke.mjs') return { layer: 'integration', role: 'support', tier: null, reason: 'entry module imported by tests/run-api-smoke.mjs; not run on its own' };
-  if (file === 'tests/run-api-smoke.mjs') return { layer: 'integration', role: 'suite', tier: 'pr', runner: 'node', reason: 'HTTP and D1 suite against the built Worker' };
-  if (file === 'tests/scheduled-local-check.mjs') return { layer: 'integration', role: 'suite', tier: 'extended', runner: 'node', reason: 'served-Worker check of the scheduled handler; needs dist/ and a port, so not a unit test' };
-  if (file === 'tests/recovery-drill.mjs') return { layer: 'resilience', role: 'suite', tier: 'pr', runner: 'node', reason: 'encrypted backup and restore against the database the HTTP suite populated' };
-  if (MANUAL[file]) return { layer: 'manual', role: 'suite', tier: 'manual', runner: 'node', reason: 'run on purpose, not by default' };
+  if (file === 'tests/integration/api-auth-guards.mjs')
+    return {
+      layer: 'integration',
+      role: 'suite',
+      tier: 'pr',
+      runner: 'node',
+      reason: 'API authentication/origin negative cases',
+    };
+  if (isSupport(file))
+    return {
+      layer: null,
+      role: 'support',
+      tier: null,
+      reason: 'shared helper, fixture or entry module; not a suite',
+    };
+  if (file === 'tests/api-smoke.mjs')
+    return {
+      layer: 'integration',
+      role: 'support',
+      tier: null,
+      reason: 'entry module imported by tests/run-api-smoke.mjs; not run on its own',
+    };
+  if (file === 'tests/run-api-smoke.mjs')
+    return {
+      layer: 'integration',
+      role: 'suite',
+      tier: 'pr',
+      runner: 'node',
+      reason: 'HTTP and D1 suite against the built Worker',
+    };
+  if (file === 'tests/scheduled-local-check.mjs')
+    return {
+      layer: 'integration',
+      role: 'suite',
+      tier: 'extended',
+      runner: 'node',
+      reason: 'served-Worker check of the scheduled handler; needs dist/ and a port, so not a unit test',
+    };
+  if (file === 'tests/recovery-drill.mjs')
+    return {
+      layer: 'resilience',
+      role: 'suite',
+      tier: 'pr',
+      runner: 'node',
+      reason: 'encrypted backup and restore against the database the HTTP suite populated',
+    };
+  if (MANUAL[file])
+    return {
+      layer: 'manual',
+      role: 'suite',
+      tier: 'manual',
+      runner: 'node',
+      reason: 'run on purpose, not by default',
+    };
   const m = file.match(/^tests\/([^/]+)$/);
   if (m) {
-    if (/-smoke\.mjs$/.test(base)) return { layer: 'integration', role: 'component', tier: null, via: 'tests/run-api-smoke.mjs', reason: 'module imported by tests/api-smoke.mjs; despite the name it is an HTTP/D1 integration test' };
-    if (/-(contract|client)\.mjs$/.test(base)) return { layer: 'unit', role: 'suite', tier: 'pr', runner: 'node', reason: 'transpiles lib/education modules and checks them with node:assert' };
+    if (/-smoke\.mjs$/.test(base))
+      return {
+        layer: 'integration',
+        role: 'component',
+        tier: null,
+        via: 'tests/run-api-smoke.mjs',
+        reason: 'module imported by tests/api-smoke.mjs; despite the name it is an HTTP/D1 integration test',
+      };
+    if (/-(contract|client)\.mjs$/.test(base))
+      return {
+        layer: 'unit',
+        role: 'suite',
+        tier: 'pr',
+        runner: 'node',
+        reason: 'transpiles lib/education modules and checks them with node:assert',
+      };
     // If it's a .mjs file in a tests/ subdirectory that matches the naming pattern
-    if (file.startsWith('tests/unit/') || file.startsWith('tests/integration/') || file.startsWith('tests/smoke/')) {
+    if (
+      file.startsWith('tests/unit/') ||
+      file.startsWith('tests/integration/') ||
+      file.startsWith('tests/smoke/')
+    ) {
       return { layer: 'unit', role: 'suite', tier: 'pr', runner: 'node', reason: 'test suite' };
     }
     return null;
@@ -121,23 +330,50 @@ export function classify(file) {
   if (d) {
     const [, layer, rest] = d;
     if (layer === 'ui') {
-      if (/^playwright\.config\.[mc]?[jt]s$/.test(rest)) return { layer, role: 'suite', tier: 'extended', runner: 'playwright', reason: 'Playwright configuration; the *.spec.* files are its components' };
-      if (/\.(spec|test)\.[mc]?[jt]sx?$/.test(rest)) return { layer, role: 'component', tier: null, via: 'tests/ui/playwright.config', reason: 'Playwright spec run through the configuration' };
+      if (/^playwright\.config\.[mc]?[jt]s$/.test(rest))
+        return {
+          layer,
+          role: 'suite',
+          tier: 'extended',
+          runner: 'playwright',
+          reason: 'Playwright configuration; the *.spec.* files are its components',
+        };
+      if (/\.(spec|test)\.[mc]?[jt]sx?$/.test(rest))
+        return {
+          layer,
+          role: 'component',
+          tier: null,
+          via: 'tests/ui/playwright.config',
+          reason: 'Playwright spec run through the configuration',
+        };
     }
-    if (!rest.includes('/') && /\.mjs$/.test(rest)) return { layer, role: 'suite', tier: layer === 'smoke' ? 'pr' : 'extended', runner: 'node', reason: `${layer} suite` };
+    if (!rest.includes('/') && /\.mjs$/.test(rest))
+      return {
+        layer,
+        role: 'suite',
+        tier: layer === 'smoke' ? 'pr' : 'extended',
+        runner: 'node',
+        reason: `${layer} suite`,
+      };
     return null;
   }
-  
+
   // Handle files in subdirectories with correct naming convention for unit tests
   if (file.startsWith('tests/unit/') && /-(contract|client)\.mjs$/.test(base)) {
     return { layer: 'unit', role: 'suite', tier: 'pr', runner: 'node', reason: 'unit test suite' };
   }
-  
+
   // Handle files in integration folder with correct naming for integration tests
   if (file.startsWith('tests/integration/') && /-(contract|client)\.mjs$/.test(base)) {
-    return { layer: 'integration', role: 'suite', tier: 'pr', runner: 'node', reason: 'integration test suite' };
+    return {
+      layer: 'integration',
+      role: 'suite',
+      tier: 'pr',
+      runner: 'node',
+      reason: 'integration test suite',
+    };
   }
-  
+
   return null;
 }
 
@@ -145,7 +381,11 @@ export function classify(file) {
 export function importedModules(root = process.cwd()) {
   const p = join(root, 'tests/api-smoke.mjs');
   if (!existsSync(p)) return [];
-  return [...new Set([...readFileSync(p, 'utf8').matchAll(/['"]\.\/([A-Za-z0-9_-]+\.mjs)['"]/g)].map(m => `tests/${m[1]}`))].sort();
+  return [
+    ...new Set(
+      [...readFileSync(p, 'utf8').matchAll(/['"]\.\/([A-Za-z0-9_-]+\.mjs)['"]/g)].map((m) => `tests/${m[1]}`),
+    ),
+  ].sort();
 }
 
 /**
@@ -154,14 +394,16 @@ export function importedModules(root = process.cwd()) {
  * errors: strings; an empty list means the catalogue is complete and consistent.
  */
 export function buildCatalogue(root = process.cwd()) {
-  const files = listTestFiles(root), errors = [], entries = [];
+  const files = listTestFiles(root),
+    errors = [],
+    entries = [];
   const evidence = new Map();
   let requirementCount = 0;
   const registerPath = join(root, 'docs/specification/requirements.json');
   const casesPath = join(root, 'docs/specification/TEST-CASES.json');
   if (existsSync(registerPath) && existsSync(casesPath)) {
     try {
-      const ids = new Set(JSON.parse(readFileSync(registerPath, 'utf8')).requirements.map(row => row.id));
+      const ids = new Set(JSON.parse(readFileSync(registerPath, 'utf8')).requirements.map((row) => row.id));
       requirementCount = ids.size;
       for (const row of JSON.parse(readFileSync(casesPath, 'utf8')).cases) {
         for (const file of row.evidenceFiles) {
@@ -170,23 +412,36 @@ export function buildCatalogue(root = process.cwd()) {
           evidence.set(file, links);
         }
       }
-    } catch { errors.push('Cannot read the canonical specification requirement/case evidence mapping.'); }
+    } catch {
+      errors.push('Cannot read the canonical specification requirement/case evidence mapping.');
+    }
   }
   const imported = importedModules(root);
   const components = [];
   for (const file of files) {
     const c = classify(file);
-    if (!c) { errors.push(`Unclassified test file: ${file}. Put it in tests/smoke, tests/ui, tests/nfr or tests/uat, name it *-contract.mjs / *-client.mjs, or add an explicit rule in scripts/test-catalogue.mjs.`); continue; }
+    if (!c) {
+      errors.push(
+        `Unclassified test file: ${file}. Put it in tests/smoke, tests/ui, tests/nfr or tests/uat, name it *-contract.mjs / *-client.mjs, or add an explicit rule in scripts/test-catalogue.mjs.`,
+      );
+      continue;
+    }
     const entry = { file, id: c.role === 'suite' ? idOf(c.layer, file) : null, ...c };
     entries.push(entry);
     if (c.role === 'component') components.push(entry);
   }
-  const byFile = new Map(entries.map(e => [e.file, e]));
+  const byFile = new Map(entries.map((e) => [e.file, e]));
   // The HTTP/D1 entry and its components must agree in both directions.
-  const entry = byFile.get('tests/api-smoke.mjs'), runner = byFile.get('tests/run-api-smoke.mjs');
+  const entry = byFile.get('tests/api-smoke.mjs'),
+    runner = byFile.get('tests/run-api-smoke.mjs');
   if (entry && runner) {
-    for (const c of components.filter(c => c.layer === 'integration')) if (!imported.includes(c.file)) errors.push(`${c.file} is not imported by tests/api-smoke.mjs, so it never runs. Import it there, or rename it if it is not part of the HTTP/D1 suite.`);
-    for (const m of imported) if (!existsSync(join(root, m))) errors.push(`tests/api-smoke.mjs imports ${m}, which does not exist.`);
+    for (const c of components.filter((c) => c.layer === 'integration'))
+      if (!imported.includes(c.file))
+        errors.push(
+          `${c.file} is not imported by tests/api-smoke.mjs, so it never runs. Import it there, or rename it if it is not part of the HTTP/D1 suite.`,
+        );
+    for (const m of imported)
+      if (!existsSync(join(root, m))) errors.push(`tests/api-smoke.mjs imports ${m}, which does not exist.`);
   }
   // Do not check existence of manual suites to avoid noise - they may be non-existent
   // Do the same for recovery-drill
@@ -194,43 +449,90 @@ export function buildCatalogue(root = process.cwd()) {
   if (!byFile.has(recoveryFile) && existsSync(join(root, recoveryFile))) {
     errors.push(`${recoveryFile} is a named suite but does not exist.`);
   }
-  const specs = entries.filter(e => e.layer === 'ui' && e.role === 'component'), configs = entries.filter(e => e.layer === 'ui' && e.runner === 'playwright');
-  if (specs.length && !configs.length) errors.push(`tests/ui has ${specs.length} Playwright spec file(s) but no tests/ui/playwright.config.{mjs,js,ts}; add one so the runner can run them.`);
-  if (configs.length > 1) errors.push(`More than one Playwright configuration: ${configs.map(c => c.file).join(', ')}.`);
+  const specs = entries.filter((e) => e.layer === 'ui' && e.role === 'component'),
+    configs = entries.filter((e) => e.layer === 'ui' && e.runner === 'playwright');
+  if (specs.length && !configs.length)
+    errors.push(
+      `tests/ui has ${specs.length} Playwright spec file(s) but no tests/ui/playwright.config.{mjs,js,ts}; add one so the runner can run them.`,
+    );
+  if (configs.length > 1)
+    errors.push(`More than one Playwright configuration: ${configs.map((c) => c.file).join(', ')}.`);
   // Requirement ids: a suite cites what its own file cites; the HTTP/D1 suite also gets the entry module and every component.
   for (const e of entries) {
     if (e.role === 'suite') {
       let from = [e.file];
-      if (e.file === 'tests/run-api-smoke.mjs') from = [e.file, 'tests/api-smoke.mjs', ...components.map(c => c.file)];
-      if (e.runner === 'playwright') from = [e.file, ...specs.map(c => c.file)];
-      e.requirements = [...new Set(from.flatMap(file => [...(evidence.get(file) ?? [])]))].sort();
+      if (e.file === 'tests/run-api-smoke.mjs')
+        from = [e.file, 'tests/api-smoke.mjs', ...components.map((c) => c.file)];
+      if (e.runner === 'playwright') from = [e.file, ...specs.map((c) => c.file)];
+      e.requirements = [...new Set(from.flatMap((file) => [...(evidence.get(file) ?? [])]))].sort();
       e.results = SUITE_RESULTS[e.file] ?? [];
       if (e.layer === 'manual') Object.assign(e, MANUAL[e.file]);
       // Suites that start the built Worker need dist/; unit suites, UAT generators, the in-process benchmark and the accessibility audit (which talks to a Worker you started) do not.
-      e.needs = ['unit', 'uat'].includes(e.layer) || ['tests/adapter-overhead-bench.mjs', 'tests/a11y-audit.mjs', 'tests/worker-wireframes-check.mjs'].includes(e.file) ? [] : ['build'];
+      e.needs =
+        ['unit', 'uat'].includes(e.layer) ||
+        [
+          'tests/adapter-overhead-bench.mjs',
+          'tests/a11y-audit.mjs',
+          'tests/worker-wireframes-check.mjs',
+        ].includes(e.file)
+          ? []
+          : ['build'];
     } else if (e.role === 'component') e.requirements = [...(evidence.get(e.file) ?? [])].sort();
   }
-  const suites = entries.filter(e => e.role === 'suite');
+  const suites = entries.filter((e) => e.role === 'suite');
   const ids = new Set();
-  for (const s of suites) { if (ids.has(s.id)) errors.push(`Two suites share the id ${s.id}.`); ids.add(s.id); }
-  return { entries, suites, components, support: entries.filter(e => e.role === 'support'), imported, errors, requirementCount };
+  for (const s of suites) {
+    if (ids.has(s.id)) errors.push(`Two suites share the id ${s.id}.`);
+    ids.add(s.id);
+  }
+  return {
+    entries,
+    suites,
+    components,
+    support: entries.filter((e) => e.role === 'support'),
+    imported,
+    errors,
+    requirementCount,
+  };
 }
 
 /** Counts for the catalogue report: suites and components per layer, support files, requirement coverage. */
 export function summariseCatalogue(cat) {
-  const perLayer = Object.fromEntries(FILE_LAYERS.map(l => [l, { suites: 0, components: 0, citingNoRequirement: 0, requirementIds: new Set() }]));
+  const perLayer = Object.fromEntries(
+    FILE_LAYERS.map((l) => [
+      l,
+      { suites: 0, components: 0, citingNoRequirement: 0, requirementIds: new Set() },
+    ]),
+  );
   for (const e of cat.entries) {
     if (e.role === 'support' || !perLayer[e.layer]) continue;
     const l = perLayer[e.layer];
-    if (e.role === 'suite') { l.suites++; if (!e.requirements.length) l.citingNoRequirement++; e.requirements.forEach(r => l.requirementIds.add(r)); }
-    else l.components++;
+    if (e.role === 'suite') {
+      l.suites++;
+      if (!e.requirements.length) l.citingNoRequirement++;
+      e.requirements.forEach((r) => l.requirementIds.add(r));
+    } else l.components++;
   }
   return {
-    layers: Object.fromEntries(Object.entries(perLayer).map(([k, v]) => [k, { suites: v.suites, components: v.components, suitesCitingNoRequirement: v.citingNoRequirement, requirementsCited: v.requirementIds.size }])),
-    supportFiles: cat.support.length, suites: cat.suites.length, components: cat.components.length, requirementCount: cat.requirementCount,
-    requirementsCitedBySomeSuite: new Set(cat.suites.flatMap(s => s.requirements)).size,
-    suitesCitingNoRequirement: cat.suites.filter(s => !s.requirements.length).length,
-    componentsCitingNoRequirement: cat.components.filter(c => !c.requirements.length).length,
-    requirementsCitedBySomeTest: new Set([...cat.suites, ...cat.components].flatMap(s => s.requirements)).size,
+    layers: Object.fromEntries(
+      Object.entries(perLayer).map(([k, v]) => [
+        k,
+        {
+          suites: v.suites,
+          components: v.components,
+          suitesCitingNoRequirement: v.citingNoRequirement,
+          requirementsCited: v.requirementIds.size,
+        },
+      ]),
+    ),
+    supportFiles: cat.support.length,
+    suites: cat.suites.length,
+    components: cat.components.length,
+    requirementCount: cat.requirementCount,
+    requirementsCitedBySomeSuite: new Set(cat.suites.flatMap((s) => s.requirements)).size,
+    suitesCitingNoRequirement: cat.suites.filter((s) => !s.requirements.length).length,
+    componentsCitingNoRequirement: cat.components.filter((c) => !c.requirements.length).length,
+    requirementsCitedBySomeTest: new Set([...cat.suites, ...cat.components].flatMap((s) => s.requirements))
+      .size,
   };
 }

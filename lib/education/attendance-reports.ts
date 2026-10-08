@@ -13,30 +13,72 @@ export const ATTENDANCE_REPORT_PUPIL_LIMIT = 100;
 export const ATTENDANCE_REPORT_DAY_LIMIT = 100;
 export const STUDENT_ATTENDANCE_RECORD_LIMIT = 200;
 
-export const attendanceRangeSchema = z.object({ from: attendanceEditorDateSchema.optional(), to: attendanceEditorDateSchema.optional() })
-  .superRefine((value, context) => { if (value.from && value.to && value.from > value.to) context.addIssue({ code: 'custom', message: 'The start date must not be after the end date' }); });
+export const attendanceRangeSchema = z
+  .object({ from: attendanceEditorDateSchema.optional(), to: attendanceEditorDateSchema.optional() })
+  .superRefine((value, context) => {
+    if (value.from && value.to && value.from > value.to)
+      context.addIssue({ code: 'custom', message: 'The start date must not be after the end date' });
+  });
 export type AttendanceRange = { from: string | null; to: string | null };
 
 export type StatusCounts = { present: number; absent: number; late: number; excused: number; other: number };
 export type ClassAttendanceReport = {
-  class: { id: string; name: string }; range: AttendanceRange; asOf: string;
-  rosterActive: number; invalidDateRows: number;
+  class: { id: string; name: string };
+  range: AttendanceRange;
+  asOf: string;
+  rosterActive: number;
+  invalidDateRows: number;
   totals: StatusCounts & { recordedRows: number };
   /** Only dates that have at least one saved row. Absence of a date means nothing was saved, not "no school". */
-  days: { items: (StatusCounts & { date: string; recordedRows: number; unmarkedCurrentPupils: number })[]; total: number; limit: number; truncated: boolean };
-  pupils: { items: (StatusCounts & { id: string; firstName: string; lastName: string; admissionNumber: string; currentActive: boolean; recordedRows: number })[];
-    total: number; limit: number; truncated: boolean };
+  days: {
+    items: (StatusCounts & { date: string; recordedRows: number; unmarkedCurrentPupils: number })[];
+    total: number;
+    limit: number;
+    truncated: boolean;
+  };
+  pupils: {
+    items: (StatusCounts & {
+      id: string;
+      firstName: string;
+      lastName: string;
+      admissionNumber: string;
+      currentActive: boolean;
+      recordedRows: number;
+    })[];
+    total: number;
+    limit: number;
+    truncated: boolean;
+  };
 };
 export type StudentAttendanceReport = {
-  role: Role; student: { id: string; firstName: string; lastName: string; admissionNumber: string };
-  range: AttendanceRange; asOf: string; invalidDateRows: number;
+  role: Role;
+  student: { id: string; firstName: string; lastName: string; admissionNumber: string };
+  range: AttendanceRange;
+  asOf: string;
+  invalidDateRows: number;
   totals: StatusCounts & { recordedRows: number };
   classes: (StatusCounts & { id: string; name: string; recordedRows: number })[];
-  records: { items: { id: string; classId: string; className: string; date: string; dateValid: boolean; status: string; note: string | null; recordedByName: string | null }[];
-    total: number; limit: number; truncated: boolean };
+  records: {
+    items: {
+      id: string;
+      classId: string;
+      className: string;
+      date: string;
+      dateValid: boolean;
+      status: string;
+      note: string | null;
+      recordedByName: string | null;
+    }[];
+    total: number;
+    limit: number;
+    truncated: boolean;
+  };
 };
 
-const validDate = (column: string) => sql.raw(`(length(${column}) = 10 and ${column} glob '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' and date(${column}, '+0 days') = ${column})`);
+const validDate = (column: string) =>
+  sql.raw(
+    `(length(${column}) = 10 and ${column} glob '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' and date(${column}, '+0 days') = ${column})`,
+  );
 function rangePredicate(column: string, range: AttendanceRange) {
   return sql`${range.from === null ? sql`1` : sql`${sql.raw(column)} >= ${range.from}`} and ${range.to === null ? sql`1` : sql`${sql.raw(column)} <= ${range.to}`}`;
 }
@@ -45,15 +87,21 @@ function parseRange(input: { from?: string; to?: string }): AttendanceRange {
   return { from: value.from ?? null, to: value.to ?? null };
 }
 // json_object key/value pairs for a status-count object, and the same counts as SELECT columns.
-const countPairs = (alias: string) => sql.raw(`'present', coalesce(sum(${alias}.status = 'present'), 0), 'absent', coalesce(sum(${alias}.status = 'absent'), 0),
+const countPairs = (alias: string) =>
+  sql.raw(`'present', coalesce(sum(${alias}.status = 'present'), 0), 'absent', coalesce(sum(${alias}.status = 'absent'), 0),
   'late', coalesce(sum(${alias}.status = 'late'), 0), 'excused', coalesce(sum(${alias}.status = 'excused'), 0),
   'other', coalesce(sum(${alias}.status not in ('present', 'absent', 'late', 'excused')), 0)`);
-const countColumns = (alias: string) => sql.raw(`coalesce(sum(${alias}.status = 'present'), 0) present, coalesce(sum(${alias}.status = 'absent'), 0) absent,
+const countColumns = (alias: string) =>
+  sql.raw(`coalesce(sum(${alias}.status = 'present'), 0) present, coalesce(sum(${alias}.status = 'absent'), 0) absent,
   coalesce(sum(${alias}.status = 'late'), 0) late, coalesce(sum(${alias}.status = 'excused'), 0) excused,
   coalesce(sum(${alias}.status not in ('present', 'absent', 'late', 'excused')), 0) other`);
 
 /** Staff only. A teacher must be currently assigned to the class; an administrator must be in its school. */
-export async function getClassAttendanceReport(principal: Principal, classId: string, input: { from?: string; to?: string }): Promise<ClassAttendanceReport | null> {
+export async function getClassAttendanceReport(
+  principal: Principal,
+  classId: string,
+  input: { from?: string; to?: string },
+): Promise<ClassAttendanceReport | null> {
   assertAcademicStaff(principal);
   const range = parseRange(input);
   const payload = sql<string>`(with pupils_in_school as (
@@ -93,8 +141,12 @@ export async function getClassAttendanceReport(principal: Principal, classId: st
           from (select * from shown_pupils order by first_name, last_name, id limit ${ATTENDANCE_REPORT_PUPIL_LIMIT}) p
           left join pupil_stats s on s.student_id = p.id), '[]'))))
     )`;
-  const [row] = await getDb().select({ payload }).from(classes).where(and(eq(classes.id, classId), academicClassWrite(principal, classId))).limit(1);
-  return row ? JSON.parse(row.payload) as ClassAttendanceReport : null;
+  const [row] = await getDb()
+    .select({ payload })
+    .from(classes)
+    .where(and(eq(classes.id, classId), academicClassWrite(principal, classId)))
+    .limit(1);
+  return row ? (JSON.parse(row.payload) as ClassAttendanceReport) : null;
 }
 
 /**
@@ -103,9 +155,14 @@ export async function getClassAttendanceReport(principal: Principal, classId: st
  * teacher never sees the same learner's rows from a class they do not teach and a family never
  * sees a class it is not currently linked to. Teacher notes and recorder names are staff-only.
  */
-export async function getStudentAttendanceReport(principal: Principal, studentId: string, input: { from?: string; to?: string }): Promise<StudentAttendanceReport | null> {
+export async function getStudentAttendanceReport(
+  principal: Principal,
+  studentId: string,
+  input: { from?: string; to?: string },
+): Promise<StudentAttendanceReport | null> {
   assertPrincipal(principal);
-  if (typeof studentId !== 'string' || !studentId || studentId.length > 120) throw new AccessError('Not found', 404);
+  if (typeof studentId !== 'string' || !studentId || studentId.length > 120)
+    throw new AccessError('Not found', 404);
   const range = parseRange(input);
   const staff = principal.role === 'admin' || principal.role === 'teacher' ? 1 : 0;
   const payload = sql<string>`(with permitted_class as materialized (
@@ -133,6 +190,10 @@ export async function getStudentAttendanceReport(principal: Principal, studentId
           'recordedByName', case when ${staff} = 1 then (select u.name from users u where u.id = r.recorded_by and u.school_id = ${principal.schoolId}) else null end))
           from (select * from shown order by date desc, class_name, id limit ${STUDENT_ATTENDANCE_RECORD_LIMIT}) r), '[]')))
     ))`;
-  const [row] = await getDb().select({ payload }).from(students).where(and(eq(students.id, studentId), studentScope(principal))).limit(1);
-  return row ? JSON.parse(row.payload) as StudentAttendanceReport : null;
+  const [row] = await getDb()
+    .select({ payload })
+    .from(students)
+    .where(and(eq(students.id, studentId), studentScope(principal)))
+    .limit(1);
+  return row ? (JSON.parse(row.payload) as StudentAttendanceReport) : null;
 }

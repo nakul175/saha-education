@@ -9,14 +9,22 @@ export const ATTENDANCE_SUMMARY_LIMIT = 100;
 export type AttendanceEvidence = {
   recordedRows: number;
   counts: { present: number; absent: number; late: number; excused: number; other: number };
-  firstDate: string | null; lastDate: string | null; invalidDateRows: number;
+  firstDate: string | null;
+  lastDate: string | null;
+  invalidDateRows: number;
 };
 export type AttendanceSummaryPupil = {
-  id: string; firstName: string; lastName: string; admissionNumber: string;
-  currentActive: boolean; attendance: AttendanceEvidence;
+  id: string;
+  firstName: string;
+  lastName: string;
+  admissionNumber: string;
+  currentActive: boolean;
+  attendance: AttendanceEvidence;
 };
 export type AttendanceSummary = {
-  role: Role; class: { id: string; name: string }; asOf: string;
+  role: Role;
+  class: { id: string; name: string };
+  asOf: string;
   pupils: { items: AttendanceSummaryPupil[]; total: number; limit: number; truncated: boolean };
 };
 
@@ -24,7 +32,10 @@ export type AttendanceSummary = {
  * Materializing the permitted class retains the same nested guards without
  * embedding them below every attendance-row predicate (D1 expression depth).
  */
-export async function getAttendanceSummary(principal: Principal, classId: string): Promise<AttendanceSummary | null> {
+export async function getAttendanceSummary(
+  principal: Principal,
+  classId: string,
+): Promise<AttendanceSummary | null> {
   assertPrincipal(principal);
   const payload = sql<string>`(with permitted_attendance_class as materialized (
       select classes.id from classes where classes.id = ${classId} and ${classScope(principal)}
@@ -65,6 +76,10 @@ export async function getAttendanceSummary(principal: Principal, classId: string
             'firstDate', s.first_date, 'lastDate', s.last_date, 'invalidDateRows', coalesce(s.invalid_date_rows, 0))))
           from (select * from pupils order by first_name, last_name, id limit ${ATTENDANCE_SUMMARY_LIMIT}) p
           left join stats s on s.student_id = p.id), '[]')))))`;
-  const [row] = await getDb().select({ payload }).from(classes).where(and(eq(classes.id, classId), classScope(principal))).limit(1);
-  return row ? JSON.parse(row.payload) as AttendanceSummary : null;
+  const [row] = await getDb()
+    .select({ payload })
+    .from(classes)
+    .where(and(eq(classes.id, classId), classScope(principal)))
+    .limit(1);
+  return row ? (JSON.parse(row.payload) as AttendanceSummary) : null;
 }

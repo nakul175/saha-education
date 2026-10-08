@@ -14,10 +14,25 @@ export const listClasses = () => requestJson<Class[]>('/api/classes');
 export const listStudents = () => requestJson<Student[]>('/api/students');
 export const listAssessments = () => requestJson<Assessment[]>('/api/assessments');
 export const listAttendance = (filter: { classId?: string }) =>
-  requestJson<{studentId: string; date: string; status: string}[]>('/api/attendance?' + new URLSearchParams(filter));
+  requestJson<{ studentId: string; date: string; status: string }[]>(
+    '/api/attendance?' + new URLSearchParams(filter),
+  );
 export const listReportCards = (studentId: string) =>
-  requestJson<ReportCard[]>('/api/report-cards?' + new URLSearchParams({studentId}));
-export const createReportCard = (input: {studentId: string; term: string; summary: string; overallGrade: string}) =>
-  requestJson<ReportCard>('/api/report-cards', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(input)});
+  requestJson<ReportCard[]>('/api/report-cards?' + new URLSearchParams({ studentId }));
+export const createReportCard = (input: {
+  studentId: string;
+  term: string;
+  summary: string;
+  overallGrade: string;
+}) =>
+  requestJson<ReportCard>('/api/report-cards', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
 export const publishReportCard = (id: string) =>
-  requestJson<ReportCard>('/api/report-cards/' + encodeURIComponent(id), {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({publish: true})});
+  requestJson<ReportCard>('/api/report-cards/' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ publish: true }),
+  });

@@ -10,42 +10,121 @@ import { assertAttendanceDateAllowed, readAttendanceCalendar } from './attendanc
 import type { Principal } from './types';
 
 const identifier = z.string().min(1).max(120);
-export const attendanceEditorDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(value => {
-  const parsed = Date.parse(value + 'T00:00:00.000Z');
-  return Number.isFinite(parsed) && new Date(parsed).toISOString().slice(0, 10) === value;
-}, 'A real YYYY-MM-DD calendar date is required');
-const recordSchema = z.object({
-  id: identifier, status: z.string().min(1).max(100), note: z.string().max(100000).nullable(),
-  recordedBy: identifier, createdAt: z.string().min(1).max(100), updatedAt: z.string().min(1).max(100),
-}).strict();
-export const attendanceReviewSchema = z.object({
-  date: attendanceEditorDateSchema, clientRequestId: z.string().uuid(), reviewConfirmed: z.literal(true),
-  reason: z.string().trim().refine(value => [...value].length >= 10 && [...value].length <= 500)
-    .refine(value => !/[\x00-\x1f\x7f]/.test(value)),
-  entries: z.array(z.object({ studentId: identifier, status: z.enum(['present', 'absent', 'late', 'excused']),
-    note: z.string().max(100000).nullable(), expectedRecord: recordSchema.nullable() }).strict()).min(1).max(100),
-}).strict().superRefine((value, context) => {
-  if (new Set(value.entries.map(entry => entry.studentId)).size !== value.entries.length) context.addIssue({ code: 'custom', message: 'Duplicate pupil' });
-  if (value.entries.some(entry => entry.expectedRecord && entry.status === entry.expectedRecord.status && entry.note === entry.expectedRecord.note)) context.addIssue({ code: 'custom', message: 'Only changed marks can be reviewed' });
-  if (value.entries.some(entry => entry.note !== null && [...entry.note].length > 2000 && entry.note !== entry.expectedRecord?.note)) context.addIssue({ code: 'custom', message: 'New or replacement notes are limited to 2000 characters' });
-});
+export const attendanceEditorDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/)
+  .refine((value) => {
+    const parsed = Date.parse(value + 'T00:00:00.000Z');
+    return Number.isFinite(parsed) && new Date(parsed).toISOString().slice(0, 10) === value;
+  }, 'A real YYYY-MM-DD calendar date is required');
+const recordSchema = z
+  .object({
+    id: identifier,
+    status: z.string().min(1).max(100),
+    note: z.string().max(100000).nullable(),
+    recordedBy: identifier,
+    createdAt: z.string().min(1).max(100),
+    updatedAt: z.string().min(1).max(100),
+  })
+  .strict();
+export const attendanceReviewSchema = z
+  .object({
+    date: attendanceEditorDateSchema,
+    clientRequestId: z.string().uuid(),
+    reviewConfirmed: z.literal(true),
+    reason: z
+      .string()
+      .trim()
+      .refine((value) => [...value].length >= 10 && [...value].length <= 500)
+      .refine((value) => !/[\x00-\x1f\x7f]/.test(value)),
+    entries: z
+      .array(
+        z
+          .object({
+            studentId: identifier,
+            status: z.enum(['present', 'absent', 'late', 'excused']),
+            note: z.string().max(100000).nullable(),
+            expectedRecord: recordSchema.nullable(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(100),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.entries.map((entry) => entry.studentId)).size !== value.entries.length)
+      context.addIssue({ code: 'custom', message: 'Duplicate pupil' });
+    if (
+      value.entries.some(
+        (entry) =>
+          entry.expectedRecord &&
+          entry.status === entry.expectedRecord.status &&
+          entry.note === entry.expectedRecord.note,
+      )
+    )
+      context.addIssue({ code: 'custom', message: 'Only changed marks can be reviewed' });
+    if (
+      value.entries.some(
+        (entry) =>
+          entry.note !== null && [...entry.note].length > 2000 && entry.note !== entry.expectedRecord?.note,
+      )
+    )
+      context.addIssue({
+        code: 'custom',
+        message: 'New or replacement notes are limited to 2000 characters',
+      });
+  });
 export type AttendanceRecordSnapshot = z.infer<typeof recordSchema>;
 export type AttendanceReviewInput = z.infer<typeof attendanceReviewSchema>;
-export type AttendanceEditorRow = { student: { id: string; firstName: string; lastName: string; admissionNumber: string };
-  record: AttendanceRecordSnapshot | null; enrolmentRows: number; needsReview: boolean };
-export type AttendanceEditorSnapshot = { class: { id: string; name: string }; date: string; asOf: string;
-  roster: { items: AttendanceEditorRow[]; total: number; limit: 100; truncated: boolean }; canReview: boolean };
-export type AttendanceReview = { id: string; classId: string; date: string; reviewedBy: string; reason: string; createdAt: string;
-  changes: { studentId: string; beforeRecord: AttendanceRecordSnapshot | null; afterRecord: AttendanceRecordSnapshot }[] };
+export type AttendanceEditorRow = {
+  student: { id: string; firstName: string; lastName: string; admissionNumber: string };
+  record: AttendanceRecordSnapshot | null;
+  enrolmentRows: number;
+  needsReview: boolean;
+};
+export type AttendanceEditorSnapshot = {
+  class: { id: string; name: string };
+  date: string;
+  asOf: string;
+  roster: { items: AttendanceEditorRow[]; total: number; limit: 100; truncated: boolean };
+  canReview: boolean;
+};
+export type AttendanceReview = {
+  id: string;
+  classId: string;
+  date: string;
+  reviewedBy: string;
+  reason: string;
+  createdAt: string;
+  changes: {
+    studentId: string;
+    beforeRecord: AttendanceRecordSnapshot | null;
+    afterRecord: AttendanceRecordSnapshot;
+  }[];
+};
 export type AttendanceReviewResult = { review: AttendanceReview; replayed: boolean };
-export type AttendanceReviewHistory = { items: AttendanceReview[]; total: number; limit: 100; truncated: boolean };
+export type AttendanceReviewHistory = {
+  items: AttendanceReview[];
+  total: number;
+  limit: 100;
+  truncated: boolean;
+};
 export class AttendanceReviewConflict extends AccessError {
-  constructor() { super('Attendance review conflict; reload and compare saved marks before a new review', 409); }
+  constructor() {
+    super('Attendance review conflict; reload and compare saved marks before a new review', 409);
+  }
 }
 
 const clock = sql`strftime('%Y-%m-%dT%H:%M:%fZ','now')`;
-export async function getAttendanceEditor(principal: Principal, classId: string, date: string): Promise<AttendanceEditorSnapshot> {
-  assertAcademicStaff(principal); identifier.parse(classId); attendanceEditorDateSchema.parse(date);
+export async function getAttendanceEditor(
+  principal: Principal,
+  classId: string,
+  date: string,
+): Promise<AttendanceEditorSnapshot> {
+  assertAcademicStaff(principal);
+  identifier.parse(classId);
+  attendanceEditorDateSchema.parse(date);
   const payload = sql<string>`(with pupils as (
     select distinct pupil.id,pupil.first_name,pupil.last_name,pupil.admission_number,
       (select count(*) from enrolments pair where pair.class_id=${classId} and pair.student_id=pupil.id) pair_rows
@@ -63,7 +142,11 @@ export async function getAttendanceEditor(principal: Principal, classId: string,
       from (select * from roster order by first_name,last_name,id limit 100) r)),
       'total',(select count(*) from roster),'limit',100,'truncated',json(case when (select count(*) from roster)>100 then 'true' else 'false' end)),
     'canReview',json(case when (select count(*) from roster) between 1 and 100 and not exists(select 1 from roster where pair_rows>1) then 'true' else 'false' end)))`;
-  const [row] = await getDb().select({ payload }).from(classes).where(and(eq(classes.id, classId), academicClassWrite(principal, classId))).limit(1);
+  const [row] = await getDb()
+    .select({ payload })
+    .from(classes)
+    .where(and(eq(classes.id, classId), academicClassWrite(principal, classId)))
+    .limit(1);
   if (!row) throw new AccessError('Class not found', 404);
   return JSON.parse(row.payload) as AttendanceEditorSnapshot;
 }
@@ -86,10 +169,27 @@ function reviewPayload(alias: string): SQL {
       'afterRecord',json(event.after_record))), '[]') from
       (select * from attendance_review_entries where review_id=${field('id')} order by student_id) event)))`;
 }
-async function retry(principal: Principal, classId: string, data: AttendanceReviewInput, hash: string): Promise<AttendanceReviewResult | null> {
-  const [row] = await getDb().select({ requestHash: attendanceReviews.requestHash, reviewedBy: attendanceReviews.reviewedBy,
-    payload: sql<string>`${reviewPayload('attendance_reviews')}` }).from(attendanceReviews).where(and(
-    eq(attendanceReviews.id, data.clientRequestId), eq(attendanceReviews.classId, classId), receiptScope(principal, 'attendance_reviews'))).limit(1);
+async function retry(
+  principal: Principal,
+  classId: string,
+  data: AttendanceReviewInput,
+  hash: string,
+): Promise<AttendanceReviewResult | null> {
+  const [row] = await getDb()
+    .select({
+      requestHash: attendanceReviews.requestHash,
+      reviewedBy: attendanceReviews.reviewedBy,
+      payload: sql<string>`${reviewPayload('attendance_reviews')}`,
+    })
+    .from(attendanceReviews)
+    .where(
+      and(
+        eq(attendanceReviews.id, data.clientRequestId),
+        eq(attendanceReviews.classId, classId),
+        receiptScope(principal, 'attendance_reviews'),
+      ),
+    )
+    .limit(1);
   if (!row) return null;
   if (row.reviewedBy !== principal.id || row.requestHash !== hash) throw new AttendanceReviewConflict();
   return { review: JSON.parse(row.payload) as AttendanceReview, replayed: true };
@@ -102,11 +202,27 @@ function recognizedConflict(error: unknown): boolean {
   }
   return false;
 }
-export async function reviewAttendance(principal: Principal, classId: string, input: AttendanceReviewInput): Promise<AttendanceReviewResult> {
-  assertAcademicStaff(principal); identifier.parse(classId);
+export async function reviewAttendance(
+  principal: Principal,
+  classId: string,
+  input: AttendanceReviewInput,
+): Promise<AttendanceReviewResult> {
+  assertAcademicStaff(principal);
+  identifier.parse(classId);
   const data = attendanceReviewSchema.parse(input);
-  const entries = [...data.entries].sort((a, b) => a.studentId < b.studentId ? -1 : a.studentId > b.studentId ? 1 : 0);
-  const hash = await digest(JSON.stringify({ actorId: principal.id, schoolId: principal.schoolId, classId, date: data.date, reason: data.reason, entries }));
+  const entries = [...data.entries].sort((a, b) =>
+    a.studentId < b.studentId ? -1 : a.studentId > b.studentId ? 1 : 0,
+  );
+  const hash = await digest(
+    JSON.stringify({
+      actorId: principal.id,
+      schoolId: principal.schoolId,
+      classId,
+      date: data.date,
+      reason: data.reason,
+      entries,
+    }),
+  );
   const snapshot = await getAttendanceEditor(principal, classId, data.date);
   const prior = await retry(principal, classId, data, hash);
   if (prior) return prior;
@@ -116,14 +232,23 @@ export async function reviewAttendance(principal: Principal, classId: string, in
   if (calendar) assertAttendanceDateAllowed(calendar, data.date);
   if (!snapshot.canReview) throw new AttendanceReviewConflict();
   const now = new Date().toISOString();
-  const payload = JSON.stringify(entries.map(entry => ({ ...entry, attendanceId: entry.expectedRecord?.id ?? crypto.randomUUID() })));
+  const payload = JSON.stringify(
+    entries.map((entry) => ({ ...entry, attendanceId: entry.expectedRecord?.id ?? crypto.randomUUID() })),
+  );
   let committed = false;
   try {
-    const rows = await getDb().insert(attendanceReviews).select(sql`select ${data.clientRequestId},${principal.schoolId},${classId},${data.date},
-      ${principal.id},${data.reason},${hash},${payload},${now} where ${academicClassWrite(principal, classId)}`)
-      .onConflictDoNothing({ target: attendanceReviews.id }).returning();
+    const rows = await getDb()
+      .insert(attendanceReviews)
+      .select(
+        sql`select ${data.clientRequestId},${principal.schoolId},${classId},${data.date},
+      ${principal.id},${data.reason},${hash},${payload},${now} where ${academicClassWrite(principal, classId)}`,
+      )
+      .onConflictDoNothing({ target: attendanceReviews.id })
+      .returning();
     committed = rows.length === 1;
-  } catch (error) { if (!recognizedConflict(error)) throw error; }
+  } catch (error) {
+    if (!recognizedConflict(error)) throw error;
+  }
   const outcome = await retry(principal, classId, data, hash);
   if (outcome) return { ...outcome, replayed: !committed };
   // Do not release a committed outcome after access changes during the readback.
@@ -131,10 +256,19 @@ export async function reviewAttendance(principal: Principal, classId: string, in
   throw new AttendanceReviewConflict();
 }
 
-export async function listAttendanceReviews(principal: Principal, classId: string, filter: { date: string; studentId?: string }): Promise<AttendanceReviewHistory> {
-  assertAcademicStaff(principal); identifier.parse(classId); attendanceEditorDateSchema.parse(filter.date);
+export async function listAttendanceReviews(
+  principal: Principal,
+  classId: string,
+  filter: { date: string; studentId?: string },
+): Promise<AttendanceReviewHistory> {
+  assertAcademicStaff(principal);
+  identifier.parse(classId);
+  attendanceEditorDateSchema.parse(filter.date);
   if (filter.studentId !== undefined) identifier.parse(filter.studentId);
-  const pupil = filter.studentId === undefined ? sql`1` : sql`exists(select 1 from attendance_review_entries selected
+  const pupil =
+    filter.studentId === undefined
+      ? sql`1`
+      : sql`exists(select 1 from attendance_review_entries selected
     where selected.review_id=receipt.id and selected.student_id=${filter.studentId})`;
   const payload = sql<string>`(with visible as (
     select receipt.* from attendance_reviews receipt where receipt.class_id=${classId} and receipt.attendance_date=${filter.date}
@@ -142,7 +276,11 @@ export async function listAttendanceReviews(principal: Principal, classId: strin
   ) select json_object('items',json((select coalesce(json_group_array(json(${reviewPayload('displayed')})),'[]')
     from (select * from visible order by created_at desc,id desc limit 100) displayed)),
     'total',(select count(*) from visible),'limit',100,'truncated',json(case when (select count(*) from visible)>100 then 'true' else 'false' end)))`;
-  const [row] = await getDb().select({ payload }).from(classes).where(and(eq(classes.id, classId), academicClassWrite(principal, classId))).limit(1);
+  const [row] = await getDb()
+    .select({ payload })
+    .from(classes)
+    .where(and(eq(classes.id, classId), academicClassWrite(principal, classId)))
+    .limit(1);
   if (!row) throw new AccessError('Class not found', 404);
   return JSON.parse(row.payload) as AttendanceReviewHistory;
 }

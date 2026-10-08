@@ -15,18 +15,34 @@ export function useSession(): SessionState & { reload: () => void } {
     try {
       const { body } = await lifecycleRequest<Principal>('/api/session');
       if (!mounted.current) return;
-      if (!body || typeof body.id !== 'string' || !body.id || !body.schoolId) { setState({ principal: null, status: 'denied' }); return; }
+      if (!body || typeof body.id !== 'string' || !body.id || !body.schoolId) {
+        setState({ principal: null, status: 'denied' });
+        return;
+      }
       setState({ principal: body, status: 'ready' });
     } catch (error) {
       if (!mounted.current) return;
-      setState({ principal: null, status: error instanceof LifecycleRequestError && [401, 403, 404].includes(error.status) ? 'denied' : 'error' });
+      setState({
+        principal: null,
+        status:
+          error instanceof LifecycleRequestError && [401, 403, 404].includes(error.status)
+            ? 'denied'
+            : 'error',
+      });
     }
   }, []);
   useEffect(() => {
     mounted.current = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
-    return () => { mounted.current = false; };
+    return () => {
+      mounted.current = false;
+    };
   }, [load]);
-  return { ...state, reload: () => { void load(); } };
+  return {
+    ...state,
+    reload: () => {
+      void load();
+    },
+  };
 }
