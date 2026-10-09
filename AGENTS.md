@@ -57,3 +57,5 @@ The initial GitHub source import is the complete Release 3 working tree. Earlier
 - Follow the existing code style and conventions
 - Write clear, maintainable code with appropriate type annotations
 - All documentation changes must pass verification scripts
+
+Full manual (map, naming, code patterns, gates, do and don't): [docs/current/ENGINEERING-GUIDE.md](docs/current/ENGINEERING-GUIDE.md).

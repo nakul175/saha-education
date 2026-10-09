@@ -10,3 +10,4 @@ Standing rules in one place:
 - Use synthetic data only. Real provider settings, paid AI and real recipients stay disabled until the owner provides and approves them.
 - The v2.12 designs contain unrun cases; executable checks do not imply business acceptance.
 - Historical handover notes (including the original Claude continuation handover) are in [docs/history/](docs/history/); they describe the state at the time they were written.
+- Engineering manual: [docs/current/ENGINEERING-GUIDE.md](docs/current/ENGINEERING-GUIDE.md).
