@@ -194,3 +194,5 @@ Test results are aggregated and reported with counts for each layer, showing pas
 - Reviewed account provisioning and status administration are implemented; role, identity, school and profile remapping remain pending
 
 Earlier timed continuation (5 October 2026): [authority/publication batch](docs/current/DEVELOPMENT-BATCH-2.md), [actual tested evidence](docs/current/DEVELOPMENT-BATCH-2-EXECUTION.json) and [four-hour progress](docs/current/FOUR-HOUR-DEVELOPMENT.md). The v2.3 design pack contained 35 tables/294 fields, 51 routes/84 handlers and 157 unrun designed cases; the current designed cases are the rows of [TEST-CASES.csv](docs/specification/TEST-CASES.csv). Source verification does not imply business acceptance or deployment.
+
+New to the repository? Start with [docs/current/ENGINEERING-GUIDE.md](docs/current/ENGINEERING-GUIDE.md).
